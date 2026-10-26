@@ -1,0 +1,45 @@
+{
+  "created_utc": "2026-10-26T09:35:15.016862+00:00",
+  "model": "deepseek-flash",
+  "elapsed_seconds": 7.41,
+  "cases": [
+    {
+      "case": "grounded_answer",
+      "run_id": "6036a092a7e34bfabea72fe22e897055",
+      "status": "completed",
+      "pass": true,
+      "answer": "错误 691 表示身份验证失败，可按以下步骤排查：\n\n1. 核对登录时使用的企业账号、密码和验证码是否正确 [C-3bef84778c7ff15d9c92fa70]\n2. 检查键盘大小写状态，并确认密码是否已过期 [C-3bef84778c7ff15d9c92fa70]\n3. 如果账号因连续登录失败被锁定，请使用企业官方自助解锁入口；如果无法解锁，再申请 access 类工单 [C-3bef84778c7ff15d9c92fa70][C-8814182b637b0a60adef2f13]\n4. 如果官方重置入口不可用，请记录错误提示和发生时间，并申请人工协助 [C-f010ce267c4c8da8159a7929]\n\n请注意：不要在工单或对话中提供密码、验证码或 API Key [C-3bef84778c7ff15d9c92fa70][C-8814182b637b0a60adef2f13]。\n\n如果按上述步骤处理后仍无法连接，请告诉我：错误是否持续出现、账号是否被锁定、密码是否刚修改过，我可以帮你准备工单草稿。"
+    },
+    {
+      "case": "missing_fields_no_write",
+      "run_id": "24d667d2f1e449818431b74e35466d56",
+      "status": "awaiting_input",
+      "pass": true,
+      "answer": "好的，创建工单需要以下信息，请补充：\n1. 问题标题（一句话概括）\n2. 具体故障描述（现象、报错信息、发生时间、已尝试的操作）\n3. 问题类别（software / network / access / hardware / other）\n4. 优先级（默认 normal，可指定 low 或 high）\n\n另外，如果是 IDE 无法启动，请一并提供 IDE 版本、操作系统版本、错误信息和最近安装的插件；如果是权限申请，请注明仓库名称、用途和期望权限级别。请勿提供密码、验证码或 API Key。"
+    },
+    {
+      "case": "confirmed_idempotent_ticket",
+      "run_id": "24d667d2f1e449818431b74e35466d56",
+      "status": "awaiting_confirmation",
+      "pass": true,
+      "ticket_id": "RD-23CFB3FF9AF8",
+      "draft": {
+        "category": "network",
+        "description": "Windows 11 上 VPN 客户端连接超时，普通网页访问正常；已重启客户端并切换网络，仍未解决。",
+        "priority": "normal",
+        "summary": "VPN 连接持续超时"
+      },
+      "error": null
+    }
+  ],
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "0.04152",
+    "available_cny": "17.95848",
+    "calls": {
+      "settled": 8
+    }
+  },
+  "all_passed": true
+}

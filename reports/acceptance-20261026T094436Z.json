@@ -1,0 +1,52 @@
+{
+  "created_utc": "2026-10-26T09:44:36.976539+00:00",
+  "scope": "ResolveDesk local single-process Python deployment; Docker explicitly skipped by user",
+  "automated_tests": {
+    "full_regression": {
+      "passed": 166,
+      "subtests": 14,
+      "warnings": 1,
+      "command": ".venv/Scripts/python.exe -X utf8 -B -m pytest -q"
+    },
+    "final_budget_summary_change": {
+      "passed": 17,
+      "subtests": 14,
+      "command": ".venv/Scripts/python.exe -X utf8 -B -m pytest tests/test_paid_api.py tests/test_paid_api_transport.py -q"
+    }
+  },
+  "real_model_smoke": "real-smoke-20261026T093515Z.json",
+  "retrieval_comparison": "retrieval-20261026T093315Z.json",
+  "browser_verification": [
+    "invalid token rejected",
+    "learner identity accepted",
+    "completed ticket restored after process restart"
+  ],
+  "browser_evidence": "workbench-completed-20261026.png",
+  "system": {
+    "retrieval": {
+      "embedding": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+      "backend": "sqlite-exact-cosine+bm25-rrf",
+      "chunks": 11
+    },
+    "embedding_error": null,
+    "budget": {
+      "budget_cny": "20",
+      "safety_reserve_cny": "2",
+      "conservative_commitment_cny": "0.04152",
+      "available_cny": "17.95848",
+      "calls": {
+        "settled": 8
+      },
+      "usage_input_tokens": 16048,
+      "usage_output_tokens": 1178,
+      "unresolved_reservation_cny": "0"
+    }
+  },
+  "limits": [
+    "Eight synthetic retrieval cases only; no general superiority claim",
+    "No Docker build or container runtime validation",
+    "No production SSO, external ticket platform, load test or failover",
+    "Source existence and permission checks do not prove factual entailment"
+  ],
+  "cleanup": "13 verified synthetic budget-test directories removed; history and persistent records retained"
+}

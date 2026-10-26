@@ -1,0 +1,74 @@
+{
+  "created_utc": "2026-10-26T11:48:40.395593+00:00",
+  "scope": "Integrated ResolveDesk local Python + Vue; Docker skipped",
+  "automated_tests": {
+    "backend": {
+      "passed": 176,
+      "subtests": 14,
+      "warnings": 1
+    },
+    "frontend": {
+      "passed": 20
+    },
+    "vue_production_build": "passed"
+  },
+  "real_model_report": "integrated-real-20261026T113225Z.json",
+  "ticket_flow_report": "real-smoke-20261026T112547Z.json",
+  "browser": {
+    "confirmed_ticket": "RD-6F63C8C2A610",
+    "run_id": "474f8a88f3a140d69ae708af81301cdf",
+    "mcp_tool_run": "9dc0697e42174eecbfc5e0b5d4fb712a",
+    "screenshots": [
+      "vue-evaluation-20261026.png"
+    ]
+  },
+  "feedback_regression": {
+    "job_id": "fbf8d1ddf7ab4013ab22a1b6ed9942bc",
+    "cases": 9,
+    "passed": 9,
+    "reviewed_document": "software",
+    "reviewed_section": "IDE 无法启动",
+    "test_fixture": true
+  },
+  "evaluation_restart_persistence": true,
+  "unpublished_paths": {
+    "/history": 404,
+    "/frontend/src/App.vue": 404,
+    "/data/auth.json": 404,
+    "/.env": 404,
+    "/assets/history": 404
+  },
+  "system": {
+    "retrieval": {
+      "embedding": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+      "backend": "sqlite-exact-cosine+bm25-rrf",
+      "chunks": 11
+    },
+    "embedding_error": null,
+    "budget": {
+      "budget_cny": "20",
+      "safety_reserve_cny": "2",
+      "conservative_commitment_cny": "0.306006",
+      "available_cny": "17.693994",
+      "calls": {
+        "settled": 71
+      },
+      "usage_input_tokens": 121955,
+      "usage_output_tokens": 7762,
+      "unresolved_reservation_cny": "0"
+    },
+    "capabilities": {
+      "skills": true,
+      "memory": true,
+      "routing": true,
+      "streaming": true,
+      "step_checkpoints": true
+    }
+  },
+  "limits": [
+    "Local demo data and small retrieval set only",
+    "No external ticket platform or SSO",
+    "No Docker build or production load/failover tests",
+    "Only whitelisted read-only MCP tools; business writes require approval"
+  ]
+}

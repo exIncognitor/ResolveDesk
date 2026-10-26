@@ -1,0 +1,48 @@
+{
+  "created_utc": "2026-10-26T11:25:47.429587+00:00",
+  "model": "deepseek-flash",
+  "elapsed_seconds": 19.02,
+  "cases": [
+    {
+      "case": "grounded_answer",
+      "run_id": "34ed33d38d3b40d99e35f234b311fba1",
+      "status": "completed",
+      "pass": true,
+      "answer": "错误 691 表示**身份验证失败**，属于认证环节的问题，不是网络不通。建议按以下顺序排查：\n\n**1. 核对凭据本身**\n- 确认企业账号、密码、验证码输入正确，注意键盘大小写状态（Caps Lock）[C-3bef84778c7ff15d9c92fa70]\n- 确认密码是否已过期 [C-3bef84778c7ff15d9c92fa70]\n\n**2. 判断是否账号被锁定**\n- 如果连续多次失败，可能是账号被锁定；请通过企业官方自助解锁入口处理 [C-8814182b637b0a60adef2f13]\n- 自助解锁不可用时，再申请 access 类工单 [C-3bef84778c7ff15d9c92fa70]\n\n**3. 安全提醒**\n- 请不要在工单或对话中提供密码、验证码、API Key [C-3bef84778c7ff15d9c92fa70][C-8814182b637b0a60adef2f13]\n\n**验证方式**：用正确凭据重新连接，若不再报 691 即已解决；若仍失败，请记录报错时间、客户端版本和错误码 [C-428c41317e890086604273d7]。\n\n如果确认密码正确且账号未锁定，仍持续报 691，请告诉我：报错发生时间、是否每次必现、VPN 客户端版本，以及是否刚改过密码或换过网络环境，我再帮你缩小范围。需要的话我也可以先准备一份 access 类工单草稿。"
+    },
+    {
+      "case": "missing_fields_no_write",
+      "run_id": "c651585465a94e7c9e0e7669fe1837db",
+      "status": "awaiting_input",
+      "pass": true,
+      "answer": "好的，我可以先为你准备工单草稿（草稿需你核对确认后才会生成工单号）。请补充以下信息：\n\n1. 问题标题（一句话概括）\n2. 具体故障描述：现象、报错信息、发生时间、是否必现\n3. 问题类别：software（软件/开发工具）、network（网络/VPN）、access（账号与权限）、hardware（硬件）、other\n4. 优先级：low / normal（默认）/ high\n5. 涉及的系统或设备（如 IDE 版本、操作系统版本、VPN 客户端版本等，按实际情况提供）\n\n另外提醒：请不要在工单中填写密码、验证码或 API Key 等敏感信息 [C-8814182b637b0a60adef2f13]。"
+    },
+    {
+      "case": "confirmed_idempotent_ticket",
+      "run_id": "c651585465a94e7c9e0e7669fe1837db",
+      "status": "awaiting_confirmation",
+      "pass": true,
+      "ticket_id": "RD-64411DC3211D",
+      "draft": {
+        "category": "network",
+        "description": "Windows 11 上 VPN 客户端连接超时；普通网页可正常访问；已重启客户端并切换网络，问题仍未解决。",
+        "priority": "normal",
+        "summary": "VPN 连接持续超时"
+      },
+      "error": null
+    }
+  ],
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "0.084082",
+    "available_cny": "17.915918",
+    "calls": {
+      "settled": 23
+    },
+    "usage_input_tokens": 33405,
+    "usage_output_tokens": 2159,
+    "unresolved_reservation_cny": "0"
+  },
+  "all_passed": true
+}

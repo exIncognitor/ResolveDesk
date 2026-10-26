@@ -1,0 +1,209 @@
+{
+  "created_utc": "2026-10-26T11:32:25.124749+00:00",
+  "model": "deepseek-flash",
+  "cases": [
+    {
+      "case": "summary_profile_episode",
+      "seeded_transcript": true,
+      "run_id": "df8bc318e8844a148d879f1e276a6384",
+      "pass": true,
+      "memory": {
+        "profile": {
+          "ide": "IntelliJ",
+          "os": "Windows 11"
+        },
+        "episodes": 2,
+        "summaries": 1
+      }
+    },
+    {
+      "case": "cross_run_memory_and_stream",
+      "run_id": "d38711469c514cc7abff0653c97db1e3",
+      "pass": true,
+      "context_events": [
+        {
+          "history_recalled": 2,
+          "profile_fields": [
+            "ide",
+            "os"
+          ],
+          "skills_injected": false,
+          "summary_used": false
+        }
+      ],
+      "answer": "你之前使用的是 **IntelliJ**（Windows 11 环境）。\n\nVPN 连接超时建议检查/记录的信息 [C-428c41317e890086604273d7]：\n\n1. **先确认基础网络**：普通网页能否正常访问；再切换网络（如手机热点）后重连 VPN。\n2. **记录报错时间**：超时发生的具体时间点。\n3. **记录客户端版本**：VPN 客户端版本号。\n4. **记录错误码**：界面提示的错误码。\n5. **记录已尝试步骤**：便于判断是偶发还是稳定复现。\n6. **安全提醒**：不要关闭系统防火墙，也不要安装来源不明的证书。\n\n若持续超时，可整理故障描述和已尝试步骤，按 network 类工单交人工处理 [C-428c41317e890086604273d7]。以上为演示知识库内容，不代表真实企业制度或服务承诺。"
+    },
+    {
+      "case": "parallel_specialist_agents",
+      "run_id": "ee47cbbb92554f4a97d1d1b114da418a",
+      "pass": true,
+      "routing": [
+        {
+          "confidence": 0.65,
+          "intent": "other",
+          "mission": "快速回答基础问题，澄清不完整需求，并识别是否需要专业 Agent 或人工处理。",
+          "primary": "general",
+          "reason": "intent=other, group=other, primary=general, supporting=technical, billing, scores=[general=0.65, technical=0.56, billing=0.45]",
+          "specialist_opinions": [
+            {
+              "answer": "知识库检索工具当前不可用（返回“RAG 工具未初始化”），因此我无法引用知识库条目。以下是基于通用原则的边界说明，不含任何已执行的操作。\n\n## 一、技术排查（401 登录报错）—— 可自行排查的部分\n\n401 表示**认证未通过**，属于凭据/令牌环节，不是网络不通。可自行确认：\n\n1. **凭据本身**：账号、密码、验证码是否正确，注意 Caps Lock 与密码是否过期。\n2. **令牌状态**：API 调用场景下，检查 token 是否过期、是否被吊销、请求头格式（如 `Authorization: Bearer`）是否正确。\n3. **账号是否被锁定**：连续失败可能触发锁定，走企业官方自助解锁入口。\n4. **安全红线**：不要在对话或工单中提供密码、验证码、API Key、完整 token。\n\n**边界**：我只能给排查方向，**无法查询你的账号状态、令牌记录或登录日志**，也无法代为解锁或重置。\n\n## 二、账单核验（重复扣款）—— 需人工核验的部分\n\n**边界说明（重要）**：\n- 我**没有**账单、支付或订阅系统的查询权限，**无法确认是否真的重复扣款**，也**不会**执行任何退款、撤销或修改订阅的操作。\n- 重复扣款涉及资金，属于必须转人工核验的范围。\n\n如需推进，请准备以下信息（**不要提供卡号、CVV、完整支付凭证**）：\n- 订阅/订单编号\n- 扣款发生的时间与金额（两笔分别的时间）\n- 支付方式类型（如对公转账/信用卡，无需卡号）\n- 是否近期变更过套餐或续费周期\n\n## 三、下一步建议\n\n| 事项 | 处理方式 |\n|---|---|\n| 401 排查 | 按上述 4 点自查；仍失败请记录报错时间、客户端/接口版本、请求 ID |\n| 重复扣款 | **建议转接账单/财务专业客服**核验，我无法代为查询或退款 |\n| 工单 | 按你的要求，**我不会创建任何工单**；如需建单请明确告知 |\n\n需要我帮你整理一份「401 排查信息清单 + 账单核验所需字段」的文本，供你转交人工客服吗？",
+              "role": "general",
+              "success": true
+            },
+            {
+              "answer": "知识库检索工具当前不可用（返回“RAG 工具未初始化”），因此下面关于账单核验的部分，我只能依据通用流程说明边界，**无法引用知识库条款**，具体政策需要人工核验。错误码 401 的解释来自错误码查询工具，未读取任何服务端日志。\n\n---\n\n## 一、现象复述\n\n两个问题同时出现：\n1. 登录接口返回 **401**（认证失败）\n2. 订阅出现**重复扣款**\n\n两者是否相关目前无法判断，需要分开处理。\n\n---\n\n## 二、技术排查：401（我可以给出排查方向，但不能查日志）\n\n**可能原因**（按优先级）：\n- Token / API Key 过期或失效\n- 请求签名或时间戳不正确（签名过期、时钟偏差）\n- 账号登录态失效（改密码、被踢下线、账号锁定）\n- 请求头缺失或格式错误（如 `Authorization` 前缀不对）\n- 调用了错误环境的凭据（测试 Key 打生产环境）\n\n**编号排查步骤**：\n1. 确认 401 是**稳定复现**还是偶发——每次请求都 401，还是隔一段时间才出现（后者更像 Token 过期）。\n2. 检查 Token 有效期与签发时间，确认是否已过期。\n3. 检查签名逻辑：时间戳是否在允许窗口内、本机时钟是否准确。\n4. 确认请求头格式：`Authorization: Bearer <token>` 是否完整、有无多余空格或换行。\n5. 确认使用的是**当前环境对应**的凭据（测试/生产是否混用）。\n6. 若近期改过密码或重新授权，需重新获取 Token 后再试。\n\n**验证方式**：用最小请求（curl 或 Postman）单独打登录接口，看是否仍 401；若最小请求成功，问题在业务代码的请求构造环节。\n\n**需要补充的信息**：接口路径、请求方法、发生时间、`request_id`、响应体摘要、Token 是否刚更新过、是否最近改过密码或换过环境。**请勿提供完整 Token 或密钥**，只需说明前后几位或是否过期。\n\n---\n\n## 三、账单核验：边界说明（我不能执行任何操作）\n\n**我能做的**：\n- 帮你梳理需要核验的字段清单，便于你自行比对或提交给账单团队\n- 解释重复扣款常见的成因类型（如重复提交、订阅周期重叠、多账号/多支付方式绑定、重试导致重复扣费）\n\n**我不能做的**（明确边界）：\n- ❌ 不能查询你的订单、账单或支付记录（无此工具权限）\n- ❌ 不能执行退款、冲正、取消订阅\n- ❌ 不能创建工单\n- ❌ 不能确认“是否真的重复扣款”——这需要账单系统数据核验\n\n**建议你准备的核验信息**：\n1. 两笔扣款的**时间、金额、币种、交易号/流水",
+              "role": "technical",
+              "success": true
+            },
+            {
+              "answer": "知识库检索工具当前不可用（返回“RAG 工具未初始化”），因此我无法引用知识库条目来支撑 401 的技术排查细节。下面我把能确定的部分和需要核验的部分分开说明。\n\n## 一、技术排查（401 登录报错）\n\n**当前可判断内容**\n- 401 属于**认证/授权失败**，不是网络不通或服务不可达。方向应放在凭据与令牌环节，而不是网络诊断。\n- 常见方向：账号或密码错误、令牌过期/失效、请求头缺少或格式错误的 Authorization、API Key 无效、账号被锁定。\n\n**需要你补充的信息**\n- 报错发生的具体时间、是否每次必现\n- 调用方式（浏览器登录 / 客户端 / 接口调用）与客户端版本\n- 是否刚改过密码、换过环境或轮换过密钥\n- 报错响应体中的提示文案（**不要提供密码、验证码、API Key 或完整令牌**）\n\n**边界说明**\n- 本次知识库检索失败，我**不能**给出带引用的标准排查步骤，也不能声称已查询过系统日志。以上仅为通用方向，需以知识库或人工核实为准。\n- 我不创建工单，也不执行任何系统操作。\n\n## 二、账单核验（订阅重复扣款）\n\n**字段检查结果**（工具仅做字段完整性检查，不连接订单或支付系统）\n\n| 字段 | 状态 |\n|---|---|\n| 订单号/交易号 | 缺失 |\n| 金额 | 缺失 |\n| 支付时间 | 缺失 |\n| 支付渠道 | 缺失 |\n\n**当前可判断内容**\n- 目前**无法确认**是否存在重复扣款，也无法确认任何退款结果。字段不全，不具备核验条件。\n- 需要区分：订单金额、优惠抵扣、实付金额、退款金额——退款以实际支付金额和平台规则为准，不是订单原价。\n\n**需要你提供**\n1. 两笔扣款各自的**交易号/订单号**\n2. 两笔的**金额与币种**\n3. 两笔的**支付时间**\n4. **支付渠道**（微信 / 支付宝 / 银行卡 / 企业转账 / 余额）\n5. 是否使用过优惠券或余额\n\n**下一步处理路径**\n- 若两笔金额与时间**非常接近**：属于疑似重复扣款，需转人工/财务核实流水，**不能自动退回**。\n- 若两笔金额或时间**明显不同**：可能对应不同订单或不同订阅周期，需先核对订单归属。\n- 实际退款、账单调整、补偿均需**人工审核**，我不承诺退款成功或到账时间。\n\n## 三、时效与安全边界\n- 退款到账时间以支付渠道实际处理为准，通常原路退回，具体时长需核实后确认。\n- 请保留支付凭证截图；**不要**提供支付密码、短信验证码、完整银行卡号或身份证照片。\n-",
+              "role": "billing",
+              "success": true
+            }
+          ],
+          "supporting": [
+            "technical",
+            "billing"
+          ],
+          "workflow": [
+            "复述诉求",
+            "判断业务范围",
+            "直接回答或补充必要信息",
+            "给出下一步"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "model_calls_standard_mcp",
+      "run_id": "7e9fb3a91dd34fe5a50a22c65d6a3110",
+      "pass": true,
+      "tool_results": [
+        {
+          "name": "mcp_support_support_checklist",
+          "source": "mcp",
+          "success": true
+        }
+      ]
+    },
+    {
+      "case": "persistent_retrieval_evaluation",
+      "job_id": "50825262990349c6a74534974df8fc45",
+      "pass": true,
+      "result": {
+        "avg_scores": {
+          "hit_at_1": 1.0,
+          "mrr_at_5": 1.0,
+          "recall_at_5": 1.0
+        },
+        "evaluation_errors": 0,
+        "kind": "retrieval_and_reviewed_regression",
+        "pass_rate": 1.0,
+        "passed": 8,
+        "recommendations": [
+          "小样本不能证明生产效果。",
+          "负反馈需人工指定期望文档和章节后才进入回归集。"
+        ],
+        "regression_note": "固定示例题与人工审核的负反馈案例；不包含 LLM Judge 或生产质量评分。",
+        "regressions": [],
+        "results": [
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "VPN 提示错误 691 怎么办",
+            "rank": 1,
+            "test_id": "vpn691"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "VPN 一直连不上，连接超时如何诊断",
+            "rank": 1,
+            "test_id": "vpn-timeout"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "多次输错密码账号锁定了",
+            "rank": 1,
+            "test_id": "account-lock"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "申请 Git 仓库访问权限需要提供什么",
+            "rank": 1,
+            "test_id": "repo-access"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "官方密码重置页面不可用",
+            "rank": 1,
+            "test_id": "reset"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "Python pip 安装依赖失败如何排查",
+            "rank": 1,
+            "test_id": "python-pip"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "IDE 启动崩溃要收集哪些信息",
+            "rank": 1,
+            "test_id": "ide"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "创建工单需要哪些字段，提交前要确认吗",
+            "rank": 1,
+            "test_id": "ticket-fields"
+          }
+        ],
+        "status": "complete",
+        "total": 8,
+        "valid_total": 8
+      }
+    }
+  ],
+  "all_passed": true,
+  "system": {
+    "retrieval": {
+      "embedding": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+      "backend": "sqlite-exact-cosine+bm25-rrf",
+      "chunks": 11
+    },
+    "embedding_error": null,
+    "budget": {
+      "budget_cny": "20",
+      "safety_reserve_cny": "2",
+      "conservative_commitment_cny": "0.291794",
+      "available_cny": "17.708206",
+      "calls": {
+        "settled": 67
+      },
+      "usage_input_tokens": 115669,
+      "usage_output_tokens": 7557,
+      "unresolved_reservation_cny": "0"
+    },
+    "capabilities": {
+      "skills": true,
+      "memory": true,
+      "routing": true,
+      "streaming": true,
+      "step_checkpoints": true
+    }
+  }
+}

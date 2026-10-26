@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ResolveDesk 本地工作台</title>
+<style>
+*{box-sizing:border-box}body{font:16px/1.6 system-ui,sans-serif;margin:0;background:#f3f6f9;color:#1b2938}main{max-width:900px;margin:36px auto;padding:0 20px}h1{margin-bottom:4px}p{margin-top:4px;color:#526578}section{background:white;border:1px solid #d9e1ea;border-radius:12px;padding:22px;margin:18px 0}input,textarea,button{font:inherit}input,textarea{width:100%;padding:10px;border:1px solid #bac7d5;border-radius:6px;margin:6px 0 12px}button{background:#185c9c;color:white;border:0;border-radius:6px;padding:9px 16px;margin:4px 6px 4px 0;cursor:pointer}button:disabled{opacity:.45;cursor:default}.secondary{background:#526578}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f6f8fb;padding:14px;border-radius:6px}#answer{white-space:pre-wrap}label{font-weight:600}.muted{font-size:14px;color:#526578}a{color:#185c9c}
+</style>
+<main><h1>ResolveDesk</h1><p>内部 IT 支持 · 知识查询 · 确认后创建工单</p>
+<section><label for="token">本地访问令牌</label><input id="token" type="password" autocomplete="off" placeholder="从 .codex-runtime/access.json 复制 learner 的 token"><button id="connect">验证身份</button><span id="identity" class="muted"></span><p class="muted">令牌只保留在当前页面内存中。请勿粘贴 DeepSeek API Key。</p></section>
+<section><label for="message">描述你的问题</label><textarea id="message" rows="4" placeholder="例如：VPN 连接出现错误 691，应该怎么排查？"></textarea><button id="send">开始处理</button><button id="reply" class="secondary" disabled>补充信息 / 修改草稿</button><p id="state" aria-live="polite"></p><div id="answer"></div><pre id="draft" hidden></pre><button id="confirm" hidden>确认以上草稿并创建工单</button><button id="pause" class="secondary" hidden>暂停处理</button><button id="resume" class="secondary" hidden>恢复处理</button><p id="ticket"></p><div id="citations"></div></section>
+<section><label for="restore">恢复已有任务</label><input id="restore" placeholder="粘贴任务 ID"><button id="load" class="secondary">查看任务</button><p class="muted">暂停、退出浏览器或重启服务后，可用同一身份与任务 ID 恢复。重启前正在处理的任务会暂停，恢复需要明确操作。</p><details><summary>处理记录</summary><pre id="events"></pre></details><button id="good" class="secondary" disabled>有帮助</button><button id="bad" class="secondary" disabled>需改进</button></section>
+<p class="muted">这是本地学习演示，知识库为示例数据。<a href="/docs">API 文档</a></p></main>
+<script>
+const $=id=>document.getElementById(id);let run=null,poll=null,seen=new Set();
+async function api(path,method='GET',body){const r=await fetch(path,{method,headers:{Authorization:'Bearer '+$('token').value,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const d=await r.json();if(!r.ok)throw Error(typeof d.detail==='string'?d.detail:JSON.stringify(d.detail));return d}
+function fail(e){$('state').textContent='操作失败：'+e.message}
+const statuses={queued:'等待处理',running:'正在处理',awaiting_input:'等待补充信息',awaiting_confirmation:'等待确认草稿',completed:'本轮处理完成',paused:'已暂停',failed:'处理未完成，可重试'};
+async function show(r){run=r;$('restore').value=r.id;$('state').textContent='任务 '+r.id+' · '+(statuses[r.status]||r.status);$('answer').textContent=r.answer||'正在检索与处理…';$('draft').hidden=!r.draft;$('draft').textContent=r.draft?JSON.stringify(r.draft,null,2):'';$('confirm').hidden=r.status!=='awaiting_confirmation';$('reply').disabled=!['awaiting_input','awaiting_confirmation','completed'].includes(r.status)||!!r.ticket_id;$('pause').hidden=!['queued','running'].includes(r.status);$('resume').hidden=!['paused','failed'].includes(r.status);$('good').disabled=$('bad').disabled=false;$('ticket').textContent=r.ticket_id?'工单号：'+r.ticket_id:'';
+const raw=await fetch('/runs/'+r.id+'/events?follow=false',{headers:{Authorization:'Bearer '+$('token').value}}).then(x=>x.text());$('events').textContent=raw;
+for(const m of (r.answer||'').matchAll(/\[(C-[a-f0-9]{24})\]/g)){if(seen.has(m[1]))continue;seen.add(m[1]);const b=document.createElement('button');b.className='secondary';b.textContent='查看来源 '+m[1].slice(0,10);b.onclick=async()=>{try{const c=await api('/knowledge/citations/'+m[1]);const pre=document.createElement('pre');pre.textContent=c.title+' · '+c.section+' · 版本 '+c.version+'\n'+c.content;$('citations').append(pre)}catch(e){fail(e)}};$('citations').append(b)}
+if(poll)clearTimeout(poll);if(['queued','running'].includes(r.status))poll=setTimeout(refresh,800)}
+async function refresh(){try{await show(await api('/runs/'+run.id))}catch(e){fail(e)}}
+function action(id,fn){$(id).onclick=async()=>{const b=$(id);b.disabled=true;try{await fn()}catch(e){fail(e)}finally{b.disabled=id==='reply'?(!run||!['awaiting_input','awaiting_confirmation','completed'].includes(run.status)||!!run.ticket_id):false}}}
+action('connect',async()=>{const me=await api('/me');$('identity').textContent=me.tenant+' / '+me.user+' / '+me.role});
+action('send',async()=>{seen.clear();$('citations').replaceChildren();await show(await api('/runs','POST',{message:$('message').value,request_key:crypto.randomUUID()}))});
+action('reply',async()=>show(await api('/runs/'+run.id+'/reply','POST',{message:$('message').value})));
+action('confirm',async()=>{await api('/runs/'+run.id+'/confirm','POST',{approval:run.approval});await refresh()});
+action('pause',async()=>show(await api('/runs/'+run.id+'/pause','POST')));
+action('resume',async()=>show(await api('/runs/'+run.id+'/resume','POST')));
+action('load',async()=>{seen.clear();$('citations').replaceChildren();await show(await api('/runs/'+$('restore').value.trim()))});
+for(const [id,rating]of[['good','good'],['bad','bad']])action(id,async()=>{await api('/runs/'+run.id+'/feedback','POST',{rating,note:''});$('state').textContent+=' · 已保存反馈'});
+</script></html>

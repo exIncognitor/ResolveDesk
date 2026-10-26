@@ -1,0 +1,10 @@
+[
+  {"id":"vpn691", "query":"VPN 提示错误 691 怎么办", "document":"vpn", "section":"错误 691"},
+  {"id":"vpn-timeout", "query":"VPN 一直连不上，连接超时如何诊断", "document":"vpn", "section":"连接超时"},
+  {"id":"account-lock", "query":"多次输错密码账号锁定了", "document":"access", "section":"账号锁定"},
+  {"id":"repo-access", "query":"申请 Git 仓库访问权限需要提供什么", "document":"access", "section":"仓库权限"},
+  {"id":"reset", "query":"官方密码重置页面不可用", "document":"access", "section":"无法重置密码"},
+  {"id":"python-pip", "query":"Python pip 安装依赖失败如何排查", "document":"software", "section":"Python 安装依赖失败"},
+  {"id":"ide", "query":"IDE 启动崩溃要收集哪些信息", "document":"software", "section":"IDE 无法启动"},
+  {"id":"ticket-fields", "query":"创建工单需要哪些字段，提交前要确认吗", "document":"software", "section":"创建工单所需信息"}
+]

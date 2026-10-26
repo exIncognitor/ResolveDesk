@@ -1,0 +1,79 @@
+{
+  "created_utc": "2026-10-26T11:54:19.903671+00:00",
+  "status": "local_integration_verified",
+  "scope": "ResolveDesk Python + Vue; Docker omitted by request",
+  "tests": {
+    "backend_passed": 176,
+    "backend_subtests": 14,
+    "frontend_passed": 20,
+    "build": "passed"
+  },
+  "evidence": [
+    "final-acceptance-20261026T114840Z.json",
+    "integrated-real-20261026T113225Z.json",
+    "real-smoke-20261026T112547Z.json",
+    "vue-ticket-final-20261026.png",
+    "vue-evaluation-20261026.png"
+  ],
+  "branding": {
+    "current_text_files_checked_before_cleanup": 101,
+    "legacy_name_matches": 0,
+    "scope": "current project text and environment names; history, original archive outside working project, dependencies, reports and secret values excluded"
+  },
+  "cleanup": {
+    "synthetic_budget_test_directories_removed": 10,
+    "stale_frontend_assets_removed": 4,
+    "manifest": "cleanup-plan-20261026T115057Z.json",
+    "history_and_persistent_data": "retained"
+  },
+  "capabilities": {
+    "skills": true,
+    "memory": true,
+    "routing": true,
+    "streaming": true,
+    "step_checkpoints": true
+  },
+  "mcp": {
+    "servers": [
+      {
+        "name": "support",
+        "transport": "stdio",
+        "state": "connected",
+        "protocol_version": "2025-11-25",
+        "error": null,
+        "agents": [
+          "general",
+          "technical",
+          "billing",
+          "escalation"
+        ],
+        "tools": [
+          {
+            "name": "mcp_support_support_checklist",
+            "remote_name": "support_checklist"
+          }
+        ]
+      }
+    ]
+  },
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "0.306006",
+    "available_cny": "17.693994",
+    "calls": {
+      "settled": 71
+    },
+    "usage_input_tokens": 121955,
+    "usage_output_tokens": 7762,
+    "unresolved_reservation_cny": "0"
+  },
+  "runtime": "http://127.0.0.1:8080",
+  "readme": "README.md",
+  "remaining_out_of_scope": [
+    "Docker build/runtime",
+    "Production SSO and external ticketing platform",
+    "Large-scale quality, concurrency and failover validation",
+    "Dedicated reranker comparison"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "created_utc": "2026-10-26T09:33:23.683730+00:00",
+  "model": "deepseek-flash",
+  "elapsed_seconds": 9.25,
+  "cases": [
+    {
+      "case": "grounded_answer",
+      "run_id": "1b7b7d09d79d48ecaadf562b384a538f",
+      "status": "completed",
+      "pass": true,
+      "answer": "错误 691 表示身份验证失败，可按以下步骤排查：\n\n1. **核对凭据**：先核对企业账号、密码和验证码，确认键盘大小写状态，并检查密码是否已过期 [C-3bef84778c7ff15d9c92fa70]。\n2. **注意保密**：不要在工单或对话中提供密码、验证码 [C-3bef84778c7ff15d9c92fa70]。\n3. **账号被锁定**：若因连续登录失败导致账号锁定，请通过企业规定的自助解锁渠道处理；无法解锁时再申请 access 类工单 [C-3bef84778c7ff15d9c92fa70][C-8814182b637b0a60adef2f13]。\n4. **密码重置入口不可用**：记录错误提示和发生时间，申请人工协助；客服不会索要旧密码或一次性验证码 [C-f010ce267c4c8da8159a7929]。\n\n如果确认账号密码无误、账号也未锁定，但错误 691 仍然出现，请告诉我报错时间、VPN 客户端版本和已尝试的步骤，我可以帮你准备工单草稿，交由人工处理。"
+    },
+    {
+      "case": "missing_fields_no_write",
+      "run_id": "fe4f26b8646641e3a4fbc8ec56049c7e",
+      "status": "completed",
+      "pass": true,
+      "answer": "创建工单需要以下信息 [C-779785b6bc41df755e7a6c0a]：\n\n1. **问题标题**（一句话概括）\n2. **具体故障描述**（现象、报错信息、发生时间等）\n3. **问题类别**（software / network / access / hardware / other）\n4. **优先级**（默认 normal，可选 low 或 high）\n\n请提供以上内容，我再为你准备工单草稿。另外提醒：草稿需要你在确认接口/按钮核对后提交，系统才会生成 RD 开头的工单号，我无法直接创建工单 [C-779785b6bc41df755e7a6c0a]。"
+    },
+    {
+      "case": "confirmed_idempotent_ticket",
+      "run_id": "dbd10bf7d73244988f2a05ef8ed1f279",
+      "status": "awaiting_confirmation",
+      "pass": true,
+      "ticket_id": "RD-F03BB51273BE",
+      "draft": {
+        "category": "network",
+        "description": "Windows 11 上 VPN 客户端连接超时，普通网页正常，已重启客户端并切换网络仍未解决。",
+        "priority": "normal",
+        "summary": "VPN 连接持续超时"
+      },
+      "error": null
+    }
+  ],
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "0.020076",
+    "available_cny": "17.979924",
+    "calls": {
+      "settled": 4
+    }
+  },
+  "all_passed": true
+}

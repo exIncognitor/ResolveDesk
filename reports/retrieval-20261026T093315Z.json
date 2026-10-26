@@ -1,0 +1,676 @@
+{
+  "created_utc": "2026-10-26T09:33:15.397245+00:00",
+  "dataset": "8 hand-labeled synthetic IT questions; no general quality claim",
+  "embedding": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+  "results": {
+    "bm25": {
+      "recall_at_5": 1.0,
+      "hit_at_1": 1.0,
+      "mrr_at_5": 1.0,
+      "cases": [
+        {
+          "id": "vpn691",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / IDE 无法启动"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            }
+          ]
+        },
+        {
+          "id": "vpn-timeout",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库）"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            }
+          ]
+        },
+        {
+          "id": "account-lock",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库）"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            }
+          ]
+        },
+        {
+          "id": "repo-access",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库）"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            }
+          ]
+        },
+        {
+          "id": "reset",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / IDE 无法启动"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            }
+          ]
+        },
+        {
+          "id": "python-pip",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / IDE 无法启动"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            }
+          ]
+        },
+        {
+          "id": "ide",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / IDE 无法启动"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            }
+          ]
+        },
+        {
+          "id": "ticket-fields",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            }
+          ]
+        }
+      ]
+    },
+    "vector": {
+      "recall_at_5": 1.0,
+      "hit_at_1": 0.875,
+      "mrr_at_5": 0.9375,
+      "cases": [
+        {
+          "id": "vpn691",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库）"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            }
+          ]
+        },
+        {
+          "id": "vpn-timeout",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库）"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            }
+          ]
+        },
+        {
+          "id": "account-lock",
+          "rank": 2,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            }
+          ]
+        },
+        {
+          "id": "repo-access",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库）"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            }
+          ]
+        },
+        {
+          "id": "reset",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库）"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            }
+          ]
+        },
+        {
+          "id": "python-pip",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库）"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / IDE 无法启动"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            }
+          ]
+        },
+        {
+          "id": "ide",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / IDE 无法启动"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库）"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            }
+          ]
+        },
+        {
+          "id": "ticket-fields",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库）"
+            }
+          ]
+        }
+      ]
+    },
+    "hybrid": {
+      "recall_at_5": 1.0,
+      "hit_at_1": 1.0,
+      "mrr_at_5": 1.0,
+      "cases": [
+        {
+          "id": "vpn691",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库）"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            }
+          ]
+        },
+        {
+          "id": "vpn-timeout",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库）"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            }
+          ]
+        },
+        {
+          "id": "account-lock",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            }
+          ]
+        },
+        {
+          "id": "repo-access",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库）"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            }
+          ]
+        },
+        {
+          "id": "reset",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / IDE 无法启动"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库）"
+            }
+          ]
+        },
+        {
+          "id": "python-pip",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / IDE 无法启动"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 错误 691：身份验证失败"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            }
+          ]
+        },
+        {
+          "id": "ide",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / IDE 无法启动"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            },
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / Python 安装依赖失败"
+            }
+          ]
+        },
+        {
+          "id": "ticket-fields",
+          "rank": 1,
+          "degraded": false,
+          "retrieved": [
+            {
+              "document": "software",
+              "section": "开发工具故障（演示知识库） / 创建工单所需信息"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 账号锁定"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 仓库权限"
+            },
+            {
+              "document": "vpn",
+              "section": "VPN 连接故障（演示知识库） / 连接超时与网络诊断"
+            },
+            {
+              "document": "access",
+              "section": "账号与权限申请（演示知识库） / 无法重置密码"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

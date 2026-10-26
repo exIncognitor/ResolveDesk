@@ -1,0 +1,13 @@
+.env*
+key.txt
+*.key
+**/history
+.codex-tmp
+.codex-runtime
+.git
+.venv
+**/node_modules
+venv
+**/__pycache__
+data
+logs
