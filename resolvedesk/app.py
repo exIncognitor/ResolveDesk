@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from filelock import FileLock, Timeout
 from pydantic import BaseModel, ConfigDict, Field
 
 from resolvedesk.agent import DeskAgent
@@ -84,28 +83,24 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
 
     @asynccontextmanager
     async def lifespan(app):
-        lock = None
+        coordination = None
+        vectors = None
         if not injected:
             load_dotenv(ROOT / ".env", override=False)
-            lock = FileLock(ROOT / "data" / "service.lock")
-            (ROOT / "data").mkdir(exist_ok=True)
-            try:
-                lock.acquire(timeout=0)
-            except Timeout as exc:
-                raise RuntimeError("Only one local ResolveDesk worker may own the database") from exc
         try:
             if not injected:
-                app.state.store = Store(ROOT / "data" / "resolvedesk.sqlite3")
-                try:
-                    embedding = LocalEmbedding(ROOT / "data" / "models" / "multilingual-e5-small")
-                    app.state.embedding_error = None
-                except Exception as exc:
-                    if os.getenv("RESOLVEDESK_ALLOW_LEXICAL_FALLBACK", "true").lower() != "true":
-                        raise RuntimeError("Local embedding unavailable; run tools/setup_local.py --download-model") from exc
-                    embedding = None
-                    app.state.embedding_error = type(exc).__name__
-                app.state.knowledge = HybridKnowledge(app.state.store, embedding)
-                app.state.agent = DeskAgent(app.state.store, app.state.knowledge)
+                from resolvedesk.settings import ServiceSettings
+                from resolvedesk.coordination import Coordination
+                from resolvedesk.vectors import ChromaVectors
+                settings = ServiceSettings.load()
+                app.state.store = Store(settings.database_url)
+                embedding = LocalEmbedding(ROOT / "data" / "models" / "multilingual-e5-small")
+                app.state.embedding_error = None
+                vectors = await asyncio.to_thread(ChromaVectors,settings.chroma_url,embedding.identity)
+                coordination = Coordination(settings.redis_url,settings.namespace)
+                await coordination.redis.ping()
+                app.state.knowledge = HybridKnowledge(app.state.store,embedding,vectors)
+                app.state.agent = DeskAgent(app.state.store,app.state.knowledge,coordination=coordination)
                 from resolvedesk.services import DeskServices
                 app.state.agent.services = DeskServices(app.state.store,app.state.knowledge,app.state.agent.client)
                 await app.state.agent.services.start()
@@ -116,12 +111,13 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
             app.state.agent.monitor.start()
             yield
         finally:
-            if hasattr(app.state, "agent"):
-                await app.state.agent.close()
             if hasattr(app.state,"evaluations"):
                 await app.state.evaluations.close()
-            if lock:
-                lock.release()
+            if hasattr(app.state, "agent"):
+                await app.state.agent.close()
+            if coordination: await coordination.close()
+            if vectors: vectors.close()
+            if not injected and hasattr(app.state,"store"): app.state.store.close()
 
     app = FastAPI(title="ResolveDesk", version="0.1.0", lifespan=lifespan)
     if injected:
@@ -175,6 +171,9 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
     @app.get("/health")
     def health(request: Request):
         return {"status": "ok", "service": "ResolveDesk", "model": "deepseek-flash",
+                "database":request.app.state.store.backend,
+                "vector_backend":"chroma" if request.app.state.knowledge.vector_index else "offline-fixture",
+                "coordination":"redis" if request.app.state.agent.coordination else "offline-fixture",
                 "semantic_retrieval": request.app.state.knowledge.embedding is not None,
                 "paid_api_enabled": os.getenv("RESOLVEDESK_PAID_API_ENABLED", "false").lower() == "true"}
 

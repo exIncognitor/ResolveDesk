@@ -147,11 +147,25 @@ class DeskServices:
         if any(not c.read_only for c in configs):
             raise ValueError("Only read-only MCP servers are enabled")
         self.mcp = StandardMCPClient(self.manager,configs)
+        self.maintenance_task = None
 
     async def start(self):
         await self.mcp.start()
+        if self.knowledge.vector_index:
+            async def maintenance():
+                while True:
+                    try:
+                        await asyncio.to_thread(self.knowledge.drain_index)
+                        await asyncio.to_thread(self.store.recover_expired)
+                    except asyncio.CancelledError: raise
+                    except Exception: pass  # Durable outbox retains failure evidence.
+                    await asyncio.sleep(2)
+            self.maintenance_task = asyncio.create_task(maintenance())
 
     async def close(self):
+        if self.maintenance_task:
+            self.maintenance_task.cancel()
+            await asyncio.gather(self.maintenance_task,return_exceptions=True)
         await self.mcp.close()
         await self.manager._client.close()
 

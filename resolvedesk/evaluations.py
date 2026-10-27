@@ -11,13 +11,17 @@ from resolvedesk.store import encode, Conflict
 class EvaluationService:
     def __init__(self,store,knowledge):
         self.store,self.knowledge,self.tasks = store,knowledge,{}
+        self.worker_id = uuid.uuid4().hex
         with store.database.schema_transaction() as db:
             db.executescript("""CREATE TABLE IF NOT EXISTS eval_jobs(id TEXT PRIMARY KEY,tenant TEXT,owner TEXT,status TEXT,completed INTEGER,total INTEGER,result TEXT,error TEXT,created REAL);
                 CREATE TABLE IF NOT EXISTS regression_cases(id TEXT PRIMARY KEY,tenant TEXT,source_run TEXT,question TEXT,document TEXT,section TEXT,UNIQUE(tenant,source_run));""")
             if not db.has_column("eval_jobs","options"):
                 db.execute("ALTER TABLE eval_jobs ADD COLUMN options TEXT NOT NULL DEFAULT '{}'")
             db.execute("CREATE TABLE IF NOT EXISTS quality_baselines(tenant TEXT,suite_id TEXT,job_id TEXT,report TEXT,created REAL,PRIMARY KEY(tenant,suite_id))")
-            db.execute("UPDATE eval_jobs SET status='paused',error='process_interrupted' WHERE status IN ('queued','running')")
+            for column,declaration in (("execution_owner","TEXT"),("lease_until","DOUBLE PRECISION NOT NULL DEFAULT 0")):
+                if not db.has_column("eval_jobs",column): db.execute("ALTER TABLE eval_jobs ADD COLUMN "+column+" "+declaration)
+            # A second service worker must never interrupt a live paid evaluation.
+            db.execute("UPDATE eval_jobs SET status='paused',error='process_interrupted' WHERE (status='running' AND lease_until<=?) OR (status='queued' AND created<?)",(time.time(),time.time()-180))
 
     def get(self,p,job_id):
         with self.store.db() as db:
@@ -94,8 +98,15 @@ class EvaluationService:
 
     async def run(self,p,job_id):
         try:
+            async with asyncio.timeout(540): await self._run_job(p,job_id)
+        except TimeoutError:
             with self.store.db(True) as db:
-                updated = db.execute("UPDATE eval_jobs SET status='running' WHERE id=? AND status='queued'",(job_id,))
+                db.execute("UPDATE eval_jobs SET status='failed',error='job_deadline' WHERE id=? AND execution_owner=?",(job_id,self.worker_id))
+
+    async def _run_job(self,p,job_id):
+        try:
+            with self.store.db(True) as db:
+                updated = db.execute("UPDATE eval_jobs SET status='running',execution_owner=?,lease_until=? WHERE id=? AND status='queued'",(self.worker_id,time.time()+600,job_id))
                 if not updated.rowcount:return
                 options = json.loads(db.execute("SELECT options FROM eval_jobs WHERE id=?",(job_id,)).fetchone()[0])
                 extra = [dict(r) for r in db.execute("SELECT id,question AS query,document,section FROM regression_cases WHERE tenant=?",(p.tenant,))]
