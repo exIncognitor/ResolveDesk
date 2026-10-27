@@ -127,7 +127,7 @@ class EvaluationService:
         report["regression_note"] = "与人工选定、同知识版本和评分配置的基线比较；相对下降超过5%触发回归。"
         metrics = {**report["avg_scores"],"pass_rate":report["pass_rate"]}
         previous = {**baseline["avg_scores"],"pass_rate":baseline["pass_rate"]}
-        report["regressions"] = [{"test_id":"metric:"+key,"detail":"相对基线下降超过5%","previous":old,"current":metrics.get(key)} for key,old in previous.items() if old>0 and metrics.get(key,0)<old*.95]
+        report["regressions"] = [{"test_id":"metric:"+key,"detail":"相对基线下降超过5%","previous":old,"current":metrics.get(key)} for key,old in previous.items() if isinstance(old,(int,float)) and old>0 and (metrics.get(key) is None or metrics[key]<old*.95)]
         if report["evaluation_errors"]:report["regressions"].append({"test_id":"evaluation-errors","detail":"存在执行或评分错误，不能认定质量无退化"})
         return report
 
@@ -141,55 +141,87 @@ class EvaluationService:
             db.execute("INSERT INTO regression_cases VALUES(?,?,?,?,?,?) ON CONFLICT(tenant,source_run) DO UPDATE SET question=excluded.question,document=excluded.document,section=excluded.section",(uuid.uuid4().hex,p.tenant,run_id,row["message"],document,section))
         return {"saved":True,"source_run":run_id}
 
-    async def run(self,p,job_id):
-        try:
-            async with asyncio.timeout(540): await self._run_job(p,job_id)
-        except TimeoutError:
-            with self.store.db(True) as db:
-                db.execute("UPDATE eval_jobs SET status='failed',error='job_deadline' WHERE id=? AND execution_owner=?",(job_id,self.worker_id))
+    def _fence(self,db,job_id,epoch):
+        row=db.execute(db.locked('SELECT * FROM eval_jobs WHERE id=?'),(job_id,)).fetchone()
+        if not row or row['status']!='running' or row['execution_owner']!=self.worker_id or row['execution_epoch']!=epoch or row['lease_until']<=db.now():raise Conflict('Evaluation execution ownership expired')
+        return row
 
-    async def _run_job(self,p,job_id):
+    def _finish(self,job_id,epoch,status,error=None,report=None):
+        raw=encode(report) if report is not None else None
+        if raw and len(raw.encode())>8_000_000:raise ValueError('Evaluation report exceeds 8MB')
+        with self.store.db(True) as db:
+            row=self._fence(db,job_id,epoch)
+            now=db.now()
+            db.execute('UPDATE eval_jobs SET status=?,error=?,result=COALESCE(?,result),used_s=used_s+?,budget_tick=?,lease_until=0,execution_owner=NULL WHERE id=?',
+                (status,error,raw,max(0,now-row['budget_tick']),now,job_id))
+
+    async def run(self,p,job_id):
+        with self.store.db(True) as db:
+            row=db.execute(db.locked('SELECT * FROM eval_jobs WHERE id=? AND tenant=? AND owner=?'),(job_id,p.tenant,p.user)).fetchone()
+            if not row or row['status']!='queued':return
+            epoch=row['execution_epoch']+1
+            db.execute("UPDATE eval_jobs SET status='running',execution_owner=?,execution_epoch=?,lease_until=?,budget_tick=? WHERE id=?",(self.worker_id,epoch,db.now()+30,db.now(),job_id))
+            options=json.loads(row['options'])
+            remaining=max(0,row['budget_s']-row['used_s'])
+        parent=asyncio.current_task()
+        async def heartbeat():
+            try:
+                while True:
+                    await asyncio.sleep(5)
+                    with self.store.db(True) as db:
+                        row=self._fence(db,job_id,epoch);now=db.now()
+                        db.execute('UPDATE eval_jobs SET lease_until=?,used_s=used_s+?,budget_tick=? WHERE id=?',(now+30,max(0,now-row['budget_tick']),now,job_id))
+            except asyncio.CancelledError:raise
+            except Exception:parent.cancel()
+        pulse=asyncio.create_task(heartbeat())
         try:
-            with self.store.db(True) as db:
-                updated = db.execute("UPDATE eval_jobs SET status='running',execution_owner=?,lease_until=? WHERE id=? AND status='queued'",(self.worker_id,time.time()+600,job_id))
-                if not updated.rowcount:return
-                options = json.loads(db.execute("SELECT options FROM eval_jobs WHERE id=?",(job_id,)).fetchone()[0])
-                extra = [dict(r) for r in db.execute("SELECT id,question AS query,document,section FROM regression_cases WHERE tenant=?",(p.tenant,))]
-            if options.get("kind")=="quality":
-                from resolvedesk.quality import QualityRunner
-                def progress(completed,total):
-                    with self.store.db(True) as db:db.execute("UPDATE eval_jobs SET completed=?,total=? WHERE id=?",(completed,total,job_id))
-                # A resumed job gets a new sandbox; previous evidence is retained, never overwritten.
-                attempt_id = job_id+"-"+uuid.uuid4().hex[:8]
-                report = self.compare(p,await QualityRunner(self.store,self.knowledge).run(p,attempt_id,options["limit"],options["use_judge"],progress))
+            state=EvalState(self.store,job_id,lambda db:self._fence(db,job_id,epoch))
+            def progress(completed,total):
                 with self.store.db(True) as db:
-                    db.execute("UPDATE eval_jobs SET status='completed',result=? WHERE id=?",(encode(report),job_id))
-                return
-            default = json.loads((Path(__file__).resolve().parents[1]/"evaluation/retrieval_cases.json").read_text(encoding="utf-8")) if p.tenant=="demo" else []
-            cases = default+extra
-            details = []
-            for index,case in enumerate(cases):
-                result = await asyncio.to_thread(self.knowledge.search,p,case["query"],5,"hybrid")
-                rank = next((i for i,item in enumerate(result["items"],1) if item["document_id"]==case["document"] and case["section"] in item["section"]),None)
-                details.append({"test_id":case["id"],"question":case["query"],"rank":rank,"passed":rank is not None,"degraded":result["degraded"],"metadata":{}})
-                with self.store.db(True) as db:
-                    db.execute("UPDATE eval_jobs SET completed=?,total=? WHERE id=?",(index+1,len(cases),job_id))
-            n = len(cases)
-            passed = sum(d["passed"] for d in details)
-            report = {"status":"complete","kind":"retrieval_and_reviewed_regression","total":n,"valid_total":n,"passed":passed,"pass_rate":passed/n if n else 0,
-                      "evaluation_errors":0,"avg_scores":{"recall_at_5":passed/n if n else 0,"hit_at_1":sum(d["rank"]==1 for d in details)/n if n else 0,
-                      "mrr_at_5":sum(1/d["rank"] for d in details if d["rank"])/n if n else 0},"results":details,
-                      "regressions":[d for d in details if not d["passed"]],"regression_note":"固定示例题与人工审核的负反馈案例；不包含 LLM Judge 或生产质量评分。",
-                      "recommendations":["小样本不能证明生产效果。","负反馈需人工指定期望文档和章节后才进入回归集。"]}
-            with self.store.db(True) as db:
-                db.execute("UPDATE eval_jobs SET status='completed',result=? WHERE id=?",(encode(report),job_id))
+                    self._fence(db,job_id,epoch)
+                    db.execute('UPDATE eval_jobs SET completed=?,total=? WHERE id=?',(completed,total,job_id))
+            async with asyncio.timeout(remaining):
+                if options.get('kind')=='quality':
+                    from resolvedesk.quality import QualityRunner
+                    report=await QualityRunner(self.store,self.knowledge,self.client_factory,coordination=self.coordination).run(p,job_id,options['limit'],options['use_judge'],progress,dataset=options.get('dataset'),state=state)
+                    report=self.compare(p,report)
+                else:report=await self._retrieval(p,state,progress)
+            self._finish(job_id,epoch,'completed',report=report)
+        except TimeoutError:
+            try:self._finish(job_id,epoch,'paused','job_deadline')
+            except Conflict:pass
         except asyncio.CancelledError:
-            with self.store.db(True) as db:
-                db.execute("UPDATE eval_jobs SET status='paused',error='interrupted' WHERE id=?",(job_id,))
+            try:self._finish(job_id,epoch,'paused','interrupted')
+            except Conflict:pass
             raise
         except Exception as exc:
-            with self.store.db(True) as db:
-                db.execute("UPDATE eval_jobs SET status='failed',error=? WHERE id=?",(type(exc).__name__,job_id))
+            try:self._finish(job_id,epoch,'failed',type(exc).__name__)
+            except Conflict:pass
+        finally:
+            pulse.cancel()
+            await asyncio.gather(pulse,return_exceptions=True)
+
+    async def _retrieval(self,p,state,progress):
+        def prepare(db):
+            default=json.loads((Path(__file__).resolve().parents[1]/'evaluation/retrieval_cases.json').read_text(encoding='utf-8')) if p.tenant=='demo' else []
+            extra=[dict(r) for r in db.execute('SELECT id,question AS query,document,section FROM regression_cases WHERE tenant=? ORDER BY id',(p.tenant,))]
+            return {'cases':default+extra}
+        cases=state.snapshot(prepare)['cases']
+        details=[]
+        for index,case in enumerate(cases):
+            async def measure():
+                result=await asyncio.to_thread(self.knowledge.search,p,case['query'],5,'hybrid')
+                rank=next((i for i,item in enumerate(result['items'],1) if item['document_id']==case['document'] and case['section'] in item['section']),None)
+                return {'test_id':case['id'],'question':case['query'],'rank':rank,'passed':rank is not None,'degraded':result['degraded'],'metadata':{}}
+            try:detail=await state.unit('retrieval:'+str(index),measure)
+            except asyncio.CancelledError:raise
+            except Exception as exc:detail={'test_id':case['id'],'rank':None,'passed':False,'metadata':{'execution_error':type(exc).__name__}}
+            details.append(detail);progress(index+1,len(cases))
+        n=len(details);passed=sum(d['passed'] for d in details);errors=sum(bool(d['metadata']) for d in details)
+        return {'status':'partial' if errors else 'complete','kind':'retrieval_and_reviewed_regression','total':n,'valid_total':n-errors,'passed':passed,'pass_rate':passed/n if n else 0,
+            'evaluation_errors':errors,'avg_scores':{'recall_at_5':passed/n if n else 0,'hit_at_1':sum(d['rank']==1 for d in details)/n if n else 0,'mrr_at_5':sum(1/d['rank'] for d in details if d['rank'])/n if n else 0},
+            'results':details,'regressions':[d for d in details if not d['passed']],
+            'regression_note':'固定示例题与人工审核的负反馈案例；不包含 LLM Judge 或生产质量评分。','recommendations':['小样本不能证明生产效果。','负反馈需人工指定期望文档和章节后才进入回归集。']}
 
     async def close(self):
         tasks = list(self.tasks.values())

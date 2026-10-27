@@ -338,7 +338,13 @@
           </button>
         </div>
         <section class="workspace-card"><h2>负反馈回归候选</h2><button class="text-button" @click="loadCandidates">加载候选（客服）</button><label>期望文档 ID<input v-model="expectedDocument" /></label><label>期望章节<input v-model="expectedSection" /></label><p v-for="c in candidates" :key="c.run_id">{{ c.question }} <button :disabled="!expectedDocument || !expectedSection" @click="promoteCandidate(c.run_id)">审核并加入回归</button></p></section>
-        <section class="workspace-card"><h2>评测任务记录</h2><button @click="loadEvaluationJobs">加载记录（客服）</button><p v-for="job in evaluationJobs" :key="job.job_id">{{ job.options.kind || 'retrieval' }} · {{ job.status }} · {{ job.completed }}/{{ job.total }} <button @click="openEvaluationJob(job)" :disabled="busy">查看结果</button><button v-if="['paused','failed'].includes(job.status)" @click="continueEvaluationJob(job)" :disabled="busy">重新执行该任务（质量评测会产生模型费用）</button></p></section>
+        <section v-if="evaluationKind === 'quality'" class="workspace-card">
+          <h2>自定义质量评测</h2>
+          <label>评测集 JSON（可填写 intent_cases、dialog_cases、逐轮 reference/evidence 和断言；留空使用合成开发集）<textarea v-model="evaluationDataset" rows="8" :disabled="busy" aria-label="自定义评测集 JSON"></textarea></label>
+          <label>本次总时限（秒，1–3600）<input v-model.number="evaluationTimeout" type="number" min="1" max="3600" :disabled="busy" /></label>
+          <button @click="saveEvaluationDataset" :disabled="busy || !evaluationDataset.trim()">保存评测集（客服）</button><p>{{ savedDatasetId ? `已保存：${savedDatasetId}` : '' }}</p>
+        </section>
+        <section class="workspace-card"><h2>评测任务记录</h2><button @click="loadEvaluationJobs">加载记录（客服）</button><label>恢复时额外增加秒数（0–3600，0 表示只用剩余时间）<input v-model.number="evaluationExtraTime" type="number" min="0" max="3600" /></label><p>恢复会复用已完成结果；无法确认结果的付费步骤不会自动重调。</p><p v-for="job in evaluationJobs" :key="job.job_id">{{ job.options.kind || 'retrieval' }} · {{ job.status }} · {{ job.completed }}/{{ job.total }} · 用时 {{ Math.ceil(job.used_s || 0) }}/{{ job.budget_s }} 秒 <button @click="openEvaluationJob(job)" :disabled="busy">查看结果</button><button v-if="['paused','failed'].includes(job.status)" @click="continueEvaluationJob(job)" :disabled="busy">恢复未完成部分（可能产生模型费用）</button></p></section>
         <div v-if="evalData" class="evaluation-content">
           <p v-if="evalData.kind === 'active_service_quality'">{{ evalData.provenance }} · 意图样本 {{ evalData.intent?.samples }} 条 · 对话 {{ evalData.total }} 组。评分错误不会记为有效评分。</p>
           <button v-if="evalData.kind === 'active_service_quality' && evalData.job_id" @click="saveQualityBaseline" :disabled="busy || evalData.evaluation_errors > 0 || evalData.passed !== evalData.total">将当前报告设为回归基线（客服）</button>
@@ -558,6 +564,10 @@ const lastResponse = ref(null)
 const lastTrace = ref(null)
 const evalData = ref(null)
 const evaluationKind = ref('retrieval')
+const evaluationDataset = ref('')
+const savedDatasetId = ref('')
+const evaluationTimeout = ref(540)
+const evaluationExtraTime = ref(0)
 const evaluationJobs = ref([])
 const toast = ref('')
 let toastTimer
@@ -852,7 +862,15 @@ async function runEvaluation() {
   const request = requestState.begin('action')
   busy.value = true
   try {
-    const data = await requestEvaluation(request.backend, request.settings, {kind:evaluationKind.value}, {
+    const options = { kind: evaluationKind.value, timeout_s: evaluationTimeout.value }
+    if (evaluationKind.value === 'quality' && evaluationDataset.value.trim()) {
+      const dataset = JSON.parse(evaluationDataset.value)
+      options.intent_cases = dataset.intent_cases || []
+      options.dialog_cases = dataset.dialog_cases || []
+      options.assets = dataset.assets || []
+      options.limit = Math.max(1, options.dialog_cases.length)
+    }
+    const data = await requestEvaluation(request.backend, request.settings, options, {
       isCurrent: request.isCurrent,
       onProgress: job => {
         if (request.isCurrent()) statusText.value = `评测任务 ${job.job_id}：${job.status === 'queued' ? '排队中' : '运行中'}，已完成 ${job.completed}/${job.total} 组`
@@ -876,6 +894,14 @@ async function saveQualityBaseline() {
   } catch (error) { if (request.isCurrent()) showToast(error.message) }
 }
 
+async function saveEvaluationDataset() {
+  const request = requestState.begin('evaluation-dataset')
+  try {
+    const data = await deskRequest(request.settings, '/eval/datasets', 'POST', JSON.parse(evaluationDataset.value))
+    if (request.isCurrent()) { savedDatasetId.value = data.id; showToast('评测集已保存') }
+  } catch (error) { if (request.isCurrent()) showToast(error.message) }
+}
+
 async function loadEvaluationJobs() {
   const request = requestState.begin('evaluation-jobs')
   try { const data = await deskRequest(request.settings, '/eval/jobs'); if (request.isCurrent()) evaluationJobs.value = data }
@@ -894,7 +920,7 @@ async function continueEvaluationJob(job) {
   if (busy.value) return
   const request = requestState.begin('action'); busy.value = true
   try {
-    const resumed = await deskRequest(request.settings, `/eval/jobs/${job.job_id}/resume`, 'POST')
+    const resumed = await deskRequest(request.settings, `/eval/jobs/${job.job_id}/resume`, 'POST', { extra_seconds: evaluationExtraTime.value })
     const report = await pollEvaluation(resumed, id => deskRequest(request.settings, `/eval/jobs/${id}`), { isCurrent: request.isCurrent, onProgress: state => { if (request.isCurrent()) statusText.value = `任务 ${state.job_id}：${state.completed}/${state.total}` } })
     if (request.isCurrent()) { evalData.value = { ...report, job_id: job.job_id }; await loadEvaluationJobs() }
   } catch (error) { if (request.isCurrent()) showToast(error.message) }

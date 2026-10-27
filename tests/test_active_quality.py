@@ -19,21 +19,33 @@ from test_it_workflows import ACCESS, REPAIR
 SUPPORT = Principal("demo", "support", "support")
 
 
-def test_versioned_synthetic_intent_corpus_has_per_case_predictions():
+@pytest.mark.asyncio
+async def test_versioned_synthetic_intent_corpus_has_observed_predictions():
     corpus = json.loads(CORPUS.read_text(encoding="utf-8"))
-    report = intent_report(corpus["intent_cases"])
-    assert report["samples"] == 28 and report["accuracy"] == 1 and report["macro_f1"] == 1
+    from resolvedesk.intent import ITIntentRecognizer
+    from resolvedesk.eval_metrics import measure_intent
+    model=client_with(response('{"fine_intents":["vpn_failure"],"confidence":0.99,"urgency":1}'),response('{"fine_intents":["vpn_failure"],"confidence":0.99,"urgency":1}'))
+    recognizer=ITIntentRecognizer(model,None)
+    results=[await measure_intent(recognizer,{'id':str(i),'message':message,'expected_intent':expected}) for i,(message,expected) in enumerate([('你好','network_endpoint'),('再见','software_license')])]
+    report = intent_report(results)
+    assert report['accuracy']==.5 and report['macro_f1']==pytest.approx(1/3)
+    assert report['channel_coverage']=={'llm':2,'embedding':0,'pattern':2}
+    assert model.messages.create.call_count==2 and len(corpus['intent_cases'])==28
     assert corpus["split"] == "development" and len(corpus["dialog_cases"]) == 6
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("judge_ok,wrong_fields", [(True,False), (False,False), (True,True)])
-async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_path, monkeypatch, judge_ok, wrong_fields):
+@pytest.mark.parametrize("judge_ok,wrong_fields,early_bad", [(True,False,False), (False,False,False), (True,True,False), (True,False,True)])
+async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_path, monkeypatch, judge_ok, wrong_fields,early_bad):
     import resolvedesk.quality as quality
     monkeypatch.setattr(quality, "ROOT", tmp_path)
-    if not judge_ok:
-        from evaluation.evaluator import QualityScores
-        monkeypatch.setattr(quality.LLMJudge,"judge",AsyncMock(return_value=QualityScores(None,None,None,None,judge_failed=True,error="synthetic_judge_failure")))
+    from evaluation.evaluator import QualityScores
+    async def judge(question,answer,context):
+        if not judge_ok:return QualityScores(None,None,None,None,judge_failed=True,error='synthetic_judge_failure')
+        score=.1 if early_bad and question=='我要申请仓库权限，请先询问缺少的必要信息。' else .9
+        return QualityScores(score,score,score,score)
+    judged=AsyncMock(side_effect=judge)
+    monkeypatch.setattr(quality.LLMJudge,'judge',judged)
     store = Store(tmp_path/"main.sqlite3")
     kb = HybridKnowledge(store)
     from pathlib import Path
@@ -44,6 +56,7 @@ async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_pa
     async def route(self, p, run_id, message, history, context):
         label = classify(message)["intent"]
         role = {"account_access": "general", "device_service": "technical", "network_endpoint": "technical", "software_license": "billing"}.get(label, "general")
+        if '鼓包' in message:role='escalation'
         return {"intent": label, "primary": role, "supporting": []}
     monkeypatch.setattr(DeskServices, "search", search)
     monkeypatch.setattr(DeskServices, "route", route)
@@ -68,6 +81,9 @@ async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_pa
         assert report["passed"] == 5
         assert not report["results"][-2]["checks"]["expected_fields"]
         assert not report["results"][-2]["checks"]["persisted_business_effect"]
+    elif early_bad:
+        assert report['passed']==5 and not report['results'][-2]['turns'][0]['passed']
+        assert report['results'][-2]['turns'][-1]['passed']
     elif judge_ok:
         assert report["status"] == "complete" and report["passed"] == 6, report["results"]
     else:
@@ -76,7 +92,8 @@ async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_pa
     assert report["results"][-1]["lifecycle"]["status"] == "closed"
     assert report["results"][-2]["lifecycle"]["status"] == "fulfilled"
     assert not store.list_tickets(Principal("demo", "learner"))
-    assert progress[-1] == (6,6)
+    assert progress[-1] == (34,34) and judged.call_count==8
+    assert report['intent']['implementation']=='ITIntentRecognizer.recognize'
 
 
 def test_baseline_is_explicit_valid_scoped_and_not_silently_replaced(tmp_path):

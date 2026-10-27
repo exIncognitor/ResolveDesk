@@ -23,7 +23,8 @@ from resolvedesk.store import Store,Principal,encode,digest
 from resolvedesk.memory import MEMORY_TABLES
 
 TABLES=MEMORY_TABLES|{"runs","events","messages","tickets","feedback","checkpoints","turn_receipts","entity_state","desk_assets","service_cases","service_audit","service_actions","desk_grants",
-    "chunks","knowledge_documents","index_outbox","memory_summary","memory_episode","memory_profile","eval_jobs","regression_cases","quality_baselines","telemetry","desk_alerts","alert_outbox"}
+    "chunks","knowledge_documents","index_outbox","memory_summary","memory_episode","memory_profile","eval_jobs","regression_cases","quality_baselines","telemetry","desk_alerts","alert_outbox",
+    'eval_suites','eval_snapshots','eval_units','eval_queue_guard'}
 
 
 def validate_path(path):
@@ -81,8 +82,8 @@ def copy_to_postgres(source,target):
         actual={r[0] for r in db.execute("SELECT tablename FROM pg_tables WHERE schemaname=?",(db.schema,))}
         if not actual<=TABLES: raise ValueError("Unexpected target tables; refusing migration")
         for table in sorted(actual):
-            if table=="memory_queue_guard":
-                if [tuple(row) for row in db.execute('SELECT * FROM memory_queue_guard')]!=[(1,)]:raise ValueError("Unexpected memory guard seed")
+            if table in {'memory_queue_guard','eval_queue_guard'}:
+                if [tuple(row) for row in db.execute('SELECT * FROM "'+table+'"')]!=[(1,)]:raise ValueError("Unexpected queue guard seed")
                 continue
             if db.execute('SELECT COUNT(*) FROM "'+table+'"').fetchone()[0]: raise ValueError("Target is not empty; refusing migration")
         verified={}
@@ -91,7 +92,7 @@ def copy_to_postgres(source,target):
             if any(not re.fullmatch(r"[a-z_][a-z0-9_]*",column) for column in columns): raise ValueError("Unexpected column")
             selection=",".join('"'+column+'"' for column in columns)
             for row in src.execute('SELECT '+selection+' FROM "'+table+'"'):
-                if table=="memory_queue_guard":
+                if table in {'memory_queue_guard','eval_queue_guard'}:
                     if tuple(row)!=(1,):raise ValueError("Unexpected legacy memory guard")
                     continue
                 db.execute('INSERT INTO "'+table+'"('+selection+') VALUES('+",".join("?" for _ in columns)+")",row)

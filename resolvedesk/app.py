@@ -18,6 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from resolvedesk.agent import DeskAgent
 from resolvedesk.retrieval import HybridKnowledge, LocalEmbedding
 from resolvedesk.store import Conflict, ReceiptExpired, Principal, Store, encode
+from resolvedesk.eval_models import EvalDataset,EvaluationOptions,ResumeEvaluation
 
 ROOT = Path(__file__).resolve().parents[1]
 TERMINAL = {"completed", "failed", "paused", "awaiting_input", "awaiting_confirmation"}
@@ -72,12 +73,6 @@ class ServiceAction(Input):
     assignee: str = Field(default="",max_length=100)
 
 
-class EvaluationOptions(Input):
-    kind: Literal["retrieval","quality"] = "retrieval"
-    limit: int = Field(default=6,ge=1,le=6)
-    use_judge: bool = True
-
-
 class MCPDebugCall(Input):
     tool: str = Field(min_length=1,max_length=64,pattern=r"^[A-Za-z0-9_-]+$")
     arguments: dict = Field(default_factory=dict)
@@ -112,7 +107,7 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
                 await app.state.agent.services.start()
                 app.state.accounts = json.loads((ROOT / "data" / "auth.json").read_text(encoding="utf-8"))
             from resolvedesk.evaluations import EvaluationService
-            app.state.evaluations = EvaluationService(app.state.store,app.state.knowledge)
+            app.state.evaluations = EvaluationService(app.state.store,app.state.knowledge,coordination=app.state.agent.coordination)
             app.state.store.recover_expired()
             app.state.agent.monitor.start()
             from resolvedesk.knowledge_mcp import create_knowledge_mcp
@@ -427,6 +422,18 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         options = data or EvaluationOptions()
         return request.app.state.evaluations.submit(p,**options.model_dump())
 
+    @app.post('/eval/datasets',status_code=201)
+    def save_evaluation_dataset(data:EvalDataset,request:Request,p=Depends(principal)):
+        return request.app.state.evaluations.datasets.create(p,data.model_dump())
+
+    @app.get('/eval/datasets')
+    def evaluation_datasets(request:Request,p=Depends(principal)):
+        return request.app.state.evaluations.datasets.list(p)
+
+    @app.get('/eval/datasets/{suite_id}')
+    def evaluation_dataset(suite_id:str,request:Request,p=Depends(principal)):
+        return request.app.state.evaluations.datasets.get(p,suite_id)
+
     @app.post("/eval/jobs/{job_id}/baseline")
     def evaluation_baseline(job_id:str,request:Request,p=Depends(principal)):
         return request.app.state.evaluations.set_baseline(p,job_id)
@@ -440,8 +447,8 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         return request.app.state.evaluations.list(p)
 
     @app.post("/eval/jobs/{job_id}/resume")
-    async def resume_evaluation(job_id:str,request:Request,p=Depends(principal)):
-        return request.app.state.evaluations.resume(p,job_id)
+    async def resume_evaluation(job_id:str,request:Request,data:ResumeEvaluation|None=None,p=Depends(principal)):
+        return request.app.state.evaluations.resume(p,job_id,(data or ResumeEvaluation()).extra_seconds)
 
     @app.post("/evaluation/candidates/{run_id}/promote")
     def promote(run_id:str,data:Regression,request:Request,p=Depends(principal)):
