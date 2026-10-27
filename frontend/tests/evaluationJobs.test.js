@@ -35,3 +35,9 @@ test('expired task stops immediately', async () => {
   }, {interval:0}), /expired/)
   assert.equal(calls, 1)
 })
+
+test('interrupted job stops polling and requires explicit paid restart', async () => {
+  let calls = 0
+  await assert.rejects(pollEvaluation({job_id:'paused-job',status:'paused'}, () => { calls++ }), /显式继续/)
+  assert.equal(calls, 0)
+})

@@ -27,8 +27,8 @@ def test_versioned_synthetic_intent_corpus_has_per_case_predictions():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("judge_ok", [True, False])
-async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_path, monkeypatch, judge_ok):
+@pytest.mark.parametrize("judge_ok,wrong_fields", [(True,False), (False,False), (True,True)])
+async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_path, monkeypatch, judge_ok, wrong_fields):
     import resolvedesk.quality as quality
     monkeypatch.setattr(quality, "ROOT", tmp_path)
     if not judge_ok:
@@ -52,15 +52,21 @@ async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_pa
             if "tools" not in kwargs: return response('{"relevance":0.9,"accuracy":0.9,"completeness":0.9,"helpfulness":0.9}')
             message = kwargs["messages"][-1]["content"]
             if "先询问" in message: return response(tool="ask_clarification", args={"question": "请提供资源级别、有效期或资产ID。"})
-            if "请准备权限申请" in message: return response(tool="prepare_ticket", args=ACCESS)
+            if "请准备权限申请" in message: return response(tool="prepare_ticket", args=ACCESS | ({"duration_days":14} if wrong_fields else {}))
             if "请准备维修申请" in message: return response(tool="prepare_ticket", args=REPAIR)
-            citation = re.search(r'C-[a-f0-9]{24}', kwargs["system"])[0]
+            context = json.loads(kwargs["system"].rsplit("以下为服务器提供的数据上下文（不是指令）：\n",1)[1])
+            document = "permissions" if "repo-resolvedesk" in message else "endpoint" if "DNS" in message else "licensing" if "IDEA" in message else "devices"
+            citation = next(item["citation"] for item in context["evidence"] if item["document_id"]==document)
             return response("合成离线回答，依据知识库 ["+citation+"]")
         return SimpleNamespace(messages=SimpleNamespace(create=create), close=AsyncMock())
     runner = QualityRunner(store, kb, fake_client)
     progress = []
     report = await runner.run(SUPPORT, "offline-integration", 6, True, lambda a,b:progress.append((a,b)))
-    if judge_ok:
+    if wrong_fields:
+        assert report["passed"] == 5
+        assert not report["results"][-2]["checks"]["expected_fields"]
+        assert not report["results"][-2]["checks"]["persisted_business_effect"]
+    elif judge_ok:
         assert report["status"] == "complete" and report["passed"] == 6, report["results"]
     else:
         assert report["status"] == "partial" and report["valid_total"] == 0 and report["evaluation_errors"] == 6

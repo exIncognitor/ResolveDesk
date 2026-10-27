@@ -1,10 +1,12 @@
 # ResolveDesk
 
-面向内部 IT 支持的 Python Agent 项目：知识检索、专业角色处理、可恢复对话与用户确认后的工单创建。
+面向内部 IT 服务台的 Python Agent 项目：账号权限、网络终端、软件授权、设备服务，包含知识检索、多角色协作、可恢复对话、权限审批和设备维修模拟闭环。
 
 当前主入口是 `resolvedesk/app.py`，Vue 界面位于 `frontend/`。项目可在本机独立运行，不依赖 Docker。
 
 当前已实现范围与尚未迁移的旧功能见 [功能核对表](docs/FEATURE_STATUS.md)。本项目不能表述为原项目全部功能的等价超集。
+
+四类场景、状态机、隔离质量评测与告警配置见 [IT 服务台设计与验收](docs/IT_SERVICE_DESIGN.md)。业务数据和企业制度均明确标注为合成模拟。
 
 ## 本机启动
 
@@ -36,15 +38,17 @@ cd ..
 Vue 工作台 → 带身份的任务 API → 持久化检查点 → 查询改写、混合检索、Flash 重排 → 记忆与意图路由 → Skills 与受限工具循环 → 回答/追问/草稿 → 用户确认 → SQLite 事务建单。
 
 - **检索**：Markdown 标题与原文跨度分块，中文 BM25、多语言 E5 本地 ONNX 向量、RRF；查询改写及重排使用 Flash，失败记录原因并回退。
-- **路由与协作**：复用 `agents/agent_orchestrator.py` 的角色定义、意图融合、路由和专业节点。常规请求按主角色处理；复合问题实际并行调用专业节点，再交给当前任务综合处理。
+- **路由与协作**：IT 场景规则负责当前领域分类，原意图识别器提供实体与紧急度。复用专业节点执行器，角色职责已改为账号分诊、网络设备、软件授权与安全升级；复合问题实际并行调用专业节点。监控失败反馈可以降权异常节点。
 - **记忆**：SQLite 保存会话摘要、用户明确提及的系统/IDE 信息和语义历史；摘要按长度触发，跨任务检索限定当前用户与租户。历史不是知识库政策依据。
 - **Skills**：加载 `skills/` 中当前版本的业务说明，按角色和关键词注入，忽略 history，客服可热加载。
 - **MCP**：官方 SDK 的标准 stdio 客户端实际连接 `resolvedesk/mcp_support.py`。仅开放白名单只读诊断清单，不把模型密钥传给子进程。
 - **工单**：只允许模型准备草稿；标题、描述、类别缺失时追问。确认绑定精确草稿版本且有有效期。确认与创建在同一事务内，重复确认返回同一工单。
+- **业务闭环**：权限申请确认后待审批，其他 IT 操作员批准后再模拟开通，实际写入有期限的本地权限表。设备维修校验本人资产，经过分诊、派单、处理、本人验收或返工。每步有版本检查、幂等与事务审计。
 - **权限**：令牌绑定租户/用户/角色；知识在召回前过滤；普通用户只读自己的任务、工单和记忆。
 - **流式**：真实 SDK 文本增量经持久化 SSE 事件送到 Vue。生成中的文字标为待校验；最终回答经过来源检查。事件连接支持 Last-Event-ID 和当前轮次游标。
 - **恢复**：每次模型结果及工具轮次保存检查点。重启后活动任务暂停；显式恢复可复用已保存模型结果和工具输出。未完成或未保存的模型调用仍可能重新发生并收费；写操作始终走独立确认事务。
-- **评测**：评测任务与报告持久化，默认执行本地检索集；负反馈由客服指定期望文档/章节，经审核后加入并执行回归集。界面不把检索指标当成 LLM 回复质量分数。
+- **评测**：免费检索回归与完整付费质量评测分开。质量评测经隔离的当前 HTTP 入口执行真实对话和业务事务，检查路由、引用、工具、申请字段、业务结果，用四维 Flash Judge 评分；失败独立报告，人工选择同套件基线做回归。支持任务记录和显式重新执行。
+- **监控**：真实角色、工具、主执行和检索指标持久化，提供鉴权 Prometheus 指标、告警触发/恢复、持久化通知 outbox 和路由降权。Webhook 地址未配置时仅本地留存事件。
 
 ## 测试与证据
 
@@ -62,9 +66,12 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 ```powershell
 .\.venv\Scripts\python.exe -X utf8 -B tools\smoke_local.py
 .\.venv\Scripts\python.exe -X utf8 -B tools\smoke_integrated.py
+.\.venv\Scripts\python.exe -X utf8 -B tools\accept_it_service.py --quality
 ```
 
 `smoke_integrated.py` 的长对话测试会明确标记并注入合成上下文样本，再通过真实服务验证摘要、记忆、专业节点和 MCP。它不是实际用户使用记录。报告保存在 `reports/`。
+
+`accept_it_service.py --quality` 在隔离数据库内执行 28 条意图和 6 组对话，并验证本地告警 HTTP 投递。固定检索集 20 条，另加审核回归。加上 `--live-workflows` 会在主库新增模拟权限申请与维修记录。不存在随包的 500 条生产测试数据；这些开发用例不能证明生产泛化效果。
 
 ## 关键目录
 
@@ -77,6 +84,9 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 | resolvedesk/services.py | 实际接入的路由、记忆、Skills、优化检索与 MCP |
 | resolvedesk/store.py | 任务、检查点、确认与工单事务 |
 | resolvedesk/evaluations.py | 持久评测与人工审核的反馈回归 |
+| resolvedesk/quality.py | 经当前 HTTP 入口的隔离质量评测与实际业务结果核验 |
+| resolvedesk/business.py | 模拟资源、权限、资产、维修状态与审计 |
+| resolvedesk/monitoring.py | 运行指标、告警生命周期与 Webhook outbox |
 | core/paid_api.py | Flash 预算、usage、流式和失败预留 |
 | agents、core、tooling | 角色、意图、Skill、标准 MCP 等复用组件 |
 | memory/conversation_memory.py、api/main.py | Redis/Chroma 兼容链路；当前主入口不依赖这条存储链路 |
@@ -87,9 +97,11 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 
 - `/runs`：创建/列出任务；`/runs/{id}` 查询；`/reply` 补充；`/confirm` 确认建单；`/pause`、`/resume`；`/events`；`/messages`。
 - `/tickets`、`/tickets/{id}`：按权限查询工单。
+- `/service-catalog`、`/service-cases`、`/service-cases/{id}`、`/service-cases/{id}/actions`：模拟业务目录、状态、鉴权操作与审计。
 - `/knowledge/search`、`/knowledge/documents`、`/knowledge/stats`、`/knowledge/citations/{id}`。
 - `/skills`、`/skills/reload`、`/memory`、`/mcp`、`/monitor`、`/system`。
-- `/eval/run`、`/eval/jobs/{id}`、`/eval/jobs/{id}/resume`。
+- `/metrics`：support 鉴权的 Prometheus 指标。
+- `/eval/run`、`/eval/jobs`、`/eval/jobs/{id}`、`/eval/jobs/{id}/resume`、`/eval/jobs/{id}/baseline`。
 - `/runs/{id}/feedback`、`/evaluation/candidates`、`/evaluation/candidates/{id}/promote`。
 
 `data/resolvedesk.sqlite3` 保存业务、记忆和评测；`data/billing/usage.sqlite3` 保存累计费用；`data/models/` 保存本地模型。不要通过删除费用账本重置预算。
