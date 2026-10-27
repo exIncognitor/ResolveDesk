@@ -1,4 +1,4 @@
-"""Transactional runs, events, approvals, tickets and feedback in one SQLite DB."""
+"""Transactional runs, receipts and fenced execution in PostgreSQL or offline SQLite."""
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -134,6 +134,9 @@ class Store:
     def _snapshot(db,row):
         result = Store._public(row)
         result["event_cursor"] = db.execute("SELECT COALESCE(MAX(seq),0) FROM events WHERE run_id=? AND kind='queued'",(row["id"],)).fetchone()[0]
+        result["event_end"] = db.execute("SELECT COALESCE(MAX(seq),0) FROM events WHERE run_id=?",(row["id"],)).fetchone()[0]
+        receipt = db.execute("SELECT request_key,user_seq FROM turn_receipts WHERE run_id=? ORDER BY user_seq DESC LIMIT 1",(row["id"],)).fetchone()
+        if receipt: result.update(turn_key=receipt["request_key"],turn_seq=receipt["user_seq"])
         return result
 
     @staticmethod
@@ -152,19 +155,28 @@ class Store:
                              (p.tenant, p.user, request_key)).fetchone()
                 if row["message"] != message:
                     raise Conflict("Idempotency key already used with a different message")
-                return self._public(row), False
+                return self._turn(db,p,row["id"],request_key), False
             db.execute("INSERT INTO messages(run_id,role,content) VALUES(?,'user',?)", (run_id, message))
             self._event(db, run_id, "queued", {})
             seq = db.execute("SELECT MAX(seq) FROM messages WHERE run_id=?",(run_id,)).fetchone()[0]
             db.execute("INSERT INTO turn_receipts VALUES(?,?,?,?,?,?,'queued',NULL,?,?)",(p.tenant,p.user,run_id,request_key,digest(["create",message]),seq,now,now))
             self._receipt(db,self._run(db,p,run_id))
-            return self._public(self._run(db, p, run_id)), True
+            return self._snapshot(db,self._run(db, p, run_id)), True
 
     def get_run(self, p, run_id):
         with self.db() as db:
-            result=self._public(self._run(db,p,run_id))
-            result['event_cursor']=db.execute("SELECT COALESCE(MAX(seq),0) FROM events WHERE run_id=? AND kind='queued'",(run_id,)).fetchone()[0]
-            return result
+            return self._snapshot(db,self._run(db,p,run_id))
+
+    @staticmethod
+    def _turn(db,p,run_id,request_key):
+        row = db.execute("SELECT response FROM turn_receipts WHERE tenant=? AND owner=? AND run_id=? AND request_key=?",(p.tenant,p.user,run_id,request_key)).fetchone()
+        if row is None: raise KeyError("Turn not found")
+        return json.loads(row["response"])
+
+    def get_turn(self,p,run_id,request_key):
+        with self.db() as db:
+            self._run(db,p,run_id)
+            return self._turn(db,p,run_id,request_key)
 
     def events(self, p, run_id, after=0):
         with self.db() as db:
@@ -202,7 +214,7 @@ class Store:
     def lose_execution(self,p,token,reason="lease_lost"):
         with self.db(True) as db:
             updated = db.execute("UPDATE runs SET status='paused',execution_owner=NULL,lease_until=0,updated=? WHERE id=? AND tenant=? AND owner=? AND status='running' AND execution_owner=? AND execution_epoch=?",
-                (time.time(),token.run_id,p.tenant,p.user,token.owner,token.owner,token.epoch))
+                (time.time(),token.run_id,p.tenant,p.user,token.owner,token.epoch))
             if updated.rowcount:
                 self._event(db,token.run_id,"paused",{"reason":reason})
                 self._receipt(db,self._run(db,p,token.run_id))
@@ -263,7 +275,7 @@ class Store:
                 raise Conflict("Run is not waiting for input")
             db.execute("INSERT INTO messages(run_id,role,content) VALUES(?,'user',?)", (run_id, message))
             # Any draft revision invalidates the old approval immediately.
-            db.execute("UPDATE runs SET status='queued',approval=NULL,expires=NULL,version=version+1,execution_owner=NULL,lease_until=0,updated=? WHERE id=?",
+            db.execute("UPDATE runs SET status='queued',answer='',error=NULL,approval=NULL,expires=NULL,version=version+1,execution_owner=NULL,lease_until=0,updated=? WHERE id=?",
                        (time.time(), run_id))
             self._event(db, run_id, "queued", {"reason": "user_reply"})
             seq = db.execute("SELECT MAX(seq) FROM messages WHERE run_id=?",(run_id,)).fetchone()[0]
