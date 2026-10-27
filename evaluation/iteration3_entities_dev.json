@@ -1,0 +1,591 @@
+{
+  "provenance": "优化前助手编写的开发集，允许用于调试，不作为独立验收。",
+  "cases": [
+    {
+      "id": "dev-duration-1",
+      "text": "申请使用一天",
+      "expected": {
+        "duration_days": [
+          "1"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-2",
+      "text": "申请使用二天",
+      "expected": {
+        "duration_days": [
+          "2"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-3",
+      "text": "申请使用三天",
+      "expected": {
+        "duration_days": [
+          "3"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-4",
+      "text": "申请使用四天",
+      "expected": {
+        "duration_days": [
+          "4"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-5",
+      "text": "申请使用五天",
+      "expected": {
+        "duration_days": [
+          "5"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-6",
+      "text": "申请使用六天",
+      "expected": {
+        "duration_days": [
+          "6"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-7",
+      "text": "申请使用七天",
+      "expected": {
+        "duration_days": [
+          "7"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-8",
+      "text": "申请使用八天",
+      "expected": {
+        "duration_days": [
+          "8"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-9",
+      "text": "申请使用九天",
+      "expected": {
+        "duration_days": [
+          "9"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-10",
+      "text": "申请使用十天",
+      "expected": {
+        "duration_days": [
+          "10"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-11",
+      "text": "申请使用十一天",
+      "expected": {
+        "duration_days": [
+          "11"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-12",
+      "text": "申请使用十二天",
+      "expected": {
+        "duration_days": [
+          "12"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-13",
+      "text": "申请使用十三天",
+      "expected": {
+        "duration_days": [
+          "13"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-14",
+      "text": "申请使用十四天",
+      "expected": {
+        "duration_days": [
+          "14"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-15",
+      "text": "申请使用十五天",
+      "expected": {
+        "duration_days": [
+          "15"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-16",
+      "text": "申请使用十六天",
+      "expected": {
+        "duration_days": [
+          "16"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-17",
+      "text": "申请使用十七天",
+      "expected": {
+        "duration_days": [
+          "17"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-18",
+      "text": "申请使用十八天",
+      "expected": {
+        "duration_days": [
+          "18"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-19",
+      "text": "申请使用十九天",
+      "expected": {
+        "duration_days": [
+          "19"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-20",
+      "text": "申请使用二十天",
+      "expected": {
+        "duration_days": [
+          "20"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-21",
+      "text": "申请使用二十一天",
+      "expected": {
+        "duration_days": [
+          "21"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-22",
+      "text": "申请使用二十二天",
+      "expected": {
+        "duration_days": [
+          "22"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-23",
+      "text": "申请使用二十三天",
+      "expected": {
+        "duration_days": [
+          "23"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-24",
+      "text": "申请使用二十四天",
+      "expected": {
+        "duration_days": [
+          "24"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-25",
+      "text": "申请使用二十五天",
+      "expected": {
+        "duration_days": [
+          "25"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-26",
+      "text": "申请使用二十六天",
+      "expected": {
+        "duration_days": [
+          "26"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-27",
+      "text": "申请使用二十七天",
+      "expected": {
+        "duration_days": [
+          "27"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-28",
+      "text": "申请使用二十八天",
+      "expected": {
+        "duration_days": [
+          "28"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-29",
+      "text": "申请使用二十九天",
+      "expected": {
+        "duration_days": [
+          "29"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-duration-30",
+      "text": "申请使用三十天",
+      "expected": {
+        "duration_days": [
+          "30"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-1",
+      "text": "read改成write",
+      "expected": {
+        "access_level": [
+          "write"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-2",
+      "text": "不是LT-2010是LT-2011",
+      "expected": {
+        "asset_id": [
+          "LT-2011"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-3",
+      "text": "用docs-lab替换repo-lab",
+      "expected": {
+        "resource_id": [
+          "docs-lab"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-4",
+      "text": "使用３天",
+      "expected": {
+        "duration_days": [
+          "3"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-5",
+      "text": "读写权限十日",
+      "expected": {
+        "access_level": [
+          "write"
+        ],
+        "duration_days": [
+          "10"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-6",
+      "text": "只写权限两天",
+      "expected": {
+        "access_level": [
+          "write"
+        ],
+        "duration_days": [
+          "2"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-7",
+      "text": "不要write",
+      "expected": {},
+      "absent": []
+    },
+    {
+      "id": "dev-extra-8",
+      "text": "不是七天是十二天",
+      "expected": {
+        "duration_days": [
+          "12"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-9",
+      "text": "１２日",
+      "expected": {
+        "duration_days": [
+          "12"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-10",
+      "text": "资产LT-2222",
+      "expected": {
+        "asset_id": [
+          "LT-2222"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-11",
+      "text": "read或write",
+      "expected": {
+        "access_level": [
+          "read",
+          "write"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-12",
+      "text": "LT-2021和LT-2022",
+      "expected": {
+        "asset_id": [
+          "LT-2021",
+          "LT-2022"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-13",
+      "text": "使用2.5天",
+      "expected": {},
+      "absent": []
+    },
+    {
+      "id": "dev-extra-14",
+      "text": "故障持续七天了",
+      "expected": {},
+      "absent": []
+    },
+    {
+      "id": "dev-extra-15",
+      "text": "一周前开始报错",
+      "expected": {},
+      "absent": []
+    },
+    {
+      "id": "dev-extra-16",
+      "text": "没有提供权限级别",
+      "expected": {},
+      "absent": []
+    },
+    {
+      "id": "dev-extra-17",
+      "text": "资源docs-study",
+      "expected": {
+        "resource_id": [
+          "docs-study"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-18",
+      "text": "十四天而非十天",
+      "expected": {
+        "duration_days": [
+          "14"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-19",
+      "text": "read不变，七天改为十天",
+      "expected": {
+        "access_level": [
+          "read"
+        ],
+        "duration_days": [
+          "10"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-20",
+      "text": "选择LT-2040，而不是LT-2039",
+      "expected": {
+        "asset_id": [
+          "LT-2040"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-21",
+      "text": "只读三十天",
+      "expected": {
+        "access_level": [
+          "read"
+        ],
+        "duration_days": [
+          "30"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-22",
+      "text": "管理员权限admin",
+      "expected": {
+        "access_level": [
+          "admin"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-23",
+      "text": "期限四十天",
+      "expected": {
+        "duration_days": [
+          "40"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-24",
+      "text": "有效期0天",
+      "expected": {
+        "duration_days": [
+          "0"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-25",
+      "text": "期限一到三天",
+      "expected": {},
+      "absent": []
+    },
+    {
+      "id": "dev-extra-26",
+      "text": "授权期限还没决定",
+      "expected": {},
+      "absent": []
+    },
+    {
+      "id": "dev-extra-27",
+      "text": "不是repo-lab，是docs-lab",
+      "expected": {
+        "resource_id": [
+          "docs-lab"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-28",
+      "text": "错误691",
+      "expected": {
+        "error_code": [
+          "691"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-29",
+      "text": "macOS 15",
+      "expected": {
+        "os": [
+          "macOS 15"
+        ]
+      },
+      "absent": []
+    },
+    {
+      "id": "dev-extra-30",
+      "text": "IntelliJ IDEA Ultimate",
+      "expected": {
+        "software": [
+          "IntelliJ IDEA Ultimate"
+        ]
+      },
+      "absent": []
+    }
+  ]
+}

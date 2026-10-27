@@ -1,0 +1,25 @@
+{
+  "baseline": "f09efe7f25fe8028f2df97ef39b989bfd97212b0",
+  "entity_cases": 80,
+  "state_sequences": 12,
+  "live_dialogs": 8,
+  "live_repeats_per_engine": 2,
+  "model": "deepseek-flash",
+  "policies": {
+    "retrieval": "always",
+    "execution": "full"
+  },
+  "scoring": "v1 exact listed fields and forbidden fields; value source and per-turn state checked separately; no relabeling",
+  "sha256": {
+    "evaluation/iteration3_entities_holdout.json": "35f48e1634fa759d609b8ceff9a26a5acc4c181eeb4a8d43fc352f3e5b4b4d2a",
+    "evaluation/iteration3_live_holdout.json": "e7924899c01660927cd28415056c4bd6dac38c9fbca2c9c292f0987c823aa396",
+    "knowledge/access.md": "fe00efc3eac1aadb9a696fc2d3c857042e6223710b76165ab711c79ed691206e",
+    "knowledge/devices.md": "a6dfd6ba2e55c7be21577c12ef084cbf4dcc107b52be813ac39741dbd2537ad7",
+    "knowledge/endpoint.md": "f4f428a215f552e1641b84755afe7016c547d27c3275f498ba24f2e94cb9ca9c",
+    "knowledge/licensing.md": "6fa7ddc3120e8d1c65ba6335ccd04d06071f7c37c8e6ca1e9b911a690202c2e5",
+    "knowledge/permissions.md": "d9f9b4c1a4abb64666129080aa9a69e8c6ba6822620fb391d9353f5c17c6f8f5",
+    "knowledge/software.md": "3a9bb44ef18a4981bb98df984b4b8b09df587f2eda748cfdca9b5343aa9efd5f",
+    "knowledge/software_seat_lifecycle.md": "5255e1efedd19cade3ef37c8ce47ae5497cecc95896a21b24a9776a8b8dca7cf",
+    "knowledge/vpn.md": "d1e9cfc6af2a42ee1e892a7c4c31e7a9da153c34e4fe7aa7060b522eb6bf811c"
+  }
+}

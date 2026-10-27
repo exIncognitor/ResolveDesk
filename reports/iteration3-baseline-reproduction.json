@@ -1,0 +1,44 @@
+{
+  "baseline": "f09efe7",
+  "message": "申请docs-internal read三天",
+  "extracted": {
+    "resource_id": [
+      "docs-internal"
+    ],
+    "access_level": [
+      "read"
+    ]
+  },
+  "persisted": {
+    "domain": "account_access",
+    "entities": {
+      "resource_id": [
+        "docs-internal"
+      ],
+      "access_level": [
+        "read"
+      ]
+    },
+    "sources": {
+      "resource_id": {
+        "turn_seq": 1,
+        "source": "explicit_user_text",
+        "values": [
+          "docs-internal"
+        ]
+      },
+      "access_level": {
+        "turn_seq": 1,
+        "source": "explicit_user_text",
+        "values": [
+          "read"
+        ]
+      }
+    },
+    "task_epoch": 0,
+    "reset": false,
+    "turn_seq": 1
+  },
+  "paid_calls": 0,
+  "conclusion": "中文期限未进入结构化实体；此前最终草稿与业务已通过，不能把这个状态遗漏等同于执行错误。"
+}

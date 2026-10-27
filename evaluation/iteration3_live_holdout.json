@@ -1,0 +1,268 @@
+{
+  "title": "Iteration3 frozen live correction set",
+  "version": "iteration3-live-v1",
+  "provenance": "开发助手在优化前新编的合成模拟对话；不使用生产资料。每版按同一契约全部重复两次，不挑选最好结果。",
+  "intent_cases": [],
+  "assets": [
+    {
+      "id": "LT-1001",
+      "owner": "learner",
+      "model": "模拟新评测笔记本"
+    }
+  ],
+  "dialog_cases": [
+    {
+      "id": "v3-access-numeral",
+      "turns": [
+        {
+          "message": "申请repo-resolvedesk的read权限，期限为九天，用于代码学习；先询问我是否需要准备草稿，不要创建草稿。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "改为docs-internal，只读read，使用十三天，用途为查阅接口文档。请准备access_request草稿，标题为接口文档查阅申请。",
+          "expected_status": "awaiting_confirmation",
+          "required_tools": [
+            "prepare_ticket"
+          ],
+          "expected_entities": {
+            "resource_id": [
+              "docs-internal"
+            ],
+            "access_level": [
+              "read"
+            ],
+            "duration_days": [
+              "13"
+            ]
+          }
+        }
+      ],
+      "workflow": "access_request",
+      "expected_fields": {
+        "resource_id": "docs-internal",
+        "access_level": "read",
+        "duration_days": 13
+      },
+      "documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "v3-access-select",
+      "turns": [
+        {
+          "message": "我想申请repo-resolvedesk权限七天，read或write没选，用途是联调。请先让我选择，不能准备草稿。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "选择read，其他不变，期限七天，用途是接口联调。请准备access_request草稿，标题为联调代码访问。",
+          "expected_status": "awaiting_confirmation",
+          "required_tools": [
+            "prepare_ticket"
+          ],
+          "expected_entities": {
+            "access_level": [
+              "read"
+            ],
+            "duration_days": [
+              "7"
+            ]
+          }
+        }
+      ],
+      "workflow": "access_request",
+      "expected_fields": {
+        "resource_id": "repo-resolvedesk",
+        "access_level": "read",
+        "duration_days": 7
+      },
+      "documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "v3-repair-correct",
+      "turns": [
+        {
+          "message": "资产编号LT-8888可能记错了，我准备报修键盘故障，请先核对并让我提供本人正确资产，不准备草稿。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "更正，属于我的资产是LT-1001，今天键盘失灵，重启仍不能使用。请准备device_repair、hardware类草稿，标题为键盘失灵报修。",
+          "expected_status": "awaiting_confirmation",
+          "required_tools": [
+            "prepare_ticket"
+          ],
+          "expected_entities": {
+            "asset_id": [
+              "LT-1001"
+            ]
+          }
+        }
+      ],
+      "workflow": "device_repair",
+      "expected_fields": {
+        "asset_id": "LT-1001"
+      },
+      "documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "v3-cancel-switch",
+      "turns": [
+        {
+          "message": "我考虑申请docs-internal read四天，暂不建草稿，请先询问用途。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "取消之前的权限申请，换个新问题：请说明办公设备维修验收不通过如何返工，只解释并引用知识，不建单。",
+          "expected_status": "completed",
+          "expected_agent": "technical",
+          "expected_entities": {}
+        }
+      ],
+      "documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "v3-access-negation",
+      "turns": [
+        {
+          "message": "想申请repo-resolvedesk write十五天，用途是调试。先询问是否确定，不准备草稿。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "不要write，改成read；使用十五天，用途是调试问题。请准备access_request草稿，标题为调试只读访问。",
+          "expected_status": "awaiting_confirmation",
+          "required_tools": [
+            "prepare_ticket"
+          ],
+          "expected_entities": {
+            "access_level": [
+              "read"
+            ],
+            "duration_days": [
+              "15"
+            ]
+          }
+        }
+      ],
+      "workflow": "access_request",
+      "expected_fields": {
+        "resource_id": "repo-resolvedesk",
+        "access_level": "read",
+        "duration_days": 15
+      },
+      "documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "v3-license-numeral",
+      "turns": [
+        {
+          "message": "我想申请IntelliJ IDEA Ultimate的模拟席位，天数还未决定。请先询问用途与期限，不准备草稿。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "用途为Python后端调试，产品IntelliJ IDEA Ultimate，使用二十天。请准备license_request、software类草稿，标题为后端调试席位申请。",
+          "expected_status": "awaiting_confirmation",
+          "required_tools": [
+            "prepare_ticket"
+          ],
+          "expected_entities": {
+            "duration_days": [
+              "20"
+            ]
+          }
+        }
+      ],
+      "workflow": "license_request",
+      "expected_fields": {
+        "product": "IntelliJ IDEA Ultimate",
+        "duration_days": 20
+      },
+      "documents": [
+        "software_seat_lifecycle"
+      ]
+    },
+    {
+      "id": "v3-access-fullwidth",
+      "turns": [
+        {
+          "message": "我需要docs-internal的read权限，用途是查操作说明，天数待定。请先询问期限，不准备草稿。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "期限为１８天，用途是查操作说明。请准备docs-internal read的access_request草稿，标题为操作说明阅读权限。",
+          "expected_status": "awaiting_confirmation",
+          "required_tools": [
+            "prepare_ticket"
+          ],
+          "expected_entities": {
+            "duration_days": [
+              "18"
+            ]
+          }
+        }
+      ],
+      "workflow": "access_request",
+      "expected_fields": {
+        "resource_id": "docs-internal",
+        "access_level": "read",
+        "duration_days": 18
+      },
+      "documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "v3-dns-insufficient",
+      "turns": [
+        {
+          "message": "内网域名无法解析，问题已持续五天，先询问影响范围和系统版本，不创建工单。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "系统Windows 11，只有一个内网域名受影响，外网正常。请引用知识给只读DNS排查建议，不改公共DNS、不建单。",
+          "expected_status": "completed",
+          "expected_agent": "technical",
+          "expected_entities": {
+            "os": [
+              "Windows 11"
+            ]
+          }
+        }
+      ],
+      "documents": [
+        "endpoint"
+      ]
+    }
+  ]
+}
