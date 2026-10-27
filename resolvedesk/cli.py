@@ -46,7 +46,11 @@ class DeskCLI:
 
     def request(self,method,path,body=None):
         result=self.http.request(method,path,json=body)
-        result.raise_for_status()
+        if not 200<=result.status_code<300:
+            # Keep the CLI error contract stable for HTTPX clients and the
+            # upgraded framework's HTTPX2-backed in-process adapter.
+            request=httpx.Request(method,str(result.url))
+            httpx.Response(result.status_code,request=request).raise_for_status()
         return result.json()
 
     def display(self,data):

@@ -1,0 +1,41 @@
+{
+  "schema": "resolvedesk-dependency-policy-v1",
+  "profile": "local-compose-rust-explicit-vectors",
+  "reviewed_on": "2026-10-27",
+  "expires_on": "2026-11-26",
+  "exclusions": [
+    {
+      "package": "chromadb",
+      "version": "1.5.9",
+      "advisory": "GHSA-f4j7-r4q5-qw2c",
+      "classification": "unreachable_in_verified_profile",
+      "reason": "Reported server RCE requires the Python backend; supplied Compose uses the stock Rust server. Current main-entry module graph excludes the Chroma Python SDK and sends explicit vectors, so poisoned SDK embedding-function loading is not used.",
+      "sources": ["https://github.com/chroma-core/chroma/issues/6717", "https://github.com/advisories/GHSA-f4j7-r4q5-qw2c"]
+    },
+    {
+      "package": "chromadb",
+      "version": "1.5.9",
+      "advisory": "GHSA-36p7-vc44-83pf",
+      "classification": "unreachable_in_verified_profile",
+      "reason": "Same Python-backend/SDK embedding-function configuration boundary; current app does not load remote collection embedding functions.",
+      "sources": ["https://github.com/advisories/GHSA-36p7-vc44-83pf", "https://github.com/chroma-core/chroma/issues/6717"]
+    },
+    {
+      "package": "chromadb",
+      "version": "1.5.9",
+      "advisory": "GHSA-xph7-9rjv-w5fr",
+      "classification": "unreachable_in_verified_profile",
+      "reason": "Legacy Python SimpleRBAC authorization provider is not enabled. SQL-authorized application identities and explicit metadata filters own access; raw Chroma is an internal loopback-only trusted dependency, not a user-accessible authorization boundary.",
+      "sources": ["https://github.com/advisories/GHSA-xph7-9rjv-w5fr"]
+    },
+    {
+      "package": "chromadb",
+      "version": "1.5.9",
+      "advisory": "GHSA-2wm9-hf6c-p5cr",
+      "classification": "unreachable_in_verified_profile",
+      "reason": "Legacy server authorization assumptions are outside the documented Rust/internal-service profile. Direct users must not access the shared service; all public knowledge requests use application tenant/owner ACL and SQL version revalidation.",
+      "sources": ["https://github.com/advisories/GHSA-2wm9-hf6c-p5cr"]
+    }
+  ],
+  "limits": "These are reported, expiring profile exclusions, not upstream fixes. Python-backend deployment, a Chroma SDK main path, public raw Chroma access, new advisories or a version change invalidate them. Remote/custom service deployments require a fresh review. Host administrators and trusted local processes remain outside the app identity boundary."
+}

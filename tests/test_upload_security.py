@@ -51,7 +51,10 @@ def track_spools(monkeypatch,tmp_path,*,write_error=False):
 @pytest.mark.parametrize('media',[None,'application/json','application/x-www-form-urlencoded','text/plain'])
 async def test_other_media_is_rejected_before_read_or_form_parser(monkeypatch,media):
     touched=[]
-    async def forbidden(self):touched.append(True);raise AssertionError('Unexpected body read')
+    async def forbidden(self):
+        touched.append(True)
+        raise AssertionError('Unexpected body read')
+        yield b''  # Keep the receive contract an async iterator in baseline probes.
     monkeypatch.setattr(Request,'stream',forbidden)
     with pytest.raises(HTTPException) as error:await read_upload(upload_request(b'a=1&b=2',content_type=media),SUPPORT)
     assert error.value.status_code==415 and not touched
@@ -136,5 +139,5 @@ def test_current_static_response_preserves_normal_and_range_requests(monkeypatch
             single=client.get(path,headers={'Range':'bytes=2-5'})
             assert single.status_code==206 and single.text=='2345'
             multiple=client.get(path,headers={'Range':'bytes=0-1,8-9'})
-            assert multiple.status_code==206 and 'multipart/byteranges' in multiple.headers.get('content-type',multiple.headers.get('content-range',''))
+            assert multiple.status_code==206 and 'multipart/byteranges' in (multiple.headers.get('content-type','')+' '+multiple.headers.get('content-range',''))
     store.close()

@@ -1,0 +1,2 @@
+# Installed separately by CI/development; not part of the application image.
+pip-audit==2.10.1

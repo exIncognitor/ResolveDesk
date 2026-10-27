@@ -35,8 +35,10 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             requirements-dev.txt
-      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pip install --upgrade pip==26.2.2
+      - run: python -m pip install -r requirements-dev.txt -r requirements-audit.txt
       - run: python -m pip check
+      - run: python -X utf8 -B tools/check_dependencies.py
       - run: python -X utf8 -B tools/check_release.py
       - run: python -X utf8 -B -m pytest -q
 
@@ -72,6 +74,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+      - run: python -m pip install --upgrade pip==26.2.2
       - run: python -m pip install -r requirements-dev.txt
       - run: python -X utf8 -B tools/setup_services.py
       - run: docker compose --env-file .codex-runtime/services.env -f compose.services.yaml up -d --wait
