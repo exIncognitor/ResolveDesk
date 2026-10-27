@@ -17,20 +17,27 @@ sys.path.insert(0,str(ROOT))
 
 def main():
     parser=argparse.ArgumentParser()
-    parser.add_argument('--apply',action='store_true')
+    mode=parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--apply',action='store_true',help='Import an existing intact legacy ledger')
+    mode.add_argument('--initialize-new',action='store_true',help='First installation only; refuses any existing legacy ledger')
     args=parser.parse_args()
-    if not args.apply:parser.error('Use --apply only after stopping all paid clients')
     # The application container must be stopped. The caller separately verifies
     # and stops its owned host process before invoking this local operator tool.
-    running=subprocess.run(['docker','inspect','--format','{{.State.Running}}','resolvedesk-services-app-1'],capture_output=True,text=True,check=True,timeout=10)
-    if running.stdout.strip()!='false':raise RuntimeError('Stop the app container before financial cutover')
+    running=subprocess.run(['docker','ps','--filter','name=^/resolvedesk-services-app-1$','--format','{{.Names}}'],capture_output=True,text=True,check=True,timeout=10)
+    if running.stdout.strip():raise RuntimeError('Stop the app container before financial cutover')
     from tools.migrate_services import snapshot,validate_path
     from resolvedesk.settings import ServiceSettings
     from core.financial_ledger import PostgresCostLedger
-    from core.paid_api import BudgetPolicy
+    from core.paid_api import BudgetPolicy,CostLedger
+    legacy=validate_path(ROOT/'data/billing/usage.sqlite3')
+    if args.initialize_new:
+        if legacy.exists():raise RuntimeError('A legacy ledger already exists; use --apply, never reset it')
+        # Explicit first-install action only. Runtime cannot initialize or reset
+        # a missing authority simply by changing an environment variable.
+        CostLedger(legacy,BudgetPolicy())
     directory=validate_path(ROOT/'.codex-runtime/checkpoints'/('finance-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')+'-'+uuid.uuid4().hex[:8]))
     directory.mkdir(parents=True,exist_ok=False)
-    source=snapshot(ROOT/'data/billing/usage.sqlite3',directory/'usage.sqlite3')
+    source=snapshot(legacy,directory/'usage.sqlite3')
     with (directory/'resolvedesk.dump').open('xb') as dest:
         subprocess.run(['docker','exec','resolvedesk-services-postgres-1','pg_dump','-U','resolvedesk','-d','resolvedesk','-Fc'],stdout=dest,stderr=subprocess.PIPE,check=True,timeout=60)
     if (directory/'resolvedesk.dump').stat().st_size<100:raise RuntimeError('Empty PostgreSQL backup')

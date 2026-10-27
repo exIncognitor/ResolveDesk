@@ -32,12 +32,15 @@ cd frontend
 npm ci --no-audit --no-fund
 npm run build
 cd ..
+.\.venv\Scripts\python.exe -X utf8 -B tools\migrate_financial_ledger.py --initialize-new
 .\tools\start_local.ps1
 ```
 
 首次使用需将自己的 DeepSeek Key 配置到 `.env`，确认 `RESOLVEDESK_OWN_KEY_CONFIRMED=true`，按需启用 `RESOLVEDESK_PAID_API_ENABLED=true`。客户端只允许 `deepseek-flash`。
 
 已有旧 SQLite 数据时先停止旧服务，执行 `tools/migrate_services.py --apply`；工具先建立业务库和累计费用账本的一致性快照，只允许向空 PostgreSQL 目标迁移，逐表校验行数和内容摘要。不要先在目标运行演示数据初始化。当前切换证据见 [存储切换记录](docs/SERVICE_CUTOVER_2026-10-27.md)。
+
+已有费用账本首次切换时，停止宿主机应用和容器应用，执行 `tools/migrate_financial_ledger.py --apply`。只导入空的 PostgreSQL 费用目标，完整保留既有调用和未知预留；费用已经迁移后无需重跑。上面的 `--initialize-new` 仅用于没有旧费用账本的全新安装，拒绝覆盖既有账本。运行时不会自行创建零消费账本。验证和恢复位置见 [记忆与费用切换记录](docs/MEMORY_MIGRATION_2026-10-27.md)。
 
 完整容器部署包含前端构建、应用、网关、PostgreSQL、Redis、Chroma、Prometheus：
 
@@ -54,7 +57,7 @@ Vue 工作台 → 带身份与逐轮请求键的 API → Redis 租约及 SQL 认
 - **检索**：Markdown 标题与原文跨度分块，中文 BM25、多语言 E5 本地 ONNX 向量、Chroma HNSW、RRF；Chroma 召回前过滤权限，再向 SQL 校验当前授权和版本。文档更新与索引 outbox 同事务，失败后投影最新状态。查询改写及重排使用 Flash，失败记录原因并回退。
 - **路由与协作**：Flash语义、本地固定E5、IT规则三路融合驱动实际路由，记录来源、有效权重和融合分数（不冒称校准概率）。普通与复合问题均调用显式IT专业节点；真实失败会回退，保留实际角色及partial/failed。节点冷却后有界探测，分节点检查点避免恢复时重复已完成的只读调用。
 - **实体与专业工具**：独立entity_state保留用户明确给出的资源/资产/权限/期限/环境及turn_seq来源，纠错优先于模型旧参数，换任务清除旧草稿。各专业节点自主使用按当前身份过滤的RAG、引用、业务目录、本人资产或许可核验工具，保留原确定性技术诊断；不再使用订单核验字段处理软件授权。多资产/资源未明确选择时禁止模型代选。
-- **记忆**：PostgreSQL 保存会话摘要、用户明确提及的系统/IDE 信息和语义历史；完整 Redis 工作记忆、分段 Chroma 情景记忆仍在 G05 实施范围内。历史不是知识库政策依据。
+- **记忆**：PostgreSQL 保存可追溯摘要、画像原文依据、分段当前指针与有界维护队列；Redis 缓存工作上下文，独立私有 Chroma 集合同会话优先、跨会话补充召回。模型压缩和画像在固定后台池中维护，前台不等待模型；故障保留原文并显式降级，按租户与本人隔离。历史不是知识库政策依据。
 - **Skills**：加载 `skills/` 中当前版本的业务说明，按角色和关键词注入，忽略 history，客服可热加载。
 - **MCP**：官方 SDK 的标准 stdio 客户端实际连接 `resolvedesk/mcp_support.py`。仅开放白名单只读诊断清单，不把模型密钥传给子进程。
 - **向量选项**：意图默认复用本地E5；`RESOLVEDESK_INTENT_VECTOR_PROVIDER=self_hosted_http`可连接独立鉴权的自托管同版本E5。实际HTTP向量一致性和配置到路由链路已测试，不会自动使用旧第三方Key。配置及验证见 `docs/IT_ENGINE_MIGRATION_2026-10-27.md`。
@@ -124,7 +127,7 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 - `/eval/run`、`/eval/jobs`、`/eval/jobs/{id}`、`/eval/jobs/{id}/resume`、`/eval/jobs/{id}/baseline`。
 - `/runs/{id}/feedback`、`/evaluation/candidates`、`/evaluation/candidates/{id}/promote`。
 
-PostgreSQL 保存业务、记忆和评测；`data/resolvedesk.sqlite3` 保留为旧库，主服务不再写入；`data/billing/usage.sqlite3` 继续保存原累计费用；`data/models/` 保存本地模型。不要通过删除费用账本重置预算。
+PostgreSQL 保存业务、记忆和评测，`resolvedesk_finance.paid_calls` 保存全进程共享的累计费用；`data/resolvedesk.sqlite3` 与 `data/billing/usage.sqlite3` 保留为切换前旧库，主服务不再写入它们；`data/models/` 保存本地模型。不要通过删除或恢复旧费用账本重置预算。原 `RESOLVEDESK_LEDGER_PATH` 配置已经退役，不会改变正式费用来源。
 
 `.env`、`key.txt`、`.codex-runtime/`、`data/` 和 `history/` 不应提交或上传。前端构建不复制 public/history，后端只公开明确的页面和 assets，不公开源码或历史目录。
 
