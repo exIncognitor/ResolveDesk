@@ -25,7 +25,7 @@ export async function uploadKnowledge(_,s,file){
   if(!Array.isArray(docs)||docs.length>10)throw Error('JSON 应为不超过 10 篇文档的数组')
   return addKnowledge(_,s,docs)
 }
-export const runEvaluation=async(_,s,body,options={})=>{const job=await deskRequest(s,'/eval/run','POST');return pollEvaluation(job,id=>deskRequest(s,`/eval/jobs/${id}`),options)}
+export const runEvaluation=async(_,s,body,options={})=>{const job=await deskRequest(s,'/eval/run','POST',body||{kind:'retrieval'});const report=await pollEvaluation(job,id=>deskRequest(s,`/eval/jobs/${id}`),options);return report?{...report,job_id:job.job_id}:null}
 
 // An incremental UTF-8 parser: chunks may split lines, JSON or Chinese characters.
 export async function consumeEvents(response,onEvent,isCurrent=()=>true){

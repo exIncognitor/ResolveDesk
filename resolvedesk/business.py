@@ -117,6 +117,7 @@ class BusinessService:
         if kind == "device_repair":
             db.execute("UPDATE desk_assets SET status='in_repair' WHERE tenant=? AND id=?", (p.tenant, fields["asset_id"]))
         db.execute("INSERT INTO service_cases VALUES(?,?,?,?,?,1,?,NULL,?)", (ticket_id, p.tenant, p.user, kind, state, encode(fields), time.time()))
+        db.execute("UPDATE tickets SET status=? WHERE id=? AND tenant=?", (state, ticket_id, p.tenant))
         BusinessService._audit(db, p, ticket_id, "submit", None, state, "申请人已核对草稿并确认；模拟业务")
 
     @staticmethod

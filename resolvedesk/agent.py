@@ -143,6 +143,11 @@ class DeskAgent:
                     self.store._event(db, run_id, "duration", {"seconds": round(time.monotonic()-started, 3)})
                 status = self.store.get_run(p, run_id)["status"]
                 self.monitor.record(p.tenant, "run", "desk", status in {"completed", "awaiting_input", "awaiting_confirmation"}, time.monotonic()-started)
+                with self.store.db() as db:
+                    row = db.execute("SELECT payload FROM events WHERE run_id=? AND kind='routing' ORDER BY seq DESC LIMIT 1", (run_id,)).fetchone()
+                if row:
+                    role = json.loads(row["payload"])["primary"]
+                    self.monitor.record(p.tenant,"agent",role,status in {"completed","awaiting_input","awaiting_confirmation"},time.monotonic()-started)
 
     async def _loop(self, p, run_id):
         run = self.store.get_run(p, run_id)

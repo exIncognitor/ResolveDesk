@@ -540,6 +540,7 @@ const views = [
   { id: 'chat', label: '对话', icon: 'chat' },
   { id: 'knowledge', label: '知识库', icon: 'book' },
   { id: 'operations', label: '任务与连接', icon: 'route' },
+  { id: 'service', label: '业务服务台', icon: 'route' },
   { id: 'evaluation', label: '评测', icon: 'chart' }
 ]
 const prompts = [
@@ -845,7 +846,7 @@ async function runEvaluation() {
   const request = requestState.begin('action')
   busy.value = true
   try {
-    const data = await requestEvaluation(request.backend, request.settings, null, {
+    const data = await requestEvaluation(request.backend, request.settings, {kind:evaluationKind.value}, {
       isCurrent: request.isCurrent,
       onProgress: job => {
         if (request.isCurrent()) statusText.value = `评测任务 ${job.job_id}：${job.status === 'queued' ? '排队中' : '运行中'}，已完成 ${job.completed}/${job.total} 组`

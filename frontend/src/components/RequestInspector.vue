@@ -100,7 +100,7 @@
       </div>
       <p v-if="activeAlerts.length" class="alert-note">
         <AppIcon name="alert" />
-        {{ activeAlerts[0].detail || activeAlerts[0].title }}
+        {{ activeAlerts[0].payload?.message || activeAlerts[0].detail || activeAlerts[0].title }}
       </p>
       <p v-else class="runtime-note">{{ monitorData.loaded ? '当前没有活跃告警' : '连接服务后查看运行状态' }}</p>
     </section>
