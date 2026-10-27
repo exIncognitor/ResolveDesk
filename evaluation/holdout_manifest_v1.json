@@ -1,0 +1,23 @@
+{
+  "schema": "resolvedesk-holdout-contract-v1",
+  "baseline": "71ff1d13d11a6ee2d767fcdbce5d34afd849679a",
+  "intent_cases": 112,
+  "retrieval_cases": 100,
+  "dialogs": 12,
+  "turns": 24,
+  "development_utterances_checked": 102,
+  "sha256": {
+    "evaluation/holdout_v1.json": "3ef4b58202c53ee3f25308715a71ac985f83be47dbfa8036ecb5527585d72ca7",
+    "evaluation/holdout_retrieval_v1.json": "6904ff337d61f165be81481ccee5eb017c72f060cacd6863626977a943e91d5d",
+    "evaluation/holdout_faults_v1.json": "3993b7080b8b060133a33dcf560c67173c93078a627c6566ed2cda9e7bb25592",
+    "knowledge/access.md": "fe00efc3eac1aadb9a696fc2d3c857042e6223710b76165ab711c79ed691206e",
+    "knowledge/devices.md": "a6dfd6ba2e55c7be21577c12ef084cbf4dcc107b52be813ac39741dbd2537ad7",
+    "knowledge/endpoint.md": "f4f428a215f552e1641b84755afe7016c547d27c3275f498ba24f2e94cb9ca9c",
+    "knowledge/licensing.md": "6fa7ddc3120e8d1c65ba6335ccd04d06071f7c37c8e6ca1e9b911a690202c2e5",
+    "knowledge/permissions.md": "d9f9b4c1a4abb64666129080aa9a69e8c6ba6822620fb391d9353f5c17c6f8f5",
+    "knowledge/software.md": "3a9bb44ef18a4981bb98df984b4b8b09df587f2eda748cfdca9b5343aa9efd5f",
+    "knowledge/vpn.md": "d1e9cfc6af2a42ee1e892a7c4c31e7a9da153c34e4fe7aa7060b522eb6bf811c"
+  },
+  "quality_policy": "Do not tune on held-out failures or relabel after freeze; preserve raw baseline and candidate outcomes.",
+  "limitations": "LLM-authored synthetic held-out regression set with exact normalized text deduplication, not independent third-party labeling, semantic deduplication or production evidence."
+}

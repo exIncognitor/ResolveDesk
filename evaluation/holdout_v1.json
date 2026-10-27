@@ -1,0 +1,847 @@
+{
+  "title": "ResolveDesk frozen synthetic holdout v1",
+  "provenance": "2026-10-27由开发助手独立新编的合成评测数据；按现有模拟制度标注。与已知开发集按规范化文本去重；不是生产数据、外部盲测或面经数据。冻结后不得据失败改标签或调优路由。",
+  "version": "holdout-v1",
+  "intent_cases": [
+    {
+      "id": "hold-001",
+      "message": "连续输错企业登录口令后无法进入工作台，怎样恢复？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-002",
+      "message": "自助找回密码的按钮一直返回503，该走什么途径？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-003",
+      "message": "换了手机，企业MFA验证绑定需要重新核验。",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-004",
+      "message": "临时参与联调，想给内部代码库申请七天只读访问。",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-005",
+      "message": "我可以替同事批准他发起的仓库权限申请吗？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-006",
+      "message": "文档站docs-internal能不能申请write？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-007",
+      "message": "想拿开发仓库的永久admin权限，制度允许吗？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-008",
+      "message": "主管同意了我的访问申请，为什么还没法读仓库？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-009",
+      "message": "资源开通后的有效期从申请日还是执行日开始？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-010",
+      "message": "借调结束以后，已经到期的访问权限还会显示吗？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-011",
+      "message": "我提交的访问申请在待审批时还能撤回吗？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-012",
+      "message": "权限处理时怎样避免两个操作员互相覆盖结果？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-013",
+      "message": "申请repo-resolvedesk的write，使用十四天，需要附什么材料？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-014",
+      "message": "系统让我把一次性验证码发到工单才能解锁，这合规吗？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-015",
+      "message": "密码恢复页打不开，我应记录哪些脱敏信息？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-016",
+      "message": "公司统一认证显示用户已冻结，需要人工核验身份。",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-017",
+      "message": "同一个人能不能审批自己提交的访问申请？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-018",
+      "message": "仓库申请被拒绝以后是否等于已经获得权限？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-019",
+      "message": "读权限已批准，下一步由谁执行模拟开通？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-020",
+      "message": "我能从接口里看其他部门同事的权限申请吗？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-021",
+      "message": "临时访问内部文档，最短和最长能申请几天？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-022",
+      "message": "没有列在资源目录里的代码库能直接开权限吗？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-023",
+      "message": "处理仓库访问请求会留下操作者和时间吗？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-024",
+      "message": "我的公司密码可能过期了，官方重置渠道是什么？",
+      "expected_intent": "account_access"
+    },
+    {
+      "id": "hold-025",
+      "message": "远程接入客户端卡在连接中，普通网站能正常打开。",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-026",
+      "message": "VPN弹出691身份校验失败，可以把验证码给你检查吗？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-027",
+      "message": "只有公司内网的主机名找不到，公网域名都能解析。",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-028",
+      "message": "办公室无线一小时掉线好几次，应收集哪些资料？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-029",
+      "message": "Windows出现停止代码后反复蓝屏，最近更新过驱动。",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-030",
+      "message": "pip报找不到匹配发行版，如何核对解释器环境？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-031",
+      "message": "PyCharm在加载插件时直接退出，应该怎样安全排查？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-032",
+      "message": "VPN报809但浏览器上网正常，要先检查什么？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-033",
+      "message": "能通过关闭防火墙来排查远程网络超时吗？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-034",
+      "message": "内网DNS故障时能擅自改成公共解析服务器吗？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-035",
+      "message": "只有这台电脑连WiFi不稳定，有线连接没问题。",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-036",
+      "message": "磁盘开始发出异响并频繁读写失败，还能继续压测吗？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-037",
+      "message": "Python升级后依赖安装错误，能删掉别人的虚拟环境吗？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-038",
+      "message": "IDE启动卡死了，可否直接删除所有项目配置？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-039",
+      "message": "远程办公连接超时，提交network工单前需要记什么？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-040",
+      "message": "内网服务返回域名解析错误，先查VPN还是改密码？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-041",
+      "message": "网络故障只发生在一个域名，怎样确定影响范围？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-042",
+      "message": "终端蓝屏以后可以连续强制断电尝试恢复吗？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-043",
+      "message": "安装开发工具失败，需提供包名版本还是授权码？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-044",
+      "message": "IDE安全模式是什么时候可以尝试的排查步骤？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-045",
+      "message": "公司无线反复掉线，需要把无线密码写入工单吗？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-046",
+      "message": "VPN错误800持续出现，客户端版本和时间有用吗？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-047",
+      "message": "重装Python前怎么确认当前虚拟环境是否激活？",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-048",
+      "message": "软件启动报500，但商业许可证还有效，想先排查启动故障。",
+      "expected_intent": "network_endpoint"
+    },
+    {
+      "id": "hold-049",
+      "message": "新入职要用IDEA Ultimate，企业许可申请要走哪些步骤？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-050",
+      "message": "商业插件可以买个人账号后自动报销吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-051",
+      "message": "VS Code在软件白名单内还要单独买许可证吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-052",
+      "message": "IntelliJ授权到期，排查时应核对产品的哪些信息？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-053",
+      "message": "公司IDEA席位用完了，能承诺今天就采购开通吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-054",
+      "message": "同事有空闲企业软件账号，能先借给我使用吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-055",
+      "message": "转岗以后不再使用IDEA，应怎样回收命名用户席位？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-056",
+      "message": "激活页面提示组织不匹配，要提供完整授权密钥吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-057",
+      "message": "企业软件激活服务器不可达，能直接关闭安全防护吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-058",
+      "message": "我要申请商业IDE的一个席位用于后端开发。",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-059",
+      "message": "离职员工的软件订阅由谁注销回收并留档？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-060",
+      "message": "企业许可证出现到期提示，能否先买个人订阅再报销？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-061",
+      "message": "软件白名单允许安装，但插件商业许可还用审核吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-062",
+      "message": "账号可以登录但软件无法激活，需要采集哪些信息？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-063",
+      "message": "从网上下载破解IDE是否符合公司软件使用要求？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-064",
+      "message": "IDEA演示库存为两个席位，这代表真实厂商库存吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-065",
+      "message": "提交商业授权申请需要写用途和计划使用期限吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-066",
+      "message": "软件购买审批通过是否就等于拿到了真实许可证？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-067",
+      "message": "授权服务报401且企业账号组织不符，先做哪类核验？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-068",
+      "message": "商业插件续订想报销，是否可以跳过费用审批？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-069",
+      "message": "企业共享账号能否轮流给几个人激活开发工具？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-070",
+      "message": "许可证失效时应该发脱敏提示还是完整激活码？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-071",
+      "message": "我只想了解企业软件授权规则，暂时不提交申请。",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-072",
+      "message": "IDEA没有可用席位时，申请会涉及采购审核吗？",
+      "expected_intent": "software_license"
+    },
+    {
+      "id": "hold-073",
+      "message": "想核对自己名下开发电脑的型号和保修情况。",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-074",
+      "message": "LT-1001键盘失灵，准备维修前要补哪些故障材料？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-075",
+      "message": "申请电脑报修后，还没分诊，能否取消申请？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-076",
+      "message": "维修师傅说处理好了，最终应该由谁验收关闭？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-077",
+      "message": "设备修好了但同样问题再次出现，可以申请返工吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-078",
+      "message": "笔记本在待验收时能再开一张维修单吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-079",
+      "message": "开发电脑过了保修期，系统会自动扣款维修吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-080",
+      "message": "出差想借用一台办公设备，需记录哪些负责人信息？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-081",
+      "message": "把离职同事的电脑归还仓库，可以直接声明已经入库吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-082",
+      "message": "维修必须填写本人的资产编号还是可以借别人的？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-083",
+      "message": "LT-1001这个演示资产归属于谁，聊天可以改归属吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-084",
+      "message": "设备维修从分诊到关闭，中间有哪些处理状态？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-085",
+      "message": "工程师还没开始维修，派单后应由谁执行处理？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-086",
+      "message": "电脑出现硬件故障但不知道资产ID，能直接准备维修草稿吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-087",
+      "message": "同一台办公电脑同时报修两次会发生什么？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-088",
+      "message": "维修被取消后，资产能否重新发起维修申请？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-089",
+      "message": "申请更换过保笔记本时，Agent能直接寄来新设备吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-090",
+      "message": "临时领用显示器要不要让IT核验负责人？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-091",
+      "message": "我想查保修，没有故障，也不准备开维修单。",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-092",
+      "message": "设备维修完成进入resolved，等于已经closed了吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-093",
+      "message": "已派单设备的处理结果需要留下什么记录？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-094",
+      "message": "普通员工能用同事的资产号替自己申请维修吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-095",
+      "message": "电脑换机和借用流程已经连接真实物流服务了吗？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-096",
+      "message": "维修验收不通过后，资产应解除占用还是继续处理中？",
+      "expected_intent": "device_service"
+    },
+    {
+      "id": "hold-097",
+      "message": "怀疑公司访问密钥外泄，想立即联系安全值班人员。",
+      "expected_intent": "escalation"
+    },
+    {
+      "id": "hold-098",
+      "message": "整个办公区都不能联网了，需要升级IT值班处理。",
+      "expected_intent": "escalation"
+    },
+    {
+      "id": "hold-099",
+      "message": "发现陌生人远程控制企业电脑，请交人工安全支持。",
+      "expected_intent": "escalation"
+    },
+    {
+      "id": "hold-100",
+      "message": "生产服务全部中断了，先收集什么信息升级响应？",
+      "expected_intent": "escalation"
+    },
+    {
+      "id": "hold-101",
+      "message": "请转人工IT同事，我不想继续自助排查。",
+      "expected_intent": "escalation"
+    },
+    {
+      "id": "hold-102",
+      "message": "工作电脑出现勒索提示，能否帮我联系安全人员？",
+      "expected_intent": "escalation"
+    },
+    {
+      "id": "hold-103",
+      "message": "我的企业账号被盗，应该立即升级给谁处理？",
+      "expected_intent": "escalation"
+    },
+    {
+      "id": "hold-104",
+      "message": "同楼层多台机器突然无法联网，需要人工升级。",
+      "expected_intent": "escalation"
+    },
+    {
+      "id": "hold-105",
+      "message": "你好，能简单介绍一下你可以提供的帮助吗？",
+      "expected_intent": "general"
+    },
+    {
+      "id": "hold-106",
+      "message": "感谢，已经没有其他问题了。",
+      "expected_intent": "general"
+    },
+    {
+      "id": "hold-107",
+      "message": "我有些疑问，暂时不知道该从哪里说起。",
+      "expected_intent": "general"
+    },
+    {
+      "id": "hold-108",
+      "message": "先打个招呼，早上好。",
+      "expected_intent": "general"
+    },
+    {
+      "id": "hold-109",
+      "message": "暂时不需要处理任何事情。",
+      "expected_intent": "general"
+    },
+    {
+      "id": "hold-110",
+      "message": "你能帮我订周末的旅游机票吗？",
+      "expected_intent": "general"
+    },
+    {
+      "id": "hold-111",
+      "message": "能解释一下你是哪种内部支持助手吗？",
+      "expected_intent": "general"
+    },
+    {
+      "id": "hold-112",
+      "message": "我还没描述问题，请先等一下。",
+      "expected_intent": "general"
+    }
+  ],
+  "assets": [
+    {
+      "id": "LT-1001",
+      "owner": "learner",
+      "model": "合成留出集笔记本"
+    }
+  ],
+  "dialog_cases": [
+    {
+      "id": "access-correction",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "为临时阅读代码申请repo-resolvedesk权限。先询问我没有提供的级别和天数。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "我改成docs-internal，只读read，三天，用途是阅读联调接口规范。请准备access权限申请草稿，标题为临时接口文档访问。",
+          "expected_status": "awaiting_confirmation",
+          "required_tools": [
+            "prepare_ticket"
+          ],
+          "expected_entities": {
+            "resource_id": [
+              "docs-internal"
+            ],
+            "access_level": [
+              "read"
+            ],
+            "duration_days": [
+              "3"
+            ]
+          }
+        }
+      ],
+      "expected_agent": "general",
+      "expected_status": "awaiting_confirmation",
+      "workflow": "access_request",
+      "expected_fields": {
+        "resource_id": "docs-internal",
+        "access_level": "read",
+        "duration_days": 3
+      },
+      "documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "repair-clarify",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "我的办公电脑触摸板失灵，需要申请维修，先问我还缺什么。",
+          "expected_status": "awaiting_input",
+          "required_tools": [
+            "ask_clarification"
+          ]
+        },
+        {
+          "message": "本人资产LT-1001，今天午休后触摸板失灵，重启后仍无效。请准备hardware类device_repair草稿，标题为触摸板维修，描述包含时间和尝试步骤。",
+          "expected_status": "awaiting_confirmation",
+          "required_tools": [
+            "prepare_ticket"
+          ]
+        }
+      ],
+      "expected_agent": "technical",
+      "expected_status": "awaiting_confirmation",
+      "workflow": "device_repair",
+      "expected_fields": {
+        "asset_id": "LT-1001"
+      },
+      "documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "switch-network-license",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "远程VPN报809，普通网页正常，请给安全排障建议，别建工单并引用资料。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        },
+        {
+          "message": "换个新问题：企业IDEA Ultimate许可快到期，席位应如何申请？只解释制度并引用资料。",
+          "expected_agent": "billing",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "vpn",
+        "licensing"
+      ]
+    },
+    {
+      "id": "switch-license-asset",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "商业插件是否可以先个人购买再自动报销？只解释并引用资料，不建单。",
+          "expected_agent": "billing",
+          "expected_status": "completed"
+        },
+        {
+          "message": "现在换成资产问题：只查询我名下电脑和保修，不发起维修，请引用制度。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "licensing",
+        "devices"
+      ]
+    },
+    {
+      "id": "deny-admin",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "我想为docs-internal申请永久admin权限。请根据资料说明能不能办，先不要准备草稿。",
+          "expected_status": "completed"
+        },
+        {
+          "message": "我接受限制。只读read，五天，用途是学习API说明，资源docs-internal，请准备access申请草稿，标题为API文档学习访问。",
+          "expected_status": "awaiting_confirmation",
+          "required_tools": [
+            "prepare_ticket"
+          ]
+        }
+      ],
+      "expected_agent": "general",
+      "workflow": "access_request",
+      "expected_fields": {
+        "resource_id": "docs-internal",
+        "access_level": "read",
+        "duration_days": 5
+      },
+      "documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "activation-safe",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "IDEA激活提示组织不匹配，该怎么核验？只解释并引用资料。",
+          "expected_agent": "billing",
+          "expected_status": "completed"
+        },
+        {
+          "message": "你要我把完整授权码粘贴过来吗？请说明哪些脱敏信息就够了，不建工单。",
+          "expected_agent": "billing",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "repair-state",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "维修单进入resolved就算彻底关闭了吗？只说明制度并引用资料。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        },
+        {
+          "message": "同一问题验收不通过时如何返工，还能为同一个资产再开一单吗？只解释，不建单。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "network-correction",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "内网主机名解析失败，外部网站正常，怎样查DNS？只读诊断并引用资料。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        },
+        {
+          "message": "补充更正：不是所有内网域名，只有一个域名失败。能直接换公共DNS吗？只解释。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "knowledge-outage",
+      "user_id": "fault-reader",
+      "turns": [
+        {
+          "message": "VPN连接超时但普通上网可用，请引用知识库给安全建议，不建工单。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        },
+        {
+          "message": "我已记录客户端版本和809错误，还需要记录故障时间吗？仍然只解释并引用资料。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "vpn"
+      ]
+    },
+    {
+      "id": "privacy-reset",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "企业密码恢复入口503，怎样请求协助？只解释并引用资料。",
+          "expected_agent": "general",
+          "expected_status": "completed"
+        },
+        {
+          "message": "有人让我提供旧密码和验证码来恢复账号，我应该照做吗？只给安全建议。",
+          "expected_agent": "general",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "access"
+      ]
+    },
+    {
+      "id": "scope-recovery",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "开发仓库write申请批准了，还需要什么动作才能生效？只解释并引用资料。",
+          "expected_agent": "general",
+          "expected_status": "completed"
+        },
+        {
+          "message": "开通以后七天期限从哪一步开始计算，到期后还能查询有效授权吗？只解释。",
+          "expected_agent": "general",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "install-safe",
+      "user_id": "learner",
+      "turns": [
+        {
+          "message": "pip安装依赖报不支持当前Python版本，应该核对什么？只给建议并引用资料。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        },
+        {
+          "message": "如果还失败，可以删掉同事项目的虚拟环境和系统目录重新来吗？只解释安全边界。",
+          "expected_agent": "technical",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "software"
+      ]
+    }
+  ]
+}

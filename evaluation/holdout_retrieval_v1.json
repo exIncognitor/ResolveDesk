@@ -1,0 +1,707 @@
+{
+  "version": "holdout-retrieval-v1",
+  "provenance": "2026-10-27由开发助手独立新编的合成评测数据；按现有模拟制度标注。与已知开发集按规范化文本去重；不是生产数据、外部盲测或面经数据。冻结后不得据失败改标签或调优路由。",
+  "metric_contract": "Document Recall@5 and MRR@5 over relevant_documents; section labels are intentionally not inferred. Current SQL citation and span validity checked separately.",
+  "cases": [
+    {
+      "id": "hold-001",
+      "query": "连续输错企业登录口令后无法进入工作台，怎样恢复？",
+      "relevant_documents": [
+        "access"
+      ]
+    },
+    {
+      "id": "hold-002",
+      "query": "自助找回密码的按钮一直返回503，该走什么途径？",
+      "relevant_documents": [
+        "access"
+      ]
+    },
+    {
+      "id": "hold-003",
+      "query": "换了手机，企业MFA验证绑定需要重新核验。",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-004",
+      "query": "临时参与联调，想给内部代码库申请七天只读访问。",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-005",
+      "query": "我可以替同事批准他发起的仓库权限申请吗？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-006",
+      "query": "文档站docs-internal能不能申请write？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-007",
+      "query": "想拿开发仓库的永久admin权限，制度允许吗？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-008",
+      "query": "主管同意了我的访问申请，为什么还没法读仓库？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-009",
+      "query": "资源开通后的有效期从申请日还是执行日开始？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-010",
+      "query": "借调结束以后，已经到期的访问权限还会显示吗？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-011",
+      "query": "我提交的访问申请在待审批时还能撤回吗？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-012",
+      "query": "权限处理时怎样避免两个操作员互相覆盖结果？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-013",
+      "query": "申请repo-resolvedesk的write，使用十四天，需要附什么材料？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-014",
+      "query": "系统让我把一次性验证码发到工单才能解锁，这合规吗？",
+      "relevant_documents": [
+        "access"
+      ]
+    },
+    {
+      "id": "hold-015",
+      "query": "密码恢复页打不开，我应记录哪些脱敏信息？",
+      "relevant_documents": [
+        "access"
+      ]
+    },
+    {
+      "id": "hold-016",
+      "query": "公司统一认证显示用户已冻结，需要人工核验身份。",
+      "relevant_documents": [
+        "access"
+      ]
+    },
+    {
+      "id": "hold-017",
+      "query": "同一个人能不能审批自己提交的访问申请？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-018",
+      "query": "仓库申请被拒绝以后是否等于已经获得权限？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-019",
+      "query": "读权限已批准，下一步由谁执行模拟开通？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-020",
+      "query": "我能从接口里看其他部门同事的权限申请吗？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-021",
+      "query": "临时访问内部文档，最短和最长能申请几天？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-022",
+      "query": "没有列在资源目录里的代码库能直接开权限吗？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-023",
+      "query": "处理仓库访问请求会留下操作者和时间吗？",
+      "relevant_documents": [
+        "permissions"
+      ]
+    },
+    {
+      "id": "hold-024",
+      "query": "我的公司密码可能过期了，官方重置渠道是什么？",
+      "relevant_documents": [
+        "access"
+      ]
+    },
+    {
+      "id": "hold-025",
+      "query": "远程接入客户端卡在连接中，普通网站能正常打开。",
+      "relevant_documents": [
+        "vpn"
+      ]
+    },
+    {
+      "id": "hold-026",
+      "query": "VPN弹出691身份校验失败，可以把验证码给你检查吗？",
+      "relevant_documents": [
+        "vpn"
+      ]
+    },
+    {
+      "id": "hold-027",
+      "query": "只有公司内网的主机名找不到，公网域名都能解析。",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-028",
+      "query": "办公室无线一小时掉线好几次，应收集哪些资料？",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-029",
+      "query": "Windows出现停止代码后反复蓝屏，最近更新过驱动。",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-030",
+      "query": "pip报找不到匹配发行版，如何核对解释器环境？",
+      "relevant_documents": [
+        "software"
+      ]
+    },
+    {
+      "id": "hold-031",
+      "query": "PyCharm在加载插件时直接退出，应该怎样安全排查？",
+      "relevant_documents": [
+        "software"
+      ]
+    },
+    {
+      "id": "hold-032",
+      "query": "VPN报809但浏览器上网正常，要先检查什么？",
+      "relevant_documents": [
+        "vpn"
+      ]
+    },
+    {
+      "id": "hold-033",
+      "query": "能通过关闭防火墙来排查远程网络超时吗？",
+      "relevant_documents": [
+        "vpn"
+      ]
+    },
+    {
+      "id": "hold-034",
+      "query": "内网DNS故障时能擅自改成公共解析服务器吗？",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-035",
+      "query": "只有这台电脑连WiFi不稳定，有线连接没问题。",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-036",
+      "query": "磁盘开始发出异响并频繁读写失败，还能继续压测吗？",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-037",
+      "query": "Python升级后依赖安装错误，能删掉别人的虚拟环境吗？",
+      "relevant_documents": [
+        "software"
+      ]
+    },
+    {
+      "id": "hold-038",
+      "query": "IDE启动卡死了，可否直接删除所有项目配置？",
+      "relevant_documents": [
+        "software"
+      ]
+    },
+    {
+      "id": "hold-039",
+      "query": "远程办公连接超时，提交network工单前需要记什么？",
+      "relevant_documents": [
+        "vpn"
+      ]
+    },
+    {
+      "id": "hold-040",
+      "query": "内网服务返回域名解析错误，先查VPN还是改密码？",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-041",
+      "query": "网络故障只发生在一个域名，怎样确定影响范围？",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-042",
+      "query": "终端蓝屏以后可以连续强制断电尝试恢复吗？",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-043",
+      "query": "安装开发工具失败，需提供包名版本还是授权码？",
+      "relevant_documents": [
+        "software"
+      ]
+    },
+    {
+      "id": "hold-044",
+      "query": "IDE安全模式是什么时候可以尝试的排查步骤？",
+      "relevant_documents": [
+        "software"
+      ]
+    },
+    {
+      "id": "hold-045",
+      "query": "公司无线反复掉线，需要把无线密码写入工单吗？",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-046",
+      "query": "VPN错误800持续出现，客户端版本和时间有用吗？",
+      "relevant_documents": [
+        "vpn"
+      ]
+    },
+    {
+      "id": "hold-047",
+      "query": "重装Python前怎么确认当前虚拟环境是否激活？",
+      "relevant_documents": [
+        "software"
+      ]
+    },
+    {
+      "id": "hold-048",
+      "query": "软件启动报500，但商业许可证还有效，想先排查启动故障。",
+      "relevant_documents": [
+        "software"
+      ]
+    },
+    {
+      "id": "hold-049",
+      "query": "新入职要用IDEA Ultimate，企业许可申请要走哪些步骤？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-050",
+      "query": "商业插件可以买个人账号后自动报销吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-051",
+      "query": "VS Code在软件白名单内还要单独买许可证吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-052",
+      "query": "IntelliJ授权到期，排查时应核对产品的哪些信息？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-053",
+      "query": "公司IDEA席位用完了，能承诺今天就采购开通吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-054",
+      "query": "同事有空闲企业软件账号，能先借给我使用吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-055",
+      "query": "转岗以后不再使用IDEA，应怎样回收命名用户席位？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-056",
+      "query": "激活页面提示组织不匹配，要提供完整授权密钥吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-057",
+      "query": "企业软件激活服务器不可达，能直接关闭安全防护吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-058",
+      "query": "我要申请商业IDE的一个席位用于后端开发。",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-059",
+      "query": "离职员工的软件订阅由谁注销回收并留档？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-060",
+      "query": "企业许可证出现到期提示，能否先买个人订阅再报销？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-061",
+      "query": "软件白名单允许安装，但插件商业许可还用审核吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-062",
+      "query": "账号可以登录但软件无法激活，需要采集哪些信息？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-063",
+      "query": "从网上下载破解IDE是否符合公司软件使用要求？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-064",
+      "query": "IDEA演示库存为两个席位，这代表真实厂商库存吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-065",
+      "query": "提交商业授权申请需要写用途和计划使用期限吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-066",
+      "query": "软件购买审批通过是否就等于拿到了真实许可证？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-067",
+      "query": "授权服务报401且企业账号组织不符，先做哪类核验？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-068",
+      "query": "商业插件续订想报销，是否可以跳过费用审批？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-069",
+      "query": "企业共享账号能否轮流给几个人激活开发工具？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-070",
+      "query": "许可证失效时应该发脱敏提示还是完整激活码？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-071",
+      "query": "我只想了解企业软件授权规则，暂时不提交申请。",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-072",
+      "query": "IDEA没有可用席位时，申请会涉及采购审核吗？",
+      "relevant_documents": [
+        "licensing"
+      ]
+    },
+    {
+      "id": "hold-073",
+      "query": "想核对自己名下开发电脑的型号和保修情况。",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-074",
+      "query": "LT-1001键盘失灵，准备维修前要补哪些故障材料？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-075",
+      "query": "申请电脑报修后，还没分诊，能否取消申请？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-076",
+      "query": "维修师傅说处理好了，最终应该由谁验收关闭？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-077",
+      "query": "设备修好了但同样问题再次出现，可以申请返工吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-078",
+      "query": "笔记本在待验收时能再开一张维修单吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-079",
+      "query": "开发电脑过了保修期，系统会自动扣款维修吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-080",
+      "query": "出差想借用一台办公设备，需记录哪些负责人信息？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-081",
+      "query": "把离职同事的电脑归还仓库，可以直接声明已经入库吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-082",
+      "query": "维修必须填写本人的资产编号还是可以借别人的？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-083",
+      "query": "LT-1001这个演示资产归属于谁，聊天可以改归属吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-084",
+      "query": "设备维修从分诊到关闭，中间有哪些处理状态？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-085",
+      "query": "工程师还没开始维修，派单后应由谁执行处理？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-086",
+      "query": "电脑出现硬件故障但不知道资产ID，能直接准备维修草稿吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-087",
+      "query": "同一台办公电脑同时报修两次会发生什么？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-088",
+      "query": "维修被取消后，资产能否重新发起维修申请？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-089",
+      "query": "申请更换过保笔记本时，Agent能直接寄来新设备吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-090",
+      "query": "临时领用显示器要不要让IT核验负责人？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-091",
+      "query": "我想查保修，没有故障，也不准备开维修单。",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-092",
+      "query": "设备维修完成进入resolved，等于已经closed了吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-093",
+      "query": "已派单设备的处理结果需要留下什么记录？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-094",
+      "query": "普通员工能用同事的资产号替自己申请维修吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-095",
+      "query": "电脑换机和借用流程已经连接真实物流服务了吗？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-096",
+      "query": "维修验收不通过后，资产应解除占用还是继续处理中？",
+      "relevant_documents": [
+        "devices"
+      ]
+    },
+    {
+      "id": "hold-097",
+      "query": "怀疑公司访问密钥外泄，想立即联系安全值班人员。",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-098",
+      "query": "整个办公区都不能联网了，需要升级IT值班处理。",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-099",
+      "query": "发现陌生人远程控制企业电脑，请交人工安全支持。",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    },
+    {
+      "id": "hold-100",
+      "query": "生产服务全部中断了，先收集什么信息升级响应？",
+      "relevant_documents": [
+        "endpoint"
+      ]
+    }
+  ]
+}

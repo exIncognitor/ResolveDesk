@@ -1,0 +1,15 @@
+{
+  "version": "holdout-fault-v1",
+  "faults": [
+    {
+      "dialog_id": "knowledge-outage",
+      "user_id": "fault-reader",
+      "boundary": "HybridKnowledge.search",
+      "mode": "non_bm25",
+      "once": true,
+      "exception": "ConnectionError",
+      "required_effect": "The identical fixture wrapper for baseline and candidate raises on the first semantic search for this user; lexical fallback stays available. Report injected count and degraded event evidence separately."
+    }
+  ],
+  "notes": "Fault is injected only in the unique evaluation schema and fixture client; never against host or gateway services."
+}
