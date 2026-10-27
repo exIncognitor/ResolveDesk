@@ -296,8 +296,9 @@ class DeskAgent:
         self.store.finish(p, run_id, "awaiting_input", "已达到本轮处理上限，请补充具体故障信息或明确是否需要准备工单。")
 
     async def _bootstrap(self,p,run_id,run,history,state):
-        latest=history[-1]["content"][:2000]
-        state=state or {"messages":[{"role":m["role"],"content":m["content"][:2000]} for m in history[-8:]],
+        latest=history[-1]["content"][:4000]
+        messages=[{"role":m["role"],"content":m["content"][:500]} for m in history[-4:-1]]+[{"role":"user","content":latest}]
+        state=state or {"messages":messages,
             "sources":{},"role":"general","step":0,"pending":None,"phase":"bootstrap","context":{"current_draft":run["draft"],"business":self.business.context(p)}}
         context=state["context"]
         if self.services:
@@ -308,7 +309,8 @@ class DeskAgent:
                 if routing.get("entity_state",{}).get("reset"):
                     self.store.clear_draft(p,run_id)
                     context["current_draft"]=None
-                self.store.event(p,run_id,"routing",routing)
+                from resolvedesk.tracing import redact
+                self.store.event(p,run_id,"routing",redact(routing))
                 self.store.checkpoint(p,run_id,state)
             routing=context["routing"]
             if routing.get("needs_clarification"):

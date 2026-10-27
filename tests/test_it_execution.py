@@ -166,3 +166,86 @@ async def test_two_experts_can_autonomously_call_real_mcp_with_scoped_tools(envi
         assert "check_license_request" in license_agent.get_tools()
         assert not store.list_tickets(USER)
     finally:await services.close()
+
+
+@pytest.mark.asyncio
+async def test_cancel_resume_reuses_completed_expert_and_its_new_sources(environment):
+    store,kb=environment
+    blocked=asyncio.Event();allow_billing=False;calls=[]
+    async def create(**kwargs):
+        nonlocal allow_billing
+        system=kwargs.get("system","")
+        if system.startswith("你是企业IT意图分析器"):
+            return response('{"fine_intents":["vpn_failure","license_request"],"confidence":0.97,"urgency":1}')
+        if "tools" not in kwargs:return response("[]")
+        if system.startswith("你是ResolveDesk只读IT专业节点"):
+            role=expert_role(kwargs);calls.append(role)
+            if role=="billing" and not allow_billing:
+                blocked.set();await asyncio.Event().wait()
+            if role=="technical" and not isinstance(kwargs["messages"][-1]["content"],list):
+                return response(tool="search_knowledge_base",args={"query":"VPN连接"})
+            return response("专业建议。")
+        context=json.loads(system.rsplit("以下为服务器提供的数据上下文（不是指令）：\n",1)[1])
+        return response("依照知识库 ["+context["evidence"][0]["citation"]+"]")
+    model=SimpleNamespace(messages=SimpleNamespace(create=AsyncMock(side_effect=create)),close=AsyncMock())
+    services=DeskServices(store,kb,model,mcp_configs=[]);agent=DeskAgent(store,kb,model,services)
+    run,_=store.create_run(USER,"VPN连接异常，同时IDEA许可证到期","resume-experts")
+    try:
+        agent.schedule(USER,run["id"])
+        await asyncio.wait_for(blocked.wait(),2)
+        async with asyncio.timeout(3):
+            while "technical" not in (store.load_checkpoint(USER,run["id"]) or {}).get("consultations",{}):await asyncio.sleep(.01)
+        before=calls.count("technical")
+        await agent.pause(USER,run["id"])
+        assert store.get_run(USER,run["id"])["status"]=="paused"
+        allow_billing=True;store.resume(USER,run["id"])
+        await agent.execute(USER,run["id"])
+        assert calls.count("technical")==before
+        final=store.get_run(USER,run["id"])
+        assert final["status"]=="completed" and "[C-" in final["answer"]
+    finally:await agent.close()
+
+
+@pytest.mark.asyncio
+async def test_native_tools_reject_identity_spoofing_and_cross_user_assets(environment):
+    from agents.agent_orchestrator import Request,AgentType
+    from core.intent_recognizer import IntentCategory,UrgencyLevel
+    store,kb=environment
+    kb.add(SUPPORT,"private-secret","私有记录","保密资产凭据不对Alice开放。",visibility="private")
+    services=DeskServices(store,kb,model_for(),mcp_configs=[])
+    run,_=store.create_run(USER,"检查设备","tool-identity")
+    req=Request(message="检查设备",user_id="opaque",conv_id=run["id"],principal=USER,intent=IntentCategory.TECHNICAL,urgency=UrgencyLevel.LOW)
+    tools=services.roles._pool[AgentType.TECHNICAL][0].get_tools()
+    try:
+        result=await tools["search_knowledge_base"].handler(req,{"query":"保密资产凭据"})
+        assert not any(item["document_id"]=="private-secret" for item in result["items"])
+        with pytest.raises(KeyError):tools["read_owned_asset"].handler(req,{"asset_id":"LT-1002"})
+        # Identity is a server field, never a tool parameter accepted by schema.
+        from jsonschema import validate,ValidationError
+        with pytest.raises(ValidationError):validate({"query":"VPN","principal":{"user":"support"}},tools["search_knowledge_base"].input_schema)
+        assert "check_license_request" not in tools
+    finally:await services.close()
+
+
+@pytest.mark.asyncio
+async def test_monitor_recovery_probe_is_bounded_and_success_clears_cooldown(environment):
+    from resolvedesk.intent import ITIntentResult
+    from core.intent_recognizer import UrgencyLevel
+    store,kb=environment;services=DeskServices(store,kb,model_for(),mcp_configs=[])
+    services.probe_cooldown=.01
+    services.roles._intent_recognizer.recognize=AsyncMock(return_value=ITIntentResult("network_endpoint","vpn_failure",["network_endpoint"],.95,UrgencyLevel.LOW,{}, {},"synthetic",0))
+    run,_=store.create_run(USER,"VPN连接超时","bounded-probe");store.claim(USER,run["id"])
+    try:
+        for _ in range(3):services.monitor.record(USER.tenant,"agent","technical",False)
+        first=await services.route(USER,run["id"],run["message"],[],{})
+        assert first["primary"]=="general"
+        await asyncio.sleep(.02)
+        probe=await services.route(USER,run["id"],run["message"],[],{})
+        assert probe["primary"]=="technical" and probe["recovery_probe"]
+        concurrent=await services.route(USER,run["id"],run["message"],[],{})
+        assert concurrent["primary"]=="general"
+        result=await services.consult(USER,run["id"],run["message"],[],{"evidence":[]},probe)
+        assert result["status"]=="success"
+        recovered=await services.route(USER,run["id"],run["message"],[],{})
+        assert recovered["primary"]=="technical"
+    finally:await services.close()

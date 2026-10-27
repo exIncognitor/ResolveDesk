@@ -39,6 +39,13 @@ async def test_multi_domain_results_preserve_multiple_experts():
     assert result.fine_intent=="vpn_failure"
 
 
+@pytest.mark.asyncio
+async def test_explicit_elliptical_correction_uses_current_task_when_model_unavailable():
+    result=await ITIntentRecognizer(client_with()).recognize("改成 write，14天",context={"domain":"account_access","entities":{"resource_id":["repo-resolvedesk"]}})
+    assert result.domain=="account_access" and not result.needs_clarification
+    assert result.source_scores["pattern"]["inherited_context"]
+
+
 def test_entities_corrections_task_switch_and_literal_provenance(tmp_path):
     store=Store(tmp_path/"entities.sqlite3")
     state=EntityState(store)
