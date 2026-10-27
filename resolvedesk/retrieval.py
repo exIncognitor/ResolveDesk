@@ -11,6 +11,7 @@ import json
 import math
 from pathlib import Path
 import re
+import threading
 import time
 import uuid
 
@@ -110,20 +111,26 @@ def terms(text):
     return words
 
 
-def bm25(query, documents):
-    tokens = [Counter(terms(d)) for d in documents]
-    if not tokens:
-        return []
-    avg = sum(sum(t.values()) for t in tokens) / len(tokens) or 1
-    scores = [0.0]*len(tokens)
-    for term in set(terms(query)):
-        freq = sum(term in row for row in tokens)
-        idf = math.log(1 + (len(tokens)-freq+0.5)/(freq+0.5))
-        for i, row in enumerate(tokens):
-            tf = row[term]
-            if tf:
-                scores[i] += idf*tf*2.2/(tf+1.2*(0.25+0.75*sum(row.values())/avg))
-    return scores
+class BM25Index:
+    """Same tokenizer/formula/order as bm25, with reusable term postings."""
+    def __init__(self,documents):
+        self.lengths=[];self.postings={}
+        for index,document in enumerate(documents):
+            tokens=Counter(terms(document));self.lengths.append(sum(tokens.values()))
+            for term,frequency in tokens.items():self.postings.setdefault(term,[]).append((index,frequency))
+        self.average=sum(self.lengths)/len(self.lengths) or 1 if self.lengths else 1
+
+    def scores(self,query):
+        scores=[0.]*len(self.lengths)
+        for term in set(terms(query)):
+            postings=self.postings.get(term,())
+            idf=math.log(1+(len(self.lengths)-len(postings)+.5)/(len(postings)+.5))
+            for index,frequency in postings:
+                scores[index]+=idf*frequency*2.2/(frequency+1.2*(.25+.75*self.lengths[index]/self.average))
+        return scores
+
+
+def bm25(query, documents):return BM25Index(documents).scores(query)
 
 
 def rrf(rankings, k=60):
@@ -137,6 +144,7 @@ def rrf(rankings, k=60):
 class HybridKnowledge:
     def __init__(self, store, embedding=None, vector_index=None):
         self.store, self.embedding, self.vector_index = store, embedding, vector_index
+        self.lexical_cache={};self.lexical_lock=threading.Lock()
         if store.backend == "postgresql" and embedding and vector_index is None:
             raise ValueError("Service semantic retrieval requires a Chroma index")
         with store.database.schema_transaction() as db:
@@ -153,6 +161,7 @@ class HybridKnowledge:
                 CREATE TABLE IF NOT EXISTS index_outbox(id TEXT PRIMARY KEY,tenant TEXT,document_id TEXT,generation INTEGER,
                     state TEXT,attempts INTEGER,next_attempt REAL,error TEXT,created REAL);
                 CREATE INDEX IF NOT EXISTS index_pending ON index_outbox(state,next_attempt);
+                CREATE INDEX IF NOT EXISTS index_scope_state ON index_outbox(tenant,document_id,state);
             """)
             db.execute("INSERT INTO knowledge_documents SELECT tenant,document_id,MIN(owner),MIN(visibility),MIN(version),1,? FROM chunks GROUP BY tenant,document_id ON CONFLICT(tenant,document_id) DO NOTHING",(time.time(),))
 
@@ -229,17 +238,38 @@ class HybridKnowledge:
             pending = db.execute("SELECT COUNT(*) FROM index_outbox WHERE state='pending'").fetchone()[0]
         return {"done":done,"failed":failed,"pending":pending}
 
+    def lexical_snapshot(self,p):
+        version=self.scope_version(p);key=(p.tenant,p.user)
+        with self.lexical_lock:
+            previous=self.lexical_cache.get(key)
+            if previous and previous[0]==version:return previous[1:]
+            # Chroma owns vectors in service mode; don't transfer stored vector
+            # JSON on every lexical read. Offline exact-cosine keeps its vectors.
+            columns='id,tenant,owner,visibility,document_id,title,version,section,start,"end",content,embedding'
+            if not self.vector_index:columns+=',vector'
+            with self.store.db() as db:
+                rows=[dict(row) for row in db.execute('SELECT '+columns+" FROM chunks WHERE tenant=? AND (visibility='tenant' OR owner=?) ORDER BY id",(p.tenant,p.user))]
+            index=BM25Index([r['title']+'\n'+r['section']+'\n'+r['content'] for r in rows])
+            # Both checks are authoritative SQL reads. An import in the middle
+            # may yield partial candidates, but can never populate a new revision.
+            current=self.scope_version(p)
+            self.lexical_cache.pop(key,None)
+            if current==version and len(rows)<=20000:
+                while self.lexical_cache and sum(len(value[1]) for value in self.lexical_cache.values())+len(rows)>20000:
+                    self.lexical_cache.pop(next(iter(self.lexical_cache)))
+                if len(self.lexical_cache)>=8:self.lexical_cache.pop(next(iter(self.lexical_cache)))
+                self.lexical_cache[key]=(version,rows,index)
+            return rows,index
+
     def search(self, p, query, top_k=5, mode="hybrid"):
         if not isinstance(query, str) or not query.strip() or len(query) > 2000:
             raise ValueError("Query must contain 1-2000 characters")
         if type(top_k) is not int or not 1 <= top_k <= 20 or mode not in {"hybrid", "bm25", "vector"}:
             raise ValueError("Invalid retrieval options")
-        with self.store.db() as db:
-            rows = [dict(row) for row in db.execute("SELECT * FROM chunks WHERE tenant=? AND (visibility='tenant' OR owner=?) ORDER BY id",
-                                                   (p.tenant, p.user))]
+        rows,index=self.lexical_snapshot(p)
         if not rows:
             return {"items": [], "mode": mode, "degraded": False, "candidate_count": 0}
-        lexical = bm25(query, [r["title"]+"\n"+r["section"]+"\n"+r["content"] for r in rows])
+        lexical = index.scores(query)
         lexical_rank = sorted((i for i in range(len(rows)) if lexical[i] > 0), key=lambda i: (-lexical[i], rows[i]["id"]))[:40]
         vector_rank, semantic, degraded, errors = [], {}, False, []
         if mode != "bm25":
@@ -270,11 +300,12 @@ class HybridKnowledge:
         rankings = [lexical_rank] if mode == "bm25" else [vector_rank] if mode == "vector" else [lexical_rank, vector_rank]
         order, scores = rrf(rankings)
         items = []
+        current=self.validate_citations(p,['C-'+rows[i]['id'] for i in order[:top_k]])
         for i in order[:top_k]:
             row = rows[i]
-            try: self.citation(p,"C-"+row["id"])
-            except KeyError: continue  # Permission/version may have changed during retrieval.
-            items.append({k: row[k] for k in ("document_id", "title", "version", "section", "start", "end", "content")} | {
+            citation='C-'+row['id']
+            if citation not in current:continue  # Current SQL ACL and version remain authoritative.
+            items.append(current[citation] | {
                 "citation": "C-"+row["id"], "score": scores[i], "bm25": lexical[i], "cosine": semantic.get(i)})
         return {"items":items,"mode":mode,"degraded":degraded,"candidate_count":len(rows),"errors":errors}
 
@@ -299,11 +330,10 @@ class HybridKnowledge:
     def scope_version(self,p):
         """Cross-worker cache identity includes ACL, content and index revisions."""
         with self.store.db() as db:
-            rows=[tuple(r) for r in db.execute("""SELECT c.id,c.version,c.owner,c.visibility,c.embedding,
-                COALESCE(d.generation,0),COALESCE((SELECT COUNT(*) FROM index_outbox o WHERE o.tenant=c.tenant AND o.document_id=c.document_id AND o.state='pending'),0)
-                FROM chunks c LEFT JOIN knowledge_documents d ON d.tenant=c.tenant AND d.document_id=c.document_id
-                WHERE c.tenant=? AND (c.visibility='tenant' OR c.owner=?) ORDER BY c.id""",(p.tenant,p.user))]
-        return hashlib.sha256(encode([self.embedding.identity if self.embedding else None,
+            rows=[tuple(r) for r in db.execute("""SELECT d.document_id,d.version,d.owner,d.visibility,d.generation,
+                COALESCE((SELECT COUNT(*) FROM index_outbox o WHERE o.tenant=d.tenant AND o.document_id=d.document_id AND o.state='pending'),0)
+                FROM knowledge_documents d WHERE d.tenant=? AND (d.visibility='tenant' OR d.owner=?) ORDER BY d.document_id""",(p.tenant,p.user))]
+        return hashlib.sha256(encode(['document-revisions-v2',self.embedding.identity if self.embedding else None,
             self.vector_index.name if self.vector_index else 'offline',rows]).encode()).hexdigest()
 
     def status(self):
