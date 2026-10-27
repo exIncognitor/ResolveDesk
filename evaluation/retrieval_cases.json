@@ -6,5 +6,17 @@
   {"id":"reset", "query":"官方密码重置页面不可用", "document":"access", "section":"无法重置密码"},
   {"id":"python-pip", "query":"Python pip 安装依赖失败如何排查", "document":"software", "section":"Python 安装依赖失败"},
   {"id":"ide", "query":"IDE 启动崩溃要收集哪些信息", "document":"software", "section":"IDE 无法启动"},
-  {"id":"ticket-fields", "query":"创建工单需要哪些字段，提交前要确认吗", "document":"software", "section":"创建工单所需信息"}
+  {"id":"ticket-fields", "query":"创建工单需要哪些字段，提交前要确认吗", "document":"software", "section":"创建工单所需信息"},
+  {"id":"least-privilege", "query":"repo-resolvedesk 可以申请 admin 永久权限吗", "document":"permissions", "section":"可申请资源与最小权限"},
+  {"id":"access-approval", "query":"权限申请批准后就是开通了吗", "document":"permissions", "section":"审批与开通流程"},
+  {"id":"access-expiry", "query":"权限什么时候到期，审批有审计记录吗", "document":"permissions", "section":"有效期与审计"},
+  {"id":"dns", "query":"内网 DNS 域名解析失败，外网正常", "document":"endpoint", "section":"DNS 解析失败"},
+  {"id":"wifi", "query":"WiFi 频繁断连要收集什么信息", "document":"endpoint", "section":"WiFi 频繁断连"},
+  {"id":"disk", "query":"磁盘异响并且终端蓝屏应该如何处理", "document":"endpoint", "section":"终端蓝屏与磁盘异常"},
+  {"id":"idea-license", "query":"IntelliJ IDEA Ultimate 商业席位如何申请", "document":"licensing", "section":"IDEA 商业授权"},
+  {"id":"license-return", "query":"离职后软件许可证席位如何回收", "document":"licensing", "section":"许可证到期与离职回收"},
+  {"id":"activation", "query":"软件无法激活要提供授权码吗", "document":"licensing", "section":"无法激活"},
+  {"id":"battery", "query":"笔记本电池鼓包，应该拆开看吗", "document":"devices", "section":"电池鼓包与硬件风险"},
+  {"id":"repair-process", "query":"设备维修处理完成后谁来验收关闭，能返工吗", "document":"devices", "section":"维修处理流程"},
+  {"id":"asset-lock", "query":"同一资产可以重复申请维修吗，过保怎么处理", "document":"devices", "section":"保修与设备占用"}
 ]

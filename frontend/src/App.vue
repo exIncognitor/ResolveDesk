@@ -340,6 +340,7 @@
         <section class="workspace-card"><h2>负反馈回归候选</h2><button class="text-button" @click="loadCandidates">加载候选（客服）</button><label>期望文档 ID<input v-model="expectedDocument" /></label><label>期望章节<input v-model="expectedSection" /></label><p v-for="c in candidates" :key="c.run_id">{{ c.question }} <button :disabled="!expectedDocument || !expectedSection" @click="promoteCandidate(c.run_id)">审核并加入回归</button></p></section>
         <div v-if="evalData" class="evaluation-content">
           <p v-if="evalData.kind === 'active_service_quality'">{{ evalData.provenance }} · 意图样本 {{ evalData.intent?.samples }} 条 · 对话 {{ evalData.total }} 组。评分错误不会记为有效评分。</p>
+          <button v-if="evalData.kind === 'active_service_quality' && evalData.job_id" @click="saveQualityBaseline" :disabled="busy || evalData.evaluation_errors > 0 || evalData.passed !== evalData.total">将当前报告设为回归基线（客服）</button>
           <div class="evaluation-summary">
             <div class="score-hero">
               <span>PASS RATE · 通过率</span>
@@ -860,6 +861,14 @@ async function runEvaluation() {
     statusText.value = error.message
     showToast('评测运行失败')
   } finally { if (request.isCurrent()) busy.value = false }
+}
+
+async function saveQualityBaseline() {
+  const request = requestState.begin('baseline')
+  try {
+    await deskRequest(request.settings, `/eval/jobs/${evalData.value.job_id}/baseline`, 'POST')
+    if (request.isCurrent()) showToast('已保存人工选定的质量基线')
+  } catch (error) { if (request.isCurrent()) showToast(error.message) }
 }
 
 async function loadToolTrace(requestId, request = requestState.begin('trace')) {

@@ -132,7 +132,7 @@ async def test_reviewed_feedback_runs_as_persistent_scoped_regression(store):
     job=service.submit(SUPPORT)
     await asyncio.gather(*list(service.tasks.values()))
     report=service.get(SUPPORT,job['job_id'])
-    assert report['status']=='completed' and report['result']['total']==9
+    assert report['status']=='completed' and report['result']['total']==21
     assert report['result']['results'][-1]['passed']
     with pytest.raises(KeyError):service.get(USER,job['job_id'])
     restarted=EvaluationService(Store(store.path),kb)

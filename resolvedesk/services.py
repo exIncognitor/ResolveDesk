@@ -128,8 +128,15 @@ class DeskServices:
                     "escalation": ("IT 安全与人工升级", "汇总影响范围与已尝试操作，移交 IT 人员，不承诺已处理。", ("识别风险", "整理证据", "建议人工升级")),
                 }
                 label, mission, workflow = profiles[agent.agent_type.value]
-                agent.profile = replace(agent.profile,role=label,mission=mission,workflow=workflow)
+                agent.profile = replace(agent.profile,role=label,mission=mission,workflow=workflow,
+                    input_contract=("用户已提供的信息", "可引用知识片段", "服务器提供的模拟资源与业务状态"),
+                    output_contract=("有依据的建议", "缺失字段", "下一步与审批边界"),
+                    handoff_conditions=("需要审批、维修或安全人工核验",))
                 agent.system_prompt = f"你是 ResolveDesk {label}。{mission}所有模拟企业状态以服务器上下文为准。"
+                # Avoid inherited ecommerce-only fields in specialist input packets.
+                from agents.agent_orchestrator import BaseAgent
+                from types import MethodType
+                agent._build_role_packet = MethodType(BaseAgent._build_role_packet, agent)
         self.manager = MCPToolManager(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash")
         configs = mcp_configs if mcp_configs is not None else [MCPServerConfig(name="support",transport="stdio",
             command=sys.executable,args=[str(ROOT/"resolvedesk"/"mcp_support.py")],allowed_tools=["support_checklist"],
