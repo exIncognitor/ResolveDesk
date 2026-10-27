@@ -369,7 +369,7 @@
               <div class="card-heading">
                 <div>
                   <span class="kicker">QUALITY SCORES</span>
-                  <h2>检索指标</h2>
+              <h2>{{ evalData.kind === 'active_service_quality' ? '回答质量与业务指标' : '检索指标' }}</h2>
                 </div>
               </div>
               <p v-if="!Object.keys(evalData.avg_scores || {}).length" class="muted">没有有效评分，请查看失败原因。</p>

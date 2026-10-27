@@ -1,0 +1,49 @@
+{
+  "created_utc": "2026-10-27T02:47:17.779647+00:00",
+  "scope": "local_python_vue_it_service",
+  "synthetic_business_data": true,
+  "offline_tests": {
+    "python": 197,
+    "subtests": 14,
+    "frontend": 22,
+    "frontend_build": "passed"
+  },
+  "real_flash_quality_job": "ae757129391041efb108057d8777b448",
+  "quality_passed": 6,
+  "quality_total": 6,
+  "intent_cases": 28,
+  "intent_accuracy": 1.0,
+  "retrieval_report": "reports/it-service-acceptance-20261027T024027Z.json",
+  "retrieval_passed": 21,
+  "first_failure_report_retained": "reports/it-service-acceptance-20261027T022845Z.json",
+  "workflow_live_tickets": [
+    "RD-51942F5C7090",
+    "RD-E6BF9338DBFC"
+  ],
+  "ui_verified_ticket": "RD-3AD9E5340B16",
+  "baseline_saved_and_matched": "ae757129391041efb108057d8777b448",
+  "deterministic_regression_probe": "20% accuracy reduction in copied report detected; no new model call or baseline mutation",
+  "local_webhook_trigger_recovery": "passed; independent synthetic failure injection, real loopback HTTP",
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "0.945046",
+    "available_cny": "17.054954",
+    "calls": {
+      "settled": 242
+    },
+    "usage_input_tokens": 392683,
+    "usage_output_tokens": 19960,
+    "unresolved_reservation_cny": "0"
+  },
+  "limitations": [
+    "synthetic development data; not production evidence",
+    "external webhook destination not configured",
+    "no enterprise IAM, CMDB or license-vendor integration",
+    "single worker SQLite; Docker skipped"
+  ],
+  "database_checkpoints": [
+    ".codex-runtime/checkpoints/20261027T022745Z",
+    ".codex-runtime/checkpoints/20261027T023150Z"
+  ]
+}
