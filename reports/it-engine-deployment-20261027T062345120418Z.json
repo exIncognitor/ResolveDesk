@@ -1,0 +1,185 @@
+{
+  "kind": "deployed_it_engine",
+  "ready": {
+    "ready": true,
+    "components": {
+      "database": true,
+      "redis": true,
+      "chroma": true
+    }
+  },
+  "revision": "e5c3d05c96506ecc4837f227712cc078721fbe0c",
+  "source_hashes_match": true,
+  "source_hashes": {
+    "resolvedesk/app.py": "006a2a50f7f9b3ff47c41fb109eb8ab505f468d61d29d01447c268eb66589b78",
+    "resolvedesk/agent.py": "3fef8552d0468677d855c0f70863c0a78905a18c5d6a955ae40a964d0103a72c",
+    "resolvedesk/intent.py": "ff0f4a8cda271a3c3f3dc0c6bbf8319f5417d89c5f7f3a7e7268a83302d228d7",
+    "resolvedesk/entity_state.py": "c1bed385ab67db72275630dcea3e655232963aff9ea84163ca6b2fdf1e83c5bc",
+    "resolvedesk/services.py": "9d5f905847af91835af53686441237366dde383a8e88928bf4f80c2f388a39c2",
+    "resolvedesk/roles.py": "3a8b78e75ed2f55bbb4f20c981026f7da3a861286ef8ca414b0655172e9c8737",
+    "agents/agent_orchestrator.py": "b80ffb76188cbd4ece5a0734349db9111820577cb2fc2973e8385c20e429eb03",
+    "frontend/src/lib/resolvedesk.js": "512d198d1f7c1dc9daf8c2728bb5c9892630b51f2bfdaf85988396a784acd5c0",
+    "frontend/src/components/RequestInspector.vue": "0629f0f1c56a1ac6847033dd1b314821ac75d44f3d6aa476ea57b9e2d33bc002",
+    "frontend/src/App.vue": "d8543815f544eec1e596f72ecf49e30e76baa2c9b9f795bd1c1e7866d47c7c9f"
+  },
+  "intent": {
+    "implementation": "ITIntentRecognizer",
+    "vector_provider": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78"
+  },
+  "specialists": {
+    "general": {
+      "implementations": [
+        "ITGeneralAgent"
+      ],
+      "tools": [
+        "inspect_request_context",
+        "search_knowledge_base",
+        "read_knowledge_citation",
+        "read_business_catalog",
+        "collect_request_fields",
+        "mcp_support_support_checklist"
+      ]
+    },
+    "technical": {
+      "implementations": [
+        "ITTechnicalAgent"
+      ],
+      "tools": [
+        "lookup_error_code",
+        "build_diagnostic_plan",
+        "search_knowledge_base",
+        "read_knowledge_citation",
+        "read_business_catalog",
+        "read_owned_asset",
+        "collect_request_fields",
+        "mcp_support_support_checklist"
+      ]
+    },
+    "billing": {
+      "implementations": [
+        "ITLicenseAgent"
+      ],
+      "tools": [
+        "search_knowledge_base",
+        "read_knowledge_citation",
+        "read_business_catalog",
+        "check_license_request",
+        "mcp_support_support_checklist"
+      ]
+    },
+    "escalation": {
+      "implementations": [
+        "ITEscalationAgent"
+      ],
+      "tools": [
+        "search_knowledge_base",
+        "read_knowledge_citation",
+        "read_business_catalog",
+        "prepare_handoff_summary",
+        "mcp_support_support_checklist"
+      ]
+    }
+  },
+  "model_probe": {
+    "simulation": true,
+    "run_id": "c204a6b93a03418382f511b85e4411a1",
+    "turn_key": "deploy-2ca9e69617cd45c8a6938db756997bd8",
+    "status": "awaiting_input",
+    "route": {
+      "confidence": 0.7669400864950087,
+      "domains": [
+        "general"
+      ],
+      "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+      "entities": {},
+      "entity_state": {
+        "domain": "general",
+        "entities": {},
+        "reset": false,
+        "sources": {},
+        "task_epoch": 0,
+        "turn_seq": 51
+      },
+      "fine_intent": "unknown",
+      "intent": "general",
+      "intent_method": "it_three_way_fusion_v1",
+      "mission": "核对账号/权限诉求，解释申请及审批边界。",
+      "needs_clarification": true,
+      "primary": "general",
+      "reason": "用户明确表示尚未说明具体问题，仅要求先询问补充信息，无任何可识别的IT意图线索。",
+      "recovery_probe": false,
+      "source_scores": {
+        "embedding": {
+          "available": true,
+          "scores": {
+            "access_request": 0.08849156226377246,
+            "account_unlock": 0.0804170548248089,
+            "device_hazard": 0.07299723848897785,
+            "device_repair": 0.07291918916974627,
+            "dns_failure": 0.07130382773474252,
+            "endpoint_failure": 0.06683484821706244,
+            "greeting": 0.07897748402509215,
+            "human_handoff": 0.08678888649350402,
+            "license_request": 0.07144166289422087,
+            "software_activation": 0.06433647862547066,
+            "ticket_status": 0.07065900628362237,
+            "unknown": 0.1097004324750433,
+            "vpn_failure": 0.06513232850393617
+          },
+          "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+          "weight": 0.2
+        },
+        "llm": {
+          "available": true,
+          "reason": "用户明确表示尚未说明具体问题，仅要求先询问补充信息，无任何可识别的IT意图线索。",
+          "scores": {
+            "unknown": 0.95
+          },
+          "urgency": 1,
+          "weight": 0.7
+        },
+        "pattern": {
+          "available": true,
+          "scores": {
+            "unknown": 0.8
+          },
+          "weight": 0.1
+        }
+      },
+      "supporting": [],
+      "urgency": "LOW",
+      "workflow": [
+        "确认诉求",
+        "查询制度",
+        "核对必要字段",
+        "说明下一步"
+      ]
+    },
+    "paid_calls": 1,
+    "business_records_changed": false
+  },
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.598896",
+    "available_cny": "16.401104",
+    "calls": {
+      "settled": 338
+    },
+    "usage_input_tokens": 653704,
+    "usage_output_tokens": 36436,
+    "unresolved_reservation_cny": "0"
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.59982",
+    "available_cny": "16.40018",
+    "calls": {
+      "settled": 339
+    },
+    "usage_input_tokens": 653982,
+    "usage_output_tokens": 36482,
+    "unresolved_reservation_cny": "0"
+  }
+}

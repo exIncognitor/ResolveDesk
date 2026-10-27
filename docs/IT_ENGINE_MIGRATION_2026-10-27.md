@@ -19,7 +19,7 @@
 
 当前主入口默认`RESOLVEDESK_INTENT_VECTOR_PROVIDER=local_e5`，复用固定`Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78`的CPU ONNX模型。没有因本机环境改成n-gram替代。
 
-可选`self_hosted_http`通过`RESOLVEDESK_INTENT_VECTOR_URL`和专用`RESOLVEDESK_EMBEDDING_TOKEN`连接`resolvedesk.embedding_service:app`。令牌至少32字符，由服务启动环境提供；不写源码、不打印，不会读取旧第三方embedding Key。该端点使用`/v1/embeddings`并显式区分query/passsage，不声称兼容所有第三方embedding扩展。
+可选`self_hosted_http`通过`RESOLVEDESK_INTENT_VECTOR_URL`和专用`RESOLVEDESK_EMBEDDING_TOKEN`连接`resolvedesk.embedding_service:app`。令牌至少32字符，由服务启动环境提供；不写源码、不打印，不会读取旧第三方embedding Key。该端点使用`/v1/embeddings`并显式区分query/passage，不声称兼容所有第三方embedding扩展。
 
 服务需先有本地固定模型，运行示例为`python -m uvicorn resolvedesk.embedding_service:app --host 127.0.0.1 --port 18002 --no-access-log`。启动环境需包含上述专用令牌。HTTP模板与查询始终使用同一模型/提供方，响应检查模型ID、条数、索引、维度、有限值和范数，连接/请求有界，无隐式模型下载或付费API。
 
@@ -34,7 +34,15 @@
 - 故障测试覆盖普通/复合专业失败、实际General回退、partial保留、全部失败不让协调器编造、未知直接澄清、节点探测互斥与取消释放、跨用户资产/私有知识拒绝、暂停恢复不重复已完成专业调用及其新增来源。
 - 前端按原turn_key取回旧轮次追踪，显示实际执行角色和partial。人工升级显示“需人工核验”，不声称真实队列已接通。追踪暂时失败不会丢掉已完成的付费回答或捏造general/0置信度；完整耗时和轨迹分页仍归G10。
 
-本阶段实际Flash保守记账增加**0.653850元**，原累计**1.598896元**，仍保留2元安全余量；未决预留为0。所有验证使用新建的独占合成PostgreSQL schema及Chroma集合，未提交主库业务；证据保存后已删除这些独占测试数据。
+上述隔离验证实际Flash保守记账增加**0.653850元**。另外在已部署Docker网关执行1次明确标注“合成部署验证”的unknown澄清，耗费**0.000924元**，仅保存测试对话，没有创建或改变业务记录。当前累计**1.599820元**、339次settled，仍保留2元安全余量；未决预留为0。
+
+8场景及专业工具验证使用新建的独占合成PostgreSQL schema和Chroma集合，证据保存后已删除独占测试数据。主库保留上述一条有明确标记的部署测试对话，便于在工作台查看。
+
+## 当前部署证据
+
+镜像`resolvedesk-app:e5c3d05`与宿主机8080两个工作进程均已更新，Docker网关仍为18080。[部署报告](../reports/it-engine-deployment-20261027T062345120418Z.json)核对运行容器10个关键源码SHA-256与已验工作区一致，`/system`实际报告ITIntentRecognizer、固定E5、四种显式IT类及当前工具列表。Docker内实际Flash调用成功，LLM/E5通道均可用，只有预期的一次付费调用。
+
+[宿主机检索](../reports/services-runtime-20261027T062348005090Z.json)与[Docker检索](../reports/services-runtime-20261027T062206676119Z.json)各60/60，未调用模型；Vue新构建静态资源200，Prometheus up=1。没有把这些有限验收推断为生产质量、全集识别准确率或完整G01–G13迁移结论。
 
 ## 恢复与剩余范围
 
