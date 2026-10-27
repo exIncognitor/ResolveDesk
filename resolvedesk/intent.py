@@ -50,33 +50,9 @@ DOMAIN_SCOPE={
 
 
 def entities_from(message):
-    """Only literal user-provided values; never passwords/tokens or inferred identities."""
-    patterns={"resource_id":r"(?<![a-z0-9_])(?:repo-[a-z0-9_-]+|docs-[a-z0-9_-]+)(?![a-z0-9_])",
-        "asset_id":r"(?<![a-z0-9_])LT-\d{3,8}(?![a-z0-9_])","ticket_id":r"(?<![a-z0-9_])RD-[A-F0-9]{12}(?![a-z0-9_])",
-        "access_level":r"(?<![a-z0-9_])(?:read|write|admin)(?![a-z0-9_])|只读|读写|只写",
-        "duration_days":r"(?<!\d)(\d{1,3})\s*天",
-        "error_code":r"(?<![a-z0-9_])(?:401|403|404|500|691|800|809)(?![a-z0-9_])",
-        "os":r"(?<![a-z0-9_])(?:Windows\s*(?:10|11)|Ubuntu\s*[\d.]*|macOS\s*[a-z0-9.]*)",
-        "software":r"(?<![a-z0-9_])(?:IntelliJ(?:\s+IDEA)?(?:\s+Ultimate)?|IDEA(?:\s+Ultimate)?|VS\s*Code|PyCharm|Python|Docker)(?![a-z0-9_])"}
-    values={}
-    for key,pattern in patterns.items():
-        matches=list(re.finditer(pattern,message,re.I))
-        if not matches:continue
-        target=re.search(r"(?:用|使用|采用)(.{0,120}?)替换",message)
-        marker=re.search(r"改成|改为|换成|换为|设为|调整为|更正为|更新为|而是|不是.{1,80}?是",message)
-        not_old=re.search(r"而非",message)
-        chosen=[]
-        if target:chosen=[m for m in matches if target.start(1)<=m.start()<target.end(1)]
-        if not chosen and marker:chosen=[m for m in matches if m.start()>=marker.end()]
-        if not chosen and not_old:chosen=[m for m in matches if m.end()<=not_old.start()]
-        if chosen:matches=chosen[-1:]
-        found=[m.group(1) if key=="duration_days" else m.group() for m in matches]
-        if key=="access_level": found=[{"只读":"read","读写":"write","只写":"write"}.get(v,v.lower()) for v in found]
-        if key in {"asset_id","ticket_id"}: found=[v.upper() for v in found]
-        # Unresolved alternatives stay explicit; a model may not silently pick
-        # one asset/resource/permission when preparing a single-object draft.
-        values[key]=list(dict.fromkeys(found))
-    return values
+    """Compatibility view of the provenance-aware literal entity parser."""
+    from resolvedesk.entities import extract
+    return extract(message)['values']
 
 
 @dataclass
