@@ -225,7 +225,7 @@ class HybridKnowledge:
             if self.vector_index:self.drain_index(1,tenant=p.tenant,document_id=document_id)
         with self.store.db() as db:
             for document_id in results:
-                results[document_id]['index_pending']=bool(self.vector_index and db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND document_id=? AND state='pending' AND next_attempt<=? LIMIT 1",(p.tenant,document_id,db.now())).fetchone())
+                results[document_id]['index_pending']=bool(self.vector_index and db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND document_id=? AND state='pending' AND (next_attempt<=? OR error IS NOT NULL) LIMIT 1",(p.tenant,document_id,db.now())).fetchone())
             total=db.execute("SELECT COUNT(*) FROM chunks c WHERE tenant=? AND (visibility='tenant' OR owner=?) AND "+readable(db),(p.tenant,p.user)).fetchone()[0]
         return {'results':[results[d['document_id']] for d in documents],'documents':len(results),'added_chunks':sum(r['chunks'] for r in results.values()),'total_chunks':total,'atomic_sql':True}
 
@@ -258,7 +258,7 @@ class HybridKnowledge:
                     done += 1
                     db.execute("UPDATE index_outbox SET state='done',error=NULL WHERE tenant=? AND document_id=? AND generation<=? AND next_attempt<=?",(job["tenant"],job["document_id"],document["generation"],now))
         with self.store.db() as db:
-            pending = db.execute("SELECT COUNT(*) FROM index_outbox WHERE state='pending' AND next_attempt<=?",(db.now(),)).fetchone()[0]
+            pending = db.execute("SELECT COUNT(*) FROM index_outbox WHERE state='pending' AND (next_attempt<=? OR error IS NOT NULL)",(db.now(),)).fetchone()[0]
         return {"done":done,"failed":failed,"pending":pending}
 
     def lexical_snapshot(self,p):
@@ -308,7 +308,7 @@ class HybridKnowledge:
                             if match and match["metadata"]["version"]==row["version"] and row["embedding"]==self.embedding.identity:
                                 semantic[i] = match["cosine"]
                         with self.store.db() as db:
-                            degraded = bool(db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND state='pending' AND next_attempt<=? LIMIT 1",(p.tenant,db.now())).fetchone())
+                            degraded = bool(db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND state='pending' AND (next_attempt<=? OR error IS NOT NULL) LIMIT 1",(p.tenant,db.now())).fetchone())
                     except Exception as exc:
                         if mode=="vector": raise RuntimeError("Chroma vector retrieval unavailable") from exc
                         degraded=True;errors.append("chroma_"+type(exc).__name__)
@@ -359,7 +359,7 @@ class HybridKnowledge:
         """Cross-worker cache identity includes ACL, content and index revisions."""
         with self.store.db() as db:
             rows=[tuple(r) for r in db.execute("""SELECT d.document_id,d.version,d.owner,d.visibility,d.generation,
-                COALESCE((SELECT COUNT(*) FROM index_outbox o WHERE o.tenant=d.tenant AND o.document_id=d.document_id AND o.state='pending' AND o.next_attempt<="""+clock_sql(db)+"""),0)
+                COALESCE((SELECT COUNT(*) FROM index_outbox o WHERE o.tenant=d.tenant AND o.document_id=d.document_id AND o.state='pending' AND (o.next_attempt<="""+clock_sql(db)+""" OR o.error IS NOT NULL)),0)
                 FROM knowledge_documents d WHERE d.tenant=? AND (d.visibility='tenant' OR d.owner=?) AND """+readable(db,'d')+" ORDER BY d.document_id",(p.tenant,p.user))]
         return hashlib.sha256(encode(['document-revisions-v2',self.embedding.identity if self.embedding else None,
             self.vector_index.name if self.vector_index else 'offline',rows]).encode()).hexdigest()
