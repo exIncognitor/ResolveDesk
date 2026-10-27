@@ -345,7 +345,17 @@ class DeskAgent:
                     self.store.event(p,run_id,"memory_error",{"type":type(exc).__name__,"phase":"context"})
                     context["memory"]={"summary":"","profile":{},"relevant_history":[]}
         if "evidence" not in context:
-            retrieval=await self.services.search(p,latest,5,role=state["role"]) if self.services else await asyncio.to_thread(self.knowledge.search,p,latest,5)
+            started=time.monotonic();retrieval=None;error=None
+            try:
+                retrieval=await self.services.search(p,latest,5,role=state["role"]) if self.services else await asyncio.to_thread(self.knowledge.search,p,latest,5)
+            except BaseException as exc:error=type(exc).__name__;raise
+            finally:
+                from resolvedesk.tracing import tool_trace
+                trace=tool_trace('knowledge_search',{'query':latest,'top_k':5},retrieval,trace_id=uuid.uuid4().hex,tool_use_id=None,
+                    layer='bootstrap',role=state['role'],instance='desk-'+self.worker_id,seconds=time.monotonic()-started,
+                    success=retrieval is not None and not retrieval.get('degraded',False),error_code=error)
+                try:self.store.trace_tool(p,run_id,run.get('turn_key'),trace)
+                except Exception:pass
             state["sources"]={item["citation"]:item for item in retrieval["items"]}
             context.update(evidence=retrieval["items"],retrieval_degraded=retrieval["degraded"])
             self.store.event(p,run_id,"retrieval",{k:v for k,v in retrieval.items() if k!="items"}|{"citations":list(state["sources"])})

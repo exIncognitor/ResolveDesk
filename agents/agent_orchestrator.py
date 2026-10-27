@@ -410,12 +410,22 @@ class BaseAgent:
                             tools_used.append(name)
                             if isinstance(result, dict) and "success" in result:
                                 result_success = bool(result.get("success"))
+                        except asyncio.CancelledError:
+                            from resolvedesk.tracing import tool_trace
+                            trace=tool_trace(name,args,None,trace_id=uuid.uuid4().hex,tool_use_id=tool_use_id,layer='specialist',
+                                role=self.agent_type.value,instance=getattr(self,'instance_id','legacy'),seconds=time.monotonic()-tool_t0,
+                                success=False,error_code='CancelledError')
+                            trace['request_id']=req.request_id
+                            if req.on_tool_trace:
+                                try:await req.on_tool_trace(trace)
+                                except Exception:pass
+                            raise
                         except Exception as ex:
                             call_success = False
                             error_code = type(ex).__name__
                             logger.warning("Agent 工具 %s 执行失败: %s",name,type(ex).__name__)
                             error_text = str(ex)
-                            result = {"success": False, "error": error_text}
+                            result = getattr(ex,'trace_data',{"success": False, "error": error_text})
                     tool_latency_ms = (time.monotonic() - tool_t0) * 1000
                     if not error_text and isinstance(result, dict):
                         error_text = str(result.get("error", "") or "")
