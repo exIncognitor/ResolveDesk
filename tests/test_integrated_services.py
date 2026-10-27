@@ -101,7 +101,9 @@ async def test_rewrite_fusion_rerank_and_failure_fallback(store):
         assert len(result['queries'])==3 and result['reranked'] and len(result['items'])==3
         assert len({i['citation'] for i in result['items']})==3
         model.messages.create.side_effect=TimeoutError()
-        fallback=await svc.search(USER,'VPN',3)
+        cached=await svc.search(USER,'VPN',3)
+        assert cached['cached'] and cached['reranked']
+        fallback=await svc.search(USER,'VPN 新故障',3)
         assert fallback['items'] and not fallback['reranked']
         assert len(fallback['errors'])==2
         assert svc.skills.summary()['count']==3

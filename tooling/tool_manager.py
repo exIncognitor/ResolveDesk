@@ -133,6 +133,7 @@ class Tool:
     stats:   ToolStats    = field(default_factory=ToolStats, init=False)
     breaker: CircuitBreaker = field(default_factory=CircuitBreaker, init=False)
     slots: Any = field(default=None, init=False, repr=False)
+    fallback_slots: Any = field(default=None, init=False, repr=False)
 
 
 # ── MCP 工具管理器 ────────────────────────────────────────────────────────────
@@ -276,7 +277,8 @@ class MCPToolManager:
         if tool.fallback is None:
             return ToolResult(success=False, data=None, tool_name=tool.name, error=error)
         try:
-            data = await asyncio.wait_for(self._invoke(tool.fallback,(params,context,error),None),tool.fallback_timeout_s)
+            if tool.fallback_slots is None:tool.fallback_slots=asyncio.Semaphore(2)
+            data = await asyncio.wait_for(self._invoke(tool.fallback,(params,context,error),tool.fallback_slots),tool.fallback_timeout_s)
             return ToolResult(
                 success=False,
                 data=data,
