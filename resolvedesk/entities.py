@@ -56,7 +56,8 @@ def extract(message):
             start,end=match.span();left=max((p+1 for p in boundaries if p<start),default=0)
             right=min((p for p in boundaries if p>=end),default=len(text))
             before,after=text[left:start],text[end:right]
-            negated=bool(NEGATIVE.search(before) or re.match(r'\s*(?:不对|错误|不要|不需要|不选|不是我想|不是我要)',after))
+            kept=bool(re.match(r'\s*(?:先|暂时|暂且)?不要(?:修改|改动|改变|改)',after))
+            negated=bool(NEGATIVE.search(before) or not kept and re.match(r'\s*(?:先|暂时|暂且)?(?:不对|错误|不要|不需要|不选|不是我想|不是我要)',after))
             if last and last['negative'] and re.fullmatch(r'\s*(?:或|和|以及|与|、|或者|及)\s*',text[last['end']:start]):negated=True
             value=canonical(field,match.group())
             if value is None:continue

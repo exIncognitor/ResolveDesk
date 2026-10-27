@@ -1,0 +1,709 @@
+{
+  "contract": "419d001f8edbe700961d7ac8f493d0d373e1867652b93f118c82ba82e7aeafb2",
+  "engine_root": ".",
+  "paid_calls": 0,
+  "split": "development",
+  "entities": [
+    {
+      "id": "dev-duration-1",
+      "values": {
+        "duration_days": [
+          "1"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-2",
+      "values": {
+        "duration_days": [
+          "2"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-3",
+      "values": {
+        "duration_days": [
+          "3"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-4",
+      "values": {
+        "duration_days": [
+          "4"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-5",
+      "values": {
+        "duration_days": [
+          "5"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-6",
+      "values": {
+        "duration_days": [
+          "6"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-7",
+      "values": {
+        "duration_days": [
+          "7"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-8",
+      "values": {
+        "duration_days": [
+          "8"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-9",
+      "values": {
+        "duration_days": [
+          "9"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-10",
+      "values": {
+        "duration_days": [
+          "10"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-11",
+      "values": {
+        "duration_days": [
+          "11"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-12",
+      "values": {
+        "duration_days": [
+          "12"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-13",
+      "values": {
+        "duration_days": [
+          "13"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-14",
+      "values": {
+        "duration_days": [
+          "14"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-15",
+      "values": {
+        "duration_days": [
+          "15"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-16",
+      "values": {
+        "duration_days": [
+          "16"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-17",
+      "values": {
+        "duration_days": [
+          "17"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-18",
+      "values": {
+        "duration_days": [
+          "18"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-19",
+      "values": {
+        "duration_days": [
+          "19"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-20",
+      "values": {
+        "duration_days": [
+          "20"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-21",
+      "values": {
+        "duration_days": [
+          "21"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-22",
+      "values": {
+        "duration_days": [
+          "22"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-23",
+      "values": {
+        "duration_days": [
+          "23"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-24",
+      "values": {
+        "duration_days": [
+          "24"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-25",
+      "values": {
+        "duration_days": [
+          "25"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-26",
+      "values": {
+        "duration_days": [
+          "26"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-27",
+      "values": {
+        "duration_days": [
+          "27"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-28",
+      "values": {
+        "duration_days": [
+          "28"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-29",
+      "values": {
+        "duration_days": [
+          "29"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-duration-30",
+      "values": {
+        "duration_days": [
+          "30"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-1",
+      "values": {
+        "access_level": [
+          "write"
+        ]
+      },
+      "checks": {
+        "access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-2",
+      "values": {
+        "asset_id": [
+          "LT-2011"
+        ]
+      },
+      "checks": {
+        "asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-3",
+      "values": {
+        "resource_id": [
+          "docs-lab"
+        ]
+      },
+      "checks": {
+        "resource_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-4",
+      "values": {
+        "duration_days": [
+          "3"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-5",
+      "values": {
+        "access_level": [
+          "write"
+        ],
+        "duration_days": [
+          "10"
+        ]
+      },
+      "checks": {
+        "access_level": true,
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-6",
+      "values": {
+        "access_level": [
+          "write"
+        ],
+        "duration_days": [
+          "2"
+        ]
+      },
+      "checks": {
+        "access_level": true,
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-7",
+      "values": {},
+      "checks": {},
+      "passed": true
+    },
+    {
+      "id": "dev-extra-8",
+      "values": {
+        "duration_days": [
+          "12"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-9",
+      "values": {
+        "duration_days": [
+          "12"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-10",
+      "values": {
+        "asset_id": [
+          "LT-2222"
+        ]
+      },
+      "checks": {
+        "asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-11",
+      "values": {
+        "access_level": [
+          "read",
+          "write"
+        ]
+      },
+      "checks": {
+        "access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-12",
+      "values": {
+        "asset_id": [
+          "LT-2021",
+          "LT-2022"
+        ]
+      },
+      "checks": {
+        "asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-13",
+      "values": {},
+      "checks": {},
+      "passed": true
+    },
+    {
+      "id": "dev-extra-14",
+      "values": {},
+      "checks": {},
+      "passed": true
+    },
+    {
+      "id": "dev-extra-15",
+      "values": {},
+      "checks": {},
+      "passed": true
+    },
+    {
+      "id": "dev-extra-16",
+      "values": {},
+      "checks": {},
+      "passed": true
+    },
+    {
+      "id": "dev-extra-17",
+      "values": {
+        "resource_id": [
+          "docs-study"
+        ]
+      },
+      "checks": {
+        "resource_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-18",
+      "values": {
+        "duration_days": [
+          "14"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-19",
+      "values": {
+        "access_level": [
+          "read"
+        ],
+        "duration_days": [
+          "10"
+        ]
+      },
+      "checks": {
+        "access_level": true,
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-20",
+      "values": {
+        "asset_id": [
+          "LT-2040"
+        ]
+      },
+      "checks": {
+        "asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-21",
+      "values": {
+        "access_level": [
+          "read"
+        ],
+        "duration_days": [
+          "30"
+        ]
+      },
+      "checks": {
+        "access_level": true,
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-22",
+      "values": {
+        "access_level": [
+          "admin"
+        ]
+      },
+      "checks": {
+        "access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-23",
+      "values": {
+        "duration_days": [
+          "40"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-24",
+      "values": {
+        "duration_days": [
+          "0"
+        ]
+      },
+      "checks": {
+        "duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-25",
+      "values": {},
+      "checks": {},
+      "passed": true
+    },
+    {
+      "id": "dev-extra-26",
+      "values": {},
+      "checks": {},
+      "passed": true
+    },
+    {
+      "id": "dev-extra-27",
+      "values": {
+        "resource_id": [
+          "docs-lab"
+        ]
+      },
+      "checks": {
+        "resource_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-28",
+      "values": {
+        "error_code": [
+          "691"
+        ]
+      },
+      "checks": {
+        "error_code": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-29",
+      "values": {
+        "os": [
+          "macOS 15"
+        ]
+      },
+      "checks": {
+        "os": true
+      },
+      "passed": true
+    },
+    {
+      "id": "dev-extra-30",
+      "values": {
+        "software": [
+          "IntelliJ IDEA Ultimate"
+        ]
+      },
+      "checks": {
+        "software": true
+      },
+      "passed": true
+    }
+  ],
+  "sequences": [],
+  "entity_passed": 60,
+  "entity_total": 60,
+  "sequence_passed": 0,
+  "sequence_total": 0
+}
