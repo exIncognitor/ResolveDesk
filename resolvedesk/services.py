@@ -22,6 +22,8 @@ class DeskServices:
     def __init__(self,store,knowledge,client,mcp_configs=None,*,coordination=None):
         import os
         self.store,self.knowledge,self.client = store,knowledge,client
+        self.execution_policy=os.getenv('RESOLVEDESK_EXECUTION_POLICY','full')
+        if self.execution_policy not in {'full','adaptive'}:raise ValueError('Unknown execution policy')
         from resolvedesk.monitoring import Monitor
         self.monitor = Monitor(store)
         self.skills = SkillManager(ROOT/"skills",max_prompt_chars=3500)
@@ -152,6 +154,17 @@ class DeskServices:
         from resolvedesk.tracing import redact
         cached=cached or {}
         sources={item["citation"]:item for item in context.get("evidence",[])}
+        import re
+        direct=(self.execution_policy=='adaptive' and len(message)<=160 and routing.get('confidence',0)>=.75
+            and routing.get('fine_intent') in {'vpn_failure','dns_failure','software_install','software_activation','account_unlock','license_request'}
+            and len(routing.get('domains',[]))==1 and not routing.get('supporting') and routing.get('urgency')=='LOW'
+            and not routing.get('needs_clarification') and routing.get('monitor_available',True) and not routing.get('monitor_penalties')
+            and bool(sources) and not context.get('retrieval_degraded') and not cached
+            and not re.search(r'申请|准备|提交|报修|维修|开通|借用|更换|鼓包|冒烟|泄露|更正|不是|换个|新问题',message))
+        self.store.event(p,run_id,'execution_plan',{'policy':self.execution_policy,'path':'direct_master' if direct else 'specialist_collaboration',
+            'reason':'single_low_risk_domain_with_current_evidence' if direct else 'full_context_required'})
+        if direct:
+            return {'status':'success','specialist_opinions':[],'sources':sources,'actual_roles':[],'escalated':False,'execution_path':'direct_master'}
         turn=self.store.get_run(p,run_id)
         instance_penalties=self._monitor_snapshot(p.tenant)['instance_penalties']
         observed_durations={}
