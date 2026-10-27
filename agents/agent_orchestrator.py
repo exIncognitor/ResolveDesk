@@ -200,6 +200,7 @@ class Request:
     authorized_sources: Dict[str, Any] = field(default_factory=dict,repr=False)
     on_agent_execution: Any = field(default=None,repr=False)
     executing_role: Optional[str] = None
+    instance_penalties: Dict[str,float] = field(default_factory=dict,repr=False)
 
 
 @dataclass
@@ -1196,7 +1197,7 @@ class AgentOrchestrator:
             return False
         return req.intent_confidence < 0.5
 
-    def _best_agent(self, agent_type: AgentType) -> Optional[BaseAgent]:
+    def _best_agent(self, agent_type: AgentType, penalties=None) -> Optional[BaseAgent]:
         """
         性能路由：从同类 Agent 中选 routing_score() 最高的。
         这是"基于在线表现动态调整路由"的核心。
@@ -1206,7 +1207,7 @@ class AgentOrchestrator:
             return None
         eligible = [a for a in agents if agent_type not in (AgentType.TECHNICAL, AgentType.BILLING) or a.stats.available()]
         probes=[a for a in eligible if a.stats.retry_at and time.monotonic()>=a.stats.retry_at]
-        return probes[0] if probes else max(eligible,key=lambda a:a.stats.routing_score()) if eligible else None
+        return probes[0] if probes else max(eligible,key=lambda a:a.stats.routing_score()*(1-(penalties or {}).get(getattr(a,'instance_id',''),0))) if eligible else None
 
     def _monitor_degraded(self, agent_type: AgentType) -> bool:
         """专业 Agent 降权过高时由路由层回退，确保单实例部署也能生效。"""
@@ -1219,10 +1220,10 @@ class AgentOrchestrator:
 
     async def _execute(self, req: Request, agent_type: AgentType) -> AgentResponse:
         """执行 Agent，失败时降级到 GeneralAgent。"""
-        agent = self._best_agent(agent_type)
+        agent = self._best_agent(agent_type,req.instance_penalties)
         unavailable=agent is None
         if agent is None:
-            agent = self._best_agent(AgentType.GENERAL)
+            agent = self._best_agent(AgentType.GENERAL,req.instance_penalties)
         if agent is None:
             return AgentResponse(
                 agent_type=AgentType.GENERAL,
@@ -1243,7 +1244,7 @@ class AgentOrchestrator:
         # 专属 Agent 失败时降级到 GeneralAgent
         if not response.success and agent_type not in (AgentType.GENERAL, AgentType.ESCALATION):
             logger.warning(f"{agent_type.value} 失败，降级到 GeneralAgent")
-            fallback = self._best_agent(AgentType.GENERAL)
+            fallback = self._best_agent(AgentType.GENERAL,req.instance_penalties)
             if fallback:
                 original = response
                 response = await fallback.handle(req)

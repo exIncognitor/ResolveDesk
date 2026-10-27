@@ -148,8 +148,6 @@ class Store:
     @staticmethod
     def _receipt(db,row):
         seq = db.execute("SELECT MAX(seq) FROM messages WHERE run_id=? AND role='user'",(row["id"],)).fetchone()[0]
-        db.execute("UPDATE turn_receipts SET status=?,response=?,updated=? WHERE run_id=? AND user_seq=?",
-                   (row["status"],encode(Store._snapshot(db,row)),time.time(),row["id"],seq))
         from resolvedesk.metrics import finish_attempt
         # Observability failure must not undo a completed answer/approval state.
         db.execute('SAVEPOINT attempt_metrics')
@@ -158,6 +156,8 @@ class Store:
             db.execute('ROLLBACK TO SAVEPOINT attempt_metrics')
             Store._event(db,row['id'],'monitor_error',{'type':type(exc).__name__})
         finally:db.execute('RELEASE SAVEPOINT attempt_metrics')
+        db.execute("UPDATE turn_receipts SET status=?,response=?,updated=? WHERE run_id=? AND user_seq=?",
+                   (row["status"],encode(Store._snapshot(db,row)),time.time(),row["id"],seq))
 
     def create_run(self, p, message, request_key):
         with self.db(True) as db:
@@ -234,8 +234,8 @@ class Store:
 
     def lose_execution(self,p,token,reason="lease_lost"):
         with self.db(True) as db:
-            updated = db.execute("UPDATE runs SET status='paused',execution_owner=NULL,lease_until=0,updated=? WHERE id=? AND tenant=? AND owner=? AND status='running' AND execution_owner=? AND execution_epoch=?",
-                (time.time(),token.run_id,p.tenant,p.user,token.owner,token.epoch))
+            updated = db.execute("UPDATE runs SET status='paused',execution_owner=NULL,lease_until=0,error=?,updated=? WHERE id=? AND tenant=? AND owner=? AND status='running' AND execution_owner=? AND execution_epoch=?",
+                (reason,time.time(),token.run_id,p.tenant,p.user,token.owner,token.epoch))
             if updated.rowcount:
                 self._event(db,token.run_id,"paused",{"reason":reason})
                 self._receipt(db,self._run(db,p,token.run_id))

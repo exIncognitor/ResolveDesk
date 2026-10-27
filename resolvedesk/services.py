@@ -46,6 +46,7 @@ class DeskServices:
             for agent in pool:
                 agent._client = client
         self.manager = MCPToolManager(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash")
+        self.manager.observer=self._observe_tool
         from resolvedesk.reliable_retrieval import ReliableRetrieval
         self.retrieval=ReliableRetrieval(knowledge,client,self.manager,coordination)
         if mcp_configs is None:
@@ -114,28 +115,31 @@ class DeskServices:
                    "software_license": AgentType.BILLING, "device_service": AgentType.TECHNICAL,
                    "escalation": AgentType.ESCALATION, "general": AgentType.GENERAL}
         roles=list(dict.fromkeys(mapping[d] for d in result.domains))
-        penalties = self.monitor.refresh(p.tenant)["routing_penalties"]
-        primary = roles[0]
+        measured=self.monitor.refresh(p.tenant)
+        penalties=measured['routing_penalties']
+        scores={r.value:(1/(1+i*.15))*(1-penalties.get(r.value,0)) for i,r in enumerate(roles)}
+        primary=max(roles,key=lambda r:scores[r.value])
         degraded = [r.value for r in roles if penalties.get(r.value)]
         health=self.routing_health.setdefault((p.tenant,primary.value),{"retry_at":0.,"probe":False,"recovered":False})
         now=time.monotonic()
         if health["probe"] and now>=health.get("probe_until",now+1):health["probe"]=False
         probe=False
         if result.urgency.name=="CRITICAL":primary=AgentType.ESCALATION
-        elif penalties.get(primary.value):
+        elif penalties.get(primary.value,0)>=self.monitor.policy['fallback_penalty']:
             if not health["retry_at"] and not health["recovered"]:health["retry_at"]=now+self.probe_cooldown
             if health["recovered"]:pass
             elif now>=health["retry_at"] and not health["probe"]:
                 health.update(probe=True,probe_until=now+120);probe=True
             else:primary=AgentType.GENERAL if primary!=AgentType.GENERAL else AgentType.ESCALATION
         else:health.update(retry_at=0.,probe=False,recovered=False)
-        supporting = [r for r in roles if r != primary and not penalties.get(r.value)]
+        supporting = [r for r in roles if r != primary and penalties.get(r.value,0)<self.monitor.policy['fallback_penalty']]
         if result.needs_clarification:primary,supporting=AgentType.GENERAL,[]
         profile=self.roles._pool[primary][0].profile
         return {"intent":result.domain,"fine_intent":result.fine_intent,"domains":result.domains,"intent_method":result.method,
             "primary":primary.value,"supporting":[r.value for r in supporting],"confidence":result.confidence,
             "source_scores":result.source_scores,"embedding_source":result.embedding_source,"urgency":result.urgency.name,
             "needs_clarification":result.needs_clarification,"recovery_probe":probe,"entities":state["entities"],"entity_state":state,
+            'routing_scores':scores,'monitor_penalties':penalties,
             "reason":result.reasoning+("；异常节点降权："+",".join(degraded) if degraded else ""),"mission":profile.mission,"workflow":list(profile.workflow)}
 
     async def consult(self,p,run_id,message,history,context,routing,cached=None,on_result=None):
@@ -144,15 +148,22 @@ class DeskServices:
         from resolvedesk.tracing import redact
         cached=cached or {}
         sources={item["citation"]:item for item in context.get("evidence",[])}
+        turn=self.store.get_run(p,run_id)
+        instance_penalties=self.monitor.refresh(p.tenant)['instance_penalties']
         async def record(event):
-            self.store.event(p,run_id,"agent_execution",event)
-            self.monitor.record(p.tenant,"agent",event["role"],event["success"],event["seconds"])
+            try:self.store.event(p,run_id,'agent_execution',{k:v for k,v in event.items() if k!='tools'})
+            except Exception:pass
+            self.monitor.record(p.tenant,'agent',event['role'],event['success'],event['seconds'],owner=p.user,instance=event['instance'],
+                status=event['status'],event_key='agent:'+event['request_id']+':'+event['instance'],run_id=run_id,turn_key=turn.get('turn_key'),detail={'error_code':event['error_code']})
+            for index,tool in enumerate(event.get('tools',[])):
+                self.monitor.record(p.tenant,'tool',tool['tool_name'],tool.get('success',False) and tool.get('result_success')is not False,tool.get('latency_ms',0)/1000,
+                    owner=p.user,instance=event['instance'],event_key=f'tool:{event["request_id"]}:{event["instance"]}:{index}',run_id=run_id,turn_key=turn.get('turn_key'),detail={'layer':'specialist','cached':bool(tool.get('cached'))})
         async def execute(role):
             if role in cached and cached[role]["status"]!="failed":return cached[role]
             req=Request(message=message,user_id=hashlib.sha256(encode([p.tenant,p.user]).encode()).hexdigest(),conv_id=run_id,
                 context=encode(context),history=history,entities=routing.get("entities",{}),intent=DOMAIN_CATEGORY[routing["intent"]],
                 intent_group=routing["intent"],urgency=UrgencyLevel[routing.get("urgency","LOW")],intent_confidence=routing.get("confidence",0),
-                request_id=uuid.uuid4().hex,principal=p,authorized_sources=sources,on_agent_execution=record)
+                request_id=uuid.uuid4().hex,principal=p,authorized_sources=sources,on_agent_execution=record,instance_penalties=instance_penalties)
             started=time.monotonic()
             try:
                 response=await self.roles._execute(req,AgentType(role))
@@ -171,7 +182,7 @@ class DeskServices:
             self.store.event(p,run_id,"specialist_result",redact({k:v for k,v in result.items() if k!="answer"}))
             health=self.routing_health.get((p.tenant,role))
             if health:
-                healthy=result["success"] and result["role"]==role and not result["fallback"]
+                healthy=result["success"] and result["role"]==role and not result["fallback"] and result['latency_ms']<=self.monitor.policy['agent_avg_ms']
                 health.update(probe=False,recovered=healthy,retry_at=0. if healthy else time.monotonic()+self.probe_cooldown)
             if on_result:await on_result(role,result,dict(sources))
             return result
@@ -183,8 +194,24 @@ class DeskServices:
 
     async def search(self,p,query,top_k=5,optimize=True,mode="hybrid",role=None):
         result=await self.retrieval.search(p,query,top_k,optimize,mode,role)
-        self.monitor.record(p.tenant,"retrieval",mode,bool(result["items"]) and not result["errors"] and not result["degraded"],result["latency_ms"]/1000)
+        self.monitor.record(p.tenant,"retrieval",mode,bool(result["items"]) and not result["errors"] and not result["degraded"],result["latency_ms"]/1000,owner=p.user,instance=self.monitor.worker_id,detail={'cached':result['cached'],'degraded':result['degraded']})
         return result
+
+    def publish_tool_health(self,tenant):
+        health={}
+        for name,tool in self.manager._tools.items():
+            breaker=tool.breaker
+            health[name]={'circuit_state':breaker.state.value,'retry_after_s':max(0,breaker.recovery_s-(time.monotonic()-breaker.opened_at)) if breaker.opened_at else 0,
+                'failure_threshold':breaker.threshold,'timeout_s':tool.timeout_s,'cache_ttl':tool.cache_ttl,'scope':'shared_worker_dependency_state'}
+        self.monitor.publish_tools(tenant,self.monitor.worker_id,health)
+
+    async def _observe_tool(self,name,result,seconds,context,error):
+        if not context.get('tenant') or not context.get('user_id'):return
+        degraded=bool(result and not result.success and isinstance(result.data,dict) and result.data.get('items'))
+        status='cancelled' if error=='CancelledError' else 'degraded' if degraded else 'success' if result and result.success else 'failure'
+        await asyncio.to_thread(self.monitor.record,context['tenant'],'tool',name,status=='success',seconds,owner=context['user_id'],instance=self.monitor.worker_id,
+            status=status,detail={'layer':'manager','cached':bool(result and result.cached),'fallback':degraded,'error_code':error})
+        await asyncio.to_thread(self.publish_tool_health,context['tenant'])
 
     def external_tools(self,role):
         return {name:spec for name,spec in self.mcp.agent_tools().items() if role in (spec.allowed_agents or ()) and spec.retry_safe}

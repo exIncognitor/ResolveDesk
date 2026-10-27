@@ -389,19 +389,8 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
 
     @app.get("/monitor")
     def monitor(request:Request,p=Depends(principal)):
-        if p.role=="support":return request.app.state.agent.monitor.snapshot(p)
-        with request.app.state.store.db() as db:
-            count = db.execute("SELECT COUNT(*) FROM runs WHERE tenant=? AND owner=?",(p.tenant,p.user)).fetchone()[0]
-        stats = {}
-        with request.app.state.store.db() as db:
-            routes = db.execute("SELECT e.payload,r.status FROM events e JOIN runs r ON e.run_id=r.id WHERE e.kind='routing' AND r.tenant=? AND r.owner=?",(p.tenant,p.user))
-            for row in routes:
-                role=json.loads(row['payload']).get('primary','general')
-                entry=stats.setdefault(role,{'total':0,'success':0})
-                entry['total']+=1
-                entry['success']+=row['status'] in {'completed','awaiting_input','awaiting_confirmation'}
-        for entry in stats.values():entry['success_rate']=entry['success']/entry['total']
-        return {"agent_stats":stats,"tool_stats":{},"active_alerts":[],"suggestions":[],"total_requests":count}
+        if p.role=='support' and request.app.state.agent.services:request.app.state.agent.services.publish_tool_health(p.tenant)
+        return request.app.state.agent.monitor.snapshot(p)
 
     @app.get("/metrics")
     def metrics(request:Request,p=Depends(principal)):

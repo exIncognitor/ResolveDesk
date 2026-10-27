@@ -34,14 +34,22 @@ class ITRoleAgent(BaseAgent):
     async def handle(self,req):
         started=time.monotonic()
         scoped=replace(req,executing_role=self.agent_type.value)
-        response=await super().handle(scoped)
-        if not response.success and self.agent_type in {AgentType.TECHNICAL,AgentType.BILLING}:
-            self.stats.retry_at=time.monotonic()+30
-        if req.on_agent_execution:
-            await req.on_agent_execution({"instance":self.instance_id,"role":self.agent_type.value,"status":response.status,
-                "success":response.success and response.status=="success","seconds":time.monotonic()-started,
-                "request_id":req.request_id,"error_code":response.error_code})
-        return response
+        response=None;status='failed';error=None
+        try:
+            response=await super().handle(scoped)
+            status=response.status;error=response.error_code
+            if not response.success and self.agent_type in {AgentType.TECHNICAL,AgentType.BILLING}:self.stats.retry_at=time.monotonic()+30
+            return response
+        except asyncio.CancelledError:status='cancelled';error='CancelledError';raise
+        except Exception as exc:error=type(exc).__name__;raise
+        finally:
+            if req.on_agent_execution:
+                try:
+                    tools=[{k:t[k] for k in ('tool_name','success','result_success','latency_ms','cached','error_code') if k in t} for t in (response.tool_traces if response else []) if t.get('tool_name')]
+                    await req.on_agent_execution({'instance':self.instance_id,'role':self.agent_type.value,'status':status,
+                        'success':bool(response and response.success and status=='success'),'seconds':time.monotonic()-started,
+                        'request_id':req.request_id,'error_code':error,'tools':tools})
+                except Exception:pass  # Monitoring cannot turn a valid answer into a provider failure.
 
 
 class ITGeneralAgent(ITRoleAgent):

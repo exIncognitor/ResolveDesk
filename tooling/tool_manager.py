@@ -155,12 +155,14 @@ class MCPToolManager:
         self._tools: Dict[str, Tool] = {}
         self._cache_versions: Dict[str, int] = {}
         self._cache: Dict[str, tuple] = {}   # key → (result, expire_at, reranked)
+        self.observer = None
 
     def fork(self):
         """共享只读依赖和 HTTP 客户端，隔离工具统计、熔断和缓存。"""
         other = object.__new__(type(self))
         other._client, other._model = self._client, self._model
         other._cache, other._cache_versions = {}, {}
+        other.observer = self.observer
         other._tools = {name: replace(tool) for name, tool in self._tools.items()}
         return other
 
@@ -177,7 +179,23 @@ class MCPToolManager:
 
     # ── 核心调用 ──────────────────────────────────────────────────────────────
 
-    async def call(
+    async def call(self,name,params,context=None,*,use_cache=True,rerank_top_k=0):
+        started=time.monotonic();result=None;error_code=None
+        try:
+            result=await self._call_impl(name,params,context,use_cache=use_cache,rerank_top_k=rerank_top_k)
+            result.latency_ms=(time.monotonic()-started)*1000
+            return result
+        except BaseException as exc:
+            error_code=type(exc).__name__
+            raise
+        finally:
+            if self.observer:
+                try:
+                    event=self.observer(name,result,(time.monotonic()-started),context or {},error_code)
+                    if inspect.isawaitable(event):await event
+                except Exception as exc:logger.warning('Tool observation failed: %s',type(exc).__name__)
+
+    async def _call_impl(
         self,
         name: str,
         params: Dict[str, Any],
