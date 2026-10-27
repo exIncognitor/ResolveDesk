@@ -209,8 +209,12 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
     def system(request: Request, p=Depends(principal)):
         if p.role != "support":
             raise PermissionError()
+        services=request.app.state.agent.services
+        intent=services.roles._intent_recognizer if services else None
         return {"retrieval": request.app.state.knowledge.status(), "embedding_error": request.app.state.embedding_error,
                 "budget": request.app.state.agent.client.ledger().summary(),
+                "intent":{"implementation":type(intent).__name__,"vector_provider":getattr(getattr(intent,"embedding",None),"identity",None)},
+                "specialists":{role.value:{"implementations":[type(agent).__name__ for agent in pool],"tools":list(pool[0].get_tools())} for role,pool in services.roles._pool.items()} if services else {},
                 "capabilities":{"skills":bool(request.app.state.agent.services),"memory":bool(request.app.state.agent.services),
                     "routing":bool(request.app.state.agent.services),"streaming":True,"step_checkpoints":True}}
 
@@ -232,6 +236,12 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
     @app.get("/runs/{run_id}/turns/{request_key}")
     def get_turn(run_id:str,request_key:str,request:Request,p=Depends(principal)):
         return request.app.state.store.get_turn(p,run_id,request_key)
+
+    @app.get("/runs/{run_id}/state")
+    def conversation_state(run_id:str,request:Request,p=Depends(principal)):
+        request.app.state.store.get_run(p,run_id)
+        services=request.app.state.agent.services
+        return services.entities.get(p,run_id) if services else {"domain":"general","entities":{},"sources":{},"task_epoch":0}
 
     @app.get("/runs")
     def list_runs(request:Request,p=Depends(principal)):

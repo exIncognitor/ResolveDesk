@@ -254,6 +254,11 @@ async def test_monitor_recovery_probe_is_bounded_and_success_clears_cooldown(env
         assert result["status"]=="success"
         recovered=await services.route(USER,run["id"],run["message"],[],{})
         assert recovered["primary"]=="technical"
+        health=services.routing_health[(USER.tenant,"technical")]
+        health.update(probe=True,recovered=False,retry_at=0.)
+        services.roles._execute=AsyncMock(side_effect=asyncio.CancelledError)
+        with pytest.raises(asyncio.CancelledError):await services.consult(USER,run["id"],run["message"],[],{},probe)
+        assert not health["probe"]
     finally:await services.close()
 
 

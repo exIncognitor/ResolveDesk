@@ -190,13 +190,14 @@ class DeskServices:
         degraded = [r.value for r in roles if penalties.get(r.value)]
         health=self.routing_health.setdefault((p.tenant,primary.value),{"retry_at":0.,"probe":False,"recovered":False})
         now=time.monotonic()
+        if health["probe"] and now>=health.get("probe_until",now+1):health["probe"]=False
         probe=False
         if result.urgency.name=="CRITICAL":primary=AgentType.ESCALATION
         elif penalties.get(primary.value):
             if not health["retry_at"] and not health["recovered"]:health["retry_at"]=now+self.probe_cooldown
             if health["recovered"]:pass
             elif now>=health["retry_at"] and not health["probe"]:
-                health["probe"]=True;probe=True
+                health.update(probe=True,probe_until=now+120);probe=True
             else:primary=AgentType.GENERAL if primary!=AgentType.GENERAL else AgentType.ESCALATION
         else:health.update(retry_at=0.,probe=False,recovered=False)
         supporting = [r for r in roles if r != primary and not penalties.get(r.value)]
@@ -231,7 +232,10 @@ class DeskServices:
                     "success":response.success and response.status=="success","answer":response.content[:1800],"fallback":fallback,
                     "escalate":response.escalate,"tools_used":response.tools_used,"tool_traces":redact(response.tool_traces),
                     "latency_ms":round((time.monotonic()-started)*1000,3),"error_code":response.error_code}
-            except asyncio.CancelledError:raise
+            except asyncio.CancelledError:
+                health=self.routing_health.get((p.tenant,role))
+                if health and health["probe"]:health.update(probe=False,retry_at=time.monotonic()+self.probe_cooldown)
+                raise
             except Exception as exc:
                 result={"requested_role":role,"role":role,"status":"failed","success":False,"answer":"专业节点暂不可用。",
                     "fallback":False,"escalate":False,"tools_used":[],"tool_traces":[],"latency_ms":round((time.monotonic()-started)*1000,3),"error_code":type(exc).__name__}

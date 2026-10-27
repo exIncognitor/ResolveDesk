@@ -175,6 +175,8 @@ def test_integrated_http_surfaces_enforce_roles_and_persist_feedback_cases(store
         assert c.get('/monitor',headers=uh).json()['agent_stats']['technical']['total']==1
         assert c.get('/monitor',headers=bh).json()['agent_stats']=={}
         assert c.get('/runs/'+run['id']+'/messages',headers=bh).status_code==404
+        assert c.get('/runs/'+run['id']+'/state',headers=uh).json()['entities']=={}
+        assert c.get('/runs/'+run['id']+'/state',headers=bh).status_code==404
         assert c.get('/history',headers=uh).status_code==404
         assert c.get('/assets/history',headers=uh).status_code==404
         assert c.post('/runs/'+run['id']+'/feedback',headers=uh,json={'rating':'bad','note':'需要回归'}).status_code==200
