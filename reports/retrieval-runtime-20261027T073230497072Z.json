@@ -1,0 +1,97 @@
+{
+  "kind": "current_asgi_real_retrieval_reliability",
+  "simulation": true,
+  "checks": {
+    "flash_rewrite_and_rerank": true,
+    "cache_precedes_paid_stages": true,
+    "cross_process_redis_cache": true,
+    "free_api_and_child_do_not_spend": true,
+    "reimport_acl_invalidates_cache": true,
+    "lexical_fallback_0": true,
+    "lexical_fallback_1": true,
+    "lexical_fallback_2": true,
+    "lexical_fallback_3": true,
+    "lexical_fallback_4": true,
+    "breaker_opens": true,
+    "strict_vector_unavailable": true,
+    "real_chroma_probe_recovers": true,
+    "current_agent_retrieval_path": true,
+    "current_agent_answers_with_evidence": true,
+    "no_business_write": true
+  },
+  "details": {
+    "optimized": {
+      "mode": "hybrid",
+      "effective_mode": "hybrid",
+      "queries": [
+        "公司VPN卡在连接中，809报错，但浏览器上网正常，应如何排查",
+        "公司VPN一直显示正在连接并出现809错误，而浏览器可以正常上网，这种情况该怎么排查？",
+        "VPN连接时报809错误且停留在连接中，但网页访问正常，排查步骤有哪些？"
+      ],
+      "reranked": true,
+      "degraded": false,
+      "errors": [],
+      "candidate_count": 8,
+      "cached": false,
+      "cache_layer": null,
+      "latency_ms": 2828.0
+    },
+    "cache_worker": {
+      "pid": 42204,
+      "cached": true,
+      "layer": "redis",
+      "native_calls": 0
+    },
+    "final_status": "completed",
+    "retrieval": {
+      "cache_layer": null,
+      "cached": false,
+      "candidate_count": 7,
+      "citations": [
+        "C-839c26b2551f98cd2f38b542",
+        "C-7a2210cccff41422c2b3a0d5",
+        "C-61c11a1d392c4fce9aeeb79d",
+        "C-447dc326cfc22bf738f7e9a3",
+        "C-f69fdd6724b266660e571a6f"
+      ],
+      "degraded": false,
+      "effective_mode": "hybrid",
+      "errors": [],
+      "latency_ms": 2250.0,
+      "mode": "hybrid",
+      "queries": [
+        "VPN连接超时，请依据制度给出排查建议，不要建单。",
+        "VPN 连接超时时应按制度采取哪些排查步骤？无需创建工单。",
+        "制度中针对 VPN 连接超时的排查建议是什么？请勿建单。"
+      ],
+      "reranked": true
+    }
+  },
+  "passed": 16,
+  "total": 16,
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.702892",
+    "available_cny": "16.297108",
+    "calls": {
+      "settled": 373
+    },
+    "usage_input_tokens": 685658,
+    "usage_output_tokens": 41447,
+    "unresolved_reservation_cny": "0"
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.724282",
+    "available_cny": "16.275718",
+    "calls": {
+      "settled": 381
+    },
+    "usage_input_tokens": 693605,
+    "usage_output_tokens": 42134,
+    "unresolved_reservation_cny": "0"
+  },
+  "source_revision": "9de9fe2982028bc5fb7d3f8ec11f8053bc10afc7"
+}
