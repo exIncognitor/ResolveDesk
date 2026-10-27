@@ -80,6 +80,7 @@ async def test_direct_master_policy_never_skips_composite_low_confidence_or_writ
     services.execution_policy='adaptive'
     source=kb.search(USER,'VPN',1)['items'][0]
     run,_=store.create_run(USER,'VPN报错','simple-efficiency')
+    store.claim(USER,run['id'])
     context={'evidence':[source],'retrieval_degraded':False}
     route={'confidence':.9,'fine_intent':'vpn_failure','domains':['network_endpoint'],'supporting':[],'urgency':'LOW','primary':'technical','intent':'network_endpoint'}
     try:
