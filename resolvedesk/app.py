@@ -349,7 +349,10 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
             docs=await (read_upload(request,p) if upload else read_batch(request,p))
             task=asyncio.create_task(asyncio.to_thread(request.app.state.knowledge.add_many,p,docs))
         except BaseException:slots.release();raise
-        task.add_done_callback(lambda done:slots.release())
+        def imported(done):
+            slots.release()
+            if not done.cancelled():done.exception()
+        task.add_done_callback(imported)
         # Cancellation cannot stop an SQL/embedding thread; keep its slot until
         # actual completion and never claim that disconnected imports rolled back.
         return await asyncio.shield(task)

@@ -42,7 +42,7 @@ class DeskCLI:
     def __init__(self,http,*,write=print,read=input,poll_seconds=.2,deadline=120):
         self.http,self.write,self.read=http,write,read
         self.poll_seconds,self.deadline=poll_seconds,deadline
-        self.run_id=None;self.turn_key=None;self.pending=None
+        self.run_id=None;self.turn_key=None;self.pending=None;self.resume_sent=False
 
     def request(self,method,path,body=None):
         result=self.http.request(method,path,json=body)
@@ -65,7 +65,14 @@ class DeskCLI:
     def finish_pending(self):
         if self.pending is None:raise ValueError('没有待重试请求')
         method,path,body=self.pending
-        try:run=self.request(method,path,body)
+        try:
+            if path.endswith('/resume') and self.resume_sent:
+                # Resume has no independent HTTP idempotency key. If its
+                # response was lost, observe; never replay a paid execution.
+                run=self.request('GET','/runs/'+self.run_id)
+            else:
+                if path.endswith('/resume'):self.resume_sent=True
+                run=self.request(method,path,body)
         except httpx.HTTPStatusError as exc:
             if exc.response.status_code in {400,401,403,404,410,422}:self.pending=None
             raise
@@ -140,7 +147,7 @@ class DeskCLI:
         elif verb==':resume':
             if self.pending:raise ValueError('请先 :retry 解决未确定的请求')
             if not self.run_id:raise ValueError('请先选择会话')
-            self.pending=('POST',f'/runs/{self.run_id}/resume',None);self.finish_pending()
+            self.resume_sent=False;self.pending=('POST',f'/runs/{self.run_id}/resume',None);self.finish_pending()
         elif verb==':confirm':
             if self.pending:raise ValueError('请先 :retry 解决未确定的请求')
             if not self.run_id or not rest.isdigit():raise ValueError('用 :confirm VERSION 确认已显示的草稿版本')
