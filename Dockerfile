@@ -6,8 +6,6 @@ COPY frontend/ ./
 RUN npm run build
 
 FROM python:3.12-slim
-ARG RESOLVEDESK_REVISION=unversioned
-LABEL org.opencontainers.image.revision=$RESOLVEDESK_REVISION
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 ANONYMIZED_TELEMETRY=False
 WORKDIR /app
 COPY requirements.txt ./
@@ -19,3 +17,5 @@ USER resolvedesk
 EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=12 CMD python -c "from urllib.request import urlopen; urlopen('http://127.0.0.1:8080/ready', timeout=4)"
 CMD ["python", "-m", "uvicorn", "resolvedesk.app:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1", "--no-access-log"]
+ARG RESOLVEDESK_REVISION=unversioned
+LABEL org.opencontainers.image.revision=$RESOLVEDESK_REVISION
