@@ -1,8 +1,7 @@
-"""Scoped hybrid retrieval with exact local vectors, BM25 and rank fusion.
+"""SQL-authorized BM25 + Chroma HNSW, RRF and durable index projection.
 
-SQLite is the source of truth for chunks and vectors. Both retrieval branches
-receive ONLY documents authorized for the current principal. Exact cosine is
-intentional for this local corpus; use a filtered vector service at larger scale.
+Linear vectors are retained only for explicit offline fixtures. Service mode
+uses Chroma, prefilters metadata and checks current SQL authorization/version.
 """
 from __future__ import annotations
 
@@ -12,6 +11,8 @@ import json
 import math
 from pathlib import Path
 import re
+import time
+import uuid
 
 from resolvedesk.store import encode
 
@@ -134,8 +135,10 @@ def rrf(rankings, k=60):
 
 
 class HybridKnowledge:
-    def __init__(self, store, embedding=None):
-        self.store, self.embedding = store, embedding
+    def __init__(self, store, embedding=None, vector_index=None):
+        self.store, self.embedding, self.vector_index = store, embedding, vector_index
+        if store.backend == "postgresql" and embedding and vector_index is None:
+            raise ValueError("Service semantic retrieval requires a Chroma index")
         with store.database.schema_transaction() as db:
             db.execute("""CREATE TABLE IF NOT EXISTS chunks(
                 id TEXT PRIMARY KEY, tenant TEXT NOT NULL, owner TEXT NOT NULL,
@@ -144,6 +147,14 @@ class HybridKnowledge:
                 "end" INTEGER NOT NULL, content TEXT NOT NULL, vector TEXT, embedding TEXT,
                 UNIQUE(tenant,document_id,version,start))""")
             db.execute("CREATE INDEX IF NOT EXISTS chunk_scope ON chunks(tenant,document_id)")
+            db.executescript("""
+                CREATE TABLE IF NOT EXISTS knowledge_documents(tenant TEXT,document_id TEXT,owner TEXT,visibility TEXT,version TEXT,
+                    generation INTEGER,updated REAL,PRIMARY KEY(tenant,document_id));
+                CREATE TABLE IF NOT EXISTS index_outbox(id TEXT PRIMARY KEY,tenant TEXT,document_id TEXT,generation INTEGER,
+                    state TEXT,attempts INTEGER,next_attempt REAL,error TEXT,created REAL);
+                CREATE INDEX IF NOT EXISTS index_pending ON index_outbox(state,next_attempt);
+            """)
+            db.execute("INSERT INTO knowledge_documents SELECT tenant,document_id,MIN(owner),MIN(visibility),MIN(version),1,? FROM chunks GROUP BY tenant,document_id ON CONFLICT(tenant,document_id) DO NOTHING",(time.time(),))
 
     def add(self, p, document_id, title, content, visibility="tenant"):
         if p.role != "support":
@@ -153,12 +164,15 @@ class HybridKnowledge:
         if len(content) > 100_000:
             raise ValueError("Document exceeds 100000 characters")
         chunks = markdown_chunks(content)
-        version = hashlib.sha256(content.encode()).hexdigest()[:16]
+        version = hashlib.sha256(encode([title,content]).encode()).hexdigest()[:16]
         vectors = self.embedding.embed([title+"\n"+c["section"]+"\n"+c["content"] for c in chunks]) if self.embedding else [None]*len(chunks)
         with self.store.db(True) as db:
-            existing = db.execute("SELECT owner,visibility FROM chunks WHERE tenant=? AND document_id=? LIMIT 1", (p.tenant, document_id)).fetchone()
+            db.execute("INSERT INTO knowledge_documents VALUES(?,?,?,?,?,0,?) ON CONFLICT(tenant,document_id) DO NOTHING",(p.tenant,document_id,p.user,visibility,version,time.time()))
+            existing = db.execute(db.locked("SELECT * FROM knowledge_documents WHERE tenant=? AND document_id=?"),(p.tenant,document_id)).fetchone()
             if existing and existing["visibility"] == "private" and existing["owner"] != p.user:
                 raise PermissionError("A private document can only be replaced by its owner")
+            generation = existing["generation"]+1
+            db.execute("UPDATE knowledge_documents SET owner=?,visibility=?,version=?,generation=?,updated=? WHERE tenant=? AND document_id=?",(p.user,visibility,version,generation,time.time(),p.tenant,document_id))
             db.execute("DELETE FROM chunks WHERE tenant=? AND document_id=?", (p.tenant, document_id))
             for chunk, vector in zip(chunks, vectors, strict=True):
                 cid = hashlib.sha256(encode([p.tenant, document_id, version, chunk["start"]]).encode()).hexdigest()[:24]
@@ -167,7 +181,38 @@ class HybridKnowledge:
                             chunk["section"], chunk["start"], chunk["end"], chunk["content"],
                             encode(vector) if vector is not None else None,
                             self.embedding.identity if vector is not None else None))
-        return {"document_id": document_id, "version": version, "chunks": len(chunks)}
+            if self.vector_index:
+                db.execute("INSERT INTO index_outbox VALUES(?,?,?,?,'pending',0,?,NULL,?)",(uuid.uuid4().hex,p.tenant,document_id,generation,time.time(),time.time()))
+        projection = self.drain_index(1,tenant=p.tenant,document_id=document_id) if self.vector_index else {"failed":0,"pending":0}
+        return {"document_id":document_id,"version":version,"chunks":len(chunks),"index_pending":bool(projection["failed"] or projection["pending"])}
+
+    def drain_index(self,limit=10,*,tenant=None,document_id=None):
+        """Project latest SQL state, serialized per document. Retries never use stale payloads."""
+        if not self.vector_index: return {"done":0,"failed":0,"pending":0}
+        done,failed = 0,0
+        for _ in range(limit):
+            with self.store.db(True) as db:
+                scope,params = (" AND tenant=? AND document_id=?",[tenant,document_id]) if tenant is not None else ("",[])
+                statement = "SELECT * FROM index_outbox WHERE state='pending' AND next_attempt<=?"+scope+" ORDER BY created LIMIT 1"
+                if db.backend=="postgresql": statement += " FOR UPDATE SKIP LOCKED"
+                job = db.execute(statement,[time.time()]+params).fetchone()
+                if job is None: break
+                document = db.execute(db.locked("SELECT * FROM knowledge_documents WHERE tenant=? AND document_id=?"),(job["tenant"],job["document_id"])).fetchone()
+                rows = [dict(r) for r in db.execute("SELECT * FROM chunks WHERE tenant=? AND document_id=?",(job["tenant"],job["document_id"]))]
+                try:
+                    for row in rows:
+                        if row["embedding"] != self.embedding.identity or not row["vector"]: raise ValueError("Document requires reembedding")
+                        row["vector"] = json.loads(row["vector"])
+                    self.vector_index.replace(job["tenant"],job["document_id"],rows)
+                except Exception as exc:
+                    failed += 1
+                    db.execute("UPDATE index_outbox SET attempts=attempts+1,next_attempt=?,error=? WHERE id=?",(time.time()+min(60,2**min(job["attempts"],5)),type(exc).__name__,job["id"]))
+                else:
+                    done += 1
+                    db.execute("UPDATE index_outbox SET state='done',error=NULL WHERE tenant=? AND document_id=? AND generation<=?",(job["tenant"],job["document_id"],document["generation"]))
+        with self.store.db() as db:
+            pending = db.execute("SELECT COUNT(*) FROM index_outbox WHERE state='pending'").fetchone()[0]
+        return {"done":done,"failed":failed,"pending":pending}
 
     def search(self, p, query, top_k=5, mode="hybrid"):
         if not isinstance(query, str) or not query.strip() or len(query) > 2000:
@@ -181,28 +226,42 @@ class HybridKnowledge:
             return {"items": [], "mode": mode, "degraded": False, "candidate_count": 0}
         lexical = bm25(query, [r["title"]+"\n"+r["section"]+"\n"+r["content"] for r in rows])
         lexical_rank = sorted((i for i in range(len(rows)) if lexical[i] > 0), key=lambda i: (-lexical[i], rows[i]["id"]))[:40]
-        vector_rank, semantic, degraded = [], {}, False
+        vector_rank, semantic, degraded, errors = [], {}, False, []
         if mode != "bm25":
             if self.embedding is None:
                 degraded = True
             else:
                 vector = self.embedding.embed([query], query=True)[0]
-                for i, row in enumerate(rows):
-                    if row["embedding"] == self.embedding.identity and row["vector"]:
-                        stored = json.loads(row["vector"])
-                        if len(stored) != len(vector):
-                            raise ValueError("Embedding dimensions differ; reimport document")
-                        semantic[i] = sum(a*b for a,b in zip(stored, vector))
-                degraded = len(semantic) != len(rows)
+                if self.vector_index:
+                    try:
+                        matches = {r["id"]:r for r in self.vector_index.search(p,vector)}
+                        for i,row in enumerate(rows):
+                            match = matches.get(row["id"])
+                            if match and match["metadata"]["version"]==row["version"] and row["embedding"]==self.embedding.identity:
+                                semantic[i] = match["cosine"]
+                        with self.store.db() as db:
+                            degraded = bool(db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND state='pending' LIMIT 1",(p.tenant,)).fetchone())
+                    except Exception as exc:
+                        if mode=="vector": raise RuntimeError("Chroma vector retrieval unavailable") from exc
+                        degraded=True;errors.append("chroma_"+type(exc).__name__)
+                else:
+                    for i, row in enumerate(rows):
+                        if row["embedding"] == self.embedding.identity and row["vector"]:
+                            stored = json.loads(row["vector"])
+                            if len(stored) != len(vector): raise ValueError("Embedding dimensions differ; reimport document")
+                            semantic[i] = sum(a*b for a,b in zip(stored, vector))
+                    degraded = len(semantic) != len(rows)
                 vector_rank = sorted(semantic, key=lambda i: (-semantic[i], rows[i]["id"]))[:40]
         rankings = [lexical_rank] if mode == "bm25" else [vector_rank] if mode == "vector" else [lexical_rank, vector_rank]
         order, scores = rrf(rankings)
         items = []
         for i in order[:top_k]:
             row = rows[i]
+            try: self.citation(p,"C-"+row["id"])
+            except KeyError: continue  # Permission/version may have changed during retrieval.
             items.append({k: row[k] for k in ("document_id", "title", "version", "section", "start", "end", "content")} | {
                 "citation": "C-"+row["id"], "score": scores[i], "bm25": lexical[i], "cosine": semantic.get(i)})
-        return {"items": items, "mode": mode, "degraded": degraded, "candidate_count": len(rows)}
+        return {"items":items,"mode":mode,"degraded":degraded,"candidate_count":len(rows),"errors":errors}
 
     def citation(self, p, citation):
         with self.store.db() as db:
@@ -216,4 +275,4 @@ class HybridKnowledge:
         with self.store.db() as db:
             count = db.execute("SELECT COUNT(*) FROM chunks").fetchone()[0]
         return {"embedding": self.embedding.identity if self.embedding else None,
-                "backend": "sqlite-exact-cosine+bm25-rrf", "chunks": count}
+                "backend":"chroma-hnsw+bm25-rrf" if self.vector_index else "offline-exact-cosine+bm25-rrf", "chunks":count}
