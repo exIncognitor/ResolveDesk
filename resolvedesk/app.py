@@ -19,6 +19,7 @@ from resolvedesk.agent import DeskAgent
 from resolvedesk.retrieval import HybridKnowledge, LocalEmbedding
 from resolvedesk.store import Conflict, ReceiptExpired, Principal, Store, encode
 from resolvedesk.eval_models import EvalDataset,EvaluationOptions,ResumeEvaluation
+from resolvedesk.knowledge_governance import KnowledgeMetadata
 
 ROOT = Path(__file__).resolve().parents[1]
 TERMINAL = {"completed", "failed", "paused", "awaiting_input", "awaiting_confirmation"}
@@ -53,6 +54,21 @@ class Document(Input):
     title: str = Field(min_length=1, max_length=200)
     content: str = Field(min_length=1, max_length=10*1024*1024)
     visibility: Literal["tenant", "private"] = "tenant"
+    metadata:KnowledgeMetadata|None=None
+
+
+class PublicationReview(Input):
+    action:Literal['publish','withdraw']
+    version:str=Field(min_length=1,max_length=64)
+    revision:int=Field(ge=1)
+    note:str=Field(min_length=1,max_length=2000)
+
+
+class PublicationMetadata(Input):
+    version:str=Field(min_length=1,max_length=64)
+    revision:int=Field(ge=1)
+    note:str=Field(min_length=1,max_length=2000)
+    metadata:KnowledgeMetadata
 
 
 class Feedback(Input):
@@ -379,9 +395,23 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
 
     @app.get("/knowledge/stats")
     def knowledge_stats(request:Request,p=Depends(principal)):
-        with request.app.state.store.db() as db:
-            count = db.execute("SELECT COUNT(*) FROM chunks WHERE tenant=? AND (visibility='tenant' OR owner=?)",(p.tenant,p.user)).fetchone()[0]
-        return {"total_chunks":count}
+        return request.app.state.knowledge.stats(p)
+
+    @app.get('/knowledge/publications')
+    def publications(request:Request,p=Depends(principal)):
+        return request.app.state.knowledge.publications(p)
+
+    @app.get('/knowledge/publications/{document_id}/audit')
+    def publication_audit(document_id:str,request:Request,p=Depends(principal)):
+        return request.app.state.knowledge.governance.audit_list(p,document_id)
+
+    @app.post('/knowledge/publications/{document_id}/review')
+    def publication_review(document_id:str,data:PublicationReview,request:Request,p=Depends(principal)):
+        return request.app.state.knowledge.publication_action(p,document_id,data.action,data.version,data.revision,data.note)
+
+    @app.put('/knowledge/publications/{document_id}/metadata')
+    def publication_metadata(document_id:str,data:PublicationMetadata,request:Request,p=Depends(principal)):
+        return request.app.state.knowledge.publication_action(p,document_id,'metadata',data.version,data.revision,data.note,data.metadata.model_dump())
 
     @app.get("/skills")
     def skills(request:Request,p=Depends(principal)):

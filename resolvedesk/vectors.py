@@ -48,8 +48,11 @@ class ChromaVectors:
                 self.request("POST",self.path+"/upsert",json={"ids":[r["id"] for r in batch],
                     "embeddings":[r["vector"] for r in batch],"metadatas":[{k:r[k] for k in ("tenant","owner","visibility","document_id","version")} for r in batch]})
 
-    def search(self,p,vector,count=40,*,document_id=None,exclude_document=None,private_only=False):
+    def search(self,p,vector,count=40,*,document_id=None,exclude_document=None,private_only=False,document_ids=None):
         clauses=[self.scope(p)]
+        if document_ids is not None:
+            if not document_ids:return []
+            clauses.append({'document_id':{'$in':document_ids}})
         if private_only:
             clauses += [{"owner":{"$eq":p.user}},{"visibility":{"$eq":"private"}}]
         if document_id is not None:clauses.append({"document_id":{"$eq":document_id}})

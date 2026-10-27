@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel,ConfigDict,Field,ValidationError
 from starlette.datastructures import UploadFile
 from starlette.formparsers import MultiPartException,MultiPartParser
+from resolvedesk.knowledge_governance import KnowledgeMetadata
 
 MAX_IMPORT_BYTES=10*1024*1024
 MAX_IMPORT_DOCUMENTS=100
@@ -37,6 +38,7 @@ class ImportDocument(BaseModel):
     title:str=Field(min_length=1,max_length=200)
     content:str=Field(min_length=1,max_length=MAX_IMPORT_BYTES)
     visibility:str=Field(default='tenant',pattern='^(tenant|private)$')
+    metadata:KnowledgeMetadata|None=None
 
 
 class ImportBatch(BaseModel):

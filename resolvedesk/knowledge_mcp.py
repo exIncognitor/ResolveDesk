@@ -29,6 +29,7 @@ class KnowledgeResult(BaseModel):
     effective_mode:str
     degraded:bool
     errors:list[str]
+    evidence_sufficient:bool=False
 
 
 def create_knowledge_mcp(api):
@@ -54,7 +55,7 @@ def create_knowledge_mcp(api):
             services=api.state.agent.services
             data=await services.search(p,query,top_k,optimize=False,mode=mode) if services else await asyncio.to_thread(api.state.knowledge.search,p,query,top_k,mode)
             return KnowledgeResult(results=data['items'],mode=data['mode'],effective_mode=data.get('effective_mode',data['mode']),
-                degraded=data['degraded'],errors=data.get('errors',[]))
+                degraded=data['degraded'],errors=data.get('errors',[]),evidence_sufficient=data.get('evidence_sufficient',False))
         except asyncio.CancelledError:raise
         except Exception:raise ToolError("Knowledge search unavailable or invalid request") from None
 
@@ -63,8 +64,7 @@ def create_knowledge_mcp(api):
         """当前令牌可见的知识片段计数，不含其他用户私有片段。"""
         p=principal()
         def read():
-            with api.state.store.db() as db:
-                return db.execute("SELECT COUNT(*) FROM chunks WHERE tenant=? AND (visibility='tenant' OR owner=?)",(p.tenant,p.user)).fetchone()[0]
+            return api.state.knowledge.stats(p)['total_chunks']
         try:return json.dumps({'total_chunks':await asyncio.to_thread(read)})
         except Exception:raise ValueError('Knowledge stats unavailable') from None
 
