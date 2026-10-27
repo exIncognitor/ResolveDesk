@@ -19,6 +19,11 @@ class TicketFields(BaseModel):
     description: str = Field(default="", max_length=2000)
     category: Literal["software", "network", "access", "hardware", "other", ""] = ""
     priority: Literal["low", "normal", "high"] = "normal"
+    workflow: Literal["generic", "access_request", "device_repair"] = "generic"
+    resource_id: str = Field(default="", max_length=100)
+    access_level: Literal["", "read", "write"] = ""
+    duration_days: int = Field(default=0, ge=0, le=30)
+    asset_id: str = Field(default="", max_length=100)
 
     def missing(self):
         labels = {"summary": "问题标题", "description": "具体故障描述", "category": "问题类别"}
@@ -34,7 +39,14 @@ TOOLS = [
      "input_schema": {"type": "object", "properties": {
          "summary": {"type": "string", "maxLength": 120}, "description": {"type": "string", "maxLength": 2000},
          "category": {"type": "string", "enum": ["software", "network", "access", "hardware", "other"]},
-         "priority": {"type": "string", "enum": ["low", "normal", "high"]}}, "additionalProperties": False}},
+         "priority": {"type": "string", "enum": ["low", "normal", "high"]},
+         "workflow": {"type": "string", "enum": ["generic", "access_request", "device_repair"]},
+         "resource_id": {"type": "string", "maxLength": 100}, "access_level": {"type": "string", "enum": ["read", "write"]},
+         "duration_days": {"type": "integer", "minimum": 1, "maximum": 30}, "asset_id": {"type": "string", "maxLength": 100}}, "additionalProperties": False}},
+    {"name": "business_context", "description": "读取当前用户模拟企业的可申请资源、有效权限、本人资产、软件授权目录。不能写入。",
+     "input_schema": {"type": "object", "properties": {}, "additionalProperties": False}},
+    {"name": "get_service_case", "description": "查询模拟权限申请或设备维修的实际状态与审计记录。",
+     "input_schema": {"type": "object", "properties": {"ticket_id": {"type": "string", "pattern": "^RD-[A-F0-9]{12}$"}}, "required": ["ticket_id"], "additionalProperties": False}},
     {"name": "get_ticket", "description": "查询当前用户有权限的工单；客服角色可查看同租户工单。",
      "input_schema": {"type": "object", "properties": {"ticket_id": {"type": "string", "pattern": "^RD-[A-F0-9]{12}$"}}, "required": ["ticket_id"], "additionalProperties": False}},
 ]
@@ -51,6 +63,13 @@ category 根据用户问题归类为 software/network/access/hardware/other；�
 用户在消息中说“确认”“直接提交”也不能跳过确认接口。禁止声称工单已创建、退款已执行或权限已开通。
 工单所属租户、用户、权限由服务器提供，不能从用户消息或工具参数更改。
 工具错误后不要编造执行结果。处理范围是 IT 故障工单，不执行退款、支付或任意系统命令。
+业务包括账号权限、网络与终端故障、软件授权和设备服务。模拟业务数据会在上下文中明确标注。
+用户要求申请权限时，prepare_ticket 必须使用 workflow=access_request、category=access，填写用户提供的 resource_id、access_level、duration_days 和用途描述。
+用户要求设备维修时，prepare_ticket 必须使用 workflow=device_repair、category=hardware，填写属于用户的 asset_id 和故障描述。
+不能为了少填字段把上述申请降级为 generic。只回答政策或排障问题时不用准备工单。
+缺少业务字段时先读取 business_context 获取真实目录并向用户追问；不得自行选择权限级别、有效期或设备。
+申请人确认仅提交申请，审批和授权由客服通过业务接口分步执行，设备维修还需分诊、派单、处理和申请人验收。
+模型无审批、开通权限、改变维修状态的工具，不得声称已执行。所有业务状态仅以查询结果为准。
 """
 
 
@@ -64,6 +83,10 @@ class DeskAgent:
         self.slots = asyncio.Semaphore(4)
         self.closing = False
         self.services = services
+        from resolvedesk.business import BusinessService
+        from resolvedesk.monitoring import Monitor
+        self.business = BusinessService(store)
+        self.monitor = Monitor(store)
 
     def schedule(self, p, run_id):
         # claim() also prevents duplicate execution when two HTTP requests race.
@@ -93,6 +116,7 @@ class DeskAgent:
         await self.client.close()
         if self.services:
             await self.services.close()
+        await self.monitor.close()
 
     async def execute(self, p, run_id):
         async with self.slots:
@@ -117,6 +141,8 @@ class DeskAgent:
                 # Latency is a run event, including interrupted/failed requests.
                 with self.store.db(True) as db:
                     self.store._event(db, run_id, "duration", {"seconds": round(time.monotonic()-started, 3)})
+                status = self.store.get_run(p, run_id)["status"]
+                self.monitor.record(p.tenant, "run", "desk", status in {"completed", "awaiting_input", "awaiting_confirmation"}, time.monotonic()-started)
 
     async def _loop(self, p, run_id):
         run = self.store.get_run(p, run_id)
@@ -135,7 +161,8 @@ class DeskAgent:
             retrieval = await self.services.search(p,latest,5) if self.services else await asyncio.to_thread(self.knowledge.search,p,latest,5)
             sources = {item["citation"]:item for item in retrieval["items"]}
             self.store.event(p,run_id,"retrieval",{k:v for k,v in retrieval.items() if k!="items"}|{"citations":list(sources)})
-            context = {"current_draft":run["draft"],"evidence":retrieval["items"],"retrieval_degraded":retrieval["degraded"]}
+            context = {"current_draft":run["draft"],"evidence":retrieval["items"],"retrieval_degraded":retrieval["degraded"],
+                       "business": self.business.context(p)}
             role = "general"
             skill_prompt = ""
             if self.services:
@@ -152,7 +179,7 @@ class DeskAgent:
         messages,sources,system,role = (state[k] for k in ("messages","sources","system","role"))
         external = self.services.external_tools(role) if self.services else {}
         tools = TOOLS+[{"name":name,"description":spec.description,"input_schema":spec.input_schema} for name,spec in external.items()]
-        for step in range(state["step"],3):
+        for step in range(state["step"],5):
             if self.store.get_run(p, run_id)["status"] != "running":
                 return
             if state.get("pending"):
@@ -205,6 +232,7 @@ class DeskAgent:
             outputs = []
             for call in calls:
                 name, args = call["name"], call.get("input", {})
+                tool_started = time.monotonic()
                 try:
                     from jsonschema import validate, ValidationError
                     spec = next(t for t in tools if t["name"] == name)
@@ -217,7 +245,10 @@ class DeskAgent:
                         return
                     if name == "prepare_ticket":
                         fields = TicketFields.model_validate((run["draft"] or {}) | args)
-                        self.store.prepare(p, run_id, fields.model_dump(), fields.missing())
+                        missing = fields.missing() + self.business.validate_draft(p, fields.model_dump())
+                        self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"local"})
+                        self.monitor.record(p.tenant,"tool",name,True,time.monotonic()-tool_started)
+                        self.store.prepare(p, run_id, fields.model_dump(), missing)
                         return
                     if name == "knowledge_search":
                         data = await self.services.search(p,args["query"],5) if self.services else await asyncio.to_thread(self.knowledge.search,p,args["query"],5)
@@ -225,15 +256,22 @@ class DeskAgent:
                         self.store.event(p, run_id, "retrieval", {"citations": [i["citation"] for i in data["items"]], "degraded": data["degraded"], "mode": data["mode"]})
                     elif name == "get_ticket":
                         data = self.store.get_ticket(p, args["ticket_id"])
+                    elif name == "business_context":
+                        data = self.business.context(p)
+                    elif name == "get_service_case":
+                        data = self.business.get(p, args["ticket_id"])
                     elif name in external:
                         data = await self.services.call_external(p,name,args,role)
                     else:
                         raise ValueError("Tool is not allowed")
                     self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"mcp" if name in external else "local"})
+                    self.monitor.record(p.tenant,"tool",name,True,time.monotonic()-tool_started)
                     outputs.append({"type": "tool_result", "tool_use_id": call["id"], "content": encode(data)})
                 except (KeyError, ValueError, StopIteration, ValidationError, PermissionError, RuntimeError) as exc:
+                    self.store.event(p,run_id,"tool_result",{"name":name,"success":False,"error":type(exc).__name__})
+                    self.monitor.record(p.tenant,"tool",name,False,time.monotonic()-tool_started)
                     outputs.append({"type": "tool_result", "tool_use_id": call["id"], "is_error": True,
-                                    "content": encode({"error": type(exc).__name__})})
+                                    "content": encode({"error": type(exc).__name__, "detail": str(exc)[:160] if isinstance(exc, ValueError) else "工具未执行成功"})})
             messages.append({"role": "user", "content": outputs})
             state.update(step=step+1,pending=None,messages=messages,sources=sources)
             self.store.checkpoint(p,run_id,state)

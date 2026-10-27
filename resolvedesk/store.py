@@ -63,6 +63,8 @@ class Store:
             CREATE TABLE IF NOT EXISTS checkpoints(
                 run_id TEXT PRIMARY KEY, tenant TEXT, owner TEXT, user_seq INTEGER, payload TEXT);
             """)
+            from resolvedesk.business import initialize
+            initialize(db)
 
     @contextmanager
     def db(self, write=False):
@@ -229,6 +231,8 @@ class Store:
             ticket_id = "RD-" + uuid.uuid4().hex[:12].upper()
             db.execute("INSERT INTO tickets VALUES(?,?,?,?,?,'open',?)",
                        (ticket_id, run_id, p.tenant, p.user, row["draft"], time.time()))
+            from resolvedesk.business import BusinessService
+            BusinessService.materialize(db, p, ticket_id, fields)
             answer = "工单已创建：" + ticket_id
             db.execute("UPDATE runs SET status='completed',ticket_id=?,answer=?,updated=? WHERE id=?",
                        (ticket_id, answer, time.time(), run_id))
