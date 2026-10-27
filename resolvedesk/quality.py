@@ -50,6 +50,7 @@ class QualityRunner:
         dataset=EvalDataset.model_validate(dataset).model_dump()
         state=state or EvalState(self.store,job_id)
         state.embedding_identity=getattr(self.knowledge.embedding,'identity',None)
+        state.redis_namespace=getattr(self.coordination,'namespace',None)
         manifest=freeze(state,p,dataset,ROOT)
         dataset=manifest['dataset']
         cases=dataset['dialog_cases'][:limit]

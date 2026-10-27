@@ -14,7 +14,12 @@ def freeze(state,p,dataset,root):
     def prepare(db):
         rows=[dict(r) for r in db.execute("SELECT * FROM chunks WHERE tenant=? AND visibility='tenant' ORDER BY id",(p.tenant,))]
         identity='eval_rd_'+uuid.uuid4().hex
+        collection=identity.replace('_','-')
+        namespace=getattr(state,'redis_namespace',None)
         return {'dataset':dataset,'evidence':rows,'identity':identity,'backend':state.store.backend,
+                'resources':{'schema':identity,'knowledge_collection':collection,
+                    'memory_collection':'resolvedesk-memory-'+hashlib.sha256(collection.encode()).hexdigest()[:16],
+                    'redis_namespace':namespace+':'+identity if namespace else None},
                 'engine_sources':sources,'embedding_identity':embedding,'source_identity':digest([str(state.store.database.engine.url),state.store.database.schema])}
     frozen=state.snapshot(prepare)
     if frozen['engine_sources']!=sources or frozen.get('embedding_identity')!=embedding:raise ValueError('Engine or embedding changed; use a new evaluation job')

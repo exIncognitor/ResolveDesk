@@ -27,7 +27,7 @@ def postgres_store():
     store = Store(ServiceSettings.load().database_url,schema=schema)
     allowed = MEMORY_TABLES|{"runs","events","messages","tickets","feedback","checkpoints","turn_receipts","entity_state","desk_assets","service_cases","service_audit","service_actions","desk_grants",
                "chunks","knowledge_documents","index_outbox","memory_summary","memory_episode","memory_profile","eval_jobs","regression_cases","quality_baselines","telemetry","desk_alerts","alert_outbox",
-               'eval_suites','eval_snapshots','eval_units','eval_queue_guard'}
+               'eval_suites','eval_snapshots','eval_units','eval_queue_guard','eval_retirements'}
     try: yield store
     finally:
         # This unique schema was created by this fixture in this task. Never

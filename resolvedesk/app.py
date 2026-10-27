@@ -434,6 +434,10 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
     def evaluation_dataset(suite_id:str,request:Request,p=Depends(principal)):
         return request.app.state.evaluations.datasets.get(p,suite_id)
 
+    @app.get('/eval/retention')
+    def evaluation_retention(request:Request,days:int=30,job_id:str|None=None,p=Depends(principal)):
+        return request.app.state.evaluations.retention.preview(p,days=days,job_id=job_id)
+
     @app.post("/eval/jobs/{job_id}/baseline")
     def evaluation_baseline(job_id:str,request:Request,p=Depends(principal)):
         return request.app.state.evaluations.set_baseline(p,job_id)

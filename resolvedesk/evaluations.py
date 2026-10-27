@@ -17,6 +17,8 @@ class EvaluationService:
         self.coordination,self.client_factory=coordination,client_factory
         self.worker_id = uuid.uuid4().hex
         self.datasets=EvalDatasets(store)
+        from resolvedesk.eval_retention import EvalRetention
+        self.retention=EvalRetention(store)
         EvalState(store,'schema-initialization')
         with store.database.schema_transaction() as db:
             db.executescript("""CREATE TABLE IF NOT EXISTS eval_jobs(id TEXT PRIMARY KEY,tenant TEXT,owner TEXT,status TEXT,completed INTEGER,total INTEGER,result TEXT,error TEXT,created REAL);
@@ -110,12 +112,15 @@ class EvaluationService:
 
     def set_baseline(self,p,job_id):
         if p.role!="support":raise PermissionError()
-        job = self.get(p,job_id)
-        report = job["result"] or {}
-        if job["status"]!="completed" or report.get("kind")!="active_service_quality" or not report.get("judge_enabled") or report.get("evaluation_errors") or report.get("passed")!=report.get("total") or report.get("intent",{}).get("accuracy")!=1:
-            raise Conflict("仅完整通过且有有效 Judge 评分的质量报告可设为基线")
         with self.store.db(True) as db:
-            db.execute("INSERT INTO quality_baselines VALUES(?,?,?,?,?) ON CONFLICT(tenant,suite_id) DO UPDATE SET job_id=excluded.job_id,report=excluded.report,created=excluded.created",(p.tenant,report["suite_id"],job_id,encode(report),time.time()))
+            db.execute(db.locked('SELECT id FROM eval_queue_guard WHERE id=1')).fetchone()
+            job=db.execute(db.locked('SELECT * FROM eval_jobs WHERE id=? AND tenant=? AND owner=?'),(job_id,p.tenant,p.user)).fetchone()
+            if not job:raise KeyError('Evaluation not found')
+            report=json.loads(job['result']) if job['result'] else {}
+            intent=report.get('intent',{})
+            if job['status']!='completed' or report.get('kind')!='active_service_quality' or not report.get('judge_enabled') or report.get('evaluation_errors') or not report.get('total') or report.get('passed')!=report.get('total') or (intent.get('accuracy')!=1 and intent.get('samples')!=0):
+                raise Conflict('仅完整通过且有有效 Judge 评分的质量报告可设为基线')
+            db.execute("INSERT INTO quality_baselines VALUES(?,?,?,?,?) ON CONFLICT(tenant,suite_id) DO UPDATE SET job_id=excluded.job_id,report=excluded.report,created=excluded.created",(p.tenant,report["suite_id"],job_id,encode(report),db.now()))
         return {"saved":True,"suite_id":report["suite_id"],"job_id":job_id}
 
     def compare(self,p,report):
