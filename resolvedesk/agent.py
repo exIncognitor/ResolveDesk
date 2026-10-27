@@ -277,7 +277,23 @@ class DeskAgent:
                             if values and len(values)>1:raise ValueError(key+"存在多个明确候选值，请先让用户选择一个，不能由模型代选。")
                             if values:inherited[key]=int(values[-1]) if key=="duration_days" else values[-1]
                         # Literal user corrections outrank model-generated tool arguments.
-                        fields = TicketFields.model_validate((current["draft"] or {}) | args | inherited)
+                        previous=dict(current['draft'] or {})
+                        entity_state=(state.get('context',{}).get('routing') or {}).get('entity_state',{})
+                        for key in entity_state.get('cleared_fields',[]):previous.pop(key,None)
+                        prepared=previous|args|inherited
+                        if self.services:
+                            # The production route owns literal evidence. A model
+                            # cannot refill a removed/unknown critical slot.
+                            required={'access_request':['resource_id','access_level','duration_days'],'device_repair':['asset_id'],
+                                'license_request':['duration_days']}.get(prepared.get('workflow'),[])
+                            for key in required:
+                                if not state.get('entities',{}).get(key):prepared[key]=0 if key=='duration_days' else ''
+                            if prepared.get('workflow')=='license_request':
+                                from resolvedesk.licenses import PRODUCT
+                                products=state.get('entities',{}).get('software',[])
+                                explicit=any(re.fullmatch(r'(?:IntelliJ\s+)?IDEA\s+Ultimate',value,re.I) for value in products)
+                                prepared['product']=PRODUCT if explicit else ''
+                        fields = TicketFields.model_validate(prepared)
                         payload = fields.model_dump()
                         missing = fields.missing() + self.business.validate_draft(p, payload)
                         if fields.workflow == "generic":
@@ -341,6 +357,9 @@ class DeskAgent:
                 self.store.event(p,run_id,"routing",redact(routing))
                 self.store.checkpoint(p,run_id,state)
             routing=context["routing"]
+            if routing.get('entity_state',{}).get('cancelled'):
+                self.store.finish(p,run_id,'completed','已取消本次尚未提交的申请并清除草稿；没有创建工单、提交审批或分配资源。')
+                return None
             if routing.get("needs_clarification"):
                 self.store.finish(p,run_id,"awaiting_input","请补充你要处理的是账号权限、网络终端、软件授权还是设备维修，以及具体问题。")
                 return None
