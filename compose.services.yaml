@@ -1,0 +1,50 @@
+name: resolvedesk-services
+
+services:
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?configure local services env}"]
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?configure local services env}
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-16379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: resolvedesk
+      POSTGRES_DB: resolvedesk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?configure local services env}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-15432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resolvedesk -d resolvedesk"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  chroma:
+    image: chromadb/chroma:1.5.9
+    environment:
+      ANONYMIZED_TELEMETRY: "False"
+    ports:
+      - "127.0.0.1:${CHROMA_PORT:-18001}:8000"
+    volumes:
+      - chroma-data:/data
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  postgres-data:
+  chroma-data:
