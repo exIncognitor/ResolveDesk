@@ -255,3 +255,20 @@ async def test_monitor_recovery_probe_is_bounded_and_success_clears_cooldown(env
         recovered=await services.route(USER,run["id"],run["message"],[],{})
         assert recovered["primary"]=="technical"
     finally:await services.close()
+
+
+@pytest.mark.asyncio
+async def test_critical_handoff_returns_source_guidance_before_any_ticket_intake(environment):
+    store,kb=environment
+    kb.add(SUPPORT,"safety","电池安全","# 电池安全\n\n电池鼓包时停止使用并断开充电，不要拆卸。")
+    calls=[];model=model_for(fine=("device_hazard",),calls=calls)
+    services=DeskServices(store,kb,model,mcp_configs=[]);agent=DeskAgent(store,kb,model,services)
+    run,_=store.create_run(USER,"LT-1001电池鼓包了，能继续开机吗？不要建单。","safety-key")
+    try:
+        await agent.execute(USER,run["id"])
+        final=store.get_run(USER,run["id"])
+        assert final["status"]=="completed" and "停止使用"in final["answer"] and "断开充电"in final["answer"]
+        assert "尚未连接真实人工队列"in final["answer"] and "[C-"in final["answer"]
+        assert "coordinator"not in calls and not store.list_tickets(USER)
+        assert any(e["kind"]=="handoff_prepared" for e in store.events(USER,run["id"]))
+    finally:await agent.close()

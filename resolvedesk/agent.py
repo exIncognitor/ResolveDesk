@@ -346,6 +346,20 @@ class DeskAgent:
             context["specialist_execution"]={k:v for k,v in result.items() if k!="sources"}
             self.store.event(p,run_id,"execution_outcome",{"status":result["status"],"actual_roles":result["actual_roles"],"escalated":result["escalated"]})
             self.store.checkpoint(p,run_id,state)
+            if context["routing"].get("urgency")=="CRITICAL" or context["routing"]["intent"]=="escalation":
+                # Immediate risk guidance must not turn into an unsolicited
+                # ticket intake loop. Quotes come only from authorized sources.
+                evidence=list(state["sources"].items())
+                hazards=r"鼓包|冒烟|漏电|起火|泄露|勒索|被盗|大面积|生产中断"
+                signal=re.findall(hazards,latest)
+                selected=sorted(evidence,key=lambda item:-sum(term in item[1]["content"] for term in signal))[:2]
+                guidance="\n".join(item["content"].strip()+" ["+citation+"]" for citation,item in selected)
+                answer="本次按安全/人工升级问题处理。\n"+("以下是当前知识库可核验的制度原文：\n"+guidance if guidance else "当前知识库没有可核验的处置依据，请联系IT人员处理。")
+                answer+="\n系统尚未连接真实人工队列；请通过现有IT渠道联系人员核验。尚未创建维修工单、提交审批或开通权限。"
+                self.store.event(p,run_id,"handoff_prepared",{"urgency":context["routing"].get("urgency"),"external_queue_connected":False,"citations":[citation for citation,_ in selected]})
+                self.store.finish(p,run_id,"failed" if result["status"]=="failed" else "completed",answer,
+                    "specialist_failed" if result["status"]=="failed" else "specialist_partial" if result["status"]=="partial" else None)
+                return None
             if result["status"]=="failed":
                 self.store.finish(p,run_id,"failed","当前专业服务暂不可用。已保留处理进度，尚未执行审批或创建工单；可稍后显式恢复。","specialist_failed")
                 return None

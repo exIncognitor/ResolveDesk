@@ -26,6 +26,7 @@ from resolvedesk.store import Store,Principal
 async def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--live",action="store_true",help="Spend from the existing authorized Flash budget")
+    parser.add_argument("--tools-only",action="store_true",help="Verify autonomous RAG/MCP/native use by two experts without repeating the dialog suite")
     args=parser.parse_args()
     if not args.live:parser.error("Use --live for explicitly budgeted real model verification")
     from dotenv import load_dotenv
@@ -81,17 +82,33 @@ async def main():
             "status":final["status"]in case["statuses"],"no_business_write":not store.list_tickets(learner)}
         if case.get("citation"):checks["citation"]="[C-" in final["answer"]
         if case.get("roles"):checks["actual_roles"]=bool(outcome) and set(outcome["actual_roles"])==set(case["roles"])
-        if case.get("critical"):checks["critical"]=route["urgency"]=="CRITICAL" and bool(outcome) and outcome["escalated"]
+        if case.get("critical"):
+            checks["critical"]=route["urgency"]=="CRITICAL" and bool(outcome) and outcome["escalated"]
+            checks["immediate_guidance"]="停止使用" in final["answer"] and "断开充电" in final["answer"] and "尚未连接真实人工队列" in final["answer"] and "[C-" in final["answer"]
         if case.get("draft_days"):checks["draft_days"]=bool(final["draft"]) and final["draft"]["duration_days"]==case["draft_days"]
         if case.get("device_reset"):checks["device_reset"]=bool(final["draft"]) and final["draft"]["workflow"]=="device_repair" and not final["draft"]["resource_id"] and final["draft"]["duration_days"]==0
         result={"case":case["id"],"passed":all(checks.values()),"checks":checks,"status":final["status"],"error":final["error"],
-            "route":route,"outcome":outcome,"answer":final["answer"],"draft":final["draft"],"simulation":True}
+            "route":route,"outcome":outcome,"answer":final["answer"],"draft":final["draft"],"simulation":True,
+            "specialists":[e["payload"] for e in events if e["kind"]=="specialist_result" and e["seq"]>final["event_cursor"]]}
         details.append(result)
         print(json.dumps({"case":case["id"],"passed":result["passed"],"status":final["status"]},ensure_ascii=False),flush=True)
         return final
     try:
         await services.start()
         async with api.router.lifespan_context(api),httpx.AsyncClient(transport=httpx.ASGITransport(app=api),base_url="http://verify-it.local",headers={"Authorization":"Bearer "+token},timeout=130) as http:
+            if args.tools_only:
+                message="VPN连接超时且IDEA Ultimate授权席位需要申请。请两个专业节点分别查询当前知识库，并调用标准MCP诊断清单（网络/软件）；软件节点同时核验IDEA目录。完成后简要解释制度，不提交或修改任何业务。"
+                run,_=store.create_run(learner,message,"verify-tools-"+uuid.uuid4().hex)
+                store.claim(learner,run["id"])
+                routing=await services.route(learner,run["id"],message,[],{})
+                result=await services.consult(learner,run["id"],message,[],{"evidence":[],"business":{"simulation":True}},routing)
+                for opinion in result["specialist_opinions"]:
+                    checks={"status":opinion["status"]=="success","rag":"search_knowledge_base"in opinion["tools_used"],
+                        "mcp":"mcp_support_support_checklist"in opinion["tools_used"],"no_write":not store.list_tickets(learner)}
+                    if opinion["role"]=="billing":checks["it_native"]="check_license_request"in opinion["tools_used"]
+                    details.append({"case":"autonomous-"+opinion["requested_role"],"passed":all(checks.values()),"checks":checks,"opinion":opinion,"simulation":True})
+                print(json.dumps({"autonomous_experts":len(details),"passed":sum(r["passed"] for r in details)},ensure_ascii=False),flush=True)
+                return
             cases=[
                 {"id":"network","message":"Windows 11的VPN提示错误691，普通网页正常。请依据知识库给出排查步骤，不要创建工单。","domain":"network_endpoint","statuses":["completed"],"roles":["technical"],"citation":True},
                 {"id":"licensing","message":"IntelliJ IDEA Ultimate商业席位如何申请、许可证到期怎么回收？只解释制度，不提交申请。","domain":"software_license","statuses":["completed"],"roles":["billing"],"citation":True},
