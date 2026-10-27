@@ -169,8 +169,8 @@ async def test_insufficient_managed_evidence_stops_before_specialist_or_policy_g
 async def test_real_pg_redis_chroma_publication_cache_and_failed_projection(postgres_store,vectors,cache,monkeypatch):
     first=HybridKnowledge(postgres_store,FakeEmbedding(),vectors)
     second=HybridKnowledge(postgres_store,FakeEmbedding(),vectors)
-    model=client_with();one=ReliableRetrieval(first,model,MCPToolManager(),cache)
-    two=ReliableRetrieval(second,model,MCPToolManager(),cache)
+    model=client_with();one=ReliableRetrieval(first,model,MCPToolManager(api_key='unused'),cache)
+    two=ReliableRetrieval(second,model,MCPToolManager(api_key='unused'),cache)
     try:
         add(first);assert vectors.count()==0
         change(first)
