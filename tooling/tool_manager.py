@@ -126,10 +126,13 @@ class Tool:
     timeout_s:   float = 30.0
     supports_rerank: bool = False            # 是否支持结果重排
     fallback:    Optional[Callable] = None    # sync/async (params, context, error) -> Any
+    fallback_timeout_s: float = 5.0
+    max_concurrent: int = 4
 
     # 运行时状态（不参与构造）
     stats:   ToolStats    = field(default_factory=ToolStats, init=False)
     breaker: CircuitBreaker = field(default_factory=CircuitBreaker, init=False)
+    slots: Any = field(default=None, init=False, repr=False)
 
 
 # ── MCP 工具管理器 ────────────────────────────────────────────────────────────
@@ -259,8 +262,8 @@ class MCPToolManager:
             tool.stats.failed += 1
             tool.stats.consecutive_fails += 1
             tool.breaker.record_failure(generation)
-            logger.error(f"工具异常: {name} — {ex}")
-            return await self._fallback_result(tool, params, context, str(ex))
+            logger.error("工具异常: %s (%s)", name, type(ex).__name__)
+            return await self._fallback_result(tool, params, context, type(ex).__name__)
 
     async def _fallback_result(
         self,
@@ -273,9 +276,7 @@ class MCPToolManager:
         if tool.fallback is None:
             return ToolResult(success=False, data=None, tool_name=tool.name, error=error)
         try:
-            data = tool.fallback(params, context, error)
-            if asyncio.iscoroutine(data):
-                data = await data
+            data = await asyncio.wait_for(self._invoke(tool.fallback,(params,context,error),None),tool.fallback_timeout_s)
             return ToolResult(
                 success=False,
                 data=data,
@@ -283,8 +284,8 @@ class MCPToolManager:
                 error=error,
             )
         except Exception as ex:
-            logger.error(f"工具降级失败: {tool.name} — {ex}")
-            return ToolResult(success=False, data=None, tool_name=tool.name, error=f"{error}; fallback失败: {ex}")
+            logger.error("工具降级失败: %s (%s)", tool.name, type(ex).__name__)
+            return ToolResult(success=False, data=None, tool_name=tool.name, error=f"{error}; fallback失败: {type(ex).__name__}")
 
     async def _run_handler(
         self,
@@ -298,12 +299,28 @@ class MCPToolManager:
         优先支持 async handler；如果历史工具仍是同步函数，则放入线程池执行，
         避免阻塞事件循环。
         """
-        if inspect.iscoroutinefunction(tool.handler):
-            return await tool.handler(params, context)
-        result = await asyncio.to_thread(tool.handler, params, context)
-        if inspect.isawaitable(result):
-            return await result
-        return result
+        if tool.slots is None:
+            if not 1<=tool.max_concurrent<=32:raise ValueError("Invalid tool concurrency")
+            tool.slots=asyncio.Semaphore(tool.max_concurrent)
+        return await self._invoke(tool.handler,(params,context),tool.slots)
+
+    async def _invoke(self,handler,args,slots):
+        if slots is not None:await slots.acquire()
+        asynchronous=inspect.iscoroutinefunction(handler)
+        async def execute():
+            result=await handler(*args) if asynchronous else await asyncio.to_thread(handler,*args)
+            return await result if inspect.isawaitable(result) else result
+        task=asyncio.create_task(execute())
+        def completed(done):
+            if slots is not None:slots.release()
+            if not done.cancelled():done.exception()
+        task.add_done_callback(completed)
+        try:return await asyncio.shield(task)
+        except asyncio.CancelledError:
+            # A CPU/HTTP thread keeps its slot until it actually exits. Async
+            # handlers receive cancellation without extending the caller's SLA.
+            if asynchronous:task.cancel()
+            raise
 
     # ── 查询改写（解决召回不全）────────────────────────────────────────────────
 

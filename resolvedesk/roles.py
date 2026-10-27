@@ -75,7 +75,7 @@ def build_it_tools(services):
 
     async def search(req,args):
         p=scope(req)
-        result=await services.search(p,args["query"],args.get("top_k",3),optimize=False)
+        result=await services.search(p,args["query"],args.get("top_k",3),optimize=False,role=req.executing_role)
         for item in result["items"]:req.authorized_sources[item["citation"]]=item
         return result
 

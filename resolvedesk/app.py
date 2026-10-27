@@ -312,6 +312,8 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
 
     @app.post("/knowledge/search")
     async def search(data: Search, request: Request, p=Depends(principal)):
+        services=request.app.state.agent.services
+        if services:return await services.search(p,data.query,data.top_k,optimize=False,mode=data.mode)
         return await asyncio.to_thread(request.app.state.knowledge.search, p, data.query, data.top_k, data.mode)
 
     @app.post("/knowledge/documents")

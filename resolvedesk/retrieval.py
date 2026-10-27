@@ -274,6 +274,26 @@ class HybridKnowledge:
                 raise KeyError("Citation not found or document version replaced")
             return dict(row)
 
+    def validate_citations(self,p,citations):
+        """One current SQL ACL/version read, also used on cache hits and output."""
+        citations=list(dict.fromkeys(citations))
+        if not citations:return {}
+        if len(citations)>256 or any(not re.fullmatch(r"C-[a-f0-9]{24}",c) for c in citations):raise ValueError("Invalid citation batch")
+        with self.store.db() as db:
+            return {"C-"+r["id"]:{k:r[k] for k in ("document_id","title","version","section","start","end","content")} for r in db.execute(
+                'SELECT id,title,document_id,version,section,start,"end",content FROM chunks WHERE tenant=? AND (visibility=\'tenant\' OR owner=?) AND id IN ('+','.join('?' for _ in citations)+')',
+                [p.tenant,p.user]+[c[2:] for c in citations])}
+
+    def scope_version(self,p):
+        """Cross-worker cache identity includes ACL, content and index revisions."""
+        with self.store.db() as db:
+            rows=[tuple(r) for r in db.execute("""SELECT c.id,c.version,c.owner,c.visibility,c.embedding,
+                COALESCE(d.generation,0),COALESCE((SELECT COUNT(*) FROM index_outbox o WHERE o.tenant=c.tenant AND o.document_id=c.document_id AND o.state='pending'),0)
+                FROM chunks c LEFT JOIN knowledge_documents d ON d.tenant=c.tenant AND d.document_id=c.document_id
+                WHERE c.tenant=? AND (c.visibility='tenant' OR c.owner=?) ORDER BY c.id""",(p.tenant,p.user))]
+        return hashlib.sha256(encode([self.embedding.identity if self.embedding else None,
+            self.vector_index.name if self.vector_index else 'offline',rows]).encode()).hexdigest()
+
     def status(self):
         with self.store.db() as db:
             count = db.execute("SELECT COUNT(*) FROM chunks").fetchone()[0]

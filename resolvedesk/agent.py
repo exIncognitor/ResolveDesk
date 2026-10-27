@@ -200,6 +200,7 @@ class DeskAgent:
             if state.get("pending"):
                 blocks,stop_reason = state["pending"]["blocks"],state["pending"]["stop_reason"]
             else:
+                await self._validate_sources(p,sources)
                 kwargs = dict(model="deepseek-flash",max_tokens=1536,temperature=0,system=system,messages=messages,tools=tools)
                 if self.services and hasattr(self.client.messages,"stream"):
                     async with self.client.messages.stream(**kwargs) as stream:
@@ -207,9 +208,12 @@ class DeskAgent:
                         async for delta in stream.text_stream:
                             buffer += delta
                             if len(buffer)>=48:
+                                await self._validate_sources(p,sources)
                                 self.store.event(p,run_id,"answer_delta",{"text":buffer,"validated":False})
                                 buffer = ""
-                        if buffer:self.store.event(p,run_id,"answer_delta",{"text":buffer,"validated":False})
+                        if buffer:
+                            await self._validate_sources(p,sources)
+                            self.store.event(p,run_id,"answer_delta",{"text":buffer,"validated":False})
                         response = await stream.get_final_message()
                 else:
                     response = await self.client.messages.create(**kwargs)
@@ -233,6 +237,7 @@ class DeskAgent:
                 if (cited-sources.keys()) or (sources and not cited) or re.search(r"工单.{0,6}(?:已创建|创建成功|已提交|提交成功)", answer):
                     # Fail closed to actual source excerpts instead of returning fabricated citations.
                     answer = self._grounded_fallback(sources)
+                await self._validate_sources(p,sources)
                 self.store.finish(p,run_id,"completed",answer,"specialist_partial" if state.get("consultation_status")=="partial" else None)
                 if self.services:
                     try:
@@ -278,7 +283,7 @@ class DeskAgent:
                         self.store.prepare(p, run_id, payload, missing)
                         return
                     if name == "knowledge_search":
-                        data = await self.services.search(p,args["query"],5) if self.services else await asyncio.to_thread(self.knowledge.search,p,args["query"],5)
+                        data = await self.services.search(p,args["query"],5,role=role) if self.services else await asyncio.to_thread(self.knowledge.search,p,args["query"],5)
                         sources.update({item["citation"]: item for item in data["items"]})
                         self.store.event(p, run_id, "retrieval", {"citations": [i["citation"] for i in data["items"]], "degraded": data["degraded"], "mode": data["mode"]})
                     elif name == "get_ticket":
@@ -332,11 +337,14 @@ class DeskAgent:
                     self.store.event(p,run_id,"memory_error",{"type":type(exc).__name__,"phase":"context"})
                     context["memory"]={"summary":"","profile":{},"relevant_history":[]}
         if "evidence" not in context:
-            retrieval=await self.services.search(p,latest,5) if self.services else await asyncio.to_thread(self.knowledge.search,p,latest,5)
+            retrieval=await self.services.search(p,latest,5,role=state["role"]) if self.services else await asyncio.to_thread(self.knowledge.search,p,latest,5)
             state["sources"]={item["citation"]:item for item in retrieval["items"]}
             context.update(evidence=retrieval["items"],retrieval_degraded=retrieval["degraded"])
             self.store.event(p,run_id,"retrieval",{k:v for k,v in retrieval.items() if k!="items"}|{"citations":list(state["sources"])})
             self.store.checkpoint(p,run_id,state)
+            if retrieval["degraded"] and not retrieval["items"]:
+                self.store.finish(p,run_id,"awaiting_input","知识服务暂时不可用，当前没有可核验的处置依据。已保留你的问题，可稍后重试，或明确说明是否需要准备人工处理工单。","knowledge_unavailable")
+                return None
         skill_prompt=""
         if self.services:
             state.setdefault("consultations",{})
@@ -355,6 +363,7 @@ class DeskAgent:
             self.store.event(p,run_id,"execution_outcome",{"status":result["status"],"actual_roles":result["actual_roles"],"escalated":result["escalated"]})
             self.store.checkpoint(p,run_id,state)
             if context["routing"].get("urgency")=="CRITICAL" or context["routing"]["intent"]=="escalation":
+                await self._validate_sources(p,state["sources"])
                 # Immediate risk guidance must not turn into an unsolicited
                 # ticket intake loop. Quotes come only from authorized sources.
                 evidence=list(state["sources"].items())
@@ -386,3 +395,8 @@ class DeskAgent:
             return "目前没有足够的知识库依据，尚未创建工单。请补充故障信息，或要求准备人工处理工单。"
         return "请先核对以下知识库原文；若不能解决，可以准备工单交由人工处理：\n" + "\n".join(
             item["content"].strip()+" ["+key+"]" for key,item in list(sources.items())[:2])
+
+    async def _validate_sources(self,p,sources):
+        current=await asyncio.to_thread(self.knowledge.validate_citations,p,list(sources))
+        if len(current)!=len(sources) or any(current[c]!={k:sources[c][k] for k in current[c]} for c in current):
+            raise RuntimeError("Knowledge authorization or version changed")
