@@ -261,15 +261,15 @@ class BudgetedAnthropic:
 
     def ledger(self):
         if self._ledger is None:
-            root = Path(__file__).resolve().parents[1]
-            path = Path(os.getenv("RESOLVEDESK_LEDGER_PATH", "data/billing/usage.sqlite3"))
-            if not path.is_absolute():
-                path = root / path
-            if not path.resolve().is_relative_to(root / "data" / "billing"):
-                raise PaidCallBlocked("Keep the ledger inside this project's data/billing directory")
-            self._ledger = CostLedger(path, self.policy)
+            from core.financial_ledger import PostgresCostLedger
+            from resolvedesk.settings import ServiceSettings
+            # Shared by every main/specialist/memory/evaluation client. Never
+            # rewind the budget by opening another local SQLite file.
+            self._ledger = PostgresCostLedger(ServiceSettings.load().database_url,self.policy)
         return self._ledger
 
     async def close(self):
         if self._client is not None:
             await self._client.close()
+        if self._ledger is not None and hasattr(self._ledger,"close"):
+            self._ledger.close()
