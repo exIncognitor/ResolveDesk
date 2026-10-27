@@ -323,13 +323,15 @@
         <section class="workspace-card"><h2>我的长期记忆</h2><pre>{{ formatJson(memoryData) }}</pre></section>
         <section class="workspace-card"><h2>MCP 连接</h2><pre>{{ formatJson(mcpData) }}</pre></section>
       </section>
+      <ServiceDesk v-else-if="activeView === 'service'" :settings="settings" @compose="message => { activeView = 'chat'; usePrompt(message) }" />
       <section v-else class="page page-evaluation">
         <div class="page-heading">
           <div class="heading-copy">
             <span class="kicker">EVALUATION LAB</span>
             <h1>评测中心</h1>
-            <p>检查知识召回与经人工审核的反馈回归；本页评测不调用付费模型。</p>
+            <p>检索评测免费；完整质量评测通过隔离数据执行真实对话、业务流程与 Flash 评分，计入共用预算。</p>
           </div>
+          <select v-model="evaluationKind" :disabled="busy" aria-label="评测类型"><option value="retrieval">知识检索回归（免费）</option><option value="quality">完整质量评测（使用 Flash）</option></select>
           <button @click="performAction('evaluation', runEvaluation)" :disabled="busy">
             <AppIcon :name="busy && pendingAction === 'evaluation' ? 'refresh' : 'play'" :class="{ spinning: busy && pendingAction === 'evaluation' }" />
             {{ busy && pendingAction === 'evaluation' ? '评测运行中' : '运行评测' }}
@@ -337,6 +339,7 @@
         </div>
         <section class="workspace-card"><h2>负反馈回归候选</h2><button class="text-button" @click="loadCandidates">加载候选（客服）</button><label>期望文档 ID<input v-model="expectedDocument" /></label><label>期望章节<input v-model="expectedSection" /></label><p v-for="c in candidates" :key="c.run_id">{{ c.question }} <button :disabled="!expectedDocument || !expectedSection" @click="promoteCandidate(c.run_id)">审核并加入回归</button></p></section>
         <div v-if="evalData" class="evaluation-content">
+          <p v-if="evalData.kind === 'active_service_quality'">{{ evalData.provenance }} · 意图样本 {{ evalData.intent?.samples }} 条 · 对话 {{ evalData.total }} 组。评分错误不会记为有效评分。</p>
           <div class="evaluation-summary">
             <div class="score-hero">
               <span>PASS RATE · 通过率</span>
@@ -503,6 +506,7 @@ import { deskRequest, consumeEvents } from './lib/resolvedesk'
 
 import AppIcon from './components/AppIcon.vue'
 import RequestInspector from './components/RequestInspector.vue'
+import ServiceDesk from './components/ServiceDesk.vue'
 
 import { createRequestState } from './lib/requestState'
 
@@ -549,6 +553,7 @@ const skillsData = ref({ count: 0, skills: [], errors: [] })
 const lastResponse = ref(null)
 const lastTrace = ref(null)
 const evalData = ref(null)
+const evaluationKind = ref('retrieval')
 const toast = ref('')
 let toastTimer
 let messageSequence = 0
