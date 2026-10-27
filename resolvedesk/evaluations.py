@@ -117,9 +117,8 @@ class EvaluationService:
             job=db.execute(db.locked('SELECT * FROM eval_jobs WHERE id=? AND tenant=? AND owner=?'),(job_id,p.tenant,p.user)).fetchone()
             if not job:raise KeyError('Evaluation not found')
             report=json.loads(job['result']) if job['result'] else {}
-            intent=report.get('intent',{})
-            if job['status']!='completed' or report.get('kind')!='active_service_quality' or not report.get('judge_enabled') or report.get('evaluation_errors') or not report.get('total') or report.get('passed')!=report.get('total') or (intent.get('accuracy')!=1 and intent.get('samples')!=0):
-                raise Conflict('仅完整通过且有有效 Judge 评分的质量报告可设为基线')
+            if job['status']!='completed' or report.get('kind')!='active_service_quality' or not report.get('judge_enabled') or report.get('evaluation_errors') or not report.get('total') or report.get('valid_total')!=report.get('total'):
+                raise Conflict('仅完整执行且有有效 Judge 评分的质量报告可设为基线；分数不必满分')
             db.execute("INSERT INTO quality_baselines VALUES(?,?,?,?,?) ON CONFLICT(tenant,suite_id) DO UPDATE SET job_id=excluded.job_id,report=excluded.report,created=excluded.created",(p.tenant,report["suite_id"],job_id,encode(report),db.now()))
         return {"saved":True,"suite_id":report["suite_id"],"job_id":job_id}
 

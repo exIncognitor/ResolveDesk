@@ -111,3 +111,24 @@ def test_baseline_is_explicit_valid_scoped_and_not_silently_replaced(tmp_path):
     assert "baseline_job_id" not in service.compare(SUPPORT, report | {"suite_id":"different"})
     with store.db(True) as db: db.execute("UPDATE eval_jobs SET result=?", (encode(report | {"evaluation_errors":1}),))
     with pytest.raises(Conflict): service.set_baseline(SUPPORT, "job")
+
+
+def test_baseline_can_preserve_valid_imperfect_measurements_and_compare_engine_versions(tmp_path):
+    from copy import deepcopy
+    from resolvedesk.quality import suite_identity
+    from evaluation.evaluator import LLMJudge
+    judge=LLMJudge(client_with(),'deepseek-flash',max_attempts=1)
+    manifest={'dataset':{'version':'fixed'},'evidence':[],'backend':'postgresql','engine_sources':{'agent.py':'before'}}
+    changed=deepcopy(manifest);changed['engine_sources']['agent.py']='after'
+    suite=suite_identity(manifest,6,True,'embedding-v1',judge)
+    assert suite==suite_identity(changed,6,True,'embedding-v1',judge)
+    assert suite!=suite_identity(changed,6,True,'embedding-v2',judge)
+    changed['dataset']['version']='new-labels'
+    assert suite!=suite_identity(changed,6,True,'embedding-v1',judge)
+    store=Store(tmp_path/'imperfect.sqlite3');service=EvaluationService(store,HybridKnowledge(store))
+    report={'kind':'active_service_quality','suite_id':suite,'judge_enabled':True,'total':2,'valid_total':2,'passed':1,'pass_rate':.5,
+        'evaluation_errors':0,'avg_scores':{'accuracy':.8,'intent_accuracy':.9},'intent':{'accuracy':.9},'engine_identity':'before'}
+    with store.db(True) as db:db.execute("INSERT INTO eval_jobs(id,tenant,owner,status,completed,total,result,created) VALUES('valid','demo','support','completed',2,2,?,0)",(encode(report),))
+    assert service.set_baseline(SUPPORT,'valid')['saved']
+    compared=service.compare(SUPPORT,report|{'engine_identity':'after','avg_scores':{'accuracy':.6,'intent_accuracy':.7}})
+    assert {r['test_id'] for r in compared['regressions']}=={'metric:accuracy','metric:intent_accuracy'}

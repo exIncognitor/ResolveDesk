@@ -348,12 +348,12 @@
         <div v-if="evalData" class="evaluation-content">
           <section class="workspace-card"><button @click="loadEvaluationRetention">预览评测保留（客服）</button><p>回收需在运维端核验备份后显式执行；已选基线、作者评测集和运行中任务会保留。</p><p v-if="evaluationRetention">当前可回收 {{ evaluationRetention.plans?.length || 0 }} 项，受保护 {{ evaluationRetention.protected?.length || 0 }} 项。</p><details v-if="evaluationRetention"><summary>查看范围与保护原因</summary><pre>{{ formatJson(evaluationRetention) }}</pre></details></section>
           <p v-if="evalData.kind === 'active_service_quality'">{{ evalData.provenance }} · 意图样本 {{ evalData.intent?.samples }} 条 · 对话 {{ evalData.total }} 组。评分错误不会记为有效评分。</p>
-          <button v-if="evalData.kind === 'active_service_quality' && evalData.job_id" @click="saveQualityBaseline" :disabled="busy || evalData.evaluation_errors > 0 || evalData.passed !== evalData.total">将当前报告设为回归基线（客服）</button>
+          <button v-if="evalData.kind === 'active_service_quality' && evalData.job_id" @click="saveQualityBaseline" :disabled="busy || !evalData.judge_enabled || evalData.evaluation_errors > 0 || !evalData.total || evalData.valid_total !== evalData.total">将当前报告设为人工选定的回归基线（客服）</button>
           <div class="evaluation-summary">
             <div class="score-hero">
               <span>PASS RATE · 通过率</span>
               <strong :class="{ 'no-score': evalData.valid_total === 0 }">{{ evalData.valid_total === 0 ? '无有效评分' : formatPercent(evalData.pass_rate) }}</strong>
-              <small>{{ evalData.passed }} / {{ evalData.valid_total ?? evalData.total }} 有效用例通过</small>
+              <small>{{ evalData.passed }} / {{ evalData.total }} 个请求通过；其中 {{ evalData.valid_total ?? evalData.total }} 个结果有效</small>
             </div>
             <div>
               <span>通过用例</span>

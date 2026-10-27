@@ -35,6 +35,14 @@ def average_scores(items):
     return {key:statistics.mean(d['scores'][key] for d in items if d.get('scores')) for key in SCORES} if any(d.get('scores') for d in items) else {}
 
 
+def suite_identity(manifest,limit,use_judge,embedding_identity,judge):
+    # Regressions compare engine revisions under the same measurement contract.
+    # The execution revision stays separate, and still fences same-job resume.
+    return digest({'schema':'active-quality-v2','dataset':manifest['dataset'],'limit':limit,'judge':use_judge,'threshold':.75,
+        'judge_prompt':judge.JUDGE_PROMPT,'few_shot':judge.few_shot_prompt(),'backend':manifest['backend'],
+        'embedding':embedding_identity,'evidence':manifest['evidence']})
+
+
 class QualityRunner:
     def __init__(self,store,knowledge,client_factory=None,*,coordination=None):
         self.store,self.knowledge,self.client_factory,self.coordination=store,knowledge,client_factory,coordination
@@ -71,9 +79,7 @@ class QualityRunner:
             api=create_app(store,kb,agent,accounts)
             judge=LLMJudge(client,'deepseek-flash',max_attempts=1)
             judge._max_tokens=512
-            suite_id=digest({'dataset':dataset,'limit':limit,'judge':use_judge,'threshold':.75,'judge_prompt':judge.JUDGE_PROMPT,
-                'few_shot':judge.few_shot_prompt(),'engine':manifest['engine_sources'],'backend':manifest['backend'],
-                'embedding':getattr(kb.embedding,'identity',None),'evidence':manifest['evidence']})
+            suite_id=suite_identity(manifest,limit,use_judge,getattr(kb.embedding,'identity',None),judge)
             total=len(dataset['intent_cases'])+len(cases)
             await services.start()
             async with api.router.lifespan_context(api),httpx.AsyncClient(transport=httpx.ASGITransport(app=api),base_url='http://quality.local',timeout=120) as http:
@@ -208,6 +214,7 @@ class QualityRunner:
         errors=len(details)-len(valid)+intent['evaluation_errors']
         requested_total=len(intents)+len(details)
         return {'kind':'active_service_quality','suite_id':suite_id,'corpus_version':dataset['version'],'provenance':dataset['provenance'],
+            'suite_schema':'active-quality-v2','engine_identity':digest(manifest['engine_sources']),
             'status':'partial' if errors else 'complete','total':len(details),'valid_total':len(valid),'passed':passed,
             'pass_rate':passed/len(details) if details else 0,'valid_pass_rate':passed/len(valid) if valid else 0,
             'evaluation_errors':errors,'avg_scores':average,'intent':intent,'results':details,'regressions':[],
