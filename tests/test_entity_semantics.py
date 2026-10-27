@@ -70,5 +70,5 @@ async def test_production_prepare_cannot_invent_unknown_days(tmp_path):
         run,_=store.create_run(USER,'请准备docs-internal read访问申请，用途是学习接口，使用天数尚未决定。','no-inferred-days')
         await agent.execute(USER,run['id']);current=store.get_run(USER,run['id'])
         assert current['status']=='awaiting_input' and current['draft']['duration_days']==0
-        assert '有效天数' in current['answer'] and not current['approval'] and not store.list_tickets(USER)
+        assert '有效天数' in current['answer'] and not current.get('approval') and not store.list_tickets(USER)
     finally:await agent.close();store.close()
