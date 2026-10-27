@@ -1,6 +1,23 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {consumeEvents,requestChat,deskRequest,runEvaluation} from '../src/lib/resolvedesk.js'
+import {consumeEvents,requestChat,deskRequest,runEvaluation,requestToolTrace} from '../src/lib/resolvedesk.js'
+
+test('trace pagination pins the original turn and snapshot and preserves actual tool output and timing',async t=>{
+ const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)
+ const urls=[]
+ globalThis.fetch=async url=>{
+  urls.push(url)
+  if(url.includes('after=')){
+   assert.ok(url.includes('turn_key=original-turn'));assert.ok(url.includes('through=300'))
+   return Response.json({trace:{turn_key:'original-turn',events:[{seq:201}],tool_calls:[{tool_name:'mcp_read',cached:true,output_summary:{safe:true}}],fallback_events:[],next_after:null}})
+  }
+  return Response.json({trace:{turn_key:'original-turn',snapshot_end:300,latency_ms:1234,events:[{seq:1}],tool_calls:[],fallback_events:[],next_after:200}})
+ }
+ const r=await requestToolTrace('python',{pythonToken:'reader',endpoints:{python:''}},'r')
+ assert.equal(urls.length,2);assert.deepEqual(r.trace.events.map(e=>e.seq),[1,201])
+ assert.equal(r.trace.latency_ms,1234);assert.equal(r.trace.toolCalls[0].cached,true)
+ assert.deepEqual(r.trace.toolCalls[0].output_summary,{safe:true})
+})
 
 test('SSE parser handles split UTF-8 characters, JSON and event boundaries',async()=>{
  const bytes=new TextEncoder().encode('id: 1\nevent: answer_delta\ndata: {"text":"中文"}\n\nid: 2\nevent: completed\ndata: {"answer":"完成"}\n\n')
