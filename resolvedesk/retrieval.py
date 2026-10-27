@@ -16,6 +16,7 @@ import time
 import uuid
 
 from resolvedesk.store import encode
+from resolvedesk.knowledge_governance import KnowledgeGovernance,KnowledgeMetadata,readable,clock_sql
 
 
 class LocalEmbedding:
@@ -164,9 +165,17 @@ class HybridKnowledge:
                 CREATE INDEX IF NOT EXISTS index_scope_state ON index_outbox(tenant,document_id,state);
             """)
             db.execute("INSERT INTO knowledge_documents SELECT tenant,document_id,MIN(owner),MIN(visibility),MIN(version),1,? FROM chunks GROUP BY tenant,document_id ON CONFLICT(tenant,document_id) DO NOTHING",(time.time(),))
+        self.governance=KnowledgeGovernance(store)
 
-    def add(self, p, document_id, title, content, visibility="tenant"):
-        return self.add_many(p,[{'document_id':document_id,'title':title,'content':content,'visibility':visibility}])['results'][0]
+    def add(self, p, document_id, title, content, visibility="tenant",metadata=None):
+        return self.add_many(p,[{'document_id':document_id,'title':title,'content':content,'visibility':visibility,'metadata':metadata}])['results'][0]
+
+    def publications(self,p):return self.governance.list(p)
+
+    def publication_action(self,p,document_id,action,version,revision,note,metadata=None):
+        result=self.governance.change(p,document_id,action,version,revision,note,metadata)
+        if self.vector_index:self.drain_index(1,tenant=p.tenant,document_id=document_id)
+        return result
 
     def add_many(self,p,documents):
         from resolvedesk.imports import MAX_IMPORT_BYTES,MAX_IMPORT_DOCUMENTS
@@ -178,16 +187,17 @@ class HybridKnowledge:
         prepared=[]
         for doc in documents:
             document_id,title,content,visibility=(doc.get(k) for k in ('document_id','title','content','visibility'))
+            metadata=KnowledgeMetadata.model_validate(doc['metadata']).model_dump() if doc.get('metadata') is not None else None
             if visibility not in {'tenant','private'} or not all(isinstance(v,str) and v.strip() for v in (document_id,title,content)) or len(document_id)>100 or len(title)>200:raise ValueError('Invalid document')
             chunks=markdown_chunks(content)
             version=hashlib.sha256(encode([title,content]).encode()).hexdigest()[:16]
             vectors=self.embedding.embed([title+'\n'+c['section']+'\n'+c['content'] for c in chunks]) if self.embedding else [None]*len(chunks)
             if len(vectors)!=len(chunks):raise ValueError('Embedding count mismatch')
-            prepared.append((document_id,title,visibility,version,chunks,vectors))
+            prepared.append((document_id,title,visibility,version,chunks,vectors,metadata))
         results={}
         with self.store.db(True) as db:
             # Same ordering in concurrent batches avoids document lock inversion.
-            for document_id,title,visibility,version,chunks,vectors in sorted(prepared,key=lambda item:item[0]):
+            for document_id,title,visibility,version,chunks,vectors,metadata in sorted(prepared,key=lambda item:item[0]):
                 db.execute("INSERT INTO knowledge_documents VALUES(?,?,?,?,?,0,?) ON CONFLICT(tenant,document_id) DO NOTHING",(p.tenant,document_id,p.user,visibility,version,time.time()))
                 existing=db.execute(db.locked('SELECT * FROM knowledge_documents WHERE tenant=? AND document_id=?'),(p.tenant,document_id)).fetchone()
                 if existing['visibility']=='private' and existing['owner']!=p.user:raise PermissionError('A private document can only be replaced by its owner')
@@ -197,14 +207,15 @@ class HybridKnowledge:
                 for chunk,vector in zip(chunks,vectors,strict=True):
                     cid=hashlib.sha256(encode([p.tenant,document_id,version,chunk['start']]).encode()).hexdigest()[:24]
                     db.execute('INSERT INTO chunks VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',(cid,p.tenant,p.user,visibility,document_id,title,version,chunk['section'],chunk['start'],chunk['end'],chunk['content'],encode(vector) if vector is not None else None,self.embedding.identity if vector is not None else None))
-                if self.vector_index:db.execute("INSERT INTO index_outbox VALUES(?,?,?,?,'pending',0,?,NULL,?)",(uuid.uuid4().hex,p.tenant,document_id,generation,time.time(),time.time()))
+                self.governance.import_metadata(db,p,document_id,version,metadata)
+                if self.vector_index:self.governance.enqueue(db,p,document_id,generation)
                 results[document_id]={'document_id':document_id,'version':version,'chunks':len(chunks),'index_pending':bool(self.vector_index)}
         for document_id in results:
             if self.vector_index:self.drain_index(1,tenant=p.tenant,document_id=document_id)
         with self.store.db() as db:
             for document_id in results:
-                results[document_id]['index_pending']=bool(self.vector_index and db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND document_id=? AND state='pending' LIMIT 1",(p.tenant,document_id)).fetchone())
-            total=db.execute("SELECT COUNT(*) FROM chunks WHERE tenant=? AND (visibility='tenant' OR owner=?)",(p.tenant,p.user)).fetchone()[0]
+                results[document_id]['index_pending']=bool(self.vector_index and db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND document_id=? AND state='pending' AND next_attempt<=? LIMIT 1",(p.tenant,document_id,db.now())).fetchone())
+            total=db.execute("SELECT COUNT(*) FROM chunks c WHERE tenant=? AND (visibility='tenant' OR owner=?) AND "+readable(db),(p.tenant,p.user)).fetchone()[0]
         return {'results':[results[d['document_id']] for d in documents],'documents':len(results),'added_chunks':sum(r['chunks'] for r in results.values()),'total_chunks':total,'atomic_sql':True}
 
     def drain_index(self,limit=10,*,tenant=None,document_id=None):
@@ -219,10 +230,11 @@ class HybridKnowledge:
                 # on us, then deadlock when we acknowledge coalesced jobs.
                 statement = "SELECT d.* FROM knowledge_documents d WHERE EXISTS (SELECT 1 FROM index_outbox o WHERE o.tenant=d.tenant AND o.document_id=d.document_id AND o.state='pending' AND o.next_attempt<=?)"+scope+" ORDER BY d.updated LIMIT 1"
                 if db.backend=="postgresql": statement += " FOR UPDATE SKIP LOCKED"
-                document = db.execute(statement,[time.time()]+params).fetchone()
+                now=db.now()
+                document = db.execute(statement,[now]+params).fetchone()
                 if document is None: break
-                job = db.execute("SELECT * FROM index_outbox WHERE tenant=? AND document_id=? AND state='pending' AND next_attempt<=? ORDER BY created LIMIT 1",(document["tenant"],document["document_id"],time.time())).fetchone()
-                rows = [dict(r) for r in db.execute("SELECT * FROM chunks WHERE tenant=? AND document_id=?",(job["tenant"],job["document_id"]))]
+                job = db.execute("SELECT * FROM index_outbox WHERE tenant=? AND document_id=? AND state='pending' AND next_attempt<=? ORDER BY created LIMIT 1",(document["tenant"],document["document_id"],now)).fetchone()
+                rows = [dict(r) for r in db.execute("SELECT * FROM chunks c WHERE tenant=? AND document_id=? AND "+readable(db),(job["tenant"],job["document_id"]))]
                 try:
                     for row in rows:
                         if row["embedding"] != self.embedding.identity or not row["vector"]: raise ValueError("Document requires reembedding")
@@ -233,9 +245,9 @@ class HybridKnowledge:
                     db.execute("UPDATE index_outbox SET attempts=attempts+1,next_attempt=?,error=? WHERE id=?",(time.time()+min(60,2**min(job["attempts"],5)),type(exc).__name__,job["id"]))
                 else:
                     done += 1
-                    db.execute("UPDATE index_outbox SET state='done',error=NULL WHERE tenant=? AND document_id=? AND generation<=?",(job["tenant"],job["document_id"],document["generation"]))
+                    db.execute("UPDATE index_outbox SET state='done',error=NULL WHERE tenant=? AND document_id=? AND generation<=? AND next_attempt<=?",(job["tenant"],job["document_id"],document["generation"],now))
         with self.store.db() as db:
-            pending = db.execute("SELECT COUNT(*) FROM index_outbox WHERE state='pending'").fetchone()[0]
+            pending = db.execute("SELECT COUNT(*) FROM index_outbox WHERE state='pending' AND next_attempt<=?",(db.now(),)).fetchone()[0]
         return {"done":done,"failed":failed,"pending":pending}
 
     def lexical_snapshot(self,p):
@@ -248,7 +260,7 @@ class HybridKnowledge:
             columns='id,tenant,owner,visibility,document_id,title,version,section,start,"end",content,embedding'
             if not self.vector_index:columns+=',vector'
             with self.store.db() as db:
-                rows=[dict(row) for row in db.execute('SELECT '+columns+" FROM chunks WHERE tenant=? AND (visibility='tenant' OR owner=?) ORDER BY id",(p.tenant,p.user))]
+                rows=[dict(row) for row in db.execute('SELECT '+columns+" FROM chunks c WHERE tenant=? AND (visibility='tenant' OR owner=?) AND "+readable(db)+" ORDER BY id",(p.tenant,p.user))]
             index=BM25Index([r['title']+'\n'+r['section']+'\n'+r['content'] for r in rows])
             # Both checks are authoritative SQL reads. An import in the middle
             # may yield partial candidates, but can never populate a new revision.
@@ -268,7 +280,7 @@ class HybridKnowledge:
             raise ValueError("Invalid retrieval options")
         rows,index=self.lexical_snapshot(p)
         if not rows:
-            return {"items": [], "mode": mode, "degraded": False, "candidate_count": 0}
+            return {"items": [], "mode": mode, "degraded": False, "candidate_count": 0,"errors":[],"evidence_sufficient":False}
         lexical = index.scores(query)
         lexical_rank = sorted((i for i in range(len(rows)) if lexical[i] > 0), key=lambda i: (-lexical[i], rows[i]["id"]))[:40]
         vector_rank, semantic, degraded, errors = [], {}, False, []
@@ -279,13 +291,13 @@ class HybridKnowledge:
                 vector = self.embedding.embed([query], query=True)[0]
                 if self.vector_index:
                     try:
-                        matches = {r["id"]:r for r in self.vector_index.search(p,vector)}
+                        matches = {r["id"]:r for r in self.vector_index.search(p,vector,document_ids=sorted({r['document_id'] for r in rows}))}
                         for i,row in enumerate(rows):
                             match = matches.get(row["id"])
                             if match and match["metadata"]["version"]==row["version"] and row["embedding"]==self.embedding.identity:
                                 semantic[i] = match["cosine"]
                         with self.store.db() as db:
-                            degraded = bool(db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND state='pending' LIMIT 1",(p.tenant,)).fetchone())
+                            degraded = bool(db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND state='pending' AND next_attempt<=? LIMIT 1",(p.tenant,db.now())).fetchone())
                     except Exception as exc:
                         if mode=="vector": raise RuntimeError("Chroma vector retrieval unavailable") from exc
                         degraded=True;errors.append("chroma_"+type(exc).__name__)
@@ -307,15 +319,13 @@ class HybridKnowledge:
             if citation not in current:continue  # Current SQL ACL and version remain authoritative.
             items.append(current[citation] | {
                 "citation": "C-"+row["id"], "score": scores[i], "bm25": lexical[i], "cosine": semantic.get(i)})
-        return {"items":items,"mode":mode,"degraded":degraded,"candidate_count":len(rows),"errors":errors}
+        return {"items":items,"mode":mode,"degraded":degraded,"candidate_count":len(rows),"errors":errors,
+                "evidence_sufficient":evidence_sufficient(query,items)}
 
     def citation(self, p, citation):
-        with self.store.db() as db:
-            row = db.execute('SELECT title,document_id,version,section,start,"end",content FROM chunks WHERE id=? AND tenant=? AND (visibility=\'tenant\' OR owner=?)',
-                             (citation.removeprefix("C-"), p.tenant, p.user)).fetchone()
-            if row is None:
-                raise KeyError("Citation not found or document version replaced")
-            return dict(row)
+        result=self.validate_citations(p,[citation])
+        if citation not in result:raise KeyError('Citation not found or no longer published/authorized')
+        return result[citation]
 
     def validate_citations(self,p,citations):
         """One current SQL ACL/version read, also used on cache hits and output."""
@@ -323,18 +333,30 @@ class HybridKnowledge:
         if not citations:return {}
         if len(citations)>256 or any(not re.fullmatch(r"C-[a-f0-9]{24}",c) for c in citations):raise ValueError("Invalid citation batch")
         with self.store.db() as db:
-            return {"C-"+r["id"]:{k:r[k] for k in ("document_id","title","version","section","start","end","content")} for r in db.execute(
-                'SELECT id,title,document_id,version,section,start,"end",content FROM chunks WHERE tenant=? AND (visibility=\'tenant\' OR owner=?) AND id IN ('+','.join('?' for _ in citations)+')',
-                [p.tenant,p.user]+[c[2:] for c in citations])}
+            rows=db.execute('SELECT c.id,c.title,c.document_id,c.version,c.section,c.start,c."end",c.content,k.metadata,k.revision,k.state,k.reviewer,k.reviewed,k.note FROM chunks c '
+                'LEFT JOIN knowledge_publications k ON k.tenant=c.tenant AND k.document_id=c.document_id '
+                'WHERE c.tenant=? AND (c.visibility=\'tenant\' OR c.owner=?) AND '+readable(db)+' AND c.id IN ('+','.join('?' for _ in citations)+')',
+                [p.tenant,p.user]+[c[2:] for c in citations])
+            result={}
+            for r in rows:
+                value={k:r[k] for k in ('document_id','title','version','section','start','end','content')}
+                if r['metadata'] is not None:value['publication']={'metadata':json.loads(r['metadata']),**{k:r[k] for k in ('revision','state','reviewer','reviewed','note')}}
+                result['C-'+r['id']]=value
+            return result
 
     def scope_version(self,p):
         """Cross-worker cache identity includes ACL, content and index revisions."""
         with self.store.db() as db:
             rows=[tuple(r) for r in db.execute("""SELECT d.document_id,d.version,d.owner,d.visibility,d.generation,
-                COALESCE((SELECT COUNT(*) FROM index_outbox o WHERE o.tenant=d.tenant AND o.document_id=d.document_id AND o.state='pending'),0)
-                FROM knowledge_documents d WHERE d.tenant=? AND (d.visibility='tenant' OR d.owner=?) ORDER BY d.document_id""",(p.tenant,p.user))]
+                COALESCE((SELECT COUNT(*) FROM index_outbox o WHERE o.tenant=d.tenant AND o.document_id=d.document_id AND o.state='pending' AND o.next_attempt<="""+clock_sql(db)+"""),0)
+                FROM knowledge_documents d WHERE d.tenant=? AND (d.visibility='tenant' OR d.owner=?) AND """+readable(db,'d')+" ORDER BY d.document_id",(p.tenant,p.user))]
         return hashlib.sha256(encode(['document-revisions-v2',self.embedding.identity if self.embedding else None,
             self.vector_index.name if self.vector_index else 'offline',rows]).encode()).hexdigest()
+
+    def stats(self,p):
+        with self.store.db() as db:
+            count=db.execute("SELECT COUNT(*) FROM chunks c WHERE tenant=? AND (visibility='tenant' OR owner=?) AND "+readable(db),(p.tenant,p.user)).fetchone()[0]
+        return {'total_chunks':count}
 
     def status(self):
         with self.store.db() as db:
