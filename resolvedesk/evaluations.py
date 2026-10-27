@@ -14,6 +14,9 @@ class EvaluationService:
         with store.db(True) as db:
             db.executescript("""CREATE TABLE IF NOT EXISTS eval_jobs(id TEXT PRIMARY KEY,tenant TEXT,owner TEXT,status TEXT,completed INTEGER,total INTEGER,result TEXT,error TEXT,created REAL);
                 CREATE TABLE IF NOT EXISTS regression_cases(id TEXT PRIMARY KEY,tenant TEXT,source_run TEXT,question TEXT,document TEXT,section TEXT,UNIQUE(tenant,source_run));""")
+            if "options" not in {r[1] for r in db.execute("PRAGMA table_info(eval_jobs)")}:
+                db.execute("ALTER TABLE eval_jobs ADD COLUMN options TEXT NOT NULL DEFAULT '{}'")
+            db.execute("CREATE TABLE IF NOT EXISTS quality_baselines(tenant TEXT,suite_id TEXT,job_id TEXT,report TEXT,created REAL,PRIMARY KEY(tenant,suite_id))")
             db.execute("UPDATE eval_jobs SET status='paused',error='process_interrupted' WHERE status IN ('queued','running')")
 
     def get(self,p,job_id):
@@ -23,13 +26,16 @@ class EvaluationService:
             return {"job_id":r["id"],"status":r["status"],"completed":r["completed"],"total":r["total"],
                     "result":json.loads(r["result"]) if r["result"] else None,"error":r["error"]}
 
-    def submit(self,p):
+    def submit(self,p,kind="retrieval",limit=6,use_judge=True):
         if p.role!="support":raise PermissionError()
+        if kind not in {"retrieval","quality"} or type(limit) is not int or not 1 <= limit <= 6:
+            raise ValueError("Invalid evaluation options")
         with self.store.db(True) as db:
             if db.execute("SELECT COUNT(*) FROM eval_jobs WHERE status IN ('running','queued')").fetchone()[0]>=2:
                 raise Conflict("Evaluation queue full")
             job_id = uuid.uuid4().hex
-            db.execute("INSERT INTO eval_jobs VALUES(?,?,?,'queued',0,0,NULL,NULL,?)",(job_id,p.tenant,p.user,time.time()))
+            db.execute("INSERT INTO eval_jobs(id,tenant,owner,status,completed,total,result,error,created,options) VALUES(?,?,?,'queued',0,0,NULL,NULL,?,?)",
+                       (job_id,p.tenant,p.user,time.time(),encode({"kind":kind,"limit":limit,"use_judge":use_judge})))
         self.schedule(p,job_id)
         return self.get(p,job_id)
 
@@ -40,12 +46,36 @@ class EvaluationService:
         task.add_done_callback(lambda _:self.tasks.pop(job_id,None))
 
     def resume(self,p,job_id):
+        if p.role!="support":raise PermissionError()
         job = self.get(p,job_id)
         if job["status"] not in {"paused","failed"}:raise Conflict("Evaluation is not resumable")
         with self.store.db(True) as db:
             db.execute("UPDATE eval_jobs SET status='queued',error=NULL WHERE id=?",(job_id,))
         self.schedule(p,job_id)
         return self.get(p,job_id)
+
+    def set_baseline(self,p,job_id):
+        if p.role!="support":raise PermissionError()
+        job = self.get(p,job_id)
+        report = job["result"] or {}
+        if job["status"]!="completed" or report.get("kind")!="active_service_quality" or not report.get("judge_enabled") or report.get("evaluation_errors") or report.get("passed")!=report.get("total") or report.get("intent",{}).get("accuracy")!=1:
+            raise Conflict("仅完整通过且有有效 Judge 评分的质量报告可设为基线")
+        with self.store.db(True) as db:
+            db.execute("INSERT INTO quality_baselines VALUES(?,?,?,?,?) ON CONFLICT(tenant,suite_id) DO UPDATE SET job_id=excluded.job_id,report=excluded.report,created=excluded.created",(p.tenant,report["suite_id"],job_id,encode(report),time.time()))
+        return {"saved":True,"suite_id":report["suite_id"],"job_id":job_id}
+
+    def compare(self,p,report):
+        with self.store.db() as db:
+            row = db.execute("SELECT job_id,report FROM quality_baselines WHERE tenant=? AND suite_id=?",(p.tenant,report["suite_id"])).fetchone()
+        if row is None:return report
+        baseline = json.loads(row["report"])
+        report["baseline_job_id"] = row["job_id"]
+        report["regression_note"] = "与人工选定、同知识版本和评分配置的基线比较；相对下降超过5%触发回归。"
+        metrics = {**report["avg_scores"],"pass_rate":report["pass_rate"]}
+        previous = {**baseline["avg_scores"],"pass_rate":baseline["pass_rate"]}
+        report["regressions"] = [{"test_id":"metric:"+key,"detail":"相对基线下降超过5%","previous":old,"current":metrics.get(key)} for key,old in previous.items() if old>0 and metrics.get(key,0)<old*.95]
+        if report["evaluation_errors"]:report["regressions"].append({"test_id":"evaluation-errors","detail":"存在执行或评分错误，不能认定质量无退化"})
+        return report
 
     def promote(self,p,run_id,document,section):
         if p.role!="support":raise PermissionError()
@@ -62,7 +92,18 @@ class EvaluationService:
             with self.store.db(True) as db:
                 updated = db.execute("UPDATE eval_jobs SET status='running' WHERE id=? AND status='queued'",(job_id,))
                 if not updated.rowcount:return
+                options = json.loads(db.execute("SELECT options FROM eval_jobs WHERE id=?",(job_id,)).fetchone()[0])
                 extra = [dict(r) for r in db.execute("SELECT id,question AS query,document,section FROM regression_cases WHERE tenant=?",(p.tenant,))]
+            if options.get("kind")=="quality":
+                from resolvedesk.quality import QualityRunner
+                def progress(completed,total):
+                    with self.store.db(True) as db:db.execute("UPDATE eval_jobs SET completed=?,total=? WHERE id=?",(completed,total,job_id))
+                # A resumed job gets a new sandbox; previous evidence is retained, never overwritten.
+                attempt_id = job_id+"-"+uuid.uuid4().hex[:8]
+                report = self.compare(p,await QualityRunner(self.store,self.knowledge).run(p,attempt_id,options["limit"],options["use_judge"],progress))
+                with self.store.db(True) as db:
+                    db.execute("UPDATE eval_jobs SET status='completed',result=? WHERE id=?",(encode(report),job_id))
+                return
             default = json.loads((Path(__file__).resolve().parents[1]/"evaluation/retrieval_cases.json").read_text(encoding="utf-8")) if p.tenant=="demo" else []
             cases = default+extra
             details = []

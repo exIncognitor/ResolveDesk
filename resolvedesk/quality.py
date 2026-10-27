@@ -53,7 +53,7 @@ class QualityRunner:
         kb = HybridKnowledge(sandbox, self.knowledge.embedding)
         # Copy only tenant-visible evidence. Private documents and real business records stay out.
         with self.store.db() as source, sandbox.db(True) as target:
-            rows = source.execute("SELECT * FROM chunks WHERE tenant=? AND visibility='tenant'", (p.tenant,)).fetchall()
+            rows = source.execute("SELECT * FROM chunks WHERE tenant=? AND visibility='tenant' ORDER BY id", (p.tenant,)).fetchall()
             if not rows: raise ValueError("需要先导入模拟知识库")
             columns = rows[0].keys()
             for row in rows:
@@ -89,6 +89,7 @@ class QualityRunner:
                             await asyncio.sleep(.05)
 
                 for index, case in enumerate(cases):
+                    before_tickets = len(sandbox.list_tickets(actors["learner"]))
                     detail = {"test_id": case["id"], "passed": False, "metadata": {}, "scores": {}}
                     try:
                         run = await request("learner", "POST", "/runs", {"message": case["turns"][0], "request_key": case["id"]+"-"+job_id})
@@ -102,7 +103,7 @@ class QualityRunner:
                             events = [dict(r, payload=json.loads(r["payload"])) for r in db.execute("SELECT * FROM events WHERE run_id=? ORDER BY seq", (run["id"],))]
                         routing = [e["payload"] for e in events if e["kind"] == "routing"]
                         checks = {"run_status": run["status"] == case["expected_status"], "role": bool(routing) and routing[-1]["primary"] == case["expected_role"],
-                                  "no_unconfirmed_write": not sandbox.list_tickets(actors["learner"])}
+                                  "no_unconfirmed_write": len(sandbox.list_tickets(actors["learner"])) == before_tickets}
                         if len(turn_states) > 1: checks["clarified_first"] = turn_states[0] == "awaiting_input"
                         cited = [e["payload"] for e in events if e["kind"] == "retrieval"]
                         checks["retrieved_evidence"] = any(c.get("citations") for c in cited)

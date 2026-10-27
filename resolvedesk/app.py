@@ -64,6 +64,20 @@ class Regression(Input):
     section: str = Field(min_length=1,max_length=200)
 
 
+class ServiceAction(Input):
+    action: Literal["approve","reject","provision","cancel","triage","assign","start","resolve","accept","reopen"]
+    version: int = Field(ge=1)
+    request_key: str = Field(min_length=8,max_length=100,pattern=r"^[a-zA-Z0-9_-]+$")
+    note: str = Field(min_length=1,max_length=2000)
+    assignee: str = Field(default="",max_length=100)
+
+
+class EvaluationOptions(Input):
+    kind: Literal["retrieval","quality"] = "retrieval"
+    limit: int = Field(default=6,ge=1,le=6)
+    use_judge: bool = True
+
+
 def create_app(store=None, knowledge=None, agent=None, accounts=None):
     injected = store is not None
 
@@ -98,6 +112,7 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
             from resolvedesk.evaluations import EvaluationService
             app.state.evaluations = EvaluationService(app.state.store,app.state.knowledge)
             app.state.store.recover()
+            app.state.agent.monitor.start()
             yield
         finally:
             if hasattr(app.state, "agent"):
@@ -292,6 +307,7 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
 
     @app.get("/monitor")
     def monitor(request:Request,p=Depends(principal)):
+        if p.role=="support":return request.app.state.agent.monitor.snapshot(p)
         with request.app.state.store.db() as db:
             count = db.execute("SELECT COUNT(*) FROM runs WHERE tenant=? AND owner=?",(p.tenant,p.user)).fetchone()[0]
         stats = {}
@@ -305,6 +321,12 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         for entry in stats.values():entry['success_rate']=entry['success']/entry['total']
         return {"agent_stats":stats,"tool_stats":{},"active_alerts":[],"suggestions":[],"total_requests":count}
 
+    @app.get("/metrics")
+    def metrics(request:Request,p=Depends(principal)):
+        if p.role!="support":raise PermissionError()
+        from fastapi import Response
+        return Response(request.app.state.agent.monitor.prometheus(p),media_type="text/plain; version=0.0.4")
+
     @app.get("/trace/tool/{run_id}")
     def trace(run_id:str,request:Request,p=Depends(principal)):
         current=request.app.state.store.get_run(p,run_id)
@@ -313,8 +335,13 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         return {"request_id":run_id,"found":True,"trace":{"tool_calls":calls,"tools_used":[c["tool_name"] for c in calls],"events":events}}
 
     @app.post("/eval/run",status_code=202)
-    async def evaluation(request:Request,p=Depends(principal)):
-        return request.app.state.evaluations.submit(p)
+    async def evaluation(request:Request,data:EvaluationOptions|None=None,p=Depends(principal)):
+        options = data or EvaluationOptions()
+        return request.app.state.evaluations.submit(p,**options.model_dump())
+
+    @app.post("/eval/jobs/{job_id}/baseline")
+    def evaluation_baseline(job_id:str,request:Request,p=Depends(principal)):
+        return request.app.state.evaluations.set_baseline(p,job_id)
 
     @app.get("/eval/jobs/{job_id}")
     def evaluation_job(job_id:str,request:Request,p=Depends(principal)):
@@ -335,6 +362,22 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
     @app.get("/tickets")
     def tickets(request: Request, p=Depends(principal)):
         return request.app.state.store.list_tickets(p)
+
+    @app.get("/service-catalog")
+    def service_catalog(request:Request,p=Depends(principal)):
+        return request.app.state.agent.business.context(p)
+
+    @app.get("/service-cases")
+    def service_cases(request:Request,p=Depends(principal)):
+        return request.app.state.agent.business.list(p)
+
+    @app.get("/service-cases/{ticket_id}")
+    def service_case(ticket_id:str,request:Request,p=Depends(principal)):
+        return request.app.state.agent.business.get(p,ticket_id)
+
+    @app.post("/service-cases/{ticket_id}/actions")
+    def service_action(ticket_id:str,data:ServiceAction,request:Request,p=Depends(principal)):
+        return request.app.state.agent.business.transition(p,ticket_id,**data.model_dump())
 
     @app.get("/tickets/{ticket_id}")
     def ticket(ticket_id: str, request: Request, p=Depends(principal)):
