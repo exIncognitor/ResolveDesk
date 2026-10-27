@@ -632,6 +632,8 @@ function saveConnection() {
     searched.value = false
     evalData.value = null
     evaluationJobs.value = []
+    evaluationRetention.value = null
+    savedDatasetId.value = ''
     monitorData.value = { agent_stats: {}, tool_stats: {}, active_alerts: [], suggestions: [] }
     skillsData.value = { count: 0, skills: [], errors: [] }
     knowledgeCount.value = '—'
@@ -671,6 +673,8 @@ function switchBackend(type) {
   skillsData.value = { count: 0, skills: [], errors: [] }
   evalData.value = null
   evaluationJobs.value = []
+  evaluationRetention.value = null
+  savedDatasetId.value = ''
   settings.backend = type
   persist()
   healthOk.value = false

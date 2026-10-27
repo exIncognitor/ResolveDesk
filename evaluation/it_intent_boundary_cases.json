@@ -1,0 +1,31 @@
+{
+  "title":"IT职责边界补充回归集",
+  "version":"it-boundaries-v1",
+  "provenance":"依据业务职责定义手工构造，首次模型运行前固定；同一开发者编写，属于开发回归而非独立盲测。",
+  "intent_cases":[
+    {"id":"boundary-01","message":"密码找回页一直转圈，我想恢复公司登录","expected_intent":"account_access"},
+    {"id":"boundary-02","message":"换手机后企业账号收不到MFA验证码","expected_intent":"account_access"},
+    {"id":"boundary-03","message":"申请docs-internal的read访问，先说审批要求","expected_intent":"account_access"},
+    {"id":"boundary-04","message":"账号输错被锁，我该向谁申请解锁","expected_intent":"account_access"},
+    {"id":"boundary-05","message":"装Python依赖时pip提示下载失败","expected_intent":"network_endpoint"},
+    {"id":"boundary-06","message":"IDE刚打开就闪退，没有许可证错误","expected_intent":"network_endpoint"},
+    {"id":"boundary-07","message":"只有内网域名查不到地址，其他网站能打开","expected_intent":"network_endpoint"},
+    {"id":"boundary-08","message":"办公VPN报809，家里网络能上网","expected_intent":"network_endpoint"},
+    {"id":"boundary-09","message":"商业开发工具没有剩余席位，如何申请","expected_intent":"software_license"},
+    {"id":"boundary-10","message":"IntelliJ许可证快过期，需要企业授权续期","expected_intent":"software_license"},
+    {"id":"boundary-11","message":"激活页显示当前账号组织与企业许可不匹配","expected_intent":"software_license"},
+    {"id":"boundary-12","message":"想安装商业插件，软件白名单和审批怎么走","expected_intent":"software_license"},
+    {"id":"boundary-13","message":"看看我名下电脑的保修状态，不需要维修","expected_intent":"device_service"},
+    {"id":"boundary-14","message":"出差想暂借一台办公笔记本，归还要登记什么","expected_intent":"device_service"},
+    {"id":"boundary-15","message":"电脑修完问题又出现了，能否返工","expected_intent":"device_service"},
+    {"id":"boundary-16","message":"我的办公电脑已经过保，报修需要先核价吗","expected_intent":"device_service"},
+    {"id":"boundary-17","message":"请转人工IT支持，我需要人来核验","expected_intent":"escalation"},
+    {"id":"boundary-18","message":"怀疑企业凭据被盗，需要按安全事件升级","expected_intent":"escalation"},
+    {"id":"boundary-19","message":"全公司核心网络都断了，影响生产，需要升级处理","expected_intent":"escalation"},
+    {"id":"boundary-20","message":"怀疑发生数据泄露，该联系谁处理","expected_intent":"escalation"},
+    {"id":"boundary-21","message":"你好","expected_intent":"general"},
+    {"id":"boundary-22","message":"谢谢","expected_intent":"general"},
+    {"id":"boundary-23","message":"查询工单RD-ABCDEF012345状态","expected_intent":"general"},
+    {"id":"boundary-24","message":"我的问题还没说清楚","expected_intent":"general"}
+  ]
+}

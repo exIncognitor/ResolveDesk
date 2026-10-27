@@ -7,6 +7,7 @@ import uuid
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.exc import DBAPIError
 
 from resolvedesk.eval_retention import EvalRetention,ServiceResourceCleaner,VerifiedArchive,resource_plan
 from resolvedesk.eval_models import EvalDataset
@@ -106,7 +107,8 @@ async def test_real_services_retire_exact_sandbox_and_recover_after_remote_failu
         deletes=[]
         def track_delete(*args,**kwargs):deletes.append(args[0]);return original_delete(*args,**kwargs)
         monkeypatch.setattr(cleaner.http,'delete',track_delete)
-        with pytest.raises(Exception):service.retention.apply(SUPPORT,identity,plan['confirmation'],cleaner,archive)
+        with pytest.raises(DBAPIError) as held:service.retention.apply(SUPPORT,identity,plan['confirmation'],cleaner,archive)
+        assert held.value.orig.sqlstate=='2BP01'
         assert not deletes
         with store.db(True) as db:
             assert db.execute('SELECT COUNT(*) FROM external_synthetic_dependency').fetchone()[0]==0

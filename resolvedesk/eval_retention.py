@@ -86,6 +86,7 @@ class EvalRetention:
             # A per-job row lock serializes retries. Schema drops use no CASCADE,
             # so external objects can never be deleted as collateral dependencies.
             with self.store.db(True) as db:
+                db.execute(db.locked('SELECT id FROM eval_jobs WHERE id=?'),(job_id,)).fetchone()
                 row=db.execute(db.locked('SELECT * FROM eval_retirements WHERE job_id=?'),(job_id,)).fetchone()
                 if row['execution_owner']!=owner or row['state']!='running' or row['lease_until']<=db.now():raise Conflict('Retirement lease expired')
                 if plan['resources']:cleaner.remove(db,plan['resources'])

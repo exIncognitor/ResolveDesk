@@ -1,6 +1,6 @@
 {
-  "version": "it-service-v2-per-turn",
-  "provenance": "人工编写的合成开发评测集；不是生产数据，不声称独立盲测或500条标注数据。",
+  "version": "it-service-v3-business-scopes",
+  "provenance": "人工编写的合成开发评测集；不是生产数据或独立盲测。v3按技术故障与软件授权职责边界将pip安装失败、IDE启动崩溃两题归为network_endpoint，其余标签不变；不得与v2全量分数直接比较。",
   "split": "development",
   "intent_cases": [
     {"id":"access-1","message":"账号连续输错密码被锁定","expected":"account_access"},
@@ -19,8 +19,8 @@
     {"id":"software-2","message":"软件白名单怎么申请","expected":"software_license"},
     {"id":"software-3","message":"IntelliJ license 无法激活","expected":"software_license"},
     {"id":"software-4","message":"还有可用的商业席位吗","expected":"software_license"},
-    {"id":"software-5","message":"pip 安装包失败","expected":"software_license"},
-    {"id":"software-6","message":"IDE 启动崩溃","expected":"software_license"},
+    {"id":"software-5","message":"pip 安装包失败","expected":"network_endpoint"},
+    {"id":"software-6","message":"IDE 启动崩溃","expected":"network_endpoint"},
     {"id":"device-1","message":"笔记本电池鼓包","expected":"device_service"},
     {"id":"device-2","message":"设备过保可以报修吗","expected":"device_service"},
     {"id":"device-3","message":"查询我的资产 LT-1001","expected":"device_service"},
