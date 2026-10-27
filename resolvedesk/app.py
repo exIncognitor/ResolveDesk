@@ -118,6 +118,8 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
                 yield
         finally:
             app.state.knowledge_mcp_http=None
+            if hasattr(app.state,'import_tasks'):
+                await asyncio.gather(*list(app.state.import_tasks),return_exceptions=True)
             if hasattr(app.state,"evaluations"):
                 await app.state.evaluations.close()
             if hasattr(app.state, "agent"):
@@ -332,12 +334,11 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         return await asyncio.to_thread(request.app.state.knowledge.search, p, data.query, data.top_k, data.mode)
 
     @app.post("/knowledge/documents")
-    async def add_document(data: Document, request: Request, p=Depends(principal)):
-        if p.role != "support":
-            raise PermissionError()
-        return await asyncio.to_thread(request.app.state.knowledge.add, p, data.document_id, data.title, data.content, data.visibility)
+    async def add_document(request:Request,p=Depends(principal)):
+        result=await import_documents(request,p,False,single=True)
+        return result['results'][0]
 
-    async def import_documents(request,p,upload):
+    async def import_documents(request,p,upload,single=False):
         if p.role!='support':raise PermissionError()
         from resolvedesk.imports import read_batch,read_upload
         # Keep CPU/embedding work bounded across HTTP requests in this worker.
@@ -346,11 +347,19 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         if slots.locked():raise HTTPException(429,'Knowledge imports are busy; retry after the current request finishes')
         await slots.acquire()
         try:
-            docs=await (read_upload(request,p) if upload else read_batch(request,p))
+            if single:
+                from resolvedesk.imports import bounded_body,json_value,MAX_IMPORT_BYTES
+                if request.headers.get('content-type','').split(';')[0].strip().lower()!='application/json':raise HTTPException(415,'Use application/json')
+                data=Document.model_validate(json_value(await bounded_body(request,MAX_IMPORT_BYTES)))
+                docs=[data.model_dump()]
+            else:docs=await (read_upload(request,p) if upload else read_batch(request,p))
             task=asyncio.create_task(asyncio.to_thread(request.app.state.knowledge.add_many,p,docs))
         except BaseException:slots.release();raise
+        if not hasattr(request.app.state,'import_tasks'):request.app.state.import_tasks=set()
+        request.app.state.import_tasks.add(task)
         def imported(done):
             slots.release()
+            request.app.state.import_tasks.discard(done)
             if not done.cancelled():done.exception()
         task.add_done_callback(imported)
         # Cancellation cannot stop an SQL/embedding thread; keep its slot until

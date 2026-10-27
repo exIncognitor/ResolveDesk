@@ -2,6 +2,7 @@
 import asyncio
 import hashlib
 import json
+import threading
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -76,6 +77,34 @@ def test_file_format_utf8_and_outer_json_limits(api):
     assert client.post('/knowledge/upload',files={'file':('a.json',b'{}')}).status_code==422
     assert client.post('/knowledge/upload',files={'file':('a.json',b'[')}).status_code==422
     assert client.post('/knowledge/add',content=b'x'*(MAX_IMPORT_BYTES+1),headers={'Content-Type':'application/json'}).status_code==413
+
+
+@pytest.mark.asyncio
+async def test_cancelled_http_import_keeps_bounded_thread_slots_until_actual_completion(tmp_path,monkeypatch):
+    store=Store(tmp_path/'bounded-import.sqlite3');kb=HybridKnowledge(store);agent=DeskAgent(store,kb,client_with())
+    account={hashlib.sha256(b'bounded-token').hexdigest():vars(SUPPORT)}
+    app=create_app(store,kb,agent,account);gate=threading.Event();entered=0;lock=threading.Lock()
+    original=kb.add_many
+    def slow(p,docs):
+        nonlocal entered
+        with lock:entered+=1
+        if not gate.wait(5):raise RuntimeError('Fixture gate timeout')
+        return original(p,docs)
+    monkeypatch.setattr(kb,'add_many',slow)
+    async with app.router.lifespan_context(app),httpx.AsyncClient(transport=httpx.ASGITransport(app),base_url='http://localhost',headers={'Authorization':'Bearer bounded-token'}) as http:
+        tasks=[asyncio.create_task(http.post('/knowledge/add',json={'documents':[{'title':str(i),'content':'test'}]})) for i in range(2)]
+        try:
+            async with asyncio.timeout(3):
+                while entered<2:await asyncio.sleep(.005)
+            tasks[0].cancel();await asyncio.gather(tasks[0],return_exceptions=True)
+            response=await http.post('/knowledge/documents',json={'document_id':'third','title':'third','content':'data'})
+            assert response.status_code==429 and entered==2
+        finally:
+            gate.set();await asyncio.gather(*tasks,return_exceptions=True)
+        async with asyncio.timeout(3):
+            while app.state.import_tasks:await asyncio.sleep(.005)
+        assert app.state.import_slots._value==2
+    store.close()
 
 
 @pytest.mark.parametrize('backend',['sqlite','postgres'])
