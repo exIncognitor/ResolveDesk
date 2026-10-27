@@ -1,0 +1,584 @@
+{
+  "kind": "license",
+  "contract_id": "36bc665955a93316e525ef648596a70efd356fe3d641c08debb83ae6e9b8997d",
+  "contract": {
+    "schema": "license-extension-contract-v1",
+    "sha256": {
+      "evaluation/license_extension_v1.json": "56f9c3a7708abe92922a4c0cde69c98657a7edd17027c56db91648792234f7bf",
+      "knowledge/access.md": "fe00efc3eac1aadb9a696fc2d3c857042e6223710b76165ab711c79ed691206e",
+      "knowledge/devices.md": "a6dfd6ba2e55c7be21577c12ef084cbf4dcc107b52be813ac39741dbd2537ad7",
+      "knowledge/endpoint.md": "f4f428a215f552e1641b84755afe7016c547d27c3275f498ba24f2e94cb9ca9c",
+      "knowledge/licensing.md": "6fa7ddc3120e8d1c65ba6335ccd04d06071f7c37c8e6ca1e9b911a690202c2e5",
+      "knowledge/permissions.md": "d9f9b4c1a4abb64666129080aa9a69e8c6ba6822620fb391d9353f5c17c6f8f5",
+      "knowledge/software.md": "3a9bb44ef18a4981bb98df984b4b8b09df587f2eda748cfdca9b5343aa9efd5f",
+      "knowledge/software_seat_lifecycle.md": "5255e1efedd19cade3ef37c8ce47ae5497cecc95896a21b24a9776a8b8dca7cf",
+      "knowledge/vpn.md": "d1e9cfc6af2a42ee1e892a7c4c31e7a9da153c34e4fe7aa7060b522eb6bf811c"
+    }
+  },
+  "engine_root": "D:\\desktop\\实习\\ResolveDesk",
+  "engine_sha256": {
+    "resolvedesk\\__init__.py": "8aeb94d91329fded8d58d2a85433a59d19478156058e4c32d40544f91184a409",
+    "resolvedesk\\agent.py": "e46ea4e9a86fe12c4eed9595b650d022f3c0ece9aa14045a52c7a2296fc38f49",
+    "resolvedesk\\app.py": "3efa1fac9c92d50fc1b581e216c7670e0c689e0c5ba5ee62c5153e282ded87c2",
+    "resolvedesk\\business.py": "8cf6feba56da0e77b1fd2d64170dcfec0c3b5a1e0cb27ce8340f7e1ecf6958fd",
+    "resolvedesk\\cli.py": "2c79043bdc47394bfaddffc9e1dae3b710cba50be577a1703a812afce10423e3",
+    "resolvedesk\\coordination.py": "8b3db0d636c880529fb5a071d88f6bd9d51efad986dffc75effa722bba711ed0",
+    "resolvedesk\\database.py": "2d4c6b09ed68802c456e69e733c78346e1c32b306fa800d727043063f05aa4fd",
+    "resolvedesk\\embedding_service.py": "3c62791a8a712957bd8b95c3df9a3251784f34cd26a5b19a0ee7aa2907bd0d99",
+    "resolvedesk\\entity_state.py": "c1bed385ab67db72275630dcea3e655232963aff9ea84163ca6b2fdf1e83c5bc",
+    "resolvedesk\\eval_data.py": "3d45a912fb1d8ed799a8403dafe005aa8a963e4e888d6e982c4cbb644facec80",
+    "resolvedesk\\eval_metrics.py": "8d0294ec09dbd92b523bd06d93f85bfab175a5d57d378556af214a52214cb175",
+    "resolvedesk\\eval_models.py": "cfb90895065f86a0f9126c8f14066fe3249e8c4c408dc45c7588a517b6eab5bb",
+    "resolvedesk\\eval_retention.py": "e429ce77b0a0754bb734b8520757e21c5127906b07f148c11c3319bcdf720b7e",
+    "resolvedesk\\eval_sandbox.py": "78104cea7dc0524ff383325a2f51e9c52a404b65cbc20cbfc112c11e3d4775e1",
+    "resolvedesk\\eval_state.py": "c4d826e257b46f81bc196263141381040a3bdc15a36672e315aee5739814b3cc",
+    "resolvedesk\\evaluations.py": "78a7e6f2a4b60c4b07a3ba67bb7fb31f7799a85049e65357542287a5de0a00e9",
+    "resolvedesk\\imports.py": "430dd3ae30db181a1fe21fb86063584787e2520d1744cc6fff697111a2ca4f12",
+    "resolvedesk\\intent.py": "bc89302a7ab87b4f2c0deee401cf8e863f953bd4cf5c9c60aff2352493e11516",
+    "resolvedesk\\knowledge_mcp.py": "4466b7de13cf1d3b4ea9440f709b09c86b8c374f37178458f4d4b8715c271a53",
+    "resolvedesk\\licenses.py": "2e85a7d0673932522133ae9b3194cf2803f7d63b127b0e9652c07fc0114789a9",
+    "resolvedesk\\mcp_support.py": "32a73a62b2f9e4990358b2c8a45249e34bf030983b0db43621399774c6259b8e",
+    "resolvedesk\\memory.py": "f5b04e79ae7c03fd87ea2d34979c4110d7f850ce16df8017989d47a36b87bda9",
+    "resolvedesk\\metrics.py": "e161e2fd81aa03d2a2f51edc9219bce418b8497d864624b4a4281bb3af093c14",
+    "resolvedesk\\monitoring.py": "b77c3aede9e3a60d4c905ad3a80147f9bbe75cb4fa88435cd3caeda0ef824558",
+    "resolvedesk\\quality.py": "85084ed2dc489aef05618c7de4af65a64c2ac5f0816a92937faeff0424b39eb4",
+    "resolvedesk\\reliable_retrieval.py": "ba4eb90491ad631fafbd4a25941f579871439c1e5bd0c0dfb81c682374969b6c",
+    "resolvedesk\\remote_embedding.py": "04e711d98644ba48ce647f6137dde17287ed9e893994d00693f617c49a74d37c",
+    "resolvedesk\\retention.py": "7aeee26b72a67b6c909f11aecf3f5ef41c48bb01b56bf9317948a8dd43dae19d",
+    "resolvedesk\\retrieval.py": "36bacfa41d4e7aeeed7e747ea3e9d895c45d62878aa321fb7d29f51405357f6c",
+    "resolvedesk\\roles.py": "f7acb0b263e6c905c3032346c2e3ced3fd87aec64bd931477d33f036da6c1f68",
+    "resolvedesk\\schema_tables.py": "5bd4d66fdd8d4777437aa95c2fc1366ea66c9b0f593fd98633337042bc5225da",
+    "resolvedesk\\services.py": "04f851085ffcad5aec6d6203126df904822fc3f4923350caaac753a1fcc8f3a0",
+    "resolvedesk\\settings.py": "f9b3dd542d7dfc8e1f022892f9914bd6ae3ac0081ff3176170a736f6fc89f898",
+    "resolvedesk\\store.py": "6a841aa4bdd01a8a2a78a9846def497d5cbefa76d16daf424b6821bf6e41977b",
+    "resolvedesk\\trace_queries.py": "6345fbba1b970b22d29b3e461de8f248aeca8d1e7737a346c3dcc5760ddfaa2c",
+    "resolvedesk\\tracing.py": "78975841cfc6eb605010a892bc187c3be90be890dd80778170bf41fdf957ce47",
+    "resolvedesk\\vectors.py": "3a1a368c09fa136afc448cf77934ccf10fe035eaddfbd12f295940e9574a15c6",
+    "agents\\agent_orchestrator.py": "1626dee0a9179f94786c0df8ff9e1103245aac3ad1250e2dc05734298cdaa640",
+    "agents\\tools.py": "0392280b3ff8c84f6ce4c07179f4dde2f4fe596984adfc1a59867ec540138793",
+    "core\\access.py": "63457fce8a24a27da102141f968603546e8343cf8b4d6e1e5d891ca4f740ab03",
+    "core\\concurrency.py": "25b90fff7dc29497a02cff56c1ebb117ba8467653b3d9b0dcdfa33353e9120e8",
+    "core\\conversation_state.py": "fbdd0923e9818d53893155fbf939db84117ff9a30ad33afe739665fba6e7555e",
+    "core\\financial_ledger.py": "41d93fa759838d9e4d7e865bd86a6b739814b3d63db14a8d2e2baf245d276661",
+    "core\\intent_embedding.py": "4a2cda1a5960d612a3cea04aad56601338518182ea89d61513ddfa988e2dd38b",
+    "core\\intent_recognizer.py": "0c801327f06a32a7418080552a4886ab685644201f41748321014646ca41ddf6",
+    "core\\llm_utils.py": "8f7dbda693b254ec5779a3ee6186b6c9cdc0f82a7705ac7a664cfc1e4a58047b",
+    "core\\paid_api.py": "26b43fd402c68acb8247c479e64abca007a8bde44574bb5dd16fa0ff7d20048c",
+    "core\\redaction.py": "b7e4a065e28d835a0815fe74f6ab5facdacc0cfef959729a2f59e4b539d918e8",
+    "core\\skill_loader.py": "0a73014b50fa4b3a4abb9fc4d3eb5e395a1d35d2f38d77bcf987f931835a209d",
+    "tooling\\__init__.py": "53b3602f6378be9bc32bb35171041307193e01582838e1c7d20b71547a3fedc7",
+    "tooling\\knowledge_base.py": "8c993cceb6569070040e4facc7f4379957cdb8656826dc85d5467a5f3b80439c",
+    "tooling\\mcp_client.py": "756fdd3a0b9ca80cb7c84e496ec53a958e6ba5a48ce48b1f559b69fb1d623425",
+    "tooling\\mcp_server.py": "31f8386ee65b5ac25f193a6cfbf7fac6ed56716ce8b8310a64f16174e36e7803",
+    "tooling\\tool_manager.py": "2c67b72680f75272e80b706f7bce9dc24bd7e58ec9f730f86ba56e895047501a"
+  },
+  "backend": "postgresql/redis/chroma/e5",
+  "schema": "iteration_eval_42925b8277ac4f63884db85f882608ba",
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "4.832878",
+    "available_cny": "13.167122",
+    "calls": {
+      "settled": 1123
+    },
+    "usage_input_tokens": 2008731,
+    "usage_output_tokens": 101927,
+    "unresolved_reservation_cny": "0"
+  },
+  "started": 1793105541.2500045,
+  "policies": {
+    "retrieval": "always",
+    "execution": "full"
+  },
+  "provenance": "Frozen synthetic held-out data. No production claims; deterministic assertions primary, same Flash Judge is auxiliary and correlated.",
+  "intent": {
+    "implementation": "ITIntentRecognizer.recognize",
+    "samples": 0,
+    "accuracy": null,
+    "macro_f1": null,
+    "per_class": {},
+    "results": [],
+    "evaluation_errors": 0,
+    "channel_coverage": {
+      "llm": 0,
+      "embedding": 0,
+      "pattern": 0
+    }
+  },
+  "quality": {
+    "kind": "active_service_quality",
+    "suite_id": "158003edf4a1d3bcda678976ef4b9b2b3956fcd96bf1f669dbdc42813688608b",
+    "corpus_version": "license-extension-v1",
+    "provenance": "合成业务扩展验收；只用于候选功能，不混入原始共同任务留出集，不与不支持该流程的旧版做伪对照。",
+    "suite_schema": "active-quality-v2",
+    "engine_identity": "4bd40803ad8182a51b54c57cae7437972a0f81e238bcb2a9a4d49d794b426acf",
+    "status": "complete",
+    "total": 1,
+    "valid_total": 1,
+    "passed": 1,
+    "pass_rate": 1.0,
+    "valid_pass_rate": 1.0,
+    "evaluation_errors": 0,
+    "avg_scores": {
+      "relevance": 1.0,
+      "accuracy": 1.0,
+      "completeness": 0.8500000000000001,
+      "helpfulness": 0.9,
+      "intent_accuracy": null,
+      "intent_macro_f1": null,
+      "business_check_rate": 1.0
+    },
+    "intent": {
+      "implementation": "ITIntentRecognizer.recognize",
+      "samples": 0,
+      "accuracy": null,
+      "macro_f1": null,
+      "per_class": {},
+      "results": [],
+      "evaluation_errors": 0,
+      "channel_coverage": {
+        "llm": 0,
+        "embedding": 0,
+        "pattern": 0
+      }
+    },
+    "results": [
+      {
+        "test_id": "license-lifecycle-extension",
+        "passed": true,
+        "metadata": {
+          "judge_failed": false
+        },
+        "scores": {
+          "relevance": 1.0,
+          "accuracy": 1.0,
+          "completeness": 0.8500000000000001,
+          "helpfulness": 0.9
+        },
+        "turns": [
+          {
+            "turn": 1,
+            "answer": "申请 IntelliJ IDEA Ultimate 企业席位还需补充三项信息：1）产品版本（如 2024.x Ultimate）；2）业务用途（具体工作场景）；3）使用期限（1–30 天）。请提供后我再核对申请字段并准备草稿。",
+            "status": "awaiting_input",
+            "latency_ms": 9166.756,
+            "checks": {
+              "execution_status": true,
+              "execution_complete": true,
+              "status": true,
+              "agent": true,
+              "tools": true,
+              "no_unconfirmed_write": true
+            },
+            "routing": {
+              "confidence": 0.7856499550116203,
+              "domains": [
+                "software_license"
+              ],
+              "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+              "entities": {
+                "software": [
+                  "IntelliJ IDEA Ultimate"
+                ]
+              },
+              "entity_state": {
+                "domain": "software_license",
+                "entities": {
+                  "software": [
+                    "IntelliJ IDEA Ultimate"
+                  ]
+                },
+                "reset": false,
+                "sources": {
+                  "software": {
+                    "source": "explicit_user_text",
+                    "turn_seq": 1,
+                    "values": [
+                      "IntelliJ IDEA Ultimate"
+                    ]
+                  }
+                },
+                "task_epoch": 0,
+                "turn_seq": 1
+              },
+              "fine_intent": "license_request",
+              "intent": "software_license",
+              "intent_method": "it_three_way_fusion_v1",
+              "mission": "核验软件白名单、模拟席位和授权申请要求。",
+              "monitor_available": true,
+              "monitor_penalties": {},
+              "needs_clarification": false,
+              "primary": "billing",
+              "reason": "用户明确申请IntelliJ IDEA Ultimate企业席位，属于软件许可/席位申请；要求先询问用途和使用天数且不创建草稿，不涉及故障或安全事件。",
+              "recovery_probe": false,
+              "routing_scores": {
+                "billing": 1.0
+              },
+              "source_scores": {
+                "embedding": {
+                  "available": true,
+                  "scores": {
+                    "access_request": 0.08735325478709127,
+                    "account_unlock": 0.05350293953039338,
+                    "asset_lookup": 0.06913927266249545,
+                    "device_hazard": 0.042105416700534117,
+                    "device_policy": 0.06351351634456705,
+                    "device_repair": 0.0575434525209976,
+                    "dns_failure": 0.05354154236092676,
+                    "endpoint_failure": 0.04380266710790034,
+                    "greeting": 0.0649834125749826,
+                    "human_handoff": 0.07683869252371943,
+                    "license_request": 0.09324977505810203,
+                    "software_activation": 0.06069072304202412,
+                    "software_install": 0.06177694712784419,
+                    "ticket_status": 0.060511462180567445,
+                    "unknown": 0.0672300966206155,
+                    "vpn_failure": 0.04421682885723866
+                  },
+                  "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                  "weight": 0.2
+                },
+                "llm": {
+                  "available": true,
+                  "reason": "用户明确申请IntelliJ IDEA Ultimate企业席位，属于软件许可/席位申请；要求先询问用途和使用天数且不创建草稿，不涉及故障或安全事件。",
+                  "scores": {
+                    "license_request": 0.97
+                  },
+                  "urgency": 1,
+                  "weight": 0.7
+                },
+                "pattern": {
+                  "available": true,
+                  "scores": {
+                    "license_request": 0.88
+                  },
+                  "weight": 0.1
+                }
+              },
+              "supporting": [],
+              "urgency": "LOW",
+              "workflow": [
+                "确认产品用途",
+                "查询授权目录",
+                "核对席位规则",
+                "说明申请边界"
+              ]
+            },
+            "tools": [
+              "ask_clarification",
+              "check_license_request",
+              "knowledge_search",
+              "read_business_catalog"
+            ],
+            "judge": {
+              "relevance": 1.0,
+              "accuracy": 1.0,
+              "completeness": 0.8,
+              "helpfulness": 0.9,
+              "judge_failed": false,
+              "error": null,
+              "attempts": 1,
+              "stop_reason": "end_turn",
+              "error_type": null
+            },
+            "scores": {
+              "relevance": 1.0,
+              "accuracy": 1.0,
+              "completeness": 0.8,
+              "helpfulness": 0.9
+            },
+            "passed": true
+          },
+          {
+            "turn": 2,
+            "answer": "软件授权草稿已准备：后端调试软件席位申请。\n产品：IntelliJ IDEA Ultimate；期限：7 天；用途：申请 IntelliJ IDEA Ultimate 企业席位，用途：后端接口联调和调试，使用期限 7 天。。\n请核对后确认提交。当前尚未提交、审批、预占或分配席位；后续均为本地模拟流程。",
+            "status": "awaiting_confirmation",
+            "latency_ms": 8453.872,
+            "checks": {
+              "execution_status": true,
+              "execution_complete": true,
+              "status": true,
+              "agent": true,
+              "tools": true,
+              "no_unconfirmed_write": true
+            },
+            "routing": {
+              "confidence": 0.786189837786469,
+              "domains": [
+                "software_license"
+              ],
+              "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+              "entities": {
+                "duration_days": [
+                  "7"
+                ],
+                "software": [
+                  "IntelliJ IDEA Ultimate"
+                ]
+              },
+              "entity_state": {
+                "domain": "software_license",
+                "entities": {
+                  "duration_days": [
+                    "7"
+                  ],
+                  "software": [
+                    "IntelliJ IDEA Ultimate"
+                  ]
+                },
+                "reset": false,
+                "sources": {
+                  "duration_days": {
+                    "source": "explicit_user_text",
+                    "turn_seq": 3,
+                    "values": [
+                      "7"
+                    ]
+                  },
+                  "software": {
+                    "source": "explicit_user_text",
+                    "turn_seq": 3,
+                    "values": [
+                      "IntelliJ IDEA Ultimate"
+                    ]
+                  }
+                },
+                "task_epoch": 0,
+                "turn_seq": 3
+              },
+              "fine_intent": "license_request",
+              "intent": "software_license",
+              "intent_method": "it_three_way_fusion_v1",
+              "mission": "核验软件白名单、模拟席位和授权申请要求。",
+              "monitor_available": true,
+              "monitor_penalties": {},
+              "needs_clarification": false,
+              "primary": "billing",
+              "reason": "用户补充用途和7天期限，要求准备IntelliJ IDEA Ultimate企业席位申请草稿，属软件许可申请。",
+              "recovery_probe": false,
+              "routing_scores": {
+                "billing": 1.0
+              },
+              "source_scores": {
+                "embedding": {
+                  "available": true,
+                  "scores": {
+                    "access_request": 0.09076462794067411,
+                    "account_unlock": 0.056724386343464016,
+                    "asset_lookup": 0.060011563913807076,
+                    "device_hazard": 0.04700176951686921,
+                    "device_policy": 0.05768293649917745,
+                    "device_repair": 0.06809186470081365,
+                    "dns_failure": 0.059527474488204425,
+                    "endpoint_failure": 0.04638511973491,
+                    "greeting": 0.05474048369898639,
+                    "human_handoff": 0.07295616699921513,
+                    "license_request": 0.09594918893234525,
+                    "software_activation": 0.07015675482267728,
+                    "software_install": 0.06687882226487674,
+                    "ticket_status": 0.059288169708247275,
+                    "unknown": 0.047429569662719655,
+                    "vpn_failure": 0.04641110077301233
+                  },
+                  "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                  "weight": 0.2
+                },
+                "llm": {
+                  "available": true,
+                  "reason": "用户补充用途和7天期限，要求准备IntelliJ IDEA Ultimate企业席位申请草稿，属软件许可申请。",
+                  "scores": {
+                    "license_request": 0.97
+                  },
+                  "urgency": 1,
+                  "weight": 0.7
+                },
+                "pattern": {
+                  "available": true,
+                  "scores": {
+                    "license_request": 0.88
+                  },
+                  "weight": 0.1
+                }
+              },
+              "supporting": [],
+              "urgency": "LOW",
+              "workflow": [
+                "确认产品用途",
+                "查询授权目录",
+                "核对席位规则",
+                "说明申请边界"
+              ]
+            },
+            "tools": [
+              "check_license_request",
+              "collect_request_fields",
+              "knowledge_search",
+              "prepare_ticket"
+            ],
+            "judge": {
+              "relevance": 1.0,
+              "accuracy": 1.0,
+              "completeness": 0.9,
+              "helpfulness": 0.9,
+              "judge_failed": false,
+              "error": null,
+              "attempts": 1,
+              "stop_reason": "end_turn",
+              "error_type": null
+            },
+            "scores": {
+              "relevance": 1.0,
+              "accuracy": 1.0,
+              "completeness": 0.9,
+              "helpfulness": 0.9
+            },
+            "passed": true
+          }
+        ],
+        "run_id": "47aee6ece93049b3ad621a2d33985f98",
+        "answer": "软件授权草稿已准备：后端调试软件席位申请。\n产品：IntelliJ IDEA Ultimate；期限：7 天；用途：申请 IntelliJ IDEA Ultimate 企业席位，用途：后端接口联调和调试，使用期限 7 天。。\n请核对后确认提交。当前尚未提交、审批、预占或分配席位；后续均为本地模拟流程。",
+        "checks": {
+          "execution_status": true,
+          "execution_complete": true,
+          "status": true,
+          "retrieved_evidence": true,
+          "workflow": true,
+          "expected_fields": true,
+          "prepare_tool": true,
+          "idempotent_confirmation": true,
+          "business_final_state": true,
+          "persisted_business_effect": true
+        },
+        "lifecycle": {
+          "ticket_id": "RD-1FC030925808",
+          "tenant": "demo",
+          "owner": "license-learner",
+          "kind": "license_request",
+          "status": "allocated",
+          "version": 4,
+          "fields": {
+            "access_level": "",
+            "asset_id": "",
+            "category": "software",
+            "description": "申请 IntelliJ IDEA Ultimate 企业席位，用途：后端接口联调和调试，使用期限 7 天。",
+            "duration_days": 7,
+            "priority": "normal",
+            "product": "IntelliJ IDEA Ultimate",
+            "resource_id": "",
+            "summary": "后端调试软件席位申请",
+            "workflow": "license_request"
+          },
+          "assignee": null,
+          "updated": 1793105565.47181,
+          "simulation": true,
+          "license": {
+            "state": "allocated",
+            "expires": 1793710365.469831,
+            "product": "IntelliJ IDEA Ultimate"
+          },
+          "audit": [
+            {
+              "actor": "license-learner",
+              "action": "submit",
+              "from_status": null,
+              "to_status": "pending_approval",
+              "note": "申请人已核对草稿并确认；模拟业务",
+              "created": 1793105565.2918644
+            },
+            {
+              "actor": "support",
+              "action": "approve",
+              "from_status": "pending_approval",
+              "to_status": "approved",
+              "note": "合成评测操作：approve",
+              "created": 1793105565.3866992
+            },
+            {
+              "actor": "support",
+              "action": "reserve",
+              "from_status": "approved",
+              "to_status": "reserved",
+              "note": "合成评测操作：reserve",
+              "created": 1793105565.4329348
+            },
+            {
+              "actor": "support",
+              "action": "allocate",
+              "from_status": "reserved",
+              "to_status": "allocated",
+              "note": "合成评测操作：allocate",
+              "created": 1793105565.4747584
+            }
+          ],
+          "allowed_actions": [
+            "revoke"
+          ]
+        },
+        "draft": {
+          "access_level": "",
+          "asset_id": "",
+          "category": "software",
+          "description": "申请 IntelliJ IDEA Ultimate 企业席位，用途：后端接口联调和调试，使用期限 7 天。",
+          "duration_days": 7,
+          "priority": "normal",
+          "product": "IntelliJ IDEA Ultimate",
+          "resource_id": "",
+          "summary": "后端调试软件席位申请",
+          "workflow": "license_request"
+        },
+        "evidence_documents": [
+          "access",
+          "licensing",
+          "permissions",
+          "software_seat_lifecycle"
+        ],
+        "cited_documents": [],
+        "turn_states": [
+          "awaiting_input",
+          "awaiting_confirmation"
+        ]
+      }
+    ],
+    "regressions": [],
+    "requested_total": 1,
+    "overall_pass_rate": 1.0,
+    "regression_note": "需人工选定相同数据、引擎、知识版本与评分配置的有效基线。",
+    "judge_enabled": true,
+    "recommendations": [
+      "合成开发集不能证明生产效果；同一 Flash 生成和评分存在评判偏差。",
+      "逐轮独立 Judge，任一轮不通过即整段不通过。中断后的不确定付费单元禁止自动重放。"
+    ],
+    "sandbox": {
+      "backend": "postgresql",
+      "identity": "eval_rd_87c3482d1e3d49eb812ec906ed318315",
+      "isolated": true
+    },
+    "requested_intents": 0,
+    "requested_turns": 2
+  },
+  "faults": {
+    "required": [],
+    "injected": [],
+    "all_injected": true
+  },
+  "license_recovery": {
+    "restarted_allocation": true,
+    "revoked": true,
+    "available_seats": 2,
+    "audit_events": 5
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "4.914878",
+    "available_cny": "13.085122",
+    "calls": {
+      "settled": 1139
+    },
+    "usage_input_tokens": 2042915,
+    "usage_output_tokens": 103631,
+    "unresolved_reservation_cny": "0"
+  },
+  "finished": 1793105565.7513583,
+  "budget_note": "Cumulative shared ledger is never reset; failures and uncertain calls remain charged conservatively."
+}
