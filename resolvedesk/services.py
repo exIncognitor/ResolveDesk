@@ -34,12 +34,14 @@ class ScopedMemory:
     """Persistent summaries, explicit profile facts and semantic cross-run recall."""
     def __init__(self, store, embedding, client):
         self.store, self.embedding, self.client = store, embedding, client
-        with store.db() as db:
+        with store.database.schema_transaction() as db:
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS memory_summary(run_id TEXT PRIMARY KEY, tenant TEXT, owner TEXT, upto INTEGER, content TEXT);
-                CREATE TABLE IF NOT EXISTS memory_episode(run_id TEXT PRIMARY KEY, tenant TEXT, owner TEXT, content TEXT, vector TEXT, model TEXT);
+                CREATE TABLE IF NOT EXISTS memory_episode(run_id TEXT PRIMARY KEY, tenant TEXT, owner TEXT, content TEXT, vector TEXT, model TEXT,updated REAL NOT NULL DEFAULT 0);
                 CREATE TABLE IF NOT EXISTS memory_profile(tenant TEXT, owner TEXT, field TEXT, value TEXT, PRIMARY KEY(tenant,owner,field));
             """)
+            if not db.has_column("memory_episode","updated"):
+                db.execute("ALTER TABLE memory_episode ADD COLUMN updated REAL NOT NULL DEFAULT 0")
 
     async def context(self, p, run_id):
         self.store.get_run(p,run_id)
@@ -47,7 +49,7 @@ class ScopedMemory:
             rows = [dict(r) for r in db.execute("SELECT seq,role,content FROM messages WHERE run_id=? ORDER BY seq", (run_id,))]
             summary = db.execute("SELECT * FROM memory_summary WHERE run_id=? AND tenant=? AND owner=?", (run_id,p.tenant,p.user)).fetchone()
             profiles = dict(db.execute("SELECT field,value FROM memory_profile WHERE tenant=? AND owner=?",(p.tenant,p.user)))
-            episodes = [dict(r) for r in db.execute("SELECT * FROM memory_episode WHERE tenant=? AND owner=? AND run_id<>? ORDER BY rowid DESC LIMIT 200",(p.tenant,p.user,run_id))]
+            episodes = [dict(r) for r in db.execute("SELECT * FROM memory_episode WHERE tenant=? AND owner=? AND run_id<>? ORDER BY updated DESC,run_id DESC LIMIT 200",(p.tenant,p.user,run_id))]
         if len(rows) > 10:
             older = rows[:-6]
             upto = older[-1]["seq"]
@@ -95,7 +97,7 @@ class ScopedMemory:
             for key,value in facts.items():
                 db.execute("INSERT INTO memory_profile VALUES(?,?,?,?) ON CONFLICT(tenant,owner,field) DO UPDATE SET value=excluded.value",(p.tenant,p.user,key,value))
             if vector is not None:
-                db.execute("INSERT INTO memory_episode VALUES(?,?,?,?,?,?) ON CONFLICT(run_id) DO UPDATE SET content=excluded.content,vector=excluded.vector,model=excluded.model",(run_id,p.tenant,p.user,content,encode(vector),self.embedding.identity))
+                db.execute("INSERT INTO memory_episode(run_id,tenant,owner,content,vector,model,updated) VALUES(?,?,?,?,?,?,?) ON CONFLICT(run_id) DO UPDATE SET content=excluded.content,vector=excluded.vector,model=excluded.model,updated=excluded.updated",(run_id,p.tenant,p.user,content,encode(vector),self.embedding.identity,time.time()))
 
     def inspect(self,p):
         with self.store.db() as db:

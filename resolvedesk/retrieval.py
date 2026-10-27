@@ -136,12 +136,12 @@ def rrf(rankings, k=60):
 class HybridKnowledge:
     def __init__(self, store, embedding=None):
         self.store, self.embedding = store, embedding
-        with store.db() as db:
+        with store.database.schema_transaction() as db:
             db.execute("""CREATE TABLE IF NOT EXISTS chunks(
                 id TEXT PRIMARY KEY, tenant TEXT NOT NULL, owner TEXT NOT NULL,
                 visibility TEXT NOT NULL, document_id TEXT NOT NULL, title TEXT NOT NULL,
                 version TEXT NOT NULL, section TEXT NOT NULL, start INTEGER NOT NULL,
-                end INTEGER NOT NULL, content TEXT NOT NULL, vector TEXT, embedding TEXT,
+                "end" INTEGER NOT NULL, content TEXT NOT NULL, vector TEXT, embedding TEXT,
                 UNIQUE(tenant,document_id,version,start))""")
             db.execute("CREATE INDEX IF NOT EXISTS chunk_scope ON chunks(tenant,document_id)")
 
@@ -206,7 +206,7 @@ class HybridKnowledge:
 
     def citation(self, p, citation):
         with self.store.db() as db:
-            row = db.execute("SELECT title,document_id,version,section,start,end,content FROM chunks WHERE id=? AND tenant=? AND (visibility='tenant' OR owner=?)",
+            row = db.execute('SELECT title,document_id,version,section,start,"end",content FROM chunks WHERE id=? AND tenant=? AND (visibility=\'tenant\' OR owner=?)',
                              (citation.removeprefix("C-"), p.tenant, p.user)).fetchone()
             if row is None:
                 raise KeyError("Citation not found or document version replaced")

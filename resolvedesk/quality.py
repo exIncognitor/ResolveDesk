@@ -58,7 +58,7 @@ class QualityRunner:
             if not rows: raise ValueError("需要先导入模拟知识库")
             columns = rows[0].keys()
             for row in rows:
-                target.execute("INSERT INTO chunks("+",".join(columns)+") VALUES("+",".join("?" for _ in columns)+")", tuple(row))
+                target.execute("INSERT INTO chunks("+",".join('"'+column+'"' for column in columns)+") VALUES("+",".join("?" for _ in columns)+")", tuple(row))
         BusinessService(sandbox).seed_demo()
         import os
         client = self.client_factory() if self.client_factory else BudgetedAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY", ""), base_url="https://api.deepseek.com/anthropic", timeout=25)

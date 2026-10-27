@@ -16,7 +16,7 @@ class Monitor:
     def __init__(self, store, window=300, min_samples=3):
         self.store, self.window, self.min_samples = store, window, min_samples
         self.task = None
-        with store.db() as db:
+        with store.database.schema_transaction() as db:
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS telemetry(seq INTEGER PRIMARY KEY AUTOINCREMENT,tenant TEXT,kind TEXT,
                     name TEXT,success INTEGER,seconds REAL,created REAL);

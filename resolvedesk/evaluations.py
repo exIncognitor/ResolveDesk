@@ -11,10 +11,10 @@ from resolvedesk.store import encode, Conflict
 class EvaluationService:
     def __init__(self,store,knowledge):
         self.store,self.knowledge,self.tasks = store,knowledge,{}
-        with store.db(True) as db:
+        with store.database.schema_transaction() as db:
             db.executescript("""CREATE TABLE IF NOT EXISTS eval_jobs(id TEXT PRIMARY KEY,tenant TEXT,owner TEXT,status TEXT,completed INTEGER,total INTEGER,result TEXT,error TEXT,created REAL);
                 CREATE TABLE IF NOT EXISTS regression_cases(id TEXT PRIMARY KEY,tenant TEXT,source_run TEXT,question TEXT,document TEXT,section TEXT,UNIQUE(tenant,source_run));""")
-            if not store.has_column("eval_jobs","options"):
+            if not db.has_column("eval_jobs","options"):
                 db.execute("ALTER TABLE eval_jobs ADD COLUMN options TEXT NOT NULL DEFAULT '{}'")
             db.execute("CREATE TABLE IF NOT EXISTS quality_baselines(tenant TEXT,suite_id TEXT,job_id TEXT,report TEXT,created REAL,PRIMARY KEY(tenant,suite_id))")
             db.execute("UPDATE eval_jobs SET status='paused',error='process_interrupted' WHERE status IN ('queued','running')")

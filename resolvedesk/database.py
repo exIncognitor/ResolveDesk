@@ -77,8 +77,8 @@ class Cursor:
 
 
 class Connection:
-    def __init__(self, connection, backend, write):
-        self.connection, self.backend, self.write = connection, backend, write
+    def __init__(self, connection, backend, write, schema):
+        self.connection, self.backend, self.write, self.schema = connection, backend, write, schema
 
     def locked(self, sql):
         return sql+" FOR UPDATE" if self.backend == "postgresql" and self.write else sql
@@ -86,6 +86,12 @@ class Connection:
     def execute(self, sql, values=()):
         statement, parameters = bindings(sql, values)
         return Cursor(self.connection.execute(text(statement), parameters))
+
+    def has_column(self, table, column):
+        if not re.fullmatch(r"[a-z_][a-z0-9_]*", table): raise ValueError("Invalid table name")
+        if self.backend == "postgresql":
+            return self.execute("SELECT 1 FROM information_schema.columns WHERE table_schema=? AND table_name=? AND column_name=?", (self.schema,table,column)).fetchone() is not None
+        return column in {r[1] for r in self.execute('PRAGMA table_info("'+table+'")')}
 
     def executescript(self, ddl):
         # This API only accepts repository-owned table/index declarations, no SQL
@@ -129,7 +135,7 @@ class Database:
         with self.engine.connect() as conn:
             try:
                 if self.backend == "sqlite" and write: conn.exec_driver_sql("BEGIN IMMEDIATE")
-                yield Connection(conn, self.backend, write)
+                yield Connection(conn, self.backend, write, self.schema)
                 conn.commit()
             except BaseException:
                 conn.rollback()
@@ -144,10 +150,7 @@ class Database:
             yield db
 
     def has_column(self, table, column):
-        if not re.fullmatch(r"[a-z_][a-z0-9_]*", table): raise ValueError("Invalid table name")
         with self.connect() as db:
-            if self.backend == "postgresql":
-                return db.execute("SELECT 1 FROM information_schema.columns WHERE table_schema=? AND table_name=? AND column_name=?", (self.schema, table, column)).fetchone() is not None
-            return column in {r[1] for r in db.execute('PRAGMA table_info("'+table+'")')}
+            return db.has_column(table,column)
 
     def close(self): self.engine.dispose()

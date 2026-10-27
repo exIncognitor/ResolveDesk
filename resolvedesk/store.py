@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 import hashlib
 import json
@@ -20,6 +21,20 @@ class Principal:
 
 class Conflict(ValueError):
     pass
+
+
+class FencedExecution(Conflict):
+    pass
+
+
+@dataclass(frozen=True)
+class ExecutionToken:
+    run_id: str
+    owner: str
+    epoch: int
+
+
+_execution = ContextVar("resolvedesk_execution", default=None)
 
 
 def encode(value):
@@ -61,7 +76,13 @@ class Store:
                 PRIMARY KEY(run_id,tenant,owner));
             CREATE TABLE IF NOT EXISTS checkpoints(
                 run_id TEXT PRIMARY KEY, tenant TEXT, owner TEXT, user_seq INTEGER, payload TEXT);
+            CREATE TABLE IF NOT EXISTS turn_receipts(
+                tenant TEXT,owner TEXT,run_id TEXT,request_key TEXT,input_hash TEXT,user_seq INTEGER,
+                status TEXT,response TEXT,created REAL,updated REAL,
+                PRIMARY KEY(tenant,owner,run_id,request_key));
             """)
+            for column, declaration in (("execution_owner","TEXT"),("execution_epoch","INTEGER NOT NULL DEFAULT 0"),("lease_until","DOUBLE PRECISION NOT NULL DEFAULT 0")):
+                if not db.has_column("runs",column): db.execute("ALTER TABLE runs ADD COLUMN "+column+" "+declaration)
             from resolvedesk.business import initialize
             initialize(db)
 
@@ -76,6 +97,12 @@ class Store:
     def close(self):
         self.database.close()
 
+    @contextmanager
+    def execution(self, token):
+        marker = _execution.set(token)
+        try: yield
+        finally: _execution.reset(marker)
+
     @staticmethod
     def _event(db, run_id, kind, payload):
         db.execute("INSERT INTO events(run_id,kind,payload,created) VALUES(?,?,?,?)",
@@ -88,15 +115,32 @@ class Store:
                          (run_id, principal.tenant, principal.user)).fetchone()
         if row is None:
             raise KeyError("Run not found")
+        token = _execution.get()
+        if token and token.run_id == run_id and db.write and row["status"] == "running":
+            if row["execution_owner"] != token.owner or row["execution_epoch"] != token.epoch or row["lease_until"] <= time.time():
+                raise FencedExecution("Execution ownership expired or changed")
         return row
 
     @staticmethod
     def _public(row):
         item = dict(row)
         item["draft"] = json.loads(item["draft"]) if item["draft"] else None
+        for key in ("execution_owner","execution_epoch","lease_until"): item.pop(key,None)
         if item["status"] != "awaiting_confirmation":
             item.pop("approval", None)
         return item
+
+    @staticmethod
+    def _snapshot(db,row):
+        result = Store._public(row)
+        result["event_cursor"] = db.execute("SELECT COALESCE(MAX(seq),0) FROM events WHERE run_id=? AND kind='queued'",(row["id"],)).fetchone()[0]
+        return result
+
+    @staticmethod
+    def _receipt(db,row):
+        seq = db.execute("SELECT MAX(seq) FROM messages WHERE run_id=? AND role='user'",(row["id"],)).fetchone()[0]
+        db.execute("UPDATE turn_receipts SET status=?,response=?,updated=? WHERE run_id=? AND user_seq=?",
+                   (row["status"],encode(Store._snapshot(db,row)),time.time(),row["id"],seq))
 
     def create_run(self, p, message, request_key):
         with self.db(True) as db:
@@ -111,6 +155,9 @@ class Store:
                 return self._public(row), False
             db.execute("INSERT INTO messages(run_id,role,content) VALUES(?,'user',?)", (run_id, message))
             self._event(db, run_id, "queued", {})
+            seq = db.execute("SELECT MAX(seq) FROM messages WHERE run_id=?",(run_id,)).fetchone()[0]
+            db.execute("INSERT INTO turn_receipts VALUES(?,?,?,?,?,?,'queued',NULL,?,?)",(p.tenant,p.user,run_id,request_key,digest(["create",message]),seq,now,now))
+            self._receipt(db,self._run(db,p,run_id))
             return self._public(self._run(db, p, run_id)), True
 
     def get_run(self, p, run_id):
@@ -133,13 +180,33 @@ class Store:
             self._event(db, run_id, kind, payload)
 
     def claim(self, p, run_id):
+        return self.claim_execution(p,run_id,uuid.uuid4().hex) is not None
+
+    def claim_execution(self,p,run_id,owner,lease_seconds=120):
         with self.db(True) as db:
             row = self._run(db, p, run_id)
             if row["status"] != "queued":
-                return False
-            db.execute("UPDATE runs SET status='running',updated=? WHERE id=?", (time.time(), run_id))
-            self._event(db, run_id, "running", {})
-            return True
+                return None
+            epoch = row["execution_epoch"]+1
+            db.execute("UPDATE runs SET status='running',execution_owner=?,execution_epoch=?,lease_until=?,updated=? WHERE id=?", (owner,epoch,time.time()+lease_seconds,time.time(),run_id))
+            self._event(db, run_id, "running", {"epoch":epoch})
+            self._receipt(db,self._run(db,p,run_id))
+            return ExecutionToken(run_id,owner,epoch)
+
+    def renew_execution(self,p,token,lease_seconds=120):
+        with self.db(True) as db:
+            updated = db.execute("UPDATE runs SET lease_until=? WHERE id=? AND tenant=? AND owner=? AND status='running' AND execution_owner=? AND execution_epoch=? AND lease_until>?",
+                (time.time()+lease_seconds,token.run_id,p.tenant,p.user,token.owner,token.epoch,time.time()))
+            return updated.rowcount==1
+
+    def lose_execution(self,p,token,reason="lease_lost"):
+        with self.db(True) as db:
+            updated = db.execute("UPDATE runs SET status='paused',execution_owner=NULL,lease_until=0,updated=? WHERE id=? AND tenant=? AND owner=? AND status='running' AND execution_owner=? AND execution_epoch=?",
+                (time.time(),token.run_id,p.tenant,p.user,token.owner,token.owner,token.epoch))
+            if updated.rowcount:
+                self._event(db,token.run_id,"paused",{"reason":reason})
+                self._receipt(db,self._run(db,p,token.run_id))
+            return bool(updated.rowcount)
 
     def finish(self, p, run_id, status, answer, error=None):
         if status not in {"completed", "awaiting_input", "failed", "paused"}:
@@ -153,6 +220,7 @@ class Store:
             if answer:
                 db.execute("INSERT INTO messages(run_id,role,content) VALUES(?,'assistant',?)", (run_id, answer))
             self._event(db, run_id, status, {"answer": answer, "error": error})
+            self._receipt(db,self._run(db,p,run_id))
 
     def history(self, p, run_id):
         with self.db() as db:
@@ -183,16 +251,27 @@ class Store:
         with self.db() as db:
             return [self._public(row) for row in db.execute("SELECT * FROM runs WHERE tenant=? AND owner=? ORDER BY updated DESC LIMIT 100",(p.tenant,p.user))]
 
-    def reply(self, p, run_id, message):
+    def reply(self, p, run_id, message, request_key=None):
+        request_key = request_key or "internal-"+uuid.uuid4().hex
         with self.db(True) as db:
             row = self._run(db, p, run_id)
+            previous = db.execute("SELECT * FROM turn_receipts WHERE tenant=? AND owner=? AND run_id=? AND request_key=?",(p.tenant,p.user,run_id,request_key)).fetchone()
+            if previous:
+                if previous["input_hash"] != digest(["reply",message]): raise Conflict("Idempotency key already used with a different message")
+                return json.loads(previous["response"]),False
             if row["status"] not in {"awaiting_input", "awaiting_confirmation", "completed"} or row["ticket_id"]:
                 raise Conflict("Run is not waiting for input")
             db.execute("INSERT INTO messages(run_id,role,content) VALUES(?,'user',?)", (run_id, message))
             # Any draft revision invalidates the old approval immediately.
-            db.execute("UPDATE runs SET status='queued',approval=NULL,expires=NULL,version=version+1,updated=? WHERE id=?",
+            db.execute("UPDATE runs SET status='queued',approval=NULL,expires=NULL,version=version+1,execution_owner=NULL,lease_until=0,updated=? WHERE id=?",
                        (time.time(), run_id))
             self._event(db, run_id, "queued", {"reason": "user_reply"})
+            seq = db.execute("SELECT MAX(seq) FROM messages WHERE run_id=?",(run_id,)).fetchone()[0]
+            now = time.time()
+            db.execute("INSERT INTO turn_receipts VALUES(?,?,?,?,?,?,'queued',NULL,?,?)",(p.tenant,p.user,run_id,request_key,digest(["reply",message]),seq,now,now))
+            row = self._run(db,p,run_id)
+            self._receipt(db,row)
+            return self._snapshot(db,row),True
 
     def prepare(self, p, run_id, fields, missing):
         with self.db(True) as db:
@@ -215,6 +294,7 @@ class Store:
                        (status, encode(fields), version, approval, time.time()+900 if approval else None, answer, time.time(), run_id))
             db.execute("INSERT INTO messages(run_id,role,content) VALUES(?,'assistant',?)", (run_id, answer))
             self._event(db, run_id, status, {"draft": fields, "missing": missing, "version": version})
+            self._receipt(db,self._run(db,p,run_id))
 
     def confirm(self, p, run_id, approval):
         with self.db(True) as db:
@@ -238,6 +318,7 @@ class Store:
                        (ticket_id, answer, time.time(), run_id))
             self._event(db, run_id, "ticket_created", {"ticket_id": ticket_id})
             self._event(db, run_id, "completed", {"answer": answer})
+            self._receipt(db,self._run(db,p,run_id))
             return self._ticket(db, p, ticket_id)
 
     @staticmethod
@@ -265,8 +346,9 @@ class Store:
             row = self._run(db, p, run_id)
             if row["status"] not in {"queued", "running"}:
                 raise Conflict("Only active runs can be paused")
-            db.execute("UPDATE runs SET status='paused',updated=? WHERE id=?", (time.time(), run_id))
+            db.execute("UPDATE runs SET status='paused',execution_owner=NULL,lease_until=0,updated=? WHERE id=?", (time.time(), run_id))
             self._event(db, run_id, "paused", {"reason": "user"})
+            self._receipt(db,self._run(db,p,run_id))
 
     def resume(self, p, run_id):
         with self.db(True) as db:
@@ -275,6 +357,18 @@ class Store:
                 raise Conflict("Run cannot be resumed in this state")
             db.execute("UPDATE runs SET status='queued',error=NULL,updated=? WHERE id=?", (time.time(), run_id))
             self._event(db, run_id, "queued", {"reason": "explicit_resume"})
+            self._receipt(db,self._run(db,p,run_id))
+
+    def recover_expired(self):
+        """Service mode: do not pause another live worker's active execution."""
+        now = time.time()
+        with self.db(True) as db:
+            rows = db.execute(db.locked("SELECT id,tenant,owner FROM runs WHERE (status='running' AND lease_until<=?) OR (status='queued' AND updated<?)"),(now,now-180)).fetchall()
+            for row in rows:
+                db.execute("UPDATE runs SET status='paused',execution_owner=NULL,lease_until=0,error='execution_interrupted',updated=? WHERE id=?",(now,row["id"]))
+                self._event(db,row["id"],"paused",{"reason":"execution_interrupted"})
+                self._receipt(db,self._run(db,Principal(row["tenant"],row["owner"]),row["id"]))
+            return len(rows)
 
     def recover(self):
         # One local worker process owns this DB. No automatic model replay on restart.
