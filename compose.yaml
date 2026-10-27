@@ -1,8 +1,55 @@
+name: resolvedesk-services
+include:
+  - compose.services.yaml
+
 services:
   app:
     build: .
+    image: resolvedesk-app:local
     env_file: .env
-    ports:
-      - "127.0.0.1:8080:8080"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: '5432'
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?configure services.env}
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?configure services.env}
+      RESOLVEDESK_CHROMA_URL: http://chroma:8000
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      chroma:
+        condition: service_started
     volumes:
       - ./data:/app/data
+    restart: unless-stopped
+
+  gateway:
+    image: nginx:1.28-alpine
+    ports:
+      - "127.0.0.1:${GATEWAY_PORT:-18080}:80"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=15d"]
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-19090}:9090"
+    volumes:
+      - ./deploy/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./.codex-runtime/prometheus/support.token:/etc/prometheus/support.token:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:

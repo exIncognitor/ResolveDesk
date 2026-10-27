@@ -91,7 +91,7 @@ def copy_to_postgres(source,target):
             received=row_digest([dict(r) for r in db.execute('SELECT '+selection+' FROM "'+table+'"')])
             if received!={k:expected[k] for k in ("count","sha256")}: raise RuntimeError("Migration content mismatch in "+table)
             verified[table]=received
-        for table,column in (("messages","seq"),("events","seq"),("telemetry","seq")):
+        for table,column in (("messages","seq"),("events","seq"),("telemetry","seq"),("service_audit","seq")):
             sequence=db.execute("SELECT pg_get_serial_sequence(?,?)",(db.schema+"."+table,column)).fetchone()[0]
             maximum=db.execute('SELECT MAX("'+column+'") FROM "'+table+'"').fetchone()[0]
             db.execute("SELECT setval(?, ?, ?)",(sequence,maximum or 1,maximum is not None))

@@ -26,6 +26,8 @@ def test_real_postgres_migration_preserves_hashes_and_refuses_nonempty_target(tm
     source.claim(USER,first["id"]);source.finish(USER,first["id"],"completed","old answer")
     # Emulate a source written before durable per-turn receipts were introduced.
     with source.db(True) as db: db.execute("DELETE FROM turn_receipts")
+    with source.db(True) as db:
+        db.execute("INSERT INTO service_audit VALUES(41,'synthetic-ticket','demo','support','test','old','new','synthetic migration audit',1)")
     backup=snapshot(source.path,tmp_path/"snapshot.sqlite3",application=True)
     initialize(postgres_store)
     copied=copy_to_postgres(backup,postgres_store)
@@ -35,6 +37,10 @@ def test_real_postgres_migration_preserves_hashes_and_refuses_nonempty_target(tm
     assert replay["answer"]=="old answer" and replay["legacy_cutover"]
     newer,_=postgres_store.create_run(USER,"new question","new-key")
     assert postgres_store.latest_user_seq(USER,newer["id"])>source.latest_user_seq(USER,first["id"])
+    with postgres_store.db(True) as db:
+        db.execute("INSERT INTO service_audit(ticket_id,tenant,actor,action,from_status,to_status,note,created) VALUES('new-test','demo','support','test','old','new','test',2)")
+    with postgres_store.db() as db:
+        assert db.execute("SELECT MAX(seq) FROM service_audit").fetchone()[0]==42
     with pytest.raises(ValueError,match="not empty"): copy_to_postgres(backup,postgres_store)
     assert postgres_store.get_run(USER,newer["id"])["message"]=="new question"
     source.close()

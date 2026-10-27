@@ -21,7 +21,11 @@ class ServiceSettings:
     def load(cls, root=ROOT):
         local = dotenv_values(Path(root)/".codex-runtime"/"services.env")
         def get(name, default=""):
-            return os.environ.get(name, local.get(name) or default)
+            # Only new prefixed settings override the services file. Old package
+            # REDIS_HOST/CHROMA_PORT values in .env belong to the compatibility
+            # runtime and must not silently redirect the new service path.
+            if name.startswith("RESOLVEDESK_"): return os.environ.get(name,local.get(name) or default)
+            return local.get(name) or os.environ.get(name) or default
         database = get("RESOLVEDESK_DATABASE_URL")
         if not database:
             password = get("POSTGRES_PASSWORD")

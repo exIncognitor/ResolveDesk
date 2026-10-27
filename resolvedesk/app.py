@@ -17,7 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from resolvedesk.agent import DeskAgent
 from resolvedesk.retrieval import HybridKnowledge, LocalEmbedding
-from resolvedesk.store import Conflict, Principal, Store, encode
+from resolvedesk.store import Conflict, ReceiptExpired, Principal, Store, encode
 
 ROOT = Path(__file__).resolve().parents[1]
 TERMINAL = {"completed", "failed", "paused", "awaiting_input", "awaiting_confirmation"}
@@ -145,6 +145,11 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         from fastapi.responses import JSONResponse
         return JSONResponse(status_code=409, content={"detail": str(exc)})
 
+    @app.exception_handler(ReceiptExpired)
+    async def expired_receipt(request,exc):
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=410,content={"detail":str(exc)})
+
     @app.exception_handler(PermissionError)
     async def forbidden(request, exc):
         from fastapi.responses import JSONResponse
@@ -176,6 +181,25 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
                 "coordination":"redis" if request.app.state.agent.coordination else "offline-fixture",
                 "semantic_retrieval": request.app.state.knowledge.embedding is not None,
                 "paid_api_enabled": os.getenv("RESOLVEDESK_PAID_API_ENABLED", "false").lower() == "true"}
+
+    @app.get("/ready")
+    async def ready(request:Request):
+        from fastapi.responses import JSONResponse
+        state=request.app.state
+        checks={}
+        def database():
+            with state.store.db() as db: return db.execute("SELECT 1").fetchone()[0]==1
+        try: checks["database"]=await asyncio.to_thread(database)
+        except Exception: checks["database"]=False
+        if state.agent.coordination:
+            try: checks["redis"]=bool(await state.agent.coordination.redis.ping())
+            except Exception: checks["redis"]=False
+        if state.knowledge.vector_index:
+            try:
+                checks["chroma"]=bool(await asyncio.to_thread(state.knowledge.vector_index.request,"GET","/api/v2/heartbeat"))
+            except Exception: checks["chroma"]=False
+        ok=all(checks.values())
+        return JSONResponse(status_code=200 if ok else 503,content={"ready":ok,"components":checks})
 
     @app.get("/me")
     def me(p=Depends(principal)):

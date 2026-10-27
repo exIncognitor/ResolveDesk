@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 10s
+  scrape_timeout: 5s
+scrape_configs:
+  - job_name: resolvedesk
+    metrics_path: /metrics
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/support.token
+    static_configs:
+      - targets: [app:8080]

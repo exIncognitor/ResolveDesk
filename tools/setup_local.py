@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--download-model", action="store_true")
+    parser.add_argument("--offline-fixture",action="store_true",help="Explicit SQLite test fixture; not the live service")
     args = parser.parse_args()
     from resolvedesk.retrieval import HybridKnowledge, LocalEmbedding, download_embedding
     from resolvedesk.store import Principal, Store
@@ -45,26 +46,39 @@ def main():
     try:
         embedding = LocalEmbedding(model_dir)
     except Exception as exc:
-        if args.download_model:
+        if args.download_model or not args.offline_fixture:
             raise
         embedding = None
         print("Semantic embedding unavailable:", type(exc).__name__, "(BM25 only)")
-    store = Store(data / "resolvedesk.sqlite3")
+    vectors=None
+    if args.offline_fixture:
+        store=Store(data/"offline-fixture.sqlite3")
+    else:
+        from resolvedesk.settings import ServiceSettings
+        from resolvedesk.vectors import ChromaVectors
+        settings=ServiceSettings.load()
+        store=Store(settings.database_url)
+        vectors=ChromaVectors(settings.chroma_url,embedding.identity)
     from resolvedesk.business import BusinessService
     BusinessService(store).seed_demo()
-    kb = HybridKnowledge(store, embedding)
+    kb = HybridKnowledge(store,embedding,vectors)
     principal = Principal("demo", "support", "support")
     for path in sorted((ROOT / "knowledge").glob("*.md")):
         # Unchanged documents with the same embedding are idempotent, so this is safe to rerun.
         content = path.read_text(encoding="utf-8")
-        version = hashlib.sha256(content.encode()).hexdigest()[:16]
+        title=content.splitlines()[0].lstrip("# ")
+        from resolvedesk.store import encode
+        version=hashlib.sha256(encode([title,content]).encode()).hexdigest()[:16]
+        legacy_version=hashlib.sha256(content.encode()).hexdigest()[:16]
         with store.db() as db:
-            row = db.execute("SELECT version,embedding FROM chunks WHERE tenant=? AND document_id=? LIMIT 1", ("demo", path.stem)).fetchone()
+            row = db.execute("SELECT version,embedding,title FROM chunks WHERE tenant=? AND document_id=? LIMIT 1", ("demo", path.stem)).fetchone()
         identity = embedding.identity if embedding else None
-        if row and row["version"] == version and row["embedding"] == identity:
+        if row and row["version"] in {version,legacy_version} and row["embedding"]==identity and row["title"]==title:
             continue
-        print(kb.add(principal, path.stem, content.splitlines()[0].lstrip("# "), content))
+        print(kb.add(principal,path.stem,title,content))
     print("Local setup ready:", kb.status())
+    if vectors: vectors.close()
+    store.close()
 
 
 if __name__ == "__main__":

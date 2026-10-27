@@ -11,11 +11,12 @@ ResolveDesk 使用入口
 不要把 DeepSeek API Key 填到页面。
 
 原有目录中的 role、Skill、意图、MCP 组件已经通过 resolvedesk/services.py 接入当前服务。
-摘要、画像、语义历史、工单、任务检查点和评测保存到 SQLite，本机运行无需 Redis 或 Docker。
-兼容入口 api/main.py 与 memory/conversation_memory.py 仍保留独立 Redis/Chroma 路径，不是当前主入口。
+主服务使用 PostgreSQL 保存业务、摘要与评测，Redis 负责执行租约，Chroma 负责知识向量索引。
+先运行 tools/setup_services.py，启动 compose.services.yaml 的依赖，再运行 Python 服务；完整部署使用 compose.yaml。
+旧 data/resolvedesk.sqlite3 保留为迁移来源，不再由主入口写入。完整记忆和其余技术迁移仍按 docs/MIGRATION_PROGRESS.md 推进。
 
 只使用 deepseek-flash；累计预算 20 元，保留 2 元余量。费用账本位于 data/billing/usage.sqlite3，不要删除。
-本轮测试结果与说明在 reports/。Docker、企业 SSO、外部工单平台和生产级部署不在当前验收范围。
+测试结果与说明在 reports/。Docker 已可用；企业 SSO、外部工单平台和生产级容灾尚未验收。
 
 按用户最新要求改用 Git 提交留存代码，不再生成相邻 history 文件夹。未提交改动及忽略的数据库、费用账本、模型和密钥不由 Git 自动备份。
 目前不能称为原项目所有功能加全部改进，已接入与未迁移能力详见 docs/FEATURE_STATUS.md。

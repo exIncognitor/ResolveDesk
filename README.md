@@ -2,7 +2,7 @@
 
 面向内部 IT 服务台的 Python Agent 项目：账号权限、网络终端、软件授权、设备服务，包含知识检索、多角色协作、可恢复对话、权限审批和设备维修模拟闭环。
 
-当前主入口是 `resolvedesk/app.py`，Vue 界面位于 `frontend/`。项目可在本机独立运行，不依赖 Docker。
+当前主入口是 `resolvedesk/app.py`，Vue 界面位于 `frontend/`。主服务使用 PostgreSQL、Redis、Chroma；开发时可在宿主机运行 Python，依赖由 Docker 管理。SQLite 仅用于显式离线测试和保留旧数据。
 
 当前已实现范围与尚未迁移的旧功能见 [功能核对表](docs/FEATURE_STATUS.md)。本项目不能表述为原项目全部功能的等价超集。
 
@@ -13,6 +13,7 @@
 已配置环境时，在本目录运行：
 
 ```powershell
+docker compose --env-file .codex-runtime/services.env -f compose.services.yaml up -d
 .\tools\start_local.ps1
 ```
 
@@ -23,7 +24,10 @@
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe -X utf8 -B tools\setup_services.py
+docker compose --env-file .codex-runtime/services.env -f compose.services.yaml up -d
 .\.venv\Scripts\python.exe -X utf8 -B tools\setup_local.py --download-model
+.\.venv\Scripts\python.exe -X utf8 -B tools\setup_services.py
 cd frontend
 npm ci --no-audit --no-fund
 npm run build
@@ -33,20 +37,30 @@ cd ..
 
 首次使用需将自己的 DeepSeek Key 配置到 `.env`，确认 `RESOLVEDESK_OWN_KEY_CONFIRMED=true`，按需启用 `RESOLVEDESK_PAID_API_ENABLED=true`。客户端只允许 `deepseek-flash`。
 
+已有旧 SQLite 数据时先停止旧服务，执行 `tools/migrate_services.py --apply`；工具先建立业务库和累计费用账本的一致性快照，只允许向空 PostgreSQL 目标迁移，逐表校验行数和内容摘要。不要先在目标运行演示数据初始化。当前切换证据见 [存储切换记录](docs/SERVICE_CUTOVER_2026-10-27.md)。
+
+完整容器部署包含前端构建、应用、网关、PostgreSQL、Redis、Chroma、Prometheus：
+
+```powershell
+docker compose --env-file .codex-runtime/services.env -f compose.yaml up -d --build
+```
+
+网关默认 `http://127.0.0.1:18080`，Prometheus 默认 `http://127.0.0.1:19090`。模型、身份和原费用账本通过 `data/` 挂载保留；镜像不包含密钥。`/health` 报告技术路径，`/ready` 检查依赖。
+
 ## 实际请求链路
 
-Vue 工作台 → 带身份的任务 API → 持久化检查点 → 查询改写、混合检索、Flash 重排 → 记忆与意图路由 → Skills 与受限工具循环 → 回答/追问/草稿 → 用户确认 → SQLite 事务建单。
+Vue 工作台 → 带身份与逐轮请求键的 API → Redis 租约及 SQL 认领代次 → 持久化检查点 → 查询改写、混合检索、Flash 重排 → 记忆与意图路由 → Skills 与受限工具循环 → 回答/追问/草稿 → 用户确认 → PostgreSQL 事务建单。
 
-- **检索**：Markdown 标题与原文跨度分块，中文 BM25、多语言 E5 本地 ONNX 向量、RRF；查询改写及重排使用 Flash，失败记录原因并回退。
+- **检索**：Markdown 标题与原文跨度分块，中文 BM25、多语言 E5 本地 ONNX 向量、Chroma HNSW、RRF；Chroma 召回前过滤权限，再向 SQL 校验当前授权和版本。文档更新与索引 outbox 同事务，失败后投影最新状态。查询改写及重排使用 Flash，失败记录原因并回退。
 - **路由与协作**：IT 场景规则负责当前领域分类，原意图识别器提供实体与紧急度。复用专业节点执行器，角色职责已改为账号分诊、网络设备、软件授权与安全升级；复合问题实际并行调用专业节点。监控失败反馈可以降权异常节点。
-- **记忆**：SQLite 保存会话摘要、用户明确提及的系统/IDE 信息和语义历史；摘要按长度触发，跨任务检索限定当前用户与租户。历史不是知识库政策依据。
+- **记忆**：PostgreSQL 保存会话摘要、用户明确提及的系统/IDE 信息和语义历史；完整 Redis 工作记忆、分段 Chroma 情景记忆仍在 G05 实施范围内。历史不是知识库政策依据。
 - **Skills**：加载 `skills/` 中当前版本的业务说明，按角色和关键词注入，忽略 history，客服可热加载。
 - **MCP**：官方 SDK 的标准 stdio 客户端实际连接 `resolvedesk/mcp_support.py`。仅开放白名单只读诊断清单，不把模型密钥传给子进程。
 - **工单**：只允许模型准备草稿；标题、描述、类别缺失时追问。确认绑定精确草稿版本且有有效期。确认与创建在同一事务内，重复确认返回同一工单。
 - **业务闭环**：权限申请确认后待审批，其他 IT 操作员批准后再模拟开通，实际写入有期限的本地权限表。设备维修校验本人资产，经过分诊、派单、处理、本人验收或返工。每步有版本检查、幂等与事务审计。
 - **权限**：令牌绑定租户/用户/角色；知识在召回前过滤；普通用户只读自己的任务、工单和记忆。
 - **流式**：真实 SDK 文本增量经持久化 SSE 事件送到 Vue。生成中的文字标为待校验；最终回答经过来源检查。事件连接支持 Last-Event-ID 和当前轮次游标。
-- **恢复**：每次模型结果及工具轮次保存检查点。重启后活动任务暂停；显式恢复可复用已保存模型结果和工具输出。未完成或未保存的模型调用仍可能重新发生并收费；写操作始终走独立确认事务。
+- **恢复与并发**：每次模型结果及工具轮次保存检查点。Redis 持续续租、SQL owner/epoch/有效期阻止旧执行者提交；启动仅暂停过期执行，不中断其他工作进程。每轮回执持久化，同键不同输入拒绝；重试读取原轮次答案及事件范围。显式恢复可复用已保存结果，未完成的模型调用仍可能重发并收费。
 - **评测**：免费检索回归与完整付费质量评测分开。质量评测经隔离的当前 HTTP 入口执行真实对话和业务事务，检查路由、引用、工具、申请字段、业务结果，用四维 Flash Judge 评分；失败独立报告，人工选择同套件基线做回归。支持任务记录和显式重新执行。
 - **监控**：真实角色、工具、主执行和检索指标持久化，提供鉴权 Prometheus 指标、告警触发/恢复、持久化通知 outbox 和路由降权。Webhook 地址未配置时仅本地留存事件。
 
@@ -60,6 +74,8 @@ npm run build
 ```
 
 pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测试包含真实本机 MCP 子进程、权限隔离、摘要/语义记忆、断点恢复、流式取消记账、重排回退和反馈回归。
+
+设置 `RESOLVEDESK_SERVICE_TESTS=true` 会额外运行真实 Redis/PostgreSQL/Chroma 测试，使用独立随机测试 schema、键空间和集合。免费实时检索验收：`python -X utf8 -B tools/verify_service_runtime.py`。
 
 以下命令会实际调用 Flash，并保留明确的本地演示记录：
 
@@ -89,13 +105,14 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 | resolvedesk/monitoring.py | 运行指标、告警生命周期与 Webhook outbox |
 | core/paid_api.py | Flash 预算、usage、流式和失败预留 |
 | agents、core、tooling | 角色、意图、Skill、标准 MCP 等复用组件 |
-| memory/conversation_memory.py、api/main.py | Redis/Chroma 兼容链路；当前主入口不依赖这条存储链路 |
+| resolvedesk/database.py、coordination.py、vectors.py | PostgreSQL 连接、Redis 租约与 Chroma 有界 HTTP 客户端 |
+| memory/conversation_memory.py、api/main.py | 保留的兼容入口，不等于全部能力已经接入新主入口 |
 
 ## API 和持久数据
 
 业务接口要求 `Authorization: Bearer <本地令牌>`。
 
-- `/runs`：创建/列出任务；`/runs/{id}` 查询；`/reply` 补充；`/confirm` 确认建单；`/pause`、`/resume`；`/events`；`/messages`。
+- `/runs`：创建/列出任务；`/runs/{id}` 查询；`/reply` 补充（必须有 request_key）；`/turns/{request_key}` 读取该轮回执；`/confirm` 确认建单；`/pause`、`/resume`；`/events?turn_key=...`；`/messages`。
 - `/tickets`、`/tickets/{id}`：按权限查询工单。
 - `/service-catalog`、`/service-cases`、`/service-cases/{id}`、`/service-cases/{id}/actions`：模拟业务目录、状态、鉴权操作与审计。
 - `/knowledge/search`、`/knowledge/documents`、`/knowledge/stats`、`/knowledge/citations/{id}`。
@@ -104,7 +121,7 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 - `/eval/run`、`/eval/jobs`、`/eval/jobs/{id}`、`/eval/jobs/{id}/resume`、`/eval/jobs/{id}/baseline`。
 - `/runs/{id}/feedback`、`/evaluation/candidates`、`/evaluation/candidates/{id}/promote`。
 
-`data/resolvedesk.sqlite3` 保存业务、记忆和评测；`data/billing/usage.sqlite3` 保存累计费用；`data/models/` 保存本地模型。不要通过删除费用账本重置预算。
+PostgreSQL 保存业务、记忆和评测；`data/resolvedesk.sqlite3` 保留为旧库，主服务不再写入；`data/billing/usage.sqlite3` 继续保存原累计费用；`data/models/` 保存本地模型。不要通过删除费用账本重置预算。
 
 `.env`、`key.txt`、`.codex-runtime/`、`data/` 和 `history/` 不应提交或上传。前端构建不复制 public/history，后端只公开明确的页面和 assets，不公开源码或历史目录。
 
@@ -114,7 +131,7 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 
 没有比较专用重排模型。当前知识集和评测样本很小，不能据此宣称生产质量或普遍性能提升。引用存在不等于每句话均被原文支持。
 
-当前服务只监听本机，单进程；MCP 仅白名单只读工具。工单存在本地，未连接企业 SSO 或外部工单平台。没有完成生产压测、集群容灾；Docker 构建与容器运行按要求跳过。
+当前端口只监听本机；MCP 仅白名单只读工具。多工作进程共享 PostgreSQL 和 Redis，业务与租约已做竞争测试。企业 SSO、外部工单平台、生产压测和集群容灾尚未验收；完整 G01–G13 进度见 `docs/MIGRATION_PROGRESS.md`。
 
 本项目按用户最新要求使用 Git 提交保存代码版本，不再生成相邻 history 文件夹。修改前先检查状态并提交必要的检查点。Git 不会自动保存未提交改动，也不保存被忽略的数据库、费用账本、模型和密钥；这些资料需独立备份。
 

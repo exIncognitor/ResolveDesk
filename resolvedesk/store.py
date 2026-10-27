@@ -27,6 +27,10 @@ class FencedExecution(Conflict):
     pass
 
 
+class ReceiptExpired(Conflict):
+    pass
+
+
 @dataclass(frozen=True)
 class ExecutionToken:
     run_id: str
@@ -171,6 +175,7 @@ class Store:
     def _turn(db,p,run_id,request_key):
         row = db.execute("SELECT response FROM turn_receipts WHERE tenant=? AND owner=? AND run_id=? AND request_key=?",(p.tenant,p.user,run_id,request_key)).fetchone()
         if row is None: raise KeyError("Turn not found")
+        if row["response"] is None: raise ReceiptExpired("Turn evidence expired; this request key cannot be executed again")
         return json.loads(row["response"])
 
     def get_turn(self,p,run_id,request_key):
@@ -270,7 +275,7 @@ class Store:
             previous = db.execute("SELECT * FROM turn_receipts WHERE tenant=? AND owner=? AND run_id=? AND request_key=?",(p.tenant,p.user,run_id,request_key)).fetchone()
             if previous:
                 if previous["input_hash"] != digest(["reply",message]): raise Conflict("Idempotency key already used with a different message")
-                return json.loads(previous["response"]),False
+                return self._turn(db,p,run_id,request_key),False
             if row["status"] not in {"awaiting_input", "awaiting_confirmation", "completed"} or row["ticket_id"]:
                 raise Conflict("Run is not waiting for input")
             db.execute("INSERT INTO messages(run_id,role,content) VALUES(?,'user',?)", (run_id, message))
