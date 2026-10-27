@@ -1,5 +1,6 @@
 """Read-only normal deployment checks; no model calls or parser attack inputs."""
 from datetime import datetime,timezone
+import argparse
 import hashlib
 import importlib.metadata as metadata
 import json
@@ -14,6 +15,7 @@ ROOT=Path(__file__).resolve().parents[1]
 
 
 def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--iteration',choices=['2','3'],default='2');args=parser.parse_args()
     access=json.loads((ROOT/'.codex-runtime/access.json').read_text(encoding='utf-8'))
     paths=[]
     for folder in ('resolvedesk','agents','core','tooling','knowledge','skills'):
@@ -43,6 +45,18 @@ def main():
                 response=http.get(path);response.raise_for_status();return response.json()
             before=get('/system')['budget'];schema=get('/openapi.json');catalog=get('/service-catalog')
             checks[prefix+'ready']=get('/ready')['ready']
+            if args.iteration=='3':
+                publications=get('/knowledge/publications')
+                references=[d for d in publications if d['document_id'].startswith('ref-')]
+                demos=[d for d in publications if d['metadata']['material_type']=='simulated_policy']
+                checks[prefix+'reviewed_reference_corpus']=len(references)==26 and all(d['state']=='published' and d['readable'] and d['metadata']['source_urls'] for d in references)
+                checks[prefix+'originals_labeled_simulated']=len(demos)==8 and all(d['readable'] for d in demos)
+                found=http.post('/knowledge/search',json={'query':'Entra SSPR 自助密码重置','top_k':5,'mode':'hybrid'});found.raise_for_status()
+                reference=next((i for i in found.json()['items'] if i['document_id']=='ref-entra-sspr'),None)
+                checks[prefix+'official_reference_retrieved']=reference is not None
+                checks[prefix+'source_metadata_on_citation']=bool(reference and get('/knowledge/citations/'+reference['citation'])['publication']['metadata']['source_urls'])
+                denied=http.get('/knowledge/publications',headers={'Authorization':'Bearer '+access['learner']['token']})
+                checks[prefix+'review_requires_support']=denied.status_code==403
             actions=schema['components']['schemas']['ServiceAction']['properties']['action']['enum']
             checks[prefix+'license_action_contract']={'reserve','allocate','revoke'}<=set(actions)
             seat=next(item for item in catalog['licenses'] if item['product']=='IntelliJ IDEA Ultimate')
@@ -58,7 +72,7 @@ def main():
     prometheus=httpx.get('http://127.0.0.1:19090/api/v1/query',params={'query':'up{job="resolvedesk"}'},trust_env=False,timeout=15).json()
     checks['prometheus_up']=prometheus['status']=='success' and bool(prometheus['data']['result']) and all(item['value'][1]=='1' for item in prometheus['data']['result'])
     report.update(passed=sum(checks.values()),total=len(checks))
-    path=ROOT/'reports'/('iteration2-deployment-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')+'.json')
+    path=ROOT/'reports'/('iteration'+args.iteration+'-deployment-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')+'.json')
     with path.open('x',encoding='utf-8') as out:json.dump(report,out,ensure_ascii=False,indent=2)
     print(json.dumps({'passed':report['passed'],'total':report['total'],'failed':[name for name,value in checks.items() if not value],'evidence':str(path.relative_to(ROOT))},ensure_ascii=False))
     if report['passed']!=report['total']:raise SystemExit(1)

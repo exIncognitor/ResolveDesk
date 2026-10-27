@@ -71,4 +71,10 @@ async def test_production_prepare_cannot_invent_unknown_days(tmp_path):
         await agent.execute(USER,run['id']);current=store.get_run(USER,run['id'])
         assert current['status']=='awaiting_input' and current['draft']['duration_days']==0
         assert '有效天数' in current['answer'] and not current.get('approval') and not store.list_tickets(USER)
+        evidence=next(e['payload']['fields'] for e in store.events(USER,run['id']) if e['kind']=='draft_provenance')
+        assert set(evidence)==set(current['draft'])
+        assert evidence['resource_id']['source']=='explicit_user_text'
+        assert evidence['duration_days']['source']=='missing_not_supplied'
+        assert evidence['summary']['source']=='derived_summary_or_classification'
+        assert any(e['kind']=='tool_result' and e['payload'].get('name')=='prepare_ticket' and e['payload']['success'] for e in store.events(USER,run['id']))
     finally:await agent.close();store.close()

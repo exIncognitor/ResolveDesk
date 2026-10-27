@@ -306,7 +306,7 @@ class DeskAgent:
                             if 'product' in payload and 'software' in literal:
                                 provenance['product']={'source':'catalog_mapping','literal_software':literal['software']}
                             for key in payload:
-                                if key not in provenance:provenance[key]={'source':'derived_summary_or_classification','supporting_turn_seq':entity_state.get('turn_seq'),'user_text':history[-1]['content'][:4000]}
+                                if key not in provenance:provenance[key]={'source':'missing_not_supplied' if payload[key] in ('',None,0) else 'derived_summary_or_classification','context_turn_seq':entity_state.get('turn_seq'),'latest_user_text':history[-1]['content'][:4000]}
                         self.store.prepare(p,run_id,payload,missing,provenance=provenance)
                         data={'draft':payload,'missing':missing,'submitted':False};tool_success=True
                         tool_seconds=observe_tool(name,True,tool_started)
