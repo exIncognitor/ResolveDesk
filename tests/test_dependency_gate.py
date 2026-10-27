@@ -58,3 +58,25 @@ def test_unverified_runtime_package_cannot_pass_gate():
     data={'dependencies':[{'name':'chromadb','skip_reason':'audit unavailable'}]}
     result=classify(data,policy(),{'chromadb'},today=date(2026,10,27))
     assert result['status']=='fail' and result['unverified_runtime_packages']
+
+
+def test_runtime_package_missing_from_audit_cannot_pass_gate():
+    result=classify(finding(),policy(),{'chromadb','starlette'},today=date(2026,10,27))
+    assert result['status']=='fail'
+    assert result['unverified_runtime_packages']==[{'package':'starlette','reason':'Absent from dependency auditor output'}]
+
+
+@pytest.mark.parametrize('package',['resolvedesk','tooling'])
+def test_parent_package_initializer_sdk_invalidates_profile(tmp_path,package):
+    root=profile_copy(tmp_path/'initializer')
+    path=root/package/'__init__.py'
+    path.write_text(path.read_text(encoding='utf-8')+'\nimport chromadb\n',encoding='utf-8')
+    with pytest.raises(ValueError,match='SDK'):verify_profile(root)
+
+
+@pytest.mark.parametrize('call',["__import__('chromadb')","importlib.import_module('chromadb')"])
+def test_dynamic_import_requires_fresh_review(tmp_path,call):
+    root=profile_copy(tmp_path/'dynamic')
+    path=root/'resolvedesk/app.py'
+    path.write_text(path.read_text(encoding='utf-8')+'\n'+call+'\n',encoding='utf-8')
+    with pytest.raises(ValueError,match='Dynamic'):verify_profile(root)

@@ -39,7 +39,14 @@ def runtime_requirements(root=ROOT):
 
 
 def current_main_graph(root):
-    pending=[root/'resolvedesk/app.py'];seen=set()
+    def local_files(module):
+        parts=module.split('.')
+        for index in range(1,len(parts)+1):
+            initializer=root.joinpath(*parts[:index])/'__init__.py'
+            if initializer.is_file():yield initializer
+        path=root.joinpath(*parts).with_suffix('.py')
+        if path.is_file():yield path
+    pending=list(local_files('resolvedesk.app'));seen=set()
     while pending:
         file=pending.pop()
         if file in seen:continue
@@ -53,11 +60,14 @@ def current_main_graph(root):
                     prefix=list(file.relative_to(root).parent.parts)[:len(file.relative_to(root).parent.parts)-node.level+1]
                     module='.'.join(prefix+module.split('.'))
                 modules=[module]+[module+'.'+alias.name for alias in node.names]
+            elif isinstance(node,ast.Call) and (
+                isinstance(node.func,ast.Name) and node.func.id in {'__import__','import_module'} or
+                isinstance(node.func,ast.Attribute) and node.func.attr=='import_module'
+            ):
+                raise ValueError('Dynamic imports require fresh deployment profile review')
             for module in modules:
                 if module=='chromadb' or module.startswith('chromadb.'):raise ValueError('Chroma SDK is reachable from the main entry')
-                path=root.joinpath(*module.split('.'))
-                if path.with_suffix('.py').is_file():pending.append(path.with_suffix('.py'))
-                elif (path/'__init__.py').is_file():pending.append(path/'__init__.py')
+                pending.extend(local_files(module))
     return sorted(str(p.relative_to(root)) for p in seen)
 
 
@@ -76,9 +86,10 @@ def classify(audit,policy,runtime_names,*,root=ROOT,today=None):
     today=today or date.today()
     if date.fromisoformat(policy['expires_on'])<today:raise ValueError('Dependency profile review expired')
     exclusions=policy['exclusions'];profile=verify_profile(root)
-    active=[];reviewed=[];outside=[];skipped=[];seen=set()
+    active=[];reviewed=[];outside=[];skipped=[];seen=set();covered=set()
     for dependency in audit['dependencies']:
         name=canonicalize_name(dependency['name'])
+        covered.add(name)
         if dependency.get('skip_reason'):
             if name in runtime_names:skipped.append({'package':name,'reason':dependency['skip_reason']})
             continue
@@ -93,6 +104,7 @@ def classify(audit,policy,runtime_names,*,root=ROOT,today=None):
             match=next((entry for entry in exclusions if entry['package']==name and entry['version']==dependency['version'] and entry['advisory'] in identities),None)
             if match:reviewed.append({**item,'classification':match['classification'],'reason':match['reason'],'expires_on':policy['expires_on']})
             else:active.append(item)
+    skipped.extend({'package':name,'reason':'Absent from dependency auditor output'} for name in sorted(runtime_names-covered))
     return {'status':'fail' if active or skipped else 'pass_with_profile_exclusions' if reviewed else 'pass',
         'active_findings':active,'reviewed_profile_exclusions':reviewed,'outside_runtime_findings':outside,
         'unverified_runtime_packages':skipped,'runtime_dependency_count':len(runtime_names),'deployment_contract':profile,
