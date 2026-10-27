@@ -50,6 +50,8 @@ def main():
         embedding = None
         print("Semantic embedding unavailable:", type(exc).__name__, "(BM25 only)")
     store = Store(data / "resolvedesk.sqlite3")
+    from resolvedesk.business import BusinessService
+    BusinessService(store).seed_demo()
     kb = HybridKnowledge(store, embedding)
     principal = Principal("demo", "support", "support")
     for path in sorted((ROOT / "knowledge").glob("*.md")):

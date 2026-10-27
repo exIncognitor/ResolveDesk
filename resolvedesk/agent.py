@@ -245,10 +245,13 @@ class DeskAgent:
                         return
                     if name == "prepare_ticket":
                         fields = TicketFields.model_validate((run["draft"] or {}) | args)
-                        missing = fields.missing() + self.business.validate_draft(p, fields.model_dump())
+                        payload = fields.model_dump()
+                        missing = fields.missing() + self.business.validate_draft(p, payload)
+                        if fields.workflow == "generic":
+                            payload = {key: payload[key] for key in ("summary", "description", "category", "priority")}
                         self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"local"})
                         self.monitor.record(p.tenant,"tool",name,True,time.monotonic()-tool_started)
-                        self.store.prepare(p, run_id, fields.model_dump(), missing)
+                        self.store.prepare(p, run_id, payload, missing)
                         return
                     if name == "knowledge_search":
                         data = await self.services.search(p,args["query"],5) if self.services else await asyncio.to_thread(self.knowledge.search,p,args["query"],5)

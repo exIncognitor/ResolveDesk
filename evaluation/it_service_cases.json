@@ -1,0 +1,43 @@
+{
+  "version": "it-service-v1",
+  "provenance": "人工编写的合成开发评测集；不是生产数据，不声称独立盲测或500条标注数据。",
+  "split": "development",
+  "intent_cases": [
+    {"id":"access-1","message":"账号连续输错密码被锁定","expected":"account_access"},
+    {"id":"access-2","message":"申请开发仓库的只读权限","expected":"account_access"},
+    {"id":"access-3","message":"密码重置网页打不开","expected":"account_access"},
+    {"id":"access-4","message":"MFA 设备丢失无法登录","expected":"account_access"},
+    {"id":"access-5","message":"权限有效期最多几天","expected":"account_access"},
+    {"id":"access-6","message":"内部账户怎么解锁","expected":"account_access"},
+    {"id":"network-1","message":"VPN 提示错误 691","expected":"network_endpoint"},
+    {"id":"network-2","message":"DNS 域名解析失败","expected":"network_endpoint"},
+    {"id":"network-3","message":"公司网络大部分网页连接超时","expected":"network_endpoint"},
+    {"id":"network-4","message":"终端蓝屏有停止码","expected":"network_endpoint"},
+    {"id":"network-5","message":"WiFi 断网怎么办","expected":"network_endpoint"},
+    {"id":"network-6","message":"登录接口 401","expected":"network_endpoint"},
+    {"id":"software-1","message":"IDEA 商业许可证到期","expected":"software_license"},
+    {"id":"software-2","message":"软件白名单怎么申请","expected":"software_license"},
+    {"id":"software-3","message":"IntelliJ license 无法激活","expected":"software_license"},
+    {"id":"software-4","message":"还有可用的商业席位吗","expected":"software_license"},
+    {"id":"software-5","message":"pip 安装包失败","expected":"software_license"},
+    {"id":"software-6","message":"IDE 启动崩溃","expected":"software_license"},
+    {"id":"device-1","message":"笔记本电池鼓包","expected":"device_service"},
+    {"id":"device-2","message":"设备过保可以报修吗","expected":"device_service"},
+    {"id":"device-3","message":"查询我的资产 LT-1001","expected":"device_service"},
+    {"id":"device-4","message":"维修后还是无法开机","expected":"device_service"},
+    {"id":"device-5","message":"外设坏了申请更换","expected":"device_service"},
+    {"id":"device-6","message":"设备借用和归还的规则","expected":"device_service"},
+    {"id":"escalation-1","message":"公司大面积断网需要升级","expected":"escalation"},
+    {"id":"escalation-2","message":"怀疑密钥泄露请联系人工","expected":"escalation"},
+    {"id":"general-1","message":"你好，有什么服务","expected":"general"},
+    {"id":"general-2","message":"谢谢","expected":"general"}
+  ],
+  "dialog_cases": [
+    {"id":"account-policy","turns":["申请 repo-resolvedesk 仓库的 read 权限，期限和审批规则是什么？只解释政策，不提交申请，请引用知识库。"],"expected_role":"general","expected_status":"completed","reference":"只读或写权限，1至30天，申请人确认后待审批；批准后还需模拟开通。","documents":["permissions"]},
+    {"id":"network-dns","turns":["内网 DNS 解析失败但外网正常，应该如何排查？只给排障建议，不创建工单，请引用知识库。"],"expected_role":"technical","expected_status":"completed","reference":"确认影响范围、VPN及企业DNS策略，记录脱敏错误，不擅自改为公共DNS。","documents":["endpoint"]},
+    {"id":"software-license","turns":["IntelliJ IDEA Ultimate 商业许可证到期了，企业席位申请有什么规则？不提交工单，请引用知识库。"],"expected_role":"billing","expected_status":"completed","reference":"查询企业席位与主管审批，不共享许可证，不承诺真实开通或采购时效。","documents":["licensing"]},
+    {"id":"device-safety","turns":["笔记本电池鼓包了该怎么办？先解释安全处理办法和维修规则，不建单，请引用知识库。"],"expected_role":"technical","expected_status":"completed","reference":"停止使用并断开充电，不挤压拆卸，联系IT并准备本人资产ID和故障信息。","documents":["devices"]},
+    {"id":"access-lifecycle","turns":["我要申请仓库权限，请先询问缺少的必要信息。","请准备权限申请：资源 repo-resolvedesk，read 权限，7天，用途是阅读项目代码进行学习。标题是开发仓库只读权限申请。"],"expected_role":"general","expected_status":"awaiting_confirmation","workflow":"access_request","reference":"信息补齐后只能准备权限申请草稿，申请人核对确认后提交，其他support审批，随后模拟开通。","documents":["permissions"]},
+    {"id":"repair-lifecycle","turns":["我想申请设备维修，请先询问缺少哪些必要信息。","请准备维修申请：本人资产 LT-1001，笔记本键盘失灵，从今天上午开始，已重新插拔外接键盘仍不能恢复，标题为笔记本键盘维修，hardware 类别。"],"expected_role":"technical","expected_status":"awaiting_confirmation","workflow":"device_repair","reference":"使用本人资产准备维修草稿，确认提交后由IT分诊派单处理，申请人验收关闭；不声称维修已经完成。","documents":["devices"]}
+  ]
+}

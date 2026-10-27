@@ -108,6 +108,8 @@ class DeskServices:
     def __init__(self,store,knowledge,client,mcp_configs=None):
         import os
         self.store,self.knowledge,self.client = store,knowledge,client
+        from resolvedesk.monitoring import Monitor
+        self.monitor = Monitor(store)
         self.skills = SkillManager(ROOT/"skills",max_prompt_chars=3500)
         self.skills.load()
         self.memory = ScopedMemory(store,knowledge.embedding,client)
@@ -119,6 +121,15 @@ class DeskServices:
             for agent in pool:
                 agent._client = client
                 agent.profile = replace(agent.profile,model="deepseek-flash",max_tokens=640)
+                profiles = {
+                    "general": ("账号权限与服务分诊", "依据企业规则解释账号、权限申请及服务流程；不擅自批准或开通权限。", ("核对诉求", "检索规则", "收集必要字段", "说明确认与审批路径")),
+                    "technical": ("网络终端与设备诊断", "依据知识库给出低风险排查，识别维修或安全升级条件。", ("确认影响范围", "查询知识与资产", "给出可验证排查", "必要时维修或升级")),
+                    "billing": ("软件授权与席位核验", "核验软件白名单、授权方式和可用席位，说明采购审批边界。", ("确认软件与用途", "查授权目录", "核对席位与审批规则", "给出申请路径")),
+                    "escalation": ("IT 安全与人工升级", "汇总影响范围与已尝试操作，移交 IT 人员，不承诺已处理。", ("识别风险", "整理证据", "建议人工升级")),
+                }
+                label, mission, workflow = profiles[agent.agent_type.value]
+                agent.profile = replace(agent.profile,role=label,mission=mission,workflow=workflow)
+                agent.system_prompt = f"你是 ResolveDesk {label}。{mission}所有模拟企业状态以服务器上下文为准。"
         self.manager = MCPToolManager(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash")
         configs = mcp_configs if mcp_configs is not None else [MCPServerConfig(name="support",transport="stdio",
             command=sys.executable,args=[str(ROOT/"resolvedesk"/"mcp_support.py")],allowed_tools=["support_checklist"],
@@ -140,16 +151,35 @@ class DeskServices:
         req = Request(message=message,user_id=hashlib.sha256(encode([p.tenant,p.user]).encode()).hexdigest(),
                       conv_id=run_id,context=encode(context),history=history,intent=result.intent,
                       intent_group=result.intent_group,urgency=result.urgency,intent_confidence=result.confidence,entities=result.entities)
-        decision = self.roles._route_decision(req)
+        from resolvedesk.business import classify
+        from agents.agent_orchestrator import RoutingDecision
+        intent = classify(message)
+        mapping = {"account_access": AgentType.GENERAL, "network_endpoint": AgentType.TECHNICAL,
+                   "software_license": AgentType.BILLING, "device_service": AgentType.TECHNICAL,
+                   "escalation": AgentType.ESCALATION, "general": AgentType.GENERAL}
+        roles = list(dict.fromkeys(mapping[d] for d in intent["domains"]))
+        penalties = self.monitor.refresh(p.tenant)["routing_penalties"]
+        self.roles.update_routing_penalties({name+"_0": penalty for name,penalty in penalties.items()})
+        primary = roles[0]
+        degraded = [r.value for r in roles if penalties.get(r.value)]
+        if penalties.get(primary.value):
+            primary = AgentType.GENERAL if primary != AgentType.GENERAL else AgentType.ESCALATION
+        supporting = [r for r in roles if r != primary and not penalties.get(r.value)]
+        # Build a domain decision; inherited executor still owns real specialist execution.
+        decision = RoutingDecision(primary_agent=primary,supporting_agents=supporting,confidence=.9,
+                                   reason="IT 场景规则路由" + ("；异常节点降权："+",".join(degraded) if degraded else ""))
         profile = self.roles._pool[decision.primary_agent][0].profile
-        packet = {"intent":result.intent.value,"primary":decision.primary_agent.value,
+        packet = {"intent":intent["intent"],"domains":intent["domains"],"intent_method":intent["method"],"primary":decision.primary_agent.value,
                   "supporting":[r.value for r in decision.supporting_agents],"confidence":decision.confidence,
                   "reason":decision.reason,"mission":profile.mission,"workflow":list(profile.workflow)}
         # Composite requests really execute independent read-only specialist agents.
         if decision.supporting_agents:
+            started = time.monotonic()
             results = await asyncio.gather(*(self.roles._execute(req,role) for role in decision.agent_types),return_exceptions=True)
             packet["specialist_opinions"] = [{"role":role.value,"success":not isinstance(r,BaseException) and r.success,
                 "answer":r.content[:1800] if not isinstance(r,BaseException) else "专业节点暂不可用"} for role,r in zip(decision.agent_types,results)]
+            for opinion in packet["specialist_opinions"]:
+                self.monitor.record(p.tenant,"agent",opinion["role"],opinion["success"],time.monotonic()-started)
         return packet
 
     async def search(self,p,query,top_k=5,optimize=True):
@@ -183,6 +213,7 @@ class DeskServices:
                 reranked = True
             except Exception as exc:
                 errors.append("rerank_"+type(exc).__name__)
+        self.monitor.record(p.tenant,"retrieval","hybrid",bool(merged) and not errors and not any(r["degraded"] for r in results))
         return {"items":merged[:top_k],"queries":queries,"reranked":reranked,"errors":errors,
                 "mode":"hybrid","degraded":any(r["degraded"] for r in results),"candidate_count":len(items)}
 
