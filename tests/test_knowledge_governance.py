@@ -151,8 +151,9 @@ async def test_insufficient_managed_evidence_stops_before_specialist_or_policy_g
     model=model_for();services=DeskServices(kb.store,kb,model,mcp_configs=[])
     # Explicit false confidence from the real search layer is not an empty
     # candidate list: the coordinator must not turn ranked material into facts.
-    actual=kb.search
-    kb.search=lambda *a,**kw:actual(*a,**kw)|{'evidence_sufficient':False}
+    actual=services.search
+    async def insufficient(*args,**kwargs):return await actual(*args,**kwargs)|{'evidence_sufficient':False}
+    services.search=insufficient
     run,_=kb.store.create_run(USER,'设备的VPN为什么不能连接','insufficient-managed')
     agent=DeskAgent(kb.store,kb,model,services)
     try:

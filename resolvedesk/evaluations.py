@@ -140,7 +140,8 @@ class EvaluationService:
         with self.store.db(True) as db:
             row = db.execute("SELECT r.message FROM runs r JOIN feedback f ON r.id=f.run_id WHERE r.id=? AND f.tenant=? AND f.rating='bad'",(run_id,p.tenant)).fetchone()
             if row is None:raise KeyError("Negative feedback not found")
-            if not db.execute("SELECT 1 FROM chunks WHERE tenant=? AND document_id=? AND section LIKE ? AND (visibility='tenant' OR owner=?)",(p.tenant,document,"%"+section+"%",p.user)).fetchone():
+            from resolvedesk.knowledge_governance import readable
+            if not db.execute("SELECT 1 FROM chunks c WHERE tenant=? AND document_id=? AND section LIKE ? AND (visibility='tenant' OR owner=?) AND "+readable(db),(p.tenant,document,"%"+section+"%",p.user)).fetchone():
                 raise ValueError("Expected reference is unavailable")
             db.execute("INSERT INTO regression_cases VALUES(?,?,?,?,?,?) ON CONFLICT(tenant,source_run) DO UPDATE SET question=excluded.question,document=excluded.document,section=excluded.section",(uuid.uuid4().hex,p.tenant,run_id,row["message"],document,section))
         return {"saved":True,"source_run":run_id}
