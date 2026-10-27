@@ -8,6 +8,7 @@ import argparse
 import asyncio
 import hashlib
 import json
+import logging
 import os
 from pathlib import Path
 import statistics
@@ -35,6 +36,7 @@ async def run(args):
     from resolvedesk.coordination import Coordination
     from core.paid_api import BudgetedAnthropic
     from resolvedesk.eval_state import EvalState
+    logging.getLogger().setLevel(logging.WARNING)
     contract=read_contract(args.suite_root)
     if args.output.exists():raise ValueError('Refuse to overwrite an evaluation report')
     if args.kind=='quality' and not args.live:raise ValueError('Paid quality run requires --live')
@@ -54,6 +56,7 @@ async def run(args):
     report={'kind':args.kind,'contract_id':digest(contract),'contract':contract,'engine_root':str(args.engine_root),
         'engine_sha256':{str(p.relative_to(args.engine_root)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ('resolvedesk','agents','core','tooling') for p in sorted((args.engine_root/folder).glob('*.py'))},
         'backend':'postgresql/redis/chroma/e5','schema':schema,'budget_before':before,'started':time.time(),
+        'policies':{'retrieval':os.getenv('RESOLVEDESK_RETRIEVAL_POLICY','always'),'execution':os.getenv('RESOLVEDESK_EXECUTION_POLICY','full')},
         'provenance':'Frozen synthetic held-out data. No production claims; deterministic assertions primary, same Flash Judge is auxiliary and correlated.'}
     kb=HybridKnowledge(store,embedding,vectors)
     support=Principal('demo','support','support');user=Principal('demo','learner')

@@ -151,7 +151,7 @@ class QualityRunner:
                                 except Exception as exc:judged={'judge_failed':True,'error':type(exc).__name__}
                             scores={k:judged[k] for k in SCORES} if judged and not judged.get('judge_failed') else {}
                             passed=all(checks.values()) and (not use_judge or bool(scores) and statistics.mean(scores.values())>=.75)
-                            detail['turns'].append({'turn':turn_index+1,'answer':run['answer'],'status':run['status'],'checks':checks,'routing':routing,'tools':tools,'judge':judged,'scores':scores,'passed':passed})
+                            detail['turns'].append({'turn':turn_index+1,'answer':run['answer'],'status':run['status'],'latency_ms':run.get('latency_ms'),'checks':checks,'routing':routing,'tools':tools,'judge':judged,'scores':scores,'passed':passed})
                         final_checks,_,_=assertions(case,run,observed['events'],observed['entities'])
                         retrieved={kb.citation(actors[actor],cid)['document_id'] for t in detail['turns'] for cid in re.findall(r'C-[a-f0-9]{24}',t['answer'])}
                         with store.db() as db:
@@ -176,7 +176,7 @@ class QualityRunner:
                                 ticket=await state.unit('dialog:'+case['id']+':confirm',confirm,recover_ticket)
                                 final_checks['idempotent_confirmation']=True
                                 lifecycle=await request(actor,'GET','/service-cases/'+ticket['id'])
-                                actions=['approve','provision'] if case['workflow']=='access_request' else ['triage','assign','start','resolve','reopen','resolve','accept']
+                                actions={'access_request':['approve','provision'],'device_repair':['triage','assign','start','resolve','reopen','resolve','accept'],'license_request':['approve','reserve','allocate']}[case['workflow']]
                                 for step,action in enumerate(actions):
                                     operator=actor if action in {'reopen','accept'} else 'support'
                                     action_key='quality-'+digest([job_id,case['id'],step])[:48]
@@ -185,12 +185,15 @@ class QualityRunner:
                                         with store.db() as db:r=db.execute('SELECT response FROM service_actions WHERE tenant=? AND actor=? AND ticket_id=? AND request_key=?',(p.tenant,operator,ticket['id'],action_key)).fetchone()
                                         return json.loads(r[0]) if r else None
                                     lifecycle=await state.unit(f'dialog:{case["id"]}:action:{step}',act,recover_action)
-                                expected='fulfilled' if case['workflow']=='access_request' else 'closed'
+                                expected={'access_request':'fulfilled','device_repair':'closed','license_request':'allocated'}[case['workflow']]
                                 final_checks['business_final_state']=lifecycle['status']==expected
                                 context=await request(actor,'GET','/service-catalog')
                                 if expected=='fulfilled':
                                     grants=[g for g in context['my_grants'] if g['resource']==case['expected_fields'].get('resource_id')]
                                     final_checks['persisted_business_effect']=len(grants)==1 and grants[0]['level']==case['expected_fields'].get('access_level') and abs((grants[0]['expires']-time.time())-case['expected_fields'].get('duration_days',0)*86400)<60
+                                elif expected=='allocated':
+                                    allocations=[a for item in context['licenses'] for a in item.get('my_allocations',[]) if a['ticket_id']==ticket['id'] and a['product']==case['expected_fields'].get('product') and a['state']=='allocated']
+                                    final_checks['persisted_business_effect']=len(allocations)==1 and abs((allocations[0]['expires']-time.time())-case['expected_fields'].get('duration_days',0)*86400)<60
                                 else:final_checks['persisted_business_effect']=any(a['id']==case['expected_fields'].get('asset_id') and a['status']=='available' for a in context['my_assets'])
                         detail.update(run_id=run_id,answer=run['answer'],checks=final_checks,lifecycle=lifecycle,draft=run.get('draft'),evidence_documents=sorted(evidence),cited_documents=sorted(retrieved))
                         detail['scores']=average_scores(detail['turns'])

@@ -41,7 +41,9 @@ def contract(root=ROOT):
     documents={path.stem for path in (root/'knowledge').glob('*.md')}
     assert all(case['relevant_documents'] and set(case['relevant_documents'])<=documents for case in retrieval)
     paths=[root/'evaluation'/name for name in ('holdout_v1.json','holdout_retrieval_v1.json','holdout_faults_v1.json')]
-    paths.extend(sorted((root/'knowledge').glob('*.md')))
+    # New business extension documents are deliberately outside this common-task
+    # contract; the original seven knowledge files remain byte-for-byte frozen.
+    paths.extend(root/'knowledge'/name for name in ('access.md','devices.md','endpoint.md','licensing.md','permissions.md','software.md','vpn.md'))
     return {'schema':'resolvedesk-holdout-contract-v1','baseline':'71ff1d13d11a6ee2d767fcdbce5d34afd849679a',
         'intent_cases':len(dataset.intent_cases),'retrieval_cases':len(retrieval),'dialogs':len(dataset.dialog_cases),
         'turns':sum(len(case.turns) for case in dataset.dialog_cases),'development_utterances_checked':len(existing),

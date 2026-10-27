@@ -69,7 +69,7 @@ class DialogCase(Assertions):
     documents:list[str]=Field(default_factory=list,max_length=30)
     user_id:str=Field(default='learner',min_length=1,max_length=100)
     conv_id:str|None=Field(default=None,min_length=1,max_length=100)
-    workflow:Literal['access_request','device_repair']|None=None
+    workflow:Literal['access_request','device_repair','license_request']|None=None
     expected_fields:dict=Field(default_factory=dict)
 
     @field_validator('turns',mode='before')
@@ -83,7 +83,7 @@ class DialogCase(Assertions):
         if not self.question and not self.turns:raise ValueError('At least one dialog turn required')
         if self.question:self.turns=[DialogTurn(message=self.question)];self.question=None
         if self.user_id=='support':raise ValueError('support is reserved for the sandbox operator')
-        if not set(self.expected_fields)<={'summary','description','category','priority','workflow','resource_id','access_level','duration_days','asset_id'}:raise ValueError('Unknown expected draft field')
+        if not set(self.expected_fields)<={'summary','description','category','priority','workflow','resource_id','access_level','duration_days','asset_id','product'}:raise ValueError('Unknown expected draft field')
         return self
 
 
