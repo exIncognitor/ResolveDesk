@@ -6,12 +6,18 @@ import time
 import uuid
 
 from resolvedesk.store import encode, Conflict
+from resolvedesk.eval_models import EvalDataset,EvaluationOptions
+from resolvedesk.eval_data import EvalDatasets
+from resolvedesk.eval_state import EvalState
 
 
 class EvaluationService:
-    def __init__(self,store,knowledge):
+    def __init__(self,store,knowledge,*,coordination=None,client_factory=None):
         self.store,self.knowledge,self.tasks = store,knowledge,{}
+        self.coordination,self.client_factory=coordination,client_factory
         self.worker_id = uuid.uuid4().hex
+        self.datasets=EvalDatasets(store)
+        EvalState(store,'schema-initialization')
         with store.database.schema_transaction() as db:
             db.executescript("""CREATE TABLE IF NOT EXISTS eval_jobs(id TEXT PRIMARY KEY,tenant TEXT,owner TEXT,status TEXT,completed INTEGER,total INTEGER,result TEXT,error TEXT,created REAL);
                 CREATE TABLE IF NOT EXISTS regression_cases(id TEXT PRIMARY KEY,tenant TEXT,source_run TEXT,question TEXT,document TEXT,section TEXT,UNIQUE(tenant,source_run));""")
@@ -20,33 +26,64 @@ class EvaluationService:
             db.execute("CREATE TABLE IF NOT EXISTS quality_baselines(tenant TEXT,suite_id TEXT,job_id TEXT,report TEXT,created REAL,PRIMARY KEY(tenant,suite_id))")
             if db.backend=="postgresql":
                 db.execute("ALTER TABLE quality_baselines ALTER COLUMN created TYPE DOUBLE PRECISION")
-            for column,declaration in (("execution_owner","TEXT"),("lease_until","DOUBLE PRECISION NOT NULL DEFAULT 0")):
+            db.execute('CREATE TABLE IF NOT EXISTS eval_queue_guard(id INTEGER PRIMARY KEY)')
+            db.execute('INSERT INTO eval_queue_guard VALUES(1) ON CONFLICT(id) DO NOTHING')
+            for column,declaration in (("execution_owner","TEXT"),("lease_until","DOUBLE PRECISION NOT NULL DEFAULT 0"),
+                ('execution_epoch','INTEGER NOT NULL DEFAULT 0'),('budget_s','DOUBLE PRECISION NOT NULL DEFAULT 540'),
+                ('used_s','DOUBLE PRECISION NOT NULL DEFAULT 0'),('budget_tick','DOUBLE PRECISION NOT NULL DEFAULT 0'),
+                ('queue_since','DOUBLE PRECISION NOT NULL DEFAULT 0')):
                 if not db.has_column("eval_jobs",column): db.execute("ALTER TABLE eval_jobs ADD COLUMN "+column+" "+declaration)
-            # A second service worker must never interrupt a live paid evaluation.
-            db.execute("UPDATE eval_jobs SET status='paused',error='process_interrupted' WHERE (status='running' AND lease_until<=?) OR (status='queued' AND created<?)",(time.time(),time.time()-180))
+        self.recover_expired()
+
+    def recover_expired(self):
+        with self.store.db(True) as db:
+            now=db.now()
+            # Charge through lease expiry, not the entire time the process was down.
+            db.execute("UPDATE eval_jobs SET used_s=used_s+CASE WHEN lease_until>budget_tick THEN lease_until-budget_tick ELSE 0 END,status='paused',error='process_interrupted',execution_owner=NULL WHERE status='running' AND lease_until<=?",(now,))
+            db.execute("UPDATE eval_jobs SET status='paused',error='queue_interrupted' WHERE status='queued' AND queue_since<?",(now-180,))
+
+    @staticmethod
+    def _admission(db,p,*,new=False):
+        db.execute(db.locked('SELECT id FROM eval_queue_guard WHERE id=1')).fetchone()
+        if db.execute("SELECT COUNT(*) FROM eval_jobs WHERE status IN ('running','queued')").fetchone()[0]>=2:raise Conflict('Evaluation queue full')
+        if new and (db.execute("SELECT COUNT(*) FROM eval_jobs WHERE status!='expired'").fetchone()[0]>=200 or
+                    db.execute("SELECT COUNT(*) FROM eval_jobs WHERE tenant=? AND status!='expired'",(p.tenant,)).fetchone()[0]>=50):raise Conflict('Evaluation capacity reached; explicitly retire old results first')
 
     def get(self,p,job_id):
+        self.recover_expired()
         with self.store.db() as db:
             r = db.execute("SELECT * FROM eval_jobs WHERE id=? AND tenant=? AND owner=?",(job_id,p.tenant,p.user)).fetchone()
             if r is None:raise KeyError("Evaluation not found")
             return {"job_id":r["id"],"status":r["status"],"completed":r["completed"],"total":r["total"],
-                    "result":json.loads(r["result"]) if r["result"] else None,"error":r["error"]}
+                    "result":json.loads(r["result"]) if r["result"] else None,"error":r["error"],
+                    'budget_s':r['budget_s'],'used_s':r['used_s'],'remaining_s':max(0,r['budget_s']-r['used_s'])}
 
     def list(self,p):
         if p.role!="support":raise PermissionError()
+        self.recover_expired()
         with self.store.db() as db:
-            return [dict(r,options=json.loads(r["options"])) for r in db.execute("SELECT id AS job_id,status,completed,total,error,created,options FROM eval_jobs WHERE tenant=? AND owner=? ORDER BY created DESC LIMIT 20",(p.tenant,p.user))]
+            return [dict(r,options={k:v for k,v in json.loads(r['options']).items() if k!='dataset'}) for r in db.execute("SELECT id AS job_id,status,completed,total,error,created,options,budget_s,used_s FROM eval_jobs WHERE tenant=? AND owner=? ORDER BY created DESC LIMIT 20",(p.tenant,p.user))]
 
-    def submit(self,p,kind="retrieval",limit=6,use_judge=True):
+    def submit(self,p,kind="retrieval",limit=6,use_judge=True,**extra):
         if p.role!="support":raise PermissionError()
-        if kind not in {"retrieval","quality"} or type(limit) is not int or not 1 <= limit <= 6:
-            raise ValueError("Invalid evaluation options")
+        options=EvaluationOptions(kind=kind,limit=limit,use_judge=use_judge,**extra).model_dump()
+        if options['suite_id']:dataset=self.datasets.get(p,options['suite_id'])['payload']
+        elif options['intent_cases'] is not None or options['dialog_cases'] is not None:
+            dataset=EvalDataset(intent_cases=options['intent_cases'] or [],dialog_cases=options['dialog_cases'] or [],assets=options['assets']).model_dump()
+        else:
+            dataset=None
+            if kind=='quality':
+                if p.tenant!='demo':raise ValueError('Non-demo evaluation requires an explicit dataset')
+                from resolvedesk.quality import default_dataset
+                dataset=default_dataset()
+        for key in ('intent_cases','dialog_cases','assets'):options.pop(key)
+        if dataset:options['dataset']=dataset
+        self.recover_expired()
         with self.store.db(True) as db:
-            if db.execute("SELECT COUNT(*) FROM eval_jobs WHERE status IN ('running','queued')").fetchone()[0]>=2:
-                raise Conflict("Evaluation queue full")
+            self._admission(db,p,new=True)
             job_id = uuid.uuid4().hex
-            db.execute("INSERT INTO eval_jobs(id,tenant,owner,status,completed,total,result,error,created,options) VALUES(?,?,?,'queued',0,0,NULL,NULL,?,?)",
-                       (job_id,p.tenant,p.user,time.time(),encode({"kind":kind,"limit":limit,"use_judge":use_judge})))
+            db.execute("INSERT INTO eval_jobs(id,tenant,owner,status,completed,total,result,error,created,options,budget_s,queue_since) VALUES(?,?,?,'queued',0,0,NULL,NULL,?,?,?,?)",
+                       (job_id,p.tenant,p.user,db.now(),encode(options),options['timeout_s'],db.now()))
         self.schedule(p,job_id)
         return self.get(p,job_id)
 
@@ -56,12 +93,18 @@ class EvaluationService:
         self.tasks[job_id] = task
         task.add_done_callback(lambda _:self.tasks.pop(job_id,None))
 
-    def resume(self,p,job_id):
+    def resume(self,p,job_id,extra_seconds=0):
         if p.role!="support":raise PermissionError()
-        job = self.get(p,job_id)
-        if job["status"] not in {"paused","failed"}:raise Conflict("Evaluation is not resumable")
+        if type(extra_seconds)is not int or not 0<=extra_seconds<=3600:raise ValueError('Invalid additional time')
+        self.recover_expired()
         with self.store.db(True) as db:
-            db.execute("UPDATE eval_jobs SET status='queued',error=NULL WHERE id=?",(job_id,))
+            self._admission(db,p)
+            row=db.execute(db.locked('SELECT * FROM eval_jobs WHERE id=? AND tenant=? AND owner=?'),(job_id,p.tenant,p.user)).fetchone()
+            if row is None:raise KeyError('Evaluation not found')
+            if row['status'] not in {'paused','failed'}:raise Conflict('Evaluation is not resumable')
+            if row['budget_s']+extra_seconds>7200:raise ValueError('Maximum lifetime budget is 7200 seconds')
+            if row['used_s']>=row['budget_s']+extra_seconds:raise Conflict('Time budget exhausted; explicitly add time to resume')
+            db.execute("UPDATE eval_jobs SET status='queued',error=NULL,budget_s=budget_s+?,queue_since=? WHERE id=?",(extra_seconds,db.now(),job_id))
         self.schedule(p,job_id)
         return self.get(p,job_id)
 

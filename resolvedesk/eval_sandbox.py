@@ -35,11 +35,11 @@ class EvalSandbox:
             self.store=Store(self.source.database.engine.url.render_as_string(hide_password=False),schema=m['identity'])
             # Never use the production collection or Redis namespace for evaluation.
             self.vectors=ChromaVectors(str(self.original_kb.vector_index.http.base_url),self.original_kb.embedding.identity,collection=m['identity'].replace('_','-'))
-            self.coordination=Coordination(self.original_coordination.redis.connection_pool.connection_kwargs.get('url','redis://localhost')) if False else None
             from redis.asyncio import Redis
+            from redis.asyncio.connection import ConnectionPool
             self.coordination=object.__new__(Coordination)
             self.coordination.namespace=self.original_coordination.namespace+':'+m['identity']
-            self.coordination.redis=Redis(connection_pool=self.original_coordination.redis.connection_pool)
+            self.coordination.redis=Redis.from_pool(ConnectionPool(**self.original_coordination.redis.connection_pool.connection_kwargs))
             await self.coordination.redis.ping()
         else:
             self.scratch.mkdir(parents=True,exist_ok=True)

@@ -166,7 +166,9 @@ Agent 响应: {response}
             for index, example in enumerate(JUDGE_FEW_SHOT_EXAMPLES, 1)
         )
 
-    def __init__(self, client: AsyncAnthropic, model: str):
+    def __init__(self, client: AsyncAnthropic, model: str, *, max_attempts: int = 2):
+        if type(max_attempts) is not int or not 1 <= max_attempts <= 2: raise ValueError('Invalid Judge attempts')
+        self._max_attempts = max_attempts
         self._client = client
         self._model  = model
         self._max_tokens = max(256, min(8192, int(os.getenv("EVAL_JUDGE_MAX_TOKENS", "4096"))))
@@ -191,7 +193,7 @@ Agent 响应: {response}
         stop_reason = None
         error = ""
         error_type = ""
-        for attempt in range(1, 3):
+        for attempt in range(1, self._max_attempts + 1):
             stop_reason = None
             try:
                 resp = await asyncio.wait_for(self._client.messages.create(
@@ -223,7 +225,7 @@ Agent 响应: {response}
                     retryable = status in (408, 429) or (isinstance(status, int) and status >= 500)
                     retryable = retryable or isinstance(ex, (TimeoutError, ConnectionError)) or type(ex).__name__ in {"APITimeoutError", "APIConnectionError"}
                 logger.warning("LLM Judge 失败: attempt=%s type=%s stop=%s error=%s", attempt, error_type, stop_reason, error)
-                if not retryable or attempt == 2:
+                if not retryable or attempt == self._max_attempts:
                     break
                 if stop_reason == "max_tokens":
                     budget = min(budget * 2, 8192)

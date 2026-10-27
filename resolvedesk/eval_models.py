@@ -81,10 +81,14 @@ class DialogCase(Assertions):
     def usable_turns(self):
         if self.question and self.turns:raise ValueError('Provide question or turns, not both')
         if not self.question and not self.turns:raise ValueError('At least one dialog turn required')
-        if self.question:self.turns=[DialogTurn(message=self.question)]
+        if self.question:self.turns=[DialogTurn(message=self.question)];self.question=None
         if self.user_id=='support':raise ValueError('support is reserved for the sandbox operator')
         if not set(self.expected_fields)<={'summary','description','category','priority','workflow','resource_id','access_level','duration_days','asset_id'}:raise ValueError('Unknown expected draft field')
         return self
+
+
+class ResumeEvaluation(EvalInput):
+    extra_seconds:int=Field(default=0,ge=0,le=3600)
 
 
 class AssetFixture(EvalInput):
