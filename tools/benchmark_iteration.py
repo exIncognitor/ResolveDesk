@@ -34,7 +34,9 @@ def memory_usage():
             _fields_=[('cb',wintypes.DWORD),('PageFaultCount',wintypes.DWORD)]+[(name,ctypes.c_size_t) for name in ('PeakWorkingSetSize','WorkingSetSize','QuotaPeakPagedPoolUsage','QuotaPagedPoolUsage','QuotaPeakNonPagedPoolUsage','QuotaNonPagedPoolUsage','PagefileUsage','PeakPagefileUsage')]
         data=Counters();data.cb=ctypes.sizeof(data)
         current=ctypes.windll.kernel32.GetCurrentProcess;current.restype=wintypes.HANDLE
-        if not ctypes.windll.psapi.GetProcessMemoryInfo(current(),ctypes.byref(data),data.cb):raise OSError('Memory counters unavailable')
+        read=ctypes.windll.psapi.GetProcessMemoryInfo
+        read.argtypes=[wintypes.HANDLE,ctypes.POINTER(Counters),wintypes.DWORD];read.restype=wintypes.BOOL
+        if not read(current(),ctypes.byref(data),data.cb):raise OSError('Memory counters unavailable')
         return {'rss_bytes':data.WorkingSetSize,'process_lifetime_peak_rss_bytes':data.PeakWorkingSetSize}
     import resource
     return {'process_lifetime_peak_rss_bytes':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*(1 if sys.platform=='darwin' else 1024)}
