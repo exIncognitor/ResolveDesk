@@ -214,7 +214,6 @@ async def test_formal_quality_uses_isolated_postgres_redis_chroma_and_non_demo_d
         assert len(report['results'][0]['turns'])==1 and report['results'][0]['turns'][0]['judge']['attempts']==1
         assert {r['document_id'] for r in manifest['evidence']}=={'policy'}
         with postgres_store.db() as db:assert db.execute('SELECT COUNT(*) FROM runs').fetchone()[0]==0
-        svc.resume if False else None
     finally:
         await svc.close()
         # Only this test's UUID resources and verified sandbox marker may be removed.
