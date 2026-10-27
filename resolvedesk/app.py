@@ -360,9 +360,10 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         return Response(request.app.state.agent.monitor.prometheus(p),media_type="text/plain; version=0.0.4")
 
     @app.get("/trace/tool/{run_id}")
-    def trace(run_id:str,request:Request,p=Depends(principal)):
-        current=request.app.state.store.get_run(p,run_id)
+    def trace(run_id:str,request:Request,turn_key:str|None=None,p=Depends(principal)):
+        current=request.app.state.store.get_turn(p,run_id,turn_key) if turn_key else request.app.state.store.get_run(p,run_id)
         events = request.app.state.store.events(p,run_id,current['event_cursor'])
+        if current["status"]in TERMINAL:events=[event for event in events if event["seq"]<=current["event_end"]]
         calls = [dict(e["payload"],tool_name=e["payload"].get("name"),input={}) for e in events if e["kind"]=="tool_result"]
         return {"request_id":run_id,"found":True,"trace":{"tool_calls":calls,"tools_used":[c["tool_name"] for c in calls],"events":events}}
 

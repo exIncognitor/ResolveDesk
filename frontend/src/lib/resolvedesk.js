@@ -72,9 +72,13 @@ export async function requestChat(_,s,message,{onEvent=()=>{},isCurrent=()=>true
   if(!isCurrent())return null
   run=await deskRequest(s,`/runs/${run.id}/turns/${encodeURIComponent(turnKey)}`)
   for(const alias of attempt.keys)if(attempts.get(alias)===attempt)attempts.delete(alias)
-  const trace=await deskRequest(s,`/trace/tool/${run.id}`)
+  const trace=await deskRequest(s,`/trace/tool/${run.id}?turn_key=${encodeURIComponent(turnKey)}`)
   const turnEvents=trace.trace.events.filter(e=>e.seq>=(run.event_cursor||0)&&e.seq<=(run.event_end||Infinity))
   const route=turnEvents.filter(e=>e.kind==='routing').at(-1)?.payload||{}
-  return {conversationId:run.id,requestId:run.id,response:run.answer,intent:route.intent||'other',primaryAgent:route.primary||'general',agentType:route.primary||'general',
-    supportingAgents:route.supporting||[],routingReason:route.reason||'',routingConfidence:route.confidence||0,knowledgeUsed:turnEvents.some(e=>e.kind==='retrieval'),raw:run}
+  const outcome=turnEvents.filter(e=>e.kind==='execution_outcome').at(-1)?.payload||{}
+  const actual=outcome.actual_roles||[route.primary||'general']
+  return {conversationId:run.id,requestId:run.id,response:run.answer,intent:route.intent||'other',fineIntent:route.fine_intent,
+    primaryAgent:actual[0],agentType:actual[0],requestedAgent:route.primary||'general',supportingAgents:actual.slice(1),
+    executionStatus:outcome.status||run.status,escalated:!!outcome.escalated,latencyMs:run.latency_ms??null,
+    routingReason:route.reason||'',routingConfidence:route.confidence||0,knowledgeUsed:turnEvents.some(e=>e.kind==='retrieval'),raw:run}
 }

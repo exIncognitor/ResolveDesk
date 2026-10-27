@@ -43,7 +43,7 @@
           </span>
           <div>
             <strong>生成回复</strong>
-            <p>{{ busy ? '等待回复' : lastResponse ? lastResponse.escalated ? '已转人工处理' : '回复已生成' : '等待新的请求' }}</p>
+            <p>{{ busy ? '等待回复' : lastResponse ? lastResponse.escalated ? '需人工核验，尚未连接真实人工队列' : lastResponse.executionStatus === 'partial' ? '部分服务降级，已保留处理状态' : '回复已生成' : '等待新的请求' }}</p>
           </div>
         </li>
       </ol>
@@ -51,8 +51,8 @@
         <div>
           <span>响应耗时</span>
           <strong>
-            {{ lastResponse ? lastResponse.latencyMs : '—' }}
-            <small v-if="lastResponse"> ms</small>
+            {{ lastResponse?.latencyMs ?? '—' }}
+            <small v-if="lastResponse?.latencyMs != null"> ms</small>
           </strong>
         </div>
         <div>

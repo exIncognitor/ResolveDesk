@@ -105,9 +105,10 @@ async def main():
                 for opinion in result["specialist_opinions"]:
                     checks={"status":opinion["status"]=="success","rag":"search_knowledge_base"in opinion["tools_used"],
                         "mcp":"mcp_support_support_checklist"in opinion["tools_used"],"no_write":not store.list_tickets(learner)}
-                    if opinion["role"]=="billing":checks["it_native"]="check_license_request"in opinion["tools_used"]
+                    if opinion["role"]=="billing":checks["it_native"]=bool({"check_license_request","read_business_catalog"}&set(opinion["tools_used"]))
                     details.append({"case":"autonomous-"+opinion["requested_role"],"passed":all(checks.values()),"checks":checks,"opinion":opinion,"simulation":True})
                 print(json.dumps({"autonomous_experts":len(details),"passed":sum(r["passed"] for r in details)},ensure_ascii=False),flush=True)
+                if len(details)!=2 or not all(r["passed"] for r in details):raise AssertionError("Autonomous expert tool verification failed")
                 return
             cases=[
                 {"id":"network","message":"Windows 11的VPN提示错误691，普通网页正常。请依据知识库给出排查步骤，不要创建工单。","domain":"network_endpoint","statuses":["completed"],"roles":["technical"],"citation":True},

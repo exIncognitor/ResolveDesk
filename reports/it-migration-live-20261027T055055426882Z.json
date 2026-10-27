@@ -1,0 +1,298 @@
+{
+  "kind": "current_asgi_real_it_migration",
+  "simulation": true,
+  "schema": "verify_it_430eb8a48dbb4230877e712cad90e159",
+  "collection": "verify-it-430eb8a48dbb4230877e712cad90e159",
+  "passed": 2,
+  "total": 2,
+  "results": [
+    {
+      "case": "autonomous-technical",
+      "passed": true,
+      "checks": {
+        "status": true,
+        "rag": true,
+        "mcp": true,
+        "no_write": true
+      },
+      "opinion": {
+        "requested_role": "technical",
+        "role": "technical",
+        "status": "success",
+        "success": true,
+        "answer": "**VPN 连接超时（网络节点）**\n1. 先确认普通网页能否访问，再切换网络重连 VPN；记录报错时间、客户端版本和错误码，不要关闭防火墙或安装来源不明的证书 [C-dc1a15ac6ad9e853b7ec98bd]。\n2. 若外网正常但内网域名失败，核对 VPN 状态与企业 DNS 策略，不要自行切换公共 DNS [C-fa349443e61994260faef2f1]。\n3. 持续超时可建 network 类工单，需附错误码、发生时间、普通网络是否正常、已尝试的网络切换（MCP 清单要求），提交需你确认。\n\n**IDEA Ultimate 席位（软件节点）**\n1. 目录显示该产品为模拟库存 2 个席位，需主管审批后由 IT 分配；个人购买不自动报销 [C-69a4d871530d295318e3438c]。\n2. 申请需提供产品、工作用途、使用期限和主管审批；本系统只查询与记录，不购买或分配真实许可证，无席位时进入采购审核 [C-69a4d871530d295318e3438c]。\n3. 软件清单还需版本、操作系统、错误摘要、最近变更；勿粘贴授权码 [C-cb11e78911031e8c88a1b0c2]。\n\n**边界**：未提交任何工单或申请，也未开通权限；审批与分配需人工处理。",
+        "fallback": false,
+        "escalate": false,
+        "tools_used": [
+          "search_knowledge_base",
+          "search_knowledge_base",
+          "mcp_support_support_checklist",
+          "mcp_support_support_checklist",
+          "read_business_catalog"
+        ],
+        "tool_traces": [
+          {
+            "agent_type": "technical",
+            "tool_name": "search_knowledge_base",
+            "tool_use_id": "call_00_xgqbwWs2TgPYwgy0RLiV0800",
+            "input": {
+              "query": "VPN 连接超时 排查 外网 企业DNS 认证",
+              "top_k": 3
+            },
+            "success": true,
+            "result_success": null,
+            "latency_ms": 47.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          },
+          {
+            "agent_type": "technical",
+            "tool_name": "search_knowledge_base",
+            "tool_use_id": "call_01_XLOW7etTa7VjbeTtkQgx1036",
+            "input": {
+              "query": "IDEA Ultimate 授权席位 申请 软件许可",
+              "top_k": 3
+            },
+            "success": true,
+            "result_success": null,
+            "latency_ms": 63.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          },
+          {
+            "agent_type": "technical",
+            "tool_name": "mcp_support_support_checklist",
+            "tool_use_id": "call_02_E854HiXoVaIFSK0PYmqd5052",
+            "input": {
+              "category": "network"
+            },
+            "success": true,
+            "result_success": null,
+            "latency_ms": 0.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          },
+          {
+            "agent_type": "technical",
+            "tool_name": "mcp_support_support_checklist",
+            "tool_use_id": "call_03_OzGZlXrQbui87hH8enOx9234",
+            "input": {
+              "category": "software"
+            },
+            "success": true,
+            "result_success": null,
+            "latency_ms": 0.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          },
+          {
+            "agent_type": "technical",
+            "tool_name": "read_business_catalog",
+            "tool_use_id": "call_04_VEsEoV8BheDrStHFCMa17917",
+            "input": {},
+            "success": true,
+            "result_success": null,
+            "latency_ms": 15.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          }
+        ],
+        "latency_ms": 3844.0,
+        "error_code": null
+      },
+      "simulation": true
+    },
+    {
+      "case": "autonomous-billing",
+      "passed": true,
+      "checks": {
+        "status": true,
+        "rag": true,
+        "mcp": true,
+        "no_write": true,
+        "it_native": true
+      },
+      "opinion": {
+        "requested_role": "billing",
+        "role": "billing",
+        "status": "success",
+        "success": true,
+        "answer": "**网络节点（VPN 超时）**\n1. 先确认普通网页可访问，再切换网络重连 VPN；记录报错时间、客户端版本与错误码，不要关闭防火墙或安装来源不明的证书 [C-dc1a15ac6ad9e853b7ec98bd]。\n2. 若外网正常而内网域名失败，核对 VPN 状态与企业 DNS 策略，勿自行改用公共 DNS [C-fa349443e61994260faef2f1]。\n3. 持续超时可登记 network 类工单（需你确认），附错误码、发生时间、普通网络是否正常、已尝试的网络切换。\n\n**软件节点（IDEA Ultimate 席位）**\n1. 该产品使用企业命名用户席位，模拟目录显示 2 个可用席位，需主管审批后由 IT 分配；申请须写明产品与版本、业务用途、使用期限 [C-69a4d871530d295318e3438c]。\n2. 本系统仅能查询与记录申请，不自动采购或分配真实许可证；无席位时进入采购审核，无法承诺开通时间。个人购买不自动报销 [C-cb11e78911031e8c88a1b0c2]。\n3. 请勿共享命名用户席位或提供激活密钥；离职、转岗须人工核验回收。\n\n**缺失信息**：VPN 错误码/时间/客户端版本；IDEA 使用期限与主管审批状态。未提交任何工单或授权变更。",
+        "fallback": false,
+        "escalate": false,
+        "tools_used": [
+          "search_knowledge_base",
+          "search_knowledge_base",
+          "read_business_catalog",
+          "check_license_request",
+          "mcp_support_support_checklist",
+          "mcp_support_support_checklist"
+        ],
+        "tool_traces": [
+          {
+            "agent_type": "billing",
+            "tool_name": "search_knowledge_base",
+            "tool_use_id": "call_00_ZEVQxkhwe7N6WpQLFsNC8515",
+            "input": {
+              "query": "VPN 连接超时 排查 网络接入",
+              "top_k": 3
+            },
+            "success": true,
+            "result_success": null,
+            "latency_ms": 47.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          },
+          {
+            "agent_type": "billing",
+            "tool_name": "search_knowledge_base",
+            "tool_use_id": "call_01_fiIwRyjsoPwgErxzmQxC5626",
+            "input": {
+              "query": "IntelliJ IDEA Ultimate 授权 席位 申请 审批",
+              "top_k": 3
+            },
+            "success": true,
+            "result_success": null,
+            "latency_ms": 63.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          },
+          {
+            "agent_type": "billing",
+            "tool_name": "read_business_catalog",
+            "tool_use_id": "call_02_BGndj0Geqhz8XhQfZBIA0614",
+            "input": {},
+            "success": true,
+            "result_success": null,
+            "latency_ms": 0.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          },
+          {
+            "agent_type": "billing",
+            "tool_name": "check_license_request",
+            "tool_use_id": "call_03_mOpdeAOXStyYzFlfNT146046",
+            "input": {
+              "product": "IntelliJ IDEA Ultimate",
+              "purpose": "Java 开发使用"
+            },
+            "success": true,
+            "result_success": null,
+            "latency_ms": 15.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          },
+          {
+            "agent_type": "billing",
+            "tool_name": "mcp_support_support_checklist",
+            "tool_use_id": "call_04_bLuZcJQ2xMh5FJBALkBG2423",
+            "input": {
+              "category": "network"
+            },
+            "success": true,
+            "result_success": null,
+            "latency_ms": 0.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          },
+          {
+            "agent_type": "billing",
+            "tool_name": "mcp_support_support_checklist",
+            "tool_use_id": "call_05_058AFRTqZg5VN606JnHK4377",
+            "input": {
+              "category": "software"
+            },
+            "success": true,
+            "result_success": null,
+            "latency_ms": 0.0,
+            "cached": false,
+            "reranked": false,
+            "error": "",
+            "source": "local",
+            "mcp_server": null,
+            "mcp_tool": null,
+            "retry_safe": true
+          }
+        ],
+        "latency_ms": 4328.0,
+        "error_code": null
+      },
+      "simulation": true
+    }
+  ],
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.27318",
+    "available_cny": "16.72682",
+    "calls": {
+      "settled": 286
+    },
+    "usage_input_tokens": 518066,
+    "usage_output_tokens": 29631,
+    "unresolved_reservation_cny": "0"
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.30416",
+    "available_cny": "16.69584",
+    "calls": {
+      "settled": 291
+    },
+    "usage_input_tokens": 528648,
+    "usage_output_tokens": 30858,
+    "unresolved_reservation_cny": "0"
+  },
+  "dependencies": "real PostgreSQL Redis Chroma pinned local E5 stdio MCP; only Flash uses paid API"
+}

@@ -95,3 +95,22 @@ test('quality submission preserves options and returns job identity for baseline
  const result=await runEvaluation('python',{backend:'python',pythonToken:'operator',endpoints:{python:''}},{kind:'quality',limit:2})
  assert.equal(result.job_id,'quality-job');assert.equal(result.passed,2)
 })
+
+test('inspector uses actual fallback role and retains planned role and partial status',async t=>{
+ const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)
+ const s={pythonToken:'fallback-token',conversationId:'fallback-run',endpoints:{python:''}}
+ globalThis.fetch=async(url,options)=>{
+  const final={id:'fallback-run',status:'completed',answer:'fallback answer',event_cursor:1,event_end:5}
+  if(options.method==='POST')return Response.json({...final,status:'queued'})
+  if(url.includes('/events?'))return new Response('id: 5\nevent: completed\ndata: {}\n\n')
+  if(url.includes('/trace/tool/')){
+   assert.ok(url.includes('turn_key='))
+   return Response.json({trace:{events:[{seq:2,kind:'routing',payload:{primary:'technical',confidence:.79}},{seq:4,kind:'execution_outcome',payload:{status:'partial',actual_roles:['general'],escalated:false}}]}})
+  }
+  return Response.json(final)
+ }
+ const result=await requestChat('python',s,'fallback message')
+ assert.equal(result.primaryAgent,'general');assert.equal(result.requestedAgent,'technical')
+ assert.equal(result.executionStatus,'partial');assert.equal(result.routingConfidence,.79)
+ assert.equal(result.latencyMs,null)
+})

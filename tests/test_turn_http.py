@@ -36,6 +36,9 @@ def test_http_requires_reply_key_and_limits_replay_to_original_turn(tmp_path):
         assert replay["replayed"] and replay["answer"] == "reply answer"
         stream = client.get(f"/runs/{run['id']}/events?turn_key=reply-key").text
         assert 'reply answer' in stream and 'later answer' not in stream
+        trace=client.get(f"/trace/tool/{run['id']}?turn_key=reply-key").json()["trace"]["events"]
+        assert any(e["payload"].get("answer")=="reply answer" for e in trace)
+        assert not any(e["payload"].get("answer")=="later answer" for e in trace)
         assert original["event_end"] < store.get_run(USER,run["id"])["event_end"]
     store.close()
 
