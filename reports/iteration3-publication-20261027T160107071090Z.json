@@ -1,0 +1,1317 @@
+{
+  "import": {
+    "results": [
+      {
+        "document_id": "ref-entra-sspr",
+        "version": "40e49850c839f46f",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-entra-mfa",
+        "version": "538eb0a6818f059a",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-entra-signin",
+        "version": "0b5c13d8d51af7fc",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-entra-conditional",
+        "version": "a9bd47fdfd1df5ee",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-entra-least-privilege",
+        "version": "0cccd7fc1ef38ac7",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-entra-revoke",
+        "version": "7f3770bfe8dc810e",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-dns-client",
+        "version": "77ae325049148a8a",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-dns-tests",
+        "version": "9a4d9c2596aa1350",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-nslookup",
+        "version": "794871c253907972",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-tcp-connect",
+        "version": "a76b62c514c81ad2",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-vpn-691",
+        "version": "5f9904dbb03e3fa4",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-winhttp-proxy",
+        "version": "a43ea5761fb36c07",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-idea-register",
+        "version": "884485f0797637b3",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-idea-plugins",
+        "version": "6c83e292b6772e0d",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-idea-proxy",
+        "version": "2e028a332a447e38",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-vault-requirements",
+        "version": "0ade8db7d38d8f29",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-vault-revoke",
+        "version": "34b24b823c6d9081",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-vault-capacity",
+        "version": "06d45a8a347b41d8",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-surface-battery",
+        "version": "9ec4ac23f729d4a4",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-battery-report",
+        "version": "892e6c4518d44987",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-bitlocker-key",
+        "version": "672be5ddff53a425",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-surface-service",
+        "version": "2a77cded1c650894",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-device-manager",
+        "version": "7f4782a6801bdab7",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-surface-startup",
+        "version": "b89deb64914de4ea",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-python-venv",
+        "version": "089bb47cad6ab395",
+        "chunks": 1,
+        "index_pending": false
+      },
+      {
+        "document_id": "ref-pip-resolver",
+        "version": "dfd59d52318b1624",
+        "chunks": 1,
+        "index_pending": false
+      }
+    ],
+    "documents": 26,
+    "added_chunks": 26,
+    "total_chunks": 36,
+    "atomic_sql": true
+  },
+  "original_versions_preserved": [
+    {
+      "document_id": "access",
+      "version": "fe00efc3eac1aadb"
+    },
+    {
+      "document_id": "devices",
+      "version": "a6dfd6ba2e55c7be"
+    },
+    {
+      "document_id": "endpoint",
+      "version": "f4f428a215f552e1"
+    },
+    {
+      "document_id": "licensing",
+      "version": "6fa7ddc3120e8d1c"
+    },
+    {
+      "document_id": "permissions",
+      "version": "d9f9b4c1a4abb646"
+    },
+    {
+      "document_id": "software",
+      "version": "3a9bb44ef18a4981"
+    },
+    {
+      "document_id": "software_seat_lifecycle",
+      "version": "d07df10adeceb758"
+    },
+    {
+      "document_id": "vpn",
+      "version": "d1e9cfc6af2a42ee"
+    }
+  ],
+  "publications": [
+    {
+      "tenant": "demo",
+      "document_id": "access",
+      "metadata": {
+        "applicability": [
+          "ResolveDesk 模拟企业环境"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "simulated_policy",
+        "source_checked_on": "2026-10-27",
+        "source_urls": []
+      },
+      "revision": 2,
+      "content_version": "fe00efc3eac1aadb",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116863.759813,
+      "note": "Assistant labeled unchanged original handbook as simulated policy under user authorization; no claim of real enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116863.759813,
+      "version": "fe00efc3eac1aadb",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "账号与权限申请（演示知识库）",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "devices",
+      "metadata": {
+        "applicability": [
+          "ResolveDesk 模拟企业环境"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "simulated_policy",
+        "source_checked_on": "2026-10-27",
+        "source_urls": []
+      },
+      "revision": 2,
+      "content_version": "a6dfd6ba2e55c7be",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116863.89528,
+      "note": "Assistant labeled unchanged original handbook as simulated policy under user authorization; no claim of real enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116863.89528,
+      "version": "a6dfd6ba2e55c7be",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "设备资产与维修服务（模拟企业制度）",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "endpoint",
+      "metadata": {
+        "applicability": [
+          "ResolveDesk 模拟企业环境"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "simulated_policy",
+        "source_checked_on": "2026-10-27",
+        "source_urls": []
+      },
+      "revision": 2,
+      "content_version": "f4f428a215f552e1",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116864.029589,
+      "note": "Assistant labeled unchanged original handbook as simulated policy under user authorization; no claim of real enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116864.029589,
+      "version": "f4f428a215f552e1",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "网络与终端排障（模拟企业制度）",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "licensing",
+      "metadata": {
+        "applicability": [
+          "ResolveDesk 模拟企业环境"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "simulated_policy",
+        "source_checked_on": "2026-10-27",
+        "source_urls": []
+      },
+      "revision": 2,
+      "content_version": "6fa7ddc3120e8d1c",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116864.165216,
+      "note": "Assistant labeled unchanged original handbook as simulated policy under user authorization; no claim of real enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116864.165216,
+      "version": "6fa7ddc3120e8d1c",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "软件授权与席位（模拟企业制度）",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "permissions",
+      "metadata": {
+        "applicability": [
+          "ResolveDesk 模拟企业环境"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "simulated_policy",
+        "source_checked_on": "2026-10-27",
+        "source_urls": []
+      },
+      "revision": 2,
+      "content_version": "d9f9b4c1a4abb646",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116864.361474,
+      "note": "Assistant labeled unchanged original handbook as simulated policy under user authorization; no claim of real enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116864.361474,
+      "version": "d9f9b4c1a4abb646",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "权限审批与审计（模拟企业制度）",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-battery-report",
+      "metadata": {
+        "applicability": [
+          "Windows powercfg；兼容设备"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options"
+        ]
+      },
+      "revision": 2,
+      "content_version": "892e6c4518d44987",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116864.50268,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116864.50268,
+      "version": "892e6c4518d44987",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Windows电池报告与续航记录",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-bitlocker-key",
+      "metadata": {
+        "applicability": [
+          "Windows 11；组织管理设备"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/windows/security/encryption/find-your-bitlocker-recovery-key"
+        ]
+      },
+      "revision": 2,
+      "content_version": "672be5ddff53a425",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116864.58614,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116864.58614,
+      "version": "672be5ddff53a425",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "BitLocker恢复密钥的官方查找途径",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-device-manager",
+      "metadata": {
+        "applicability": [
+          "受支持的Windows客户端"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/windows/hardware/drivers/error-codes-in-device-manager-in-windows"
+        ]
+      },
+      "revision": 2,
+      "content_version": "7f4782a6801bdab7",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116864.680823,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116864.680823,
+      "version": "7f4782a6801bdab7",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Windows设备管理器错误信息收集",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-dns-client",
+      "metadata": {
+        "applicability": [
+          "Windows 11；受支持的Windows客户端"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/troubleshoot-dns-client-resolution-issues"
+        ]
+      },
+      "revision": 2,
+      "content_version": "77ae325049148a8a",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116864.763814,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116864.763814,
+      "version": "77ae325049148a8a",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Windows DNS客户端解析失败",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-dns-tests",
+      "metadata": {
+        "applicability": [
+          "Windows DNS客户端/服务器诊断"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client"
+        ]
+      },
+      "revision": 2,
+      "content_version": "9a4d9c2596aa1350",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116864.84964,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116864.84964,
+      "version": "9a4d9c2596aa1350",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "DNS短名与完整域名对照测试",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-entra-conditional",
+      "metadata": {
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access"
+        ]
+      },
+      "revision": 2,
+      "content_version": "a9bd47fdfd1df5ee",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116864.930919,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116864.930919,
+      "version": "a9bd47fdfd1df5ee",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Entra条件访问与设备合规阻断",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-entra-least-privilege",
+      "metadata": {
+        "applicability": [
+          "Microsoft Entra RBAC"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/best-practices"
+        ]
+      },
+      "revision": 2,
+      "content_version": "0cccd7fc1ef38ac7",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.014433,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.014433,
+      "version": "0cccd7fc1ef38ac7",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Entra最小权限与限时角色",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-entra-mfa",
+      "metadata": {
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userdevicesettings"
+        ]
+      },
+      "revision": 2,
+      "content_version": "538eb0a6818f059a",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.097804,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.097804,
+      "version": "538eb0a6818f059a",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Entra更换MFA手机与认证方式",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-entra-revoke",
+      "metadata": {
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/users/users-revoke-access"
+        ]
+      },
+      "revision": 2,
+      "content_version": "7f3770bfe8dc810e",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.193307,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.193307,
+      "version": "7f3770bfe8dc810e",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Entra会话撤销与应用访问回收",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-entra-signin",
+      "metadata": {
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/monitoring-health/howto-troubleshoot-sign-in-errors"
+        ]
+      },
+      "revision": 2,
+      "content_version": "0b5c13d8d51af7fc",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.286238,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.286238,
+      "version": "0b5c13d8d51af7fc",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Entra登录错误的脱敏取证",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-entra-sspr",
+      "metadata": {
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/authentication/troubleshoot-sspr"
+        ]
+      },
+      "revision": 2,
+      "content_version": "40e49850c839f46f",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.368178,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.368178,
+      "version": "40e49850c839f46f",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Entra自助密码重置失败",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-idea-plugins",
+      "metadata": {
+        "applicability": [
+          "IntelliJ IDEA 2026.2文档"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://www.jetbrains.com/help/idea/managing-plugins.html"
+        ]
+      },
+      "revision": 2,
+      "content_version": "6c83e292b6772e0d",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.449859,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.449859,
+      "version": "6c83e292b6772e0d",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "IDEA插件授权与兼容性检查",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-idea-proxy",
+      "metadata": {
+        "applicability": [
+          "IntelliJ IDEA 2026.2文档"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://www.jetbrains.com/help/idea/settings-http-proxy.html"
+        ]
+      },
+      "revision": 2,
+      "content_version": "2e028a332a447e38",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.535372,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.535372,
+      "version": "2e028a332a447e38",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "IDEA许可证检查与IDE代理",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-idea-register",
+      "metadata": {
+        "applicability": [
+          "IntelliJ IDEA 2026.2文档"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://www.jetbrains.com/help/idea/register.html"
+        ]
+      },
+      "revision": 2,
+      "content_version": "884485f0797637b3",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.614619,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.614619,
+      "version": "884485f0797637b3",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "IDEA产品激活方式与授权核验",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-nslookup",
+      "metadata": {
+        "applicability": [
+          "Windows 11/Windows Server"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/nslookup"
+        ]
+      },
+      "revision": 2,
+      "content_version": "794871c253907972",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.70368,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.70368,
+      "version": "794871c253907972",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "nslookup指定DNS服务器只读检查",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-pip-resolver",
+      "metadata": {
+        "applicability": [
+          "pip 26.2.2文档；适用其依赖解析机制"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://pip.pypa.io/en/stable/topics/dependency-resolution/"
+        ]
+      },
+      "revision": 2,
+      "content_version": "dfd59d52318b1624",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.792615,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.792615,
+      "version": "dfd59d52318b1624",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "pip依赖回溯与冲突排查",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-python-venv",
+      "metadata": {
+        "applicability": [
+          "Python 3.12；Windows/POSIX"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://docs.python.org/3.12/library/venv.html"
+        ]
+      },
+      "revision": 2,
+      "content_version": "089bb47cad6ab395",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.878098,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.878098,
+      "version": "089bb47cad6ab395",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Python3.12虚拟环境与解释器核对",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-surface-battery",
+      "metadata": {
+        "applicability": [
+          "Microsoft Surface；按具体型号核对"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/surface/battery/caring-for-your-surface-battery"
+        ]
+      },
+      "revision": 2,
+      "content_version": "9ec4ac23f729d4a4",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116865.967863,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116865.967863,
+      "version": "9ec4ac23f729d4a4",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Surface电池膨胀的停止使用边界",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-surface-service",
+      "metadata": {
+        "applicability": [
+          "Microsoft Surface厂商送修"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/surface/service-repair/how-to-prepare-your-surface-for-service"
+        ]
+      },
+      "revision": 2,
+      "content_version": "2a77cded1c650894",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.069187,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.069187,
+      "version": "2a77cded1c650894",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Surface送修前的数据与配件准备",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-surface-startup",
+      "metadata": {
+        "applicability": [
+          "Microsoft Surface；按具体型号核对"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/surface/startup/surface-won-t-turn-on-or-start"
+        ]
+      },
+      "revision": 2,
+      "content_version": "b89deb64914de4ea",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.167443,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.167443,
+      "version": "b89deb64914de4ea",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Surface不能开机的低风险分诊",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-tcp-connect",
+      "metadata": {
+        "applicability": [
+          "Windows PowerShell NetTCPIP"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection?view=windowsserver2025-ps"
+        ]
+      },
+      "revision": 2,
+      "content_version": "a76b62c514c81ad2",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.255897,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.255897,
+      "version": "a76b62c514c81ad2",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Test-NetConnection核验TCP连接",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-vault-capacity",
+      "metadata": {
+        "applicability": [
+          "JetBrains License Vault Cloud独立产品"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://www.jetbrains.com/help/license-vault-cloud/Notifications.html"
+        ]
+      },
+      "revision": 2,
+      "content_version": "06d45a8a347b41d8",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.358291,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.358291,
+      "version": "06d45a8a347b41d8",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "License Vault容量通知与采购边界",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-vault-requirements",
+      "metadata": {
+        "applicability": [
+          "JetBrains License Vault Cloud独立产品"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://www.jetbrains.com/help/license-vault-cloud/Requirements.html"
+        ]
+      },
+      "revision": 2,
+      "content_version": "0ade8db7d38d8f29",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.455065,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.455065,
+      "version": "0ade8db7d38d8f29",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "License Vault支持的许可证类型",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-vault-revoke",
+      "metadata": {
+        "applicability": [
+          "JetBrains License Vault Cloud独立产品"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://www.jetbrains.com/help/license-vault-cloud/Revoking_licenses.html"
+        ]
+      },
+      "revision": 2,
+      "content_version": "34b24b823c6d9081",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.488571,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.488571,
+      "version": "34b24b823c6d9081",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "License Vault回收与再次获取区别",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-vpn-691",
+      "metadata": {
+        "applicability": [
+          "Windows RRAS；MS-CHAPv2场景"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/rras-vpn-connections-fail-ms-chapv2-authentication"
+        ]
+      },
+      "revision": 2,
+      "content_version": "5f9904dbb03e3fa4",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.595858,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.595858,
+      "version": "5f9904dbb03e3fa4",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "RRAS VPN错误691与认证协议",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "ref-winhttp-proxy",
+      "metadata": {
+        "applicability": [
+          "Windows WinHTTP"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "technical_reference",
+        "source_checked_on": "2026-10-27",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh-winhttp"
+        ]
+      },
+      "revision": 2,
+      "content_version": "a43ea5761fb36c07",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.690862,
+      "note": "Assistant reviewed official-source paraphrase under user authorization; technical reference, not enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.690862,
+      "version": "a43ea5761fb36c07",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "Windows WinHTTP代理只读核对",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "software",
+      "metadata": {
+        "applicability": [
+          "ResolveDesk 模拟企业环境"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "simulated_policy",
+        "source_checked_on": "2026-10-27",
+        "source_urls": []
+      },
+      "revision": 2,
+      "content_version": "3a9bb44ef18a4981",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.777885,
+      "note": "Assistant labeled unchanged original handbook as simulated policy under user authorization; no claim of real enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.777885,
+      "version": "3a9bb44ef18a4981",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "开发工具故障（演示知识库）",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "software_seat_lifecycle",
+      "metadata": {
+        "applicability": [
+          "ResolveDesk 模拟企业环境"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "simulated_policy",
+        "source_checked_on": "2026-10-27",
+        "source_urls": []
+      },
+      "revision": 2,
+      "content_version": "d07df10adeceb758",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.871022,
+      "note": "Assistant labeled unchanged original handbook as simulated policy under user authorization; no claim of real enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.871022,
+      "version": "d07df10adeceb758",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "软件席位生命周期（新增本地模拟流程）",
+      "readable": true
+    },
+    {
+      "tenant": "demo",
+      "document_id": "vpn",
+      "metadata": {
+        "applicability": [
+          "ResolveDesk 模拟企业环境"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "effective_from": 1793059200.0,
+        "expires_at": 1800835200.0,
+        "material_type": "simulated_policy",
+        "source_checked_on": "2026-10-27",
+        "source_urls": []
+      },
+      "revision": 2,
+      "content_version": "d1e9cfc6af2a42ee",
+      "state": "published",
+      "reviewer": "support",
+      "reviewed": 1793116866.967638,
+      "note": "Assistant labeled unchanged original handbook as simulated policy under user authorization; no claim of real enterprise policy.",
+      "effective_from": 1793059200.0,
+      "expires_at": 1800835200.0,
+      "updated": 1793116866.967638,
+      "version": "d1e9cfc6af2a42ee",
+      "visibility": "tenant",
+      "owner": "support",
+      "title": "VPN 连接故障（演示知识库）",
+      "readable": true
+    }
+  ],
+  "index": {
+    "done": 0,
+    "failed": 0,
+    "pending": 0
+  },
+  "backup": ".codex-runtime\\checkpoints\\eval-retention-20261027T160055984116Z-f4428f32\\resolvedesk.dump",
+  "backup_sha256": "f3fc0895c8ae5afbe7c90d7b1c4e01c9cae94367418e65d1ce5ce5bf9648fa6e",
+  "paid_calls": 0,
+  "note": "Original title/content/version preserved. Only demo tenant authored references and eight original demos reviewed. Financial ledger must never be rewound during recovery."
+}

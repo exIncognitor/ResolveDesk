@@ -1,0 +1,51 @@
+{
+  "base": "http://127.0.0.1:8080",
+  "mapping": {
+    "GET /health": "GET /health",
+    "GET /skills": "GET /skills",
+    "POST /skills/reload": "POST /skills/reload",
+    "POST /chat": "POST /runs",
+    "GET /monitor": "GET /monitor",
+    "GET /trace/tool/{request_id}": "GET /trace/tool/{run_id}",
+    "GET /trace/tools": "GET /trace/tools",
+    "GET /metrics": "GET /metrics",
+    "POST /search": "POST /knowledge/search",
+    "POST /knowledge/add": "POST /knowledge/add",
+    "POST /knowledge/upload": "POST /knowledge/upload",
+    "GET /knowledge/stats": "GET /knowledge/stats",
+    "POST /eval/run": "POST /eval/run",
+    "GET /eval/jobs/{job_id}": "GET /eval/jobs/{job_id}",
+    "GET /integrations/embedding": "GET /integrations/embedding",
+    "GET /integrations/mcp": "GET /integrations/mcp",
+    "POST /integrations/mcp/call": "POST /integrations/mcp/call"
+  },
+  "checks": {
+    "all_seventeen_have_current_replacement": true,
+    "server_multipart_schema": true,
+    "intent_alias_is_current": true,
+    "recent_owner_scope": true,
+    "batch_requires_support": true,
+    "batch_validation": true,
+    "gateway_allows_more_than_old_one_mib": true,
+    "server_ten_mib_boundary": true,
+    "real_interactive_cli_reads_current_server": true,
+    "cli_does_not_print_api_token": true,
+    "no_paid_calls": true
+  },
+  "passed": 11,
+  "total": 11,
+  "paid_budget_changed": false,
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "8.864576",
+    "available_cny": "9.135424",
+    "calls": {
+      "settled": 1931
+    },
+    "usage_input_tokens": 3741532,
+    "usage_output_tokens": 172689,
+    "unresolved_reservation_cny": "0"
+  },
+  "cli_exit_code": 0
+}
