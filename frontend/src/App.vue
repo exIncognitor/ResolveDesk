@@ -338,6 +338,7 @@
           </button>
         </div>
         <section class="workspace-card"><h2>负反馈回归候选</h2><button class="text-button" @click="loadCandidates">加载候选（客服）</button><label>期望文档 ID<input v-model="expectedDocument" /></label><label>期望章节<input v-model="expectedSection" /></label><p v-for="c in candidates" :key="c.run_id">{{ c.question }} <button :disabled="!expectedDocument || !expectedSection" @click="promoteCandidate(c.run_id)">审核并加入回归</button></p></section>
+        <section class="workspace-card"><h2>评测任务记录</h2><button @click="loadEvaluationJobs">加载记录（客服）</button><p v-for="job in evaluationJobs" :key="job.job_id">{{ job.options.kind || 'retrieval' }} · {{ job.status }} · {{ job.completed }}/{{ job.total }} <button @click="openEvaluationJob(job)" :disabled="busy">查看结果</button><button v-if="['paused','failed'].includes(job.status)" @click="continueEvaluationJob(job)" :disabled="busy">重新执行该任务（质量评测会产生模型费用）</button></p></section>
         <div v-if="evalData" class="evaluation-content">
           <p v-if="evalData.kind === 'active_service_quality'">{{ evalData.provenance }} · 意图样本 {{ evalData.intent?.samples }} 条 · 对话 {{ evalData.total }} 组。评分错误不会记为有效评分。</p>
           <button v-if="evalData.kind === 'active_service_quality' && evalData.job_id" @click="saveQualityBaseline" :disabled="busy || evalData.evaluation_errors > 0 || evalData.passed !== evalData.total">将当前报告设为回归基线（客服）</button>
@@ -504,6 +505,7 @@ import {
   uploadKnowledge
 } from './lib/resolvedesk'
 import { deskRequest, consumeEvents } from './lib/resolvedesk'
+import { pollEvaluation } from './lib/evaluationJobs'
 
 import AppIcon from './components/AppIcon.vue'
 import RequestInspector from './components/RequestInspector.vue'
@@ -556,6 +558,7 @@ const lastResponse = ref(null)
 const lastTrace = ref(null)
 const evalData = ref(null)
 const evaluationKind = ref('retrieval')
+const evaluationJobs = ref([])
 const toast = ref('')
 let toastTimer
 let messageSequence = 0
@@ -869,6 +872,31 @@ async function saveQualityBaseline() {
     await deskRequest(request.settings, `/eval/jobs/${evalData.value.job_id}/baseline`, 'POST')
     if (request.isCurrent()) showToast('已保存人工选定的质量基线')
   } catch (error) { if (request.isCurrent()) showToast(error.message) }
+}
+
+async function loadEvaluationJobs() {
+  const request = requestState.begin('evaluation-jobs')
+  try { const data = await deskRequest(request.settings, '/eval/jobs'); if (request.isCurrent()) evaluationJobs.value = data }
+  catch (error) { if (request.isCurrent()) showToast(error.message) }
+}
+
+async function openEvaluationJob(job) {
+  const request = requestState.begin('evaluation-result')
+  try {
+    const data = await deskRequest(request.settings, `/eval/jobs/${job.job_id}`)
+    if (request.isCurrent()) { evalData.value = data.result ? { ...data.result, job_id: job.job_id } : null; statusText.value = `任务 ${job.job_id}：${data.status}` }
+  } catch (error) { if (request.isCurrent()) showToast(error.message) }
+}
+
+async function continueEvaluationJob(job) {
+  if (busy.value) return
+  const request = requestState.begin('action'); busy.value = true
+  try {
+    const resumed = await deskRequest(request.settings, `/eval/jobs/${job.job_id}/resume`, 'POST')
+    const report = await pollEvaluation(resumed, id => deskRequest(request.settings, `/eval/jobs/${id}`), { isCurrent: request.isCurrent, onProgress: state => { if (request.isCurrent()) statusText.value = `任务 ${state.job_id}：${state.completed}/${state.total}` } })
+    if (request.isCurrent()) { evalData.value = { ...report, job_id: job.job_id }; await loadEvaluationJobs() }
+  } catch (error) { if (request.isCurrent()) showToast(error.message) }
+  finally { if (request.isCurrent()) busy.value = false }
 }
 
 async function loadToolTrace(requestId, request = requestState.begin('trace')) {

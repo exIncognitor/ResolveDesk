@@ -7,6 +7,7 @@ import hashlib
 import json
 from pathlib import Path
 import secrets
+import re
 import statistics
 import time
 
@@ -106,11 +107,14 @@ class QualityRunner:
                                   "no_unconfirmed_write": len(sandbox.list_tickets(actors["learner"])) == before_tickets}
                         if len(turn_states) > 1: checks["clarified_first"] = turn_states[0] == "awaiting_input"
                         cited = [e["payload"] for e in events if e["kind"] == "retrieval"]
-                        checks["retrieved_evidence"] = any(c.get("citations") for c in cited)
-                        if not case.get("workflow"): checks["cited_answer"] = "[C-" in run["answer"]
+                        evidence_documents = {kb.citation(actors["learner"], cid)["document_id"] for event in cited for cid in event.get("citations", [])}
+                        cited_documents = {kb.citation(actors["learner"], cid)["document_id"] for cid in re.findall(r"C-[a-f0-9]{24}", run["answer"])}
+                        checks["retrieved_evidence"] = set(case["documents"]).issubset(evidence_documents)
+                        if not case.get("workflow"): checks["cited_answer"] = bool(cited_documents & set(case["documents"]))
                         lifecycle = None
                         if case.get("workflow"):
                             checks["workflow"] = bool(run.get("draft")) and run["draft"].get("workflow") == case["workflow"]
+                            checks["expected_fields"] = all((run.get("draft") or {}).get(key)==value for key,value in case["expected_fields"].items())
                             checks["prepare_tool"] = any(e["kind"] == "tool_result" and e["payload"].get("name") == "prepare_ticket" and e["payload"].get("success") for e in events)
                             if checks["run_status"] and checks["workflow"]:
                                 ticket = await request("learner", "POST", f"/runs/{run['id']}/confirm", {"approval": run["approval"]})
@@ -124,14 +128,19 @@ class QualityRunner:
                                 expected = "fulfilled" if case["workflow"] == "access_request" else "closed"
                                 checks["business_final_state"] = lifecycle["status"] == expected
                                 context = await request("learner", "GET", "/service-catalog")
-                                checks["persisted_business_effect"] = bool(context["my_grants"]) if expected == "fulfilled" else context["my_assets"][0]["status"] == "available"
+                                if expected == "fulfilled":
+                                    grants = [g for g in context["my_grants"] if g["resource"]==case["expected_fields"]["resource_id"]]
+                                    checks["persisted_business_effect"] = len(grants)==1 and grants[0]["level"]==case["expected_fields"]["access_level"] and abs((grants[0]["expires"]-time.time())-case["expected_fields"]["duration_days"]*86400)<60
+                                else:
+                                    checks["persisted_business_effect"] = any(a["id"]==case["expected_fields"]["asset_id"] and a["status"]=="available" for a in context["my_assets"])
                         scores = await judge.judge("\n".join(case["turns"]), run["answer"], encode({"reference": case["reference"], "turn_states": turn_states})) if use_judge else None
                         if scores:
                             detail["metadata"]["judge_failed"] = scores.judge_failed
                             detail["judge"] = asdict(scores)
                             if not scores.judge_failed: detail["scores"] = {k: getattr(scores, k) for k in ("relevance", "accuracy", "completeness", "helpfulness")}
                         detail.update({"run_id": run["id"], "answer": run["answer"], "turn_states": turn_states, "checks": checks,
-                                       "routing": routing, "lifecycle": lifecycle, "passed": all(checks.values()) and (not use_judge or (scores.overall is not None and scores.overall >= .75))})
+                                       "routing": routing, "lifecycle": lifecycle, "draft": run.get("draft"), "evidence_documents": sorted(evidence_documents), "cited_documents": sorted(cited_documents),
+                                       "passed": all(checks.values()) and (not use_judge or (scores.overall is not None and scores.overall >= .75))})
                     except asyncio.CancelledError: raise
                     except Exception as exc:
                         detail["metadata"]["execution_error"] = type(exc).__name__
