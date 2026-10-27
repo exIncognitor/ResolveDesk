@@ -51,22 +51,27 @@ async def test_checkpoint_after_tool_preserves_results_and_reply_invalidates(sto
 
 @pytest.mark.asyncio
 async def test_memory_summary_profile_semantic_recall_and_isolation(store):
-    model=client_with(response('用户使用 Windows 11 和 IntelliJ，VPN 故障仍未解决。'))
+    model=client_with(response('{"summary":"用户使用 Windows 11 和 IntelliJ，VPN 故障仍未解决。","facts":[]}'),response('{"summary":"VPN 故障仍未解决。","facts":[]}'))
     memory=ScopedMemory(store,FakeEmbedding(),model)
     old,_=store.create_run(USER,'我使用 Windows 11 和 IntelliJ，VPN 连接失败','memory-old')
     store.claim(USER,old['id']);store.finish(USER,old['id'],'completed','VPN 检查网络')
     await memory.remember(USER,old['id'])
+    while await memory.process_one():pass
     current,_=store.create_run(USER,'VPN 又出问题了','memory-new')
     for i in range(6):
         store.claim(USER,current['id']);store.finish(USER,current['id'],'awaiting_input',f'请补充 {i}')
         store.reply(USER,current['id'],f'VPN 补充信息 {i}')
     context=await memory.context(USER,current['id'])
+    # Foreground provides an extractive bridge; LLM compression is asynchronous.
+    assert model.messages.create.call_count==1
+    while await memory.process_one():pass
+    context=await memory.context(USER,current['id'])
     assert context['summary'] and context['profile']['os']=='Windows 11'
     assert context['relevant_history'][0]['run_id']==old['id']
-    assert memory.inspect(OTHER)=={'profile':{},'episodes':0,'summaries':0}
+    assert memory.inspect(OTHER)['profile']=={} and memory.inspect(OTHER)['episodes']==0
     with pytest.raises(KeyError):await memory.context(FOREIGN,current['id'])
     await memory.context(USER,current['id'])
-    assert model.messages.create.call_count==1
+    assert model.messages.create.call_count==2
 
 
 @pytest.mark.asyncio
