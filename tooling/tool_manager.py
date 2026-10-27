@@ -192,7 +192,7 @@ class MCPToolManager:
             if getattr(self,'observer',None):
                 try:
                     event=self.observer(name,result,(time.monotonic()-started),context or {},error_code)
-                    if inspect.isawaitable(event):await event
+                    if inspect.isawaitable(event):await asyncio.wait_for(event,.2)
                 except Exception as exc:logger.warning('Tool observation failed: %s',type(exc).__name__)
 
     async def _call_impl(

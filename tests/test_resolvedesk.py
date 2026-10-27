@@ -104,7 +104,8 @@ def test_restart_pauses_without_replaying_and_replays_only_new_events(store):
     assert restarted.recover() == 1
     assert restarted.get_run(USER, run["id"])["status"] == "paused"
     tail = restarted.events(USER, run["id"], before[-1]["seq"])
-    assert [e["kind"] for e in tail] == ["paused"]
+    assert [e["kind"] for e in tail] == ["paused","duration"]
+    assert tail[-1]['payload']['seconds'] is None and tail[-1]['payload']['status']=='interrupted'
     assert restarted.recover() == 0
     restarted.resume(USER, run["id"])
     assert restarted.claim(USER, run["id"])

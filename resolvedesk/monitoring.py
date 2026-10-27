@@ -32,7 +32,9 @@ class Monitor:
                 if not db.has_column('alert_outbox',column):db.execute('ALTER TABLE alert_outbox ADD COLUMN '+column+' '+declaration)
 
     def record(self,tenant,kind,name,success,seconds=0,**scope):
-        with self.store.db(True) as db:return write_sample(db,tenant,kind,name,success,seconds,**scope)
+        with self.store.db(True) as db:
+            if db.backend=='postgresql':db.execute("SET LOCAL lock_timeout='100ms'")
+            return write_sample(db,tenant,kind,name,success,seconds,**scope)
 
     def safe_record(self,*args,**kwargs):
         try:return self.record(*args,**kwargs)
@@ -96,6 +98,7 @@ class Monitor:
 
     def refresh(self,tenant):
         with self.store.db(True) as db:
+            if db.backend=='postgresql':db.execute("SET LOCAL lock_timeout='100ms'")
             if db.backend=='postgresql':db.execute('SELECT pg_advisory_xact_lock(hashtextextended(?,0))',('resolvedesk-monitor:'+tenant,))
             project_attempts(db,tenant)
             now=db.now()
@@ -145,6 +148,7 @@ class Monitor:
 
     def publish_tools(self,tenant,worker,tools):
         with self.store.db(True) as db:
+            if db.backend=='postgresql':db.execute("SET LOCAL lock_timeout='100ms'")
             for name,value in tools.items():
                 db.execute('INSERT INTO monitor_tool_health VALUES(?,?,?,?,?) ON CONFLICT(tenant,worker,name) DO UPDATE SET payload=excluded.payload,seen=excluded.seen',(tenant,worker,name,encode(value),db.now()))
 

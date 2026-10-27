@@ -65,6 +65,7 @@ class DeskServices:
         self.maintenance_task = None
         self.routing_health={}
         self.probe_cooldown=30.
+        self.observer_slots=asyncio.Semaphore(8)
 
     async def start(self):
         await self.mcp.start()
@@ -115,7 +116,7 @@ class DeskServices:
                    "software_license": AgentType.BILLING, "device_service": AgentType.TECHNICAL,
                    "escalation": AgentType.ESCALATION, "general": AgentType.GENERAL}
         roles=list(dict.fromkeys(mapping[d] for d in result.domains))
-        measured=self.monitor.refresh(p.tenant)
+        measured=self._monitor_snapshot(p.tenant)
         penalties=measured['routing_penalties']
         scores={r.value:(1/(1+i*.15))*(1-penalties.get(r.value,0)) for i,r in enumerate(roles)}
         primary=max(roles,key=lambda r:scores[r.value])
@@ -140,6 +141,7 @@ class DeskServices:
             "source_scores":result.source_scores,"embedding_source":result.embedding_source,"urgency":result.urgency.name,
             "needs_clarification":result.needs_clarification,"recovery_probe":probe,"entities":state["entities"],"entity_state":state,
             'routing_scores':scores,'monitor_penalties':penalties,
+            'monitor_available':measured.get('monitor_available',True),
             "reason":result.reasoning+("；异常节点降权："+",".join(degraded) if degraded else ""),"mission":profile.mission,"workflow":list(profile.workflow)}
 
     async def consult(self,p,run_id,message,history,context,routing,cached=None,on_result=None):
@@ -149,7 +151,7 @@ class DeskServices:
         cached=cached or {}
         sources={item["citation"]:item for item in context.get("evidence",[])}
         turn=self.store.get_run(p,run_id)
-        instance_penalties=self.monitor.refresh(p.tenant)['instance_penalties']
+        instance_penalties=self._monitor_snapshot(p.tenant)['instance_penalties']
         observed_durations={}
         async def record(event):
             observed_durations.setdefault(event['request_id'],{})[event['role']]=event['seconds']*1000
@@ -210,13 +212,25 @@ class DeskServices:
                 'failure_threshold':breaker.threshold,'timeout_s':tool.timeout_s,'cache_ttl':tool.cache_ttl,'scope':'shared_worker_dependency_state'}
         self.monitor.publish_tools(tenant,self.monitor.worker_id,health)
 
+    def _monitor_snapshot(self,tenant):
+        try:return self.monitor.refresh(tenant)
+        except Exception:return {'routing_penalties':{},'instance_penalties':{},'monitor_available':False}
+
     async def _observe_tool(self,name,result,seconds,context,error):
         if not context.get('tenant') or not context.get('user_id'):return
         degraded=bool(result and not result.success and isinstance(result.data,dict) and result.data.get('items'))
         status='cancelled' if error=='CancelledError' else 'degraded' if degraded else 'success' if result and result.success else 'failure'
-        await asyncio.to_thread(self.monitor.record,context['tenant'],'tool',name,status=='success',seconds,owner=context['user_id'],instance=self.monitor.worker_id,
-            status=status,detail={'layer':'manager','cached':bool(result and result.cached),'fallback':degraded,'error_code':error})
-        await asyncio.to_thread(self.publish_tool_health,context['tenant'])
+        def observe():
+            self.monitor.record(context['tenant'],'tool',name,status=='success',seconds,owner=context['user_id'],instance=self.monitor.worker_id,
+                status=status,detail={'layer':'manager','cached':bool(result and result.cached),'fallback':degraded,'error_code':error})
+            self.publish_tool_health(context['tenant'])
+        await self.observer_slots.acquire()
+        task=asyncio.create_task(asyncio.to_thread(observe))
+        def done(future):
+            self.observer_slots.release()
+            if not future.cancelled():future.exception()
+        task.add_done_callback(done)
+        await asyncio.shield(task)
 
     def external_tools(self,role):
         return {name:spec for name,spec in self.mcp.agent_tools().items() if role in (spec.allowed_agents or ()) and spec.retry_safe}

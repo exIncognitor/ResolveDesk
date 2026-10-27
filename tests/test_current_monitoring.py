@@ -3,6 +3,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import json
 import time
+import threading
 from copy import copy
 from types import SimpleNamespace
 
@@ -240,3 +241,51 @@ async def test_two_monitor_workers_claim_one_notification(postgres_store,monkeyp
     with postgres_store.db() as db:
         row=db.execute('SELECT state,attempts FROM alert_outbox').fetchone()
         assert row['state']=='delivered' and row['attempts']==1
+
+
+@pytest.mark.services
+def test_locked_counter_does_not_hold_the_answer_and_recovers_from_fact(postgres_store):
+    store=postgres_store;monitor=Monitor(store)
+    monitor.record('demo','run','desk',True,.1,instance='locked-node')
+    run,_=store.create_run(USER,'test','locked-counter-key')
+    store.claim_execution(USER,run['id'],'owner',instance='locked-node')
+    with store.db(True) as held:
+        held.execute(held.locked("SELECT * FROM metric_totals WHERE tenant='demo' AND instance='locked-node'")).fetchone()
+        started=time.monotonic()
+        store.finish(USER,run['id'],'completed','committed before telemetry unblocks')
+        assert time.monotonic()-started<1
+        assert store.get_run(USER,run['id'])['status']=='completed'
+        with store.db() as db:assert db.execute('SELECT projected FROM execution_attempts').fetchone()[0]==0
+    assert monitor.refresh('demo')['total_requests']==2
+
+
+@pytest.mark.asyncio
+async def test_observer_deadline_and_threads_are_bounded(tmp_path,monkeypatch):
+    from tooling.tool_manager import Tool
+    store=Store(tmp_path/'observer.sqlite3');svc=DeskServices(store,HybridKnowledge(store),client_with(),mcp_configs=[])
+    gate=threading.Event();started=[]
+    def blocked(*args,**kwargs):started.append(1);gate.wait(2)
+    async def quick(*args):return {'ok':True}
+    monkeypatch.setattr(svc.monitor,'record',blocked)
+    svc.manager.register(Tool('quick','test',quick,{'type':'object'},cache_ttl=0))
+    try:
+        results=await asyncio.wait_for(asyncio.gather(*(svc.manager.call('quick',{}, {'tenant':'demo','user_id':'alice'}) for _ in range(12))),1)
+        assert all(r.success for r in results) and len(started)<=8
+        assert svc.observer_slots.locked()
+        gate.set()
+        async with asyncio.timeout(2):
+            while svc.observer_slots._value<8:await asyncio.sleep(.005)
+    finally:gate.set();await svc.close()
+
+
+@pytest.mark.asyncio
+async def test_monitor_read_failure_does_not_fail_actual_expert(environment,monkeypatch):
+    store,kb=environment;svc=DeskServices(store,kb,model_for(),mcp_configs=[])
+    monkeypatch.setattr(svc.monitor,'refresh',lambda *args:(_ for _ in ()).throw(RuntimeError('synthetic monitor read failure')))
+    run,_=store.create_run(USER,'VPN连接超时','monitor-read-failure');store.claim(USER,run['id'])
+    try:
+        routed=await svc.route(USER,run['id'],run['message'],[],{})
+        assert routed['primary']=='technical' and routed['monitor_available'] is False
+        result=await svc.consult(USER,run['id'],run['message'],[],{'evidence':[]},routed)
+        assert result['status']=='success'
+    finally:await svc.close()

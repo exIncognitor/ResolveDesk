@@ -80,14 +80,18 @@ def finish_attempt(db,row):
     db.execute('UPDATE execution_attempts SET finished=?,status=?,error=? WHERE run_id=? AND epoch=?',
         (now,outcome,row['error'],row['id'],row['execution_epoch']))
     # The durable execution fact survives an outage of the derived counters.
+    previous_lock=db.execute("SELECT current_setting('lock_timeout')").fetchone()[0] if db.backend=='postgresql' else None
     db.execute('SAVEPOINT main_metric_projection')
     try:
+        if previous_lock is not None:db.execute("SELECT set_config('lock_timeout','100ms',true)")
         current=db.execute('SELECT * FROM execution_attempts WHERE run_id=? AND epoch=?',(row['id'],row['execution_epoch'])).fetchone()
         _project_attempt(db,current)
     except Exception as exc:
         db.execute('ROLLBACK TO SAVEPOINT main_metric_projection')
         db.execute("INSERT INTO events(run_id,kind,payload,created) VALUES(?,'monitor_error',?,?)",(row['id'],encoded({'type':type(exc).__name__,'pending_projection':True}),now))
-    finally:db.execute('RELEASE SAVEPOINT main_metric_projection')
+    finally:
+        db.execute('RELEASE SAVEPOINT main_metric_projection')
+        if previous_lock is not None:db.execute("SELECT set_config('lock_timeout',?,true)",(previous_lock,))
     db.execute("INSERT INTO events(run_id,kind,payload,created) VALUES(?,'duration',?,?)",(row['id'],encoded({'seconds':seconds,'epoch':row['execution_epoch'],'turn_key':attempt['turn_key'],'status':outcome}),now))
 
 
