@@ -6,6 +6,7 @@ import json
 import re
 import time
 from typing import Literal
+import uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -74,7 +75,7 @@ category 根据用户问题归类为 software/network/access/hardware/other；�
 
 
 class DeskAgent:
-    def __init__(self, store, knowledge, client=None, services=None):
+    def __init__(self, store, knowledge, client=None, services=None, coordination=None):
         import os
         self.store, self.knowledge = store, knowledge
         self.client = client or BudgetedAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY", ""),
@@ -83,6 +84,8 @@ class DeskAgent:
         self.slots = asyncio.Semaphore(4)
         self.closing = False
         self.services = services
+        self.coordination = coordination
+        self.worker_id = uuid.uuid4().hex
         from resolvedesk.business import BusinessService
         from resolvedesk.monitoring import Monitor
         self.business = BusinessService(store)
@@ -95,9 +98,8 @@ class DeskAgent:
             self.tasks[run_id] = task
             def finished(done):
                 self.tasks.pop(run_id, None)
-                if not done.cancelled():
-                    done.exception()  # Consume any unexpected task error; execute records normal failures.
-                if not self.closing and self.store.get_run(p, run_id)["status"] == "queued":
+                owned = not done.cancelled() and done.exception() is None and done.result() is True
+                if owned and not self.closing and self.store.get_run(p, run_id)["status"] == "queued":
                     self.schedule(p, run_id)
             task.add_done_callback(finished)
 
@@ -120,34 +122,53 @@ class DeskAgent:
 
     async def execute(self, p, run_id):
         async with self.slots:
-            if not self.store.claim(p, run_id):
-                return
             started = time.monotonic()
+            token = None
             try:
-                async with asyncio.timeout(90):
-                    await self._loop(p, run_id)
-            except asyncio.CancelledError:
-                if self.store.get_run(p, run_id)["status"] == "running":
-                    self.store.finish(p, run_id, "paused", "处理已暂停，可以稍后恢复。", "cancelled")
-                raise
-            except Conflict:
-                # A concurrent pause invalidates in-flight results; never overwrite it.
-                pass
-            except Exception as exc:
-                # No request text, API key or provider error body enters the event log.
-                if self.store.get_run(p, run_id)["status"] == "running":
-                    self.store.finish(p, run_id, "failed", "本次处理未完成，可恢复重试；尚未创建工单。", type(exc).__name__)
+                if self.coordination:
+                    from resolvedesk.coordination import LeaseBusy, LeaseLost
+                    try:
+                        async with self.coordination.lease([p.tenant,p.user,run_id]) as lease:
+                            token = await asyncio.to_thread(self.store.claim_execution,p,run_id,lease.owner,60)
+                            if token is None: return False
+                            async def renew():
+                                if await asyncio.to_thread(self.store.renew_execution,p,token,60): return True
+                                # Completion stops SQL renewals; Redis still protects cleanup.
+                                current = await asyncio.to_thread(self.store.get_run,p,run_id)
+                                return current["status"] not in {"running","queued"}
+                            lease.on_renew = renew
+                            with self.store.execution(token): await self._execute_owned(p,run_id)
+                    except LeaseBusy: return False
+                    except LeaseLost:
+                        if token: await asyncio.to_thread(self.store.lose_execution,p,token)
+                else:
+                    token = self.store.claim_execution(p,run_id,self.worker_id)
+                    if token is None: return False
+                    with self.store.execution(token): await self._execute_owned(p,run_id)
             finally:
-                # Latency is a run event, including interrupted/failed requests.
-                with self.store.db(True) as db:
-                    self.store._event(db, run_id, "duration", {"seconds": round(time.monotonic()-started, 3)})
-                status = self.store.get_run(p, run_id)["status"]
-                self.monitor.record(p.tenant, "run", "interrupted" if status=="paused" else "desk", status in {"completed", "awaiting_input", "awaiting_confirmation", "paused"}, time.monotonic()-started)
-                with self.store.db() as db:
-                    row = db.execute("SELECT payload FROM events WHERE run_id=? AND kind='routing' ORDER BY seq DESC LIMIT 1", (run_id,)).fetchone()
-                if row and status!="paused":
-                    role = json.loads(row["payload"])["primary"]
-                    self.monitor.record(p.tenant,"agent",role,status in {"completed","awaiting_input","awaiting_confirmation"},time.monotonic()-started)
+                if token:
+                    with self.store.db(True) as db:
+                        self.store._event(db, run_id, "duration", {"seconds": round(time.monotonic()-started, 3),"epoch":token.epoch})
+                    status = self.store.get_run(p, run_id)["status"]
+                    self.monitor.record(p.tenant, "run", "interrupted" if status=="paused" else "desk", status in {"completed", "awaiting_input", "awaiting_confirmation"}, time.monotonic()-started)
+            return token is not None
+
+    async def _execute_owned(self,p,run_id):
+        try:
+            async with asyncio.timeout(90): await self._loop(p,run_id)
+        except asyncio.CancelledError:
+            try:
+                if self.store.get_run(p,run_id)["status"] == "running":
+                    self.store.finish(p,run_id,"paused","处理已暂停，可以稍后恢复。","cancelled")
+            except Conflict: pass
+            raise
+        except Conflict:
+            pass  # An explicit pause or a new SQL ownership epoch fences old work.
+        except Exception as exc:
+            try:
+                if self.store.get_run(p,run_id)["status"] == "running":
+                    self.store.finish(p,run_id,"failed","本次处理未完成，可恢复重试；尚未创建工单。",type(exc).__name__)
+            except Conflict: pass
 
     async def _loop(self, p, run_id):
         run = self.store.get_run(p, run_id)

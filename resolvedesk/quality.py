@@ -97,7 +97,7 @@ class QualityRunner:
                         run = await wait(run["id"])
                         turn_states = [run["status"]]
                         for turn in case["turns"][1:]:
-                            await request("learner", "POST", f"/runs/{run['id']}/reply", {"message": turn})
+                            await request("learner", "POST", f"/runs/{run['id']}/reply", {"message": turn,"request_key":"quality-"+uuid.uuid4().hex})
                             run = await wait(run["id"])
                             turn_states.append(run["status"])
                         with sandbox.db() as db:

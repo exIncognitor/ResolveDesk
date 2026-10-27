@@ -39,7 +39,7 @@ def main():
         remembered=wait(seeded['id'])
         # If a clarification was necessary, finish the fixture with a grounded question.
         if remembered['status']=='awaiting_input':
-            req('POST','/runs/'+seeded['id']+'/reply',{'message':'不用继续追问，也不要创建工单。请仅根据知识库给出 VPN 超时的初步检查建议。'})
+            req('POST','/runs/'+seeded['id']+'/reply',{'message':'不用继续追问，也不要创建工单。请仅根据知识库给出 VPN 超时的初步检查建议。','request_key':'smoke-'+uuid.uuid4().hex})
             remembered=wait(seeded['id'])
         trace=req('GET','/trace/tool/'+seeded['id'])['trace']['events']
         memory=req('GET','/memory')

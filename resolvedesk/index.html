@@ -22,7 +22,7 @@ async function refresh(){try{await show(await api('/runs/'+run.id))}catch(e){fai
 function action(id,fn){$(id).onclick=async()=>{const b=$(id);b.disabled=true;try{await fn()}catch(e){fail(e)}finally{b.disabled=id==='reply'?(!run||!['awaiting_input','awaiting_confirmation','completed'].includes(run.status)||!!run.ticket_id):false}}}
 action('connect',async()=>{const me=await api('/me');$('identity').textContent=me.tenant+' / '+me.user+' / '+me.role});
 action('send',async()=>{seen.clear();$('citations').replaceChildren();await show(await api('/runs','POST',{message:$('message').value,request_key:crypto.randomUUID()}))});
-action('reply',async()=>show(await api('/runs/'+run.id+'/reply','POST',{message:$('message').value})));
+action('reply',async()=>show(await api('/runs/'+run.id+'/reply','POST',{message:$('message').value,request_key:crypto.randomUUID()})));
 action('confirm',async()=>{await api('/runs/'+run.id+'/confirm','POST',{approval:run.approval});await refresh()});
 action('pause',async()=>show(await api('/runs/'+run.id+'/pause','POST')));
 action('resume',async()=>show(await api('/runs/'+run.id+'/resume','POST')));

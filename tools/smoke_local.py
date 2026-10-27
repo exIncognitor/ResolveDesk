@@ -46,7 +46,7 @@ def main():
                         "answer":missing["answer"]})
         full_message = "这是本地演示测试，请为我准备工单：标题 VPN 连接持续超时；具体描述：Windows 11 上 VPN 客户端连接超时，普通网页正常，已重启客户端并切换网络仍未解决；类别 network；优先级 normal。先给我草稿，我会核对确认。"
         if missing["status"] in {"awaiting_input","completed"}:
-            full = wait(request("POST","/runs/"+missing["id"]+"/reply",{"message":full_message}))
+            full = wait(request("POST","/runs/"+missing["id"]+"/reply",{"message":full_message,"request_key":"smoke-"+uuid.uuid4().hex}))
         else:
             full = new(full_message)
         no_write = {t["id"] for t in request("GET","/tickets")} == before

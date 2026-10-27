@@ -49,21 +49,27 @@ export async function consumeEvents(response,onEvent,isCurrent=()=>true){
 const attempts=new Map()
 export async function requestChat(_,s,message,{onEvent=()=>{},isCurrent=()=>true,signal}={}){
   let run
-  if(s.conversationId){
-    try{const current=await deskRequest(s,`/runs/${s.conversationId}`);if(['awaiting_input','awaiting_confirmation','completed'].includes(current.status)&&!current.ticket_id)run=await deskRequest(s,`/runs/${current.id}/reply`,'POST',{message})}catch(e){if(e.status!==404)throw e}
+  const key=JSON.stringify([s.pythonToken,s.conversationId,message])
+  let attempt=attempts.get(key)
+  if(!attempt){
+    let path='/runs'
+    if(s.conversationId){
+      try{const current=await deskRequest(s,`/runs/${s.conversationId}`);if(['awaiting_input','awaiting_confirmation','completed'].includes(current.status)&&!current.ticket_id)path=`/runs/${current.id}/reply`}catch(e){if(e.status!==404)throw e}
+    }
+    attempt={path,request_key:crypto.randomUUID()};attempts.set(key,attempt)
   }
-  if(!run){
-    const key=JSON.stringify([s.pythonToken,s.conversationId,message]);if(!attempts.has(key))attempts.set(key,crypto.randomUUID())
-    run=await deskRequest(s,'/runs','POST',{message,request_key:attempts.get(key)});attempts.delete(key)
-  }
+  run=await deskRequest(s,attempt.path,'POST',{message,request_key:attempt.request_key},signal)
   onEvent({kind:'run',payload:run})
-  const events=await fetch(backendMeta('python',s).baseUrl+`/runs/${run.id}/events?after=${run.event_cursor||0}`,{headers:{Authorization:`Bearer ${s.pythonToken}`},signal:signal||AbortSignal.timeout(120000)})
+  const turnKey=run.turn_key||attempt.request_key
+  const events=await fetch(backendMeta('python',s).baseUrl+`/runs/${run.id}/events?after=${run.event_cursor||0}&turn_key=${encodeURIComponent(turnKey)}`,{headers:{Authorization:`Bearer ${s.pythonToken}`},signal:signal||AbortSignal.timeout(120000)})
   onEvent({kind:'turn_start',payload:{}})
   await consumeEvents(events,onEvent,isCurrent)
   if(!isCurrent())return null
-  run=await deskRequest(s,`/runs/${run.id}`)
+  run=await deskRequest(s,`/runs/${run.id}/turns/${encodeURIComponent(turnKey)}`)
+  attempts.delete(key)
   const trace=await deskRequest(s,`/trace/tool/${run.id}`)
-  const route=trace.trace.events.filter(e=>e.kind==='routing').at(-1)?.payload||{}
+  const turnEvents=trace.trace.events.filter(e=>e.seq>=(run.event_cursor||0)&&e.seq<=(run.event_end||Infinity))
+  const route=turnEvents.filter(e=>e.kind==='routing').at(-1)?.payload||{}
   return {conversationId:run.id,requestId:run.id,response:run.answer,intent:route.intent||'other',primaryAgent:route.primary||'general',agentType:route.primary||'general',
     supportingAgents:route.supporting||[],routingReason:route.reason||'',routingConfidence:route.confidence||0,knowledgeUsed:trace.trace.events.some(e=>e.kind==='retrieval'),raw:run}
 }

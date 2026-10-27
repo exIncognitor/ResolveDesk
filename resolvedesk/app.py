@@ -35,6 +35,7 @@ class NewRun(Input):
 
 class Reply(Input):
     message: str = Field(min_length=1, max_length=4000)
+    request_key: str = Field(min_length=8,max_length=100,pattern=r"^[a-zA-Z0-9_-]+$")
 
 
 class Approval(Input):
@@ -111,7 +112,7 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
                 app.state.accounts = json.loads((ROOT / "data" / "auth.json").read_text(encoding="utf-8"))
             from resolvedesk.evaluations import EvaluationService
             app.state.evaluations = EvaluationService(app.state.store,app.state.knowledge)
-            app.state.store.recover()
+            app.state.store.recover_expired()
             app.state.agent.monitor.start()
             yield
         finally:
@@ -199,11 +200,15 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         run, created = request.app.state.store.create_run(p, data.message, data.request_key)
         if created:
             request.app.state.agent.schedule(p, run["id"])
-        return request.app.state.store.get_run(p, run["id"])
+        return {**run,"replayed":not created}
 
     @app.get("/runs/{run_id}")
     def get_run(run_id: str, request: Request, p=Depends(principal)):
         return request.app.state.store.get_run(p, run_id)
+
+    @app.get("/runs/{run_id}/turns/{request_key}")
+    def get_turn(run_id:str,request_key:str,request:Request,p=Depends(principal)):
+        return request.app.state.store.get_turn(p,run_id,request_key)
 
     @app.get("/runs")
     def list_runs(request:Request,p=Depends(principal)):
@@ -217,9 +222,9 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
     async def reply(run_id: str, data: Reply, request: Request, p=Depends(principal)):
         if not data.message.strip():
             raise HTTPException(422, "Message cannot be blank")
-        request.app.state.store.reply(p, run_id, data.message)
-        request.app.state.agent.schedule(p, run_id)
-        return request.app.state.store.get_run(p, run_id)
+        turn,created = request.app.state.store.reply(p,run_id,data.message,data.request_key)
+        if created: request.app.state.agent.schedule(p,run_id)
+        return {**turn,"replayed":not created}
 
     @app.post("/runs/{run_id}/confirm")
     async def confirm(run_id: str, data: Approval, request: Request, p=Depends(principal)):
@@ -244,9 +249,10 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         return request.app.state.store.get_run(p, run_id)
 
     @app.get("/runs/{run_id}/events")
-    async def events(run_id: str, request: Request, after: int = 0, follow: bool = True,
+    async def events(run_id: str, request: Request, after: int = 0, follow: bool = True, turn_key: str | None = None,
                      last_event_id: str = Header(default=""), p=Depends(principal)):
         request.app.state.store.get_run(p, run_id)
+        if turn_key: request.app.state.store.get_turn(p,run_id,turn_key)
         try:
             cursor = max(0, after, int(last_event_id or 0))
         except ValueError:
@@ -255,12 +261,15 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
             nonlocal cursor
             ticks = 0
             while not await request.is_disconnected():
+                turn = request.app.state.store.get_turn(p,run_id,turn_key) if turn_key else request.app.state.store.get_run(p,run_id)
+                terminal = turn["status"] in TERMINAL
+                cursor = max(cursor,turn["event_cursor"]) if turn_key else cursor
                 batch = request.app.state.store.events(p, run_id, cursor)
+                if turn_key and terminal: batch = [event for event in batch if event["seq"] <= turn["event_end"]]
                 for event in batch:
                     cursor = event["seq"]
                     yield "id: " + str(cursor) + "\nevent: " + event["kind"] + "\ndata: " + encode(event["payload"]) + "\n\n"
-                status = request.app.state.store.get_run(p, run_id)["status"]
-                if len(batch) < 200 and (not follow or status in TERMINAL):
+                if len(batch) < 200 and (not follow or terminal):
                     break
                 ticks += 1
                 if ticks % 50 == 0:
