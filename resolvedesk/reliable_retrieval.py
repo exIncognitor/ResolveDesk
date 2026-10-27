@@ -72,7 +72,7 @@ class ReliableRetrieval:
         started=time.monotonic()
         version=await asyncio.to_thread(self.knowledge.scope_version,p)
         context={'tenant':p.tenant,'user_id':p.user,'role':p.role,'executing_role':role or p.role,'knowledge_version':version}
-        scope=['rag-v2',context,query,top_k,mode,optimize]
+        scope=['rag-v3',context,query,top_k,mode,optimize]
         key=encode(scope)
         cached=None;layer=None
         if self.coordination:
@@ -88,9 +88,11 @@ class ReliableRetrieval:
         queries,errors=[query],[]
         if optimize and mode=='hybrid':
             try:
-                variants=await self._model_json('为内部 IT 知识检索改写查询，返回最多两个非空字符串的 JSON 数组。保留错误码与产品名，不扩充不存在的事实。',query)
+                variants=await self._model_json('为内部 IT 知识检索生成两个与原句表达不同、彼此不同的检索查询，只返回非空字符串的 JSON 数组。保留原意、错误码与产品名，不扩充不存在的事实，不要仅重复原句。',query)
                 if not isinstance(variants,list) or any(not isinstance(v,str) for v in variants):raise ValueError('Rewrite schema')
-                queries += [v[:500] for v in variants[:2] if v.strip()]
+                additions=list(dict.fromkeys(v.strip()[:500] for v in variants[:2] if v.strip() and v.strip()!=query))
+                if not additions:raise ValueError('Rewrite produced no distinct query')
+                queries += additions
             except Exception as exc:errors.append('rewrite_'+type(exc).__name__)
         queries=list(dict.fromkeys(queries))
         native='it_bm25' if mode=='bm25' else 'it_rag'

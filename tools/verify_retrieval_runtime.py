@@ -77,8 +77,9 @@ async def main():
     app=create_app(store,kb,agent,{hashlib.sha256(token.encode()).hexdigest():vars(user)})
     checks={};details={};memory_name=None
     try:
-        query='VPN连接超时如何排查'
+        query='公司VPN卡在连接中，809报错，但浏览器上网正常，应如何排查'
         optimized=await services.search(user,query,2,role='technical')
+        details['optimized']={key:value for key,value in optimized.items() if key!='items'}
         checks['flash_rewrite_and_rerank']=bool(optimized['items']) and len(optimized['queries'])>1 and optimized['reranked'] and not optimized['errors'] and not optimized['degraded']
         after_first=client.ledger().summary()
         cached=await services.search(user,query,2,role='technical')

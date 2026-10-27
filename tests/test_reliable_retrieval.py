@@ -27,7 +27,7 @@ def environment(tmp_path):
     store=Store(tmp_path/'reliable.sqlite3');kb=HybridKnowledge(store,FakeEmbedding())
     for index in range(8):kb.add(SUPPORT,'vpn'+str(index),'VPN '+str(index),'# VPN\n\nVPN 连接超时 网络排查 '+str(index))
     async def create(**kwargs):
-        return response('["VPN 网络故障"]' if '改写' in kwargs.get('system','') else '[0,1]')
+        return response('["VPN 网络故障"]' if '检索查询' in kwargs.get('system','') else '[0,1]')
     model=SimpleNamespace(messages=SimpleNamespace(create=AsyncMock(side_effect=create)),close=AsyncMock())
     services=DeskServices(store,kb,model,mcp_configs=[])
     yield store,kb,model,services
