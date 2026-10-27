@@ -63,6 +63,7 @@ test('stale eval response does not clear a new operation busy state', async () =
   const settings=state(), requests=createRequestState(settings)
   let resolve
   const context=vm.createContext({settings, requestState:requests, busy:{value:false},evalData:{value:'new'},
+    evaluationKind:{value:'quality'},
     statusText:{value:''}, showToast:()=>assert.fail('stale toast'), requestEvaluation:()=>new Promise(a=>{resolve=a})})
   loadFunction('runEvaluation',context)
   const task=context.runEvaluation()

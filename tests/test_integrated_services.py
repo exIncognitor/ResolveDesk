@@ -176,5 +176,5 @@ def test_integrated_http_surfaces_enforce_roles_and_persist_feedback_cases(store
             result=c.get('/eval/jobs/'+job['job_id'],headers=sh).json()
             if result['status']=='completed':break
             time.sleep(.01)
-        assert result['result']['total']==9
+        assert result['result']['total']==21
         model.messages.create.assert_not_called()

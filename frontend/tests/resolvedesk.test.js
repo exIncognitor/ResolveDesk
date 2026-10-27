@@ -1,6 +1,6 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {consumeEvents,requestChat,deskRequest} from '../src/lib/resolvedesk.js'
+import {consumeEvents,requestChat,deskRequest,runEvaluation} from '../src/lib/resolvedesk.js'
 
 test('SSE parser handles split UTF-8 characters, JSON and event boundaries',async()=>{
  const bytes=new TextEncoder().encode('id: 1\nevent: answer_delta\ndata: {"text":"中文"}\n\nid: 2\nevent: completed\ndata: {"answer":"完成"}\n\n')
@@ -37,4 +37,14 @@ test('API permission failures remain failures',async t=>{
  const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)
  globalThis.fetch=async()=>Response.json({detail:'Support role required'},{status:403})
  await assert.rejects(deskRequest({pythonToken:'user',endpoints:{python:''}},'/skills/reload','POST'),e=>e.status===403)
+})
+
+test('quality submission preserves options and returns job identity for baseline review',async t=>{
+ const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)
+ globalThis.fetch=async(url,options)=>{
+  assert.equal(url,'/eval/run');assert.deepEqual(JSON.parse(options.body),{kind:'quality',limit:2})
+  return Response.json({job_id:'quality-job',status:'completed',result:{kind:'active_service_quality',passed:2}})
+ }
+ const result=await runEvaluation('python',{backend:'python',pythonToken:'operator',endpoints:{python:''}},{kind:'quality',limit:2})
+ assert.equal(result.job_id,'quality-job');assert.equal(result.passed,2)
 })
