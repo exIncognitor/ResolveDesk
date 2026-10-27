@@ -1,0 +1,5238 @@
+{
+  "kind": "retrieval",
+  "contract_id": "5be368e5416b6cb10c56381709e0eedb147d03961286ddb9f0aac332f08ef2bd",
+  "contract": {
+    "schema": "resolvedesk-holdout-contract-v1",
+    "baseline": "71ff1d13d11a6ee2d767fcdbce5d34afd849679a",
+    "intent_cases": 112,
+    "retrieval_cases": 100,
+    "dialogs": 12,
+    "turns": 24,
+    "development_utterances_checked": 102,
+    "sha256": {
+      "evaluation/holdout_v1.json": "3ef4b58202c53ee3f25308715a71ac985f83be47dbfa8036ecb5527585d72ca7",
+      "evaluation/holdout_retrieval_v1.json": "6904ff337d61f165be81481ccee5eb017c72f060cacd6863626977a943e91d5d",
+      "evaluation/holdout_faults_v1.json": "3993b7080b8b060133a33dcf560c67173c93078a627c6566ed2cda9e7bb25592",
+      "knowledge/access.md": "fe00efc3eac1aadb9a696fc2d3c857042e6223710b76165ab711c79ed691206e",
+      "knowledge/devices.md": "a6dfd6ba2e55c7be21577c12ef084cbf4dcc107b52be813ac39741dbd2537ad7",
+      "knowledge/endpoint.md": "f4f428a215f552e1641b84755afe7016c547d27c3275f498ba24f2e94cb9ca9c",
+      "knowledge/licensing.md": "6fa7ddc3120e8d1c65ba6335ccd04d06071f7c37c8e6ca1e9b911a690202c2e5",
+      "knowledge/permissions.md": "d9f9b4c1a4abb64666129080aa9a69e8c6ba6822620fb391d9353f5c17c6f8f5",
+      "knowledge/software.md": "3a9bb44ef18a4981bb98df984b4b8b09df587f2eda748cfdca9b5343aa9efd5f",
+      "knowledge/vpn.md": "d1e9cfc6af2a42ee1e892a7c4c31e7a9da153c34e4fe7aa7060b522eb6bf811c"
+    },
+    "quality_policy": "Do not tune on held-out failures or relabel after freeze; preserve raw baseline and candidate outcomes.",
+    "limitations": "LLM-authored synthetic held-out regression set with exact normalized text deduplication, not independent third-party labeling, semantic deduplication or production evidence."
+  },
+  "engine_root": "C:\\Users\\12137\\AppData\\Local\\Temp\\codex-security-artifacts-cd635a7e037a7ec1d7a73f76834e79e0c1c6a4bf9154bdef08921c30eea0a17f\\baseline",
+  "engine_sha256": {
+    "resolvedesk\\__init__.py": "8aeb94d91329fded8d58d2a85433a59d19478156058e4c32d40544f91184a409",
+    "resolvedesk\\agent.py": "27bd7df37b8e226abc2849b1aa0b5d1daa939f5a78d8031e62913f27f1e440c7",
+    "resolvedesk\\app.py": "66b5ad04278b4e4a96c7aec0dedde31c658f7ba430a3d705c75b4d5f1c0d699c",
+    "resolvedesk\\business.py": "42e0e2cf4278800752b1d63e7336f8f25f76db62d6827d833ea816f46a4ab5bf",
+    "resolvedesk\\cli.py": "dd476fc94970c6373ad3406d2a5519ed54cad50f2fc89c610f761c0caf328a32",
+    "resolvedesk\\coordination.py": "8b3db0d636c880529fb5a071d88f6bd9d51efad986dffc75effa722bba711ed0",
+    "resolvedesk\\database.py": "2d4c6b09ed68802c456e69e733c78346e1c32b306fa800d727043063f05aa4fd",
+    "resolvedesk\\embedding_service.py": "3c62791a8a712957bd8b95c3df9a3251784f34cd26a5b19a0ee7aa2907bd0d99",
+    "resolvedesk\\entity_state.py": "c1bed385ab67db72275630dcea3e655232963aff9ea84163ca6b2fdf1e83c5bc",
+    "resolvedesk\\eval_data.py": "3d45a912fb1d8ed799a8403dafe005aa8a963e4e888d6e982c4cbb644facec80",
+    "resolvedesk\\eval_metrics.py": "8d0294ec09dbd92b523bd06d93f85bfab175a5d57d378556af214a52214cb175",
+    "resolvedesk\\eval_models.py": "9dcd0ce4ae960599668ff46df5f20b86e114e35c37b44ab47debeade2abab699",
+    "resolvedesk\\eval_retention.py": "e429ce77b0a0754bb734b8520757e21c5127906b07f148c11c3319bcdf720b7e",
+    "resolvedesk\\eval_sandbox.py": "78104cea7dc0524ff383325a2f51e9c52a404b65cbc20cbfc112c11e3d4775e1",
+    "resolvedesk\\eval_state.py": "c4d826e257b46f81bc196263141381040a3bdc15a36672e315aee5739814b3cc",
+    "resolvedesk\\evaluations.py": "78a7e6f2a4b60c4b07a3ba67bb7fb31f7799a85049e65357542287a5de0a00e9",
+    "resolvedesk\\imports.py": "cfb2d1a2c604181e3d0c640ee2de66791cad8ea03b88e0273300e0ab88f1f9d7",
+    "resolvedesk\\intent.py": "bc89302a7ab87b4f2c0deee401cf8e863f953bd4cf5c9c60aff2352493e11516",
+    "resolvedesk\\knowledge_mcp.py": "4466b7de13cf1d3b4ea9440f709b09c86b8c374f37178458f4d4b8715c271a53",
+    "resolvedesk\\mcp_support.py": "32a73a62b2f9e4990358b2c8a45249e34bf030983b0db43621399774c6259b8e",
+    "resolvedesk\\memory.py": "f5b04e79ae7c03fd87ea2d34979c4110d7f850ce16df8017989d47a36b87bda9",
+    "resolvedesk\\metrics.py": "e161e2fd81aa03d2a2f51edc9219bce418b8497d864624b4a4281bb3af093c14",
+    "resolvedesk\\monitoring.py": "b77c3aede9e3a60d4c905ad3a80147f9bbe75cb4fa88435cd3caeda0ef824558",
+    "resolvedesk\\quality.py": "95a15566fb528cfbb58164afe5006227b419960e3148c1b69d8cba4bbb024e56",
+    "resolvedesk\\reliable_retrieval.py": "3db6df2f5af11d4d5cabc8a9d4193fe782896df2742f93deadaf79df75ef8548",
+    "resolvedesk\\remote_embedding.py": "04e711d98644ba48ce647f6137dde17287ed9e893994d00693f617c49a74d37c",
+    "resolvedesk\\retention.py": "7aeee26b72a67b6c909f11aecf3f5ef41c48bb01b56bf9317948a8dd43dae19d",
+    "resolvedesk\\retrieval.py": "b4ad0ed1e2e4c2e0f75bf28384f3b807fc0769f1218f9d9910506cf92dec457b",
+    "resolvedesk\\roles.py": "3bcfd84ea13711346f49ff420138cb9f86d71c24acdead4ff68f984f1bcff7c3",
+    "resolvedesk\\schema_tables.py": "ea325d9303ef0ed1672b39569e3d65abaeb7f3615e2a35aa238b05df9b9386e9",
+    "resolvedesk\\services.py": "9eab21bbda39c9d43a1281fa59652cbfa9f68274fed40de47f23ff1421bf70bf",
+    "resolvedesk\\settings.py": "f9b3dd542d7dfc8e1f022892f9914bd6ae3ac0081ff3176170a736f6fc89f898",
+    "resolvedesk\\store.py": "847bf481f27ab7b4cb44a9a96f9bd308709fb27d7e90f48055445daaf50b58c7",
+    "resolvedesk\\trace_queries.py": "6345fbba1b970b22d29b3e461de8f248aeca8d1e7737a346c3dcc5760ddfaa2c",
+    "resolvedesk\\tracing.py": "78975841cfc6eb605010a892bc187c3be90be890dd80778170bf41fdf957ce47",
+    "resolvedesk\\vectors.py": "3a1a368c09fa136afc448cf77934ccf10fe035eaddfbd12f295940e9574a15c6",
+    "agents\\agent_orchestrator.py": "1626dee0a9179f94786c0df8ff9e1103245aac3ad1250e2dc05734298cdaa640",
+    "agents\\tools.py": "0392280b3ff8c84f6ce4c07179f4dde2f4fe596984adfc1a59867ec540138793",
+    "core\\access.py": "63457fce8a24a27da102141f968603546e8343cf8b4d6e1e5d891ca4f740ab03",
+    "core\\concurrency.py": "25b90fff7dc29497a02cff56c1ebb117ba8467653b3d9b0dcdfa33353e9120e8",
+    "core\\conversation_state.py": "fbdd0923e9818d53893155fbf939db84117ff9a30ad33afe739665fba6e7555e",
+    "core\\financial_ledger.py": "41d93fa759838d9e4d7e865bd86a6b739814b3d63db14a8d2e2baf245d276661",
+    "core\\intent_embedding.py": "4a2cda1a5960d612a3cea04aad56601338518182ea89d61513ddfa988e2dd38b",
+    "core\\intent_recognizer.py": "0c801327f06a32a7418080552a4886ab685644201f41748321014646ca41ddf6",
+    "core\\llm_utils.py": "8f7dbda693b254ec5779a3ee6186b6c9cdc0f82a7705ac7a664cfc1e4a58047b",
+    "core\\paid_api.py": "26b43fd402c68acb8247c479e64abca007a8bde44574bb5dd16fa0ff7d20048c",
+    "core\\redaction.py": "b7e4a065e28d835a0815fe74f6ab5facdacc0cfef959729a2f59e4b539d918e8",
+    "core\\skill_loader.py": "0a73014b50fa4b3a4abb9fc4d3eb5e395a1d35d2f38d77bcf987f931835a209d",
+    "tooling\\__init__.py": "53b3602f6378be9bc32bb35171041307193e01582838e1c7d20b71547a3fedc7",
+    "tooling\\knowledge_base.py": "8c993cceb6569070040e4facc7f4379957cdb8656826dc85d5467a5f3b80439c",
+    "tooling\\mcp_client.py": "756fdd3a0b9ca80cb7c84e496ec53a958e6ba5a48ce48b1f559b69fb1d623425",
+    "tooling\\mcp_server.py": "31f8386ee65b5ac25f193a6cfbf7fac6ed56716ce8b8310a64f16174e36e7803",
+    "tooling\\tool_manager.py": "2c67b72680f75272e80b706f7bce9dc24bd7e58ec9f730f86ba56e895047501a"
+  },
+  "backend": "postgresql/redis/chroma/e5",
+  "schema": "iteration_eval_fa4f5bc398064d8081cb601556f76f92",
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "2.441194",
+    "available_cny": "15.558806",
+    "calls": {
+      "settled": 579
+    },
+    "usage_input_tokens": 988513,
+    "usage_output_tokens": 58021,
+    "unresolved_reservation_cny": "0"
+  },
+  "started": 1793103846.1326733,
+  "provenance": "Frozen synthetic held-out data. No production claims; deterministic assertions primary, same Flash Judge is auxiliary and correlated.",
+  "results": [
+    {
+      "id": "hold-001",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "access",
+        "software",
+        "permissions",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 31.84880001936108,
+      "degraded": false
+    },
+    {
+      "id": "hold-002",
+      "mode": "bm25",
+      "documents": [
+        "vpn",
+        "access",
+        "access",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.76369998557493,
+      "degraded": false
+    },
+    {
+      "id": "hold-003",
+      "mode": "bm25",
+      "documents": [
+        "vpn",
+        "permissions",
+        "devices",
+        "vpn",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 33.69650000240654,
+      "degraded": false
+    },
+    {
+      "id": "hold-004",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "access",
+        "permissions",
+        "permissions",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.3333333333333333,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.74129998823628,
+      "degraded": false
+    },
+    {
+      "id": "hold-005",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "permissions",
+        "permissions",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.280199981760234,
+      "degraded": false
+    },
+    {
+      "id": "hold-006",
+      "mode": "bm25",
+      "documents": [
+        "permissions",
+        "access",
+        "devices",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.43019997049123,
+      "degraded": false
+    },
+    {
+      "id": "hold-007",
+      "mode": "bm25",
+      "documents": [
+        "permissions",
+        "access",
+        "software",
+        "permissions",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.327500003390014,
+      "degraded": false
+    },
+    {
+      "id": "hold-008",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "licensing",
+        "endpoint",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.25,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.461799967568368,
+      "degraded": false
+    },
+    {
+      "id": "hold-009",
+      "mode": "bm25",
+      "documents": [
+        "permissions",
+        "access",
+        "permissions",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.269400015939027,
+      "degraded": false
+    },
+    {
+      "id": "hold-010",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "licensing",
+        "permissions",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.3333333333333333,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.7697999952361,
+      "degraded": false
+    },
+    {
+      "id": "hold-011",
+      "mode": "bm25",
+      "documents": [
+        "permissions",
+        "access",
+        "devices",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.8913000151515,
+      "degraded": false
+    },
+    {
+      "id": "hold-012",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "permissions",
+        "licensing",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.94149996386841,
+      "degraded": false
+    },
+    {
+      "id": "hold-013",
+      "mode": "bm25",
+      "documents": [
+        "permissions",
+        "access",
+        "devices",
+        "permissions",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.77439999813214,
+      "degraded": false
+    },
+    {
+      "id": "hold-014",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "access",
+        "vpn",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.122899948153645,
+      "degraded": false
+    },
+    {
+      "id": "hold-015",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "permissions",
+        "software",
+        "software",
+        "licensing"
+      ],
+      "recall_at_5": 0.0,
+      "mrr_at_5": 0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.171500027179718,
+      "degraded": false
+    },
+    {
+      "id": "hold-016",
+      "mode": "bm25",
+      "documents": [
+        "software",
+        "vpn",
+        "devices",
+        "permissions",
+        "devices"
+      ],
+      "recall_at_5": 0.0,
+      "mrr_at_5": 0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.585500025656074,
+      "degraded": false
+    },
+    {
+      "id": "hold-017",
+      "mode": "bm25",
+      "documents": [
+        "permissions",
+        "devices",
+        "access",
+        "permissions",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.164799976162612,
+      "degraded": false
+    },
+    {
+      "id": "hold-018",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "permissions",
+        "permissions",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.980700008105487,
+      "degraded": false
+    },
+    {
+      "id": "hold-019",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "permissions",
+        "permissions",
+        "devices",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.628300023730844,
+      "degraded": false
+    },
+    {
+      "id": "hold-020",
+      "mode": "bm25",
+      "documents": [
+        "permissions",
+        "access",
+        "access",
+        "permissions",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.705100026447326,
+      "degraded": false
+    },
+    {
+      "id": "hold-021",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "access",
+        "permissions",
+        "devices",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.3333333333333333,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.817899990826845,
+      "degraded": false
+    },
+    {
+      "id": "hold-022",
+      "mode": "bm25",
+      "documents": [
+        "permissions",
+        "licensing",
+        "access",
+        "permissions",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.349500033073127,
+      "degraded": false
+    },
+    {
+      "id": "hold-023",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "permissions",
+        "software",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 25.644399982411414,
+      "degraded": false
+    },
+    {
+      "id": "hold-024",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "permissions",
+        "vpn",
+        "endpoint",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.206199978943914,
+      "degraded": false
+    },
+    {
+      "id": "hold-025",
+      "mode": "bm25",
+      "documents": [
+        "vpn",
+        "endpoint",
+        "endpoint",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.69299996038899,
+      "degraded": false
+    },
+    {
+      "id": "hold-026",
+      "mode": "bm25",
+      "documents": [
+        "vpn",
+        "software",
+        "access",
+        "permissions",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.993800002150238,
+      "degraded": false
+    },
+    {
+      "id": "hold-027",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "licensing",
+        "licensing",
+        "endpoint",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.8122999696061,
+      "degraded": false
+    },
+    {
+      "id": "hold-028",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "devices",
+        "access",
+        "devices",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.816700003109872,
+      "degraded": false
+    },
+    {
+      "id": "hold-029",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "permissions",
+        "devices",
+        "software",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.908000047318637,
+      "degraded": false
+    },
+    {
+      "id": "hold-030",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "software",
+        "licensing",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.783399982377887,
+      "degraded": false
+    },
+    {
+      "id": "hold-031",
+      "mode": "bm25",
+      "documents": [
+        "software",
+        "endpoint",
+        "endpoint",
+        "software",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 25.973399984650314,
+      "degraded": false
+    },
+    {
+      "id": "hold-032",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "vpn",
+        "software",
+        "endpoint",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.88539999164641,
+      "degraded": false
+    },
+    {
+      "id": "hold-033",
+      "mode": "bm25",
+      "documents": [
+        "vpn",
+        "licensing",
+        "endpoint",
+        "endpoint",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.333399990107864,
+      "degraded": false
+    },
+    {
+      "id": "hold-034",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "software",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.714399970136583,
+      "degraded": false
+    },
+    {
+      "id": "hold-035",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "software",
+        "vpn",
+        "vpn",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.62489995500073,
+      "degraded": false
+    },
+    {
+      "id": "hold-036",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "vpn",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 32.42820000741631,
+      "degraded": false
+    },
+    {
+      "id": "hold-037",
+      "mode": "bm25",
+      "documents": [
+        "software",
+        "software",
+        "endpoint",
+        "vpn",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 32.44109998922795,
+      "degraded": false
+    },
+    {
+      "id": "hold-038",
+      "mode": "bm25",
+      "documents": [
+        "software",
+        "software",
+        "licensing",
+        "devices",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.3698000498116,
+      "degraded": false
+    },
+    {
+      "id": "hold-039",
+      "mode": "bm25",
+      "documents": [
+        "vpn",
+        "software",
+        "vpn",
+        "access",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 33.80390000529587,
+      "degraded": false
+    },
+    {
+      "id": "hold-040",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "vpn",
+        "permissions",
+        "access",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 34.49509997153655,
+      "degraded": false
+    },
+    {
+      "id": "hold-041",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 31.419700011610985,
+      "degraded": false
+    },
+    {
+      "id": "hold-042",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "vpn",
+        "endpoint",
+        "software",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.367800034582615,
+      "degraded": false
+    },
+    {
+      "id": "hold-043",
+      "mode": "bm25",
+      "documents": [
+        "software",
+        "software",
+        "licensing",
+        "software",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.711100029293448,
+      "degraded": false
+    },
+    {
+      "id": "hold-044",
+      "mode": "bm25",
+      "documents": [
+        "software",
+        "vpn",
+        "endpoint",
+        "endpoint",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.01559997210279,
+      "degraded": false
+    },
+    {
+      "id": "hold-045",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "vpn",
+        "access",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 32.293799973558635,
+      "degraded": false
+    },
+    {
+      "id": "hold-046",
+      "mode": "bm25",
+      "documents": [
+        "vpn",
+        "vpn",
+        "permissions",
+        "software",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.05429997574538,
+      "degraded": false
+    },
+    {
+      "id": "hold-047",
+      "mode": "bm25",
+      "documents": [
+        "software",
+        "licensing",
+        "endpoint",
+        "vpn",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 31.239999982062727,
+      "degraded": false
+    },
+    {
+      "id": "hold-048",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "software",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.25,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 31.18350001750514,
+      "degraded": false
+    },
+    {
+      "id": "hold-049",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "permissions",
+        "licensing",
+        "vpn",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 31.322200025897473,
+      "degraded": false
+    },
+    {
+      "id": "hold-050",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "software",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.74619996873662,
+      "degraded": false
+    },
+    {
+      "id": "hold-051",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "endpoint",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.397199999541044,
+      "degraded": false
+    },
+    {
+      "id": "hold-052",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "software",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.27350004715845,
+      "degraded": false
+    },
+    {
+      "id": "hold-053",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.2613000231795,
+      "degraded": false
+    },
+    {
+      "id": "hold-054",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 25.84069996373728,
+      "degraded": false
+    },
+    {
+      "id": "hold-055",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.36680000089109,
+      "degraded": false
+    },
+    {
+      "id": "hold-056",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "endpoint",
+        "licensing",
+        "licensing",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.49450003122911,
+      "degraded": false
+    },
+    {
+      "id": "hold-057",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "devices",
+        "endpoint",
+        "software",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.444299961440265,
+      "degraded": false
+    },
+    {
+      "id": "hold-058",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "devices",
+        "software",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.289199992083013,
+      "degraded": false
+    },
+    {
+      "id": "hold-059",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "devices",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.361299969721586,
+      "degraded": false
+    },
+    {
+      "id": "hold-060",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "vpn",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.7252999949269,
+      "degraded": false
+    },
+    {
+      "id": "hold-061",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "software",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 32.79059997294098,
+      "degraded": false
+    },
+    {
+      "id": "hold-062",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "software",
+        "software",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 31.751299975439906,
+      "degraded": false
+    },
+    {
+      "id": "hold-063",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "endpoint",
+        "endpoint",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.923499969299883,
+      "degraded": false
+    },
+    {
+      "id": "hold-064",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "vpn",
+        "software",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 31.1702000326477,
+      "degraded": false
+    },
+    {
+      "id": "hold-065",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "access",
+        "licensing",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 32.33310003997758,
+      "degraded": false
+    },
+    {
+      "id": "hold-066",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "access",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 31.217999989166856,
+      "degraded": false
+    },
+    {
+      "id": "hold-067",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "vpn",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 34.12000002572313,
+      "degraded": false
+    },
+    {
+      "id": "hold-068",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "devices",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.334400033112615,
+      "degraded": false
+    },
+    {
+      "id": "hold-069",
+      "mode": "bm25",
+      "documents": [
+        "software",
+        "licensing",
+        "licensing",
+        "software",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 34.30180001305416,
+      "degraded": false
+    },
+    {
+      "id": "hold-070",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "endpoint",
+        "endpoint",
+        "licensing",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.721499992068857,
+      "degraded": false
+    },
+    {
+      "id": "hold-071",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.296800017822534,
+      "degraded": false
+    },
+    {
+      "id": "hold-072",
+      "mode": "bm25",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.834199987817556,
+      "degraded": false
+    },
+    {
+      "id": "hold-073",
+      "mode": "bm25",
+      "documents": [
+        "permissions",
+        "devices",
+        "software",
+        "endpoint",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.25729997130111,
+      "degraded": false
+    },
+    {
+      "id": "hold-074",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "vpn",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.3333333333333333,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.078899988438934,
+      "degraded": false
+    },
+    {
+      "id": "hold-075",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "permissions",
+        "devices",
+        "licensing",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.1150999837555,
+      "degraded": false
+    },
+    {
+      "id": "hold-076",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "licensing",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.688099970575422,
+      "degraded": false
+    },
+    {
+      "id": "hold-077",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "software",
+        "vpn",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 33.548599982168525,
+      "degraded": false
+    },
+    {
+      "id": "hold-078",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.829899965785444,
+      "degraded": false
+    },
+    {
+      "id": "hold-079",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "endpoint",
+        "software",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.627399974036962,
+      "degraded": false
+    },
+    {
+      "id": "hold-080",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "software",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.841999978292733,
+      "degraded": false
+    },
+    {
+      "id": "hold-081",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "access",
+        "licensing",
+        "devices",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 35.393099999055266,
+      "degraded": false
+    },
+    {
+      "id": "hold-082",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "permissions",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.987099987920374,
+      "degraded": false
+    },
+    {
+      "id": "hold-083",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "access",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.881699942052364,
+      "degraded": false
+    },
+    {
+      "id": "hold-084",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "permissions",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 30.64549999544397,
+      "degraded": false
+    },
+    {
+      "id": "hold-085",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "permissions",
+        "software",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.201600002124906,
+      "degraded": false
+    },
+    {
+      "id": "hold-086",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.09399999771267,
+      "degraded": false
+    },
+    {
+      "id": "hold-087",
+      "mode": "bm25",
+      "documents": [
+        "access",
+        "devices",
+        "devices",
+        "endpoint",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 28.948599996510893,
+      "degraded": false
+    },
+    {
+      "id": "hold-088",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.180399978533387,
+      "degraded": false
+    },
+    {
+      "id": "hold-089",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.48489997955039,
+      "degraded": false
+    },
+    {
+      "id": "hold-090",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "endpoint",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.084500015713274,
+      "degraded": false
+    },
+    {
+      "id": "hold-091",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 29.21549999155104,
+      "degraded": false
+    },
+    {
+      "id": "hold-092",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "permissions",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.29130001878366,
+      "degraded": false
+    },
+    {
+      "id": "hold-093",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "licensing",
+        "devices",
+        "software",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 25.827799981925637,
+      "degraded": false
+    },
+    {
+      "id": "hold-094",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.970100007019937,
+      "degraded": false
+    },
+    {
+      "id": "hold-095",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "vpn",
+        "access",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.82449999358505,
+      "degraded": false
+    },
+    {
+      "id": "hold-096",
+      "mode": "bm25",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 27.453700022306293,
+      "degraded": false
+    },
+    {
+      "id": "hold-097",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "devices",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.030700013507158,
+      "degraded": false
+    },
+    {
+      "id": "hold-098",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "software",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.84810000937432,
+      "degraded": false
+    },
+    {
+      "id": "hold-099",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "devices",
+        "access",
+        "software",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 25.10450000409037,
+      "degraded": false
+    },
+    {
+      "id": "hold-100",
+      "mode": "bm25",
+      "documents": [
+        "endpoint",
+        "software",
+        "endpoint",
+        "endpoint",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 26.54880000045523,
+      "degraded": false
+    },
+    {
+      "id": "hold-001",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "endpoint",
+        "permissions",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.1490000076592,
+      "degraded": false
+    },
+    {
+      "id": "hold-002",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "permissions",
+        "access",
+        "endpoint",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 37.58190001826733,
+      "degraded": false
+    },
+    {
+      "id": "hold-003",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "licensing",
+        "permissions",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.25,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.52800003066659,
+      "degraded": false
+    },
+    {
+      "id": "hold-004",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "access",
+        "access",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.35939995851368,
+      "degraded": false
+    },
+    {
+      "id": "hold-005",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "permissions",
+        "access",
+        "access",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.12000000895932,
+      "degraded": false
+    },
+    {
+      "id": "hold-006",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "permissions",
+        "access",
+        "access",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.72519998205826,
+      "degraded": false
+    },
+    {
+      "id": "hold-007",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "licensing",
+        "licensing",
+        "access",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 38.614299963228405,
+      "degraded": false
+    },
+    {
+      "id": "hold-008",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "permissions",
+        "access",
+        "permissions",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.93220002343878,
+      "degraded": false
+    },
+    {
+      "id": "hold-009",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "permissions",
+        "permissions",
+        "access",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.301800007000566,
+      "degraded": false
+    },
+    {
+      "id": "hold-010",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "licensing",
+        "access",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.16249996190891,
+      "degraded": false
+    },
+    {
+      "id": "hold-011",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "permissions",
+        "permissions",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.833699950482696,
+      "degraded": false
+    },
+    {
+      "id": "hold-012",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "access",
+        "licensing",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.481299981474876,
+      "degraded": false
+    },
+    {
+      "id": "hold-013",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "licensing",
+        "endpoint",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.90700000617653,
+      "degraded": false
+    },
+    {
+      "id": "hold-014",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "access",
+        "access",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.9739999556914,
+      "degraded": false
+    },
+    {
+      "id": "hold-015",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "licensing",
+        "access",
+        "permissions",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.3333333333333333,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.25100000621751,
+      "degraded": false
+    },
+    {
+      "id": "hold-016",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "access",
+        "licensing",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 47.08960000425577,
+      "degraded": false
+    },
+    {
+      "id": "hold-017",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "permissions",
+        "permissions",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.450400011148304,
+      "degraded": false
+    },
+    {
+      "id": "hold-018",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "access",
+        "permissions",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.3333333333333333,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 38.78979996079579,
+      "degraded": false
+    },
+    {
+      "id": "hold-019",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "permissions",
+        "permissions",
+        "devices",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.37100001005456,
+      "degraded": false
+    },
+    {
+      "id": "hold-020",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "access",
+        "permissions",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.3333333333333333,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.03309999825433,
+      "degraded": false
+    },
+    {
+      "id": "hold-021",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "access",
+        "access",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.08980002254248,
+      "degraded": false
+    },
+    {
+      "id": "hold-022",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "access",
+        "permissions",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.815800031647086,
+      "degraded": false
+    },
+    {
+      "id": "hold-023",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "access",
+        "permissions",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.158100018743426,
+      "degraded": false
+    },
+    {
+      "id": "hold-024",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "access",
+        "licensing",
+        "endpoint",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.772899996023625,
+      "degraded": false
+    },
+    {
+      "id": "hold-025",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "access",
+        "endpoint",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 0.0,
+      "mrr_at_5": 0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.98280002269894,
+      "degraded": false
+    },
+    {
+      "id": "hold-026",
+      "mode": "vector",
+      "documents": [
+        "vpn",
+        "access",
+        "vpn",
+        "permissions",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.73980000289157,
+      "degraded": false
+    },
+    {
+      "id": "hold-027",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "access",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 83.98850000230595,
+      "degraded": false
+    },
+    {
+      "id": "hold-028",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "licensing",
+        "endpoint",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 73.07899999432266,
+      "degraded": false
+    },
+    {
+      "id": "hold-029",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "software",
+        "access",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 50.67329999292269,
+      "degraded": false
+    },
+    {
+      "id": "hold-030",
+      "mode": "vector",
+      "documents": [
+        "software",
+        "devices",
+        "licensing",
+        "endpoint",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.756599988322705,
+      "degraded": false
+    },
+    {
+      "id": "hold-031",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "software",
+        "devices",
+        "software",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 38.44869998283684,
+      "degraded": false
+    },
+    {
+      "id": "hold-032",
+      "mode": "vector",
+      "documents": [
+        "vpn",
+        "endpoint",
+        "vpn",
+        "vpn",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 37.00459998799488,
+      "degraded": false
+    },
+    {
+      "id": "hold-033",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "vpn",
+        "endpoint",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.3333333333333333,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 36.53979999944568,
+      "degraded": false
+    },
+    {
+      "id": "hold-034",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "licensing",
+        "access",
+        "endpoint",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.96170001523569,
+      "degraded": false
+    },
+    {
+      "id": "hold-035",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "access",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.88039994612336,
+      "degraded": false
+    },
+    {
+      "id": "hold-036",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "devices",
+        "endpoint",
+        "software",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.61280003609136,
+      "degraded": false
+    },
+    {
+      "id": "hold-037",
+      "mode": "vector",
+      "documents": [
+        "software",
+        "endpoint",
+        "licensing",
+        "endpoint",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 63.10800003120676,
+      "degraded": false
+    },
+    {
+      "id": "hold-038",
+      "mode": "vector",
+      "documents": [
+        "software",
+        "licensing",
+        "endpoint",
+        "licensing",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.41529999813065,
+      "degraded": false
+    },
+    {
+      "id": "hold-039",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "endpoint",
+        "vpn",
+        "software",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.3333333333333333,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 38.18109998246655,
+      "degraded": false
+    },
+    {
+      "id": "hold-040",
+      "mode": "vector",
+      "documents": [
+        "access",
+        "endpoint",
+        "vpn",
+        "access",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.316900005564094,
+      "degraded": false
+    },
+    {
+      "id": "hold-041",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "licensing",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.34270001668483,
+      "degraded": false
+    },
+    {
+      "id": "hold-042",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "devices",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 49.272999982349575,
+      "degraded": false
+    },
+    {
+      "id": "hold-043",
+      "mode": "vector",
+      "documents": [
+        "software",
+        "licensing",
+        "licensing",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.57629999099299,
+      "degraded": false
+    },
+    {
+      "id": "hold-044",
+      "mode": "vector",
+      "documents": [
+        "software",
+        "licensing",
+        "endpoint",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.96169997844845,
+      "degraded": false
+    },
+    {
+      "id": "hold-045",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "access",
+        "permissions",
+        "endpoint",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.971399972680956,
+      "degraded": false
+    },
+    {
+      "id": "hold-046",
+      "mode": "vector",
+      "documents": [
+        "vpn",
+        "vpn",
+        "access",
+        "vpn",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.027900006156415,
+      "degraded": false
+    },
+    {
+      "id": "hold-047",
+      "mode": "vector",
+      "documents": [
+        "software",
+        "licensing",
+        "permissions",
+        "access",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 38.726800004951656,
+      "degraded": false
+    },
+    {
+      "id": "hold-048",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "devices",
+        "endpoint"
+      ],
+      "recall_at_5": 0.0,
+      "mrr_at_5": 0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.36500001186505,
+      "degraded": false
+    },
+    {
+      "id": "hold-049",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "permissions",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.72310001356527,
+      "degraded": false
+    },
+    {
+      "id": "hold-050",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "permissions",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.44129997398704,
+      "degraded": false
+    },
+    {
+      "id": "hold-051",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.13589998148382,
+      "degraded": false
+    },
+    {
+      "id": "hold-052",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.15730000194162,
+      "degraded": false
+    },
+    {
+      "id": "hold-053",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.66159997880459,
+      "degraded": false
+    },
+    {
+      "id": "hold-054",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "access",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.586399977561086,
+      "degraded": false
+    },
+    {
+      "id": "hold-055",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "devices",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 47.05599998123944,
+      "degraded": false
+    },
+    {
+      "id": "hold-056",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "permissions",
+        "access",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.706600019708276,
+      "degraded": false
+    },
+    {
+      "id": "hold-057",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "endpoint",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.824000029824674,
+      "degraded": false
+    },
+    {
+      "id": "hold-058",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.961200011428446,
+      "degraded": false
+    },
+    {
+      "id": "hold-059",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "devices",
+        "licensing",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.84359996765852,
+      "degraded": false
+    },
+    {
+      "id": "hold-060",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "devices",
+        "licensing",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.20650000590831,
+      "degraded": false
+    },
+    {
+      "id": "hold-061",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.71049994369969,
+      "degraded": false
+    },
+    {
+      "id": "hold-062",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "access",
+        "permissions",
+        "access",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.01700001815334,
+      "degraded": false
+    },
+    {
+      "id": "hold-063",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.993699983228,
+      "degraded": false
+    },
+    {
+      "id": "hold-064",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "software",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.54700000071898,
+      "degraded": false
+    },
+    {
+      "id": "hold-065",
+      "mode": "vector",
+      "documents": [
+        "permissions",
+        "licensing",
+        "permissions",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.33079999964684,
+      "degraded": false
+    },
+    {
+      "id": "hold-066",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "permissions",
+        "permissions",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.16229999717325,
+      "degraded": false
+    },
+    {
+      "id": "hold-067",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "permissions",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.27220002980903,
+      "degraded": false
+    },
+    {
+      "id": "hold-068",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "permissions",
+        "permissions",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.044299971777946,
+      "degraded": false
+    },
+    {
+      "id": "hold-069",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "access",
+        "licensing",
+        "endpoint",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.39049996249378,
+      "degraded": false
+    },
+    {
+      "id": "hold-070",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "endpoint",
+        "licensing",
+        "access",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.835700002498925,
+      "degraded": false
+    },
+    {
+      "id": "hold-071",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.37479997007176,
+      "degraded": false
+    },
+    {
+      "id": "hold-072",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "permissions",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.046000006143004,
+      "degraded": false
+    },
+    {
+      "id": "hold-073",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "software",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.75690004276112,
+      "degraded": false
+    },
+    {
+      "id": "hold-074",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.915399990510195,
+      "degraded": false
+    },
+    {
+      "id": "hold-075",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "access",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.20790002727881,
+      "degraded": false
+    },
+    {
+      "id": "hold-076",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "endpoint",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.00500001711771,
+      "degraded": false
+    },
+    {
+      "id": "hold-077",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.44609998911619,
+      "degraded": false
+    },
+    {
+      "id": "hold-078",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.606000010389835,
+      "degraded": false
+    },
+    {
+      "id": "hold-079",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "licensing",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.93140000663698,
+      "degraded": false
+    },
+    {
+      "id": "hold-080",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "licensing",
+        "devices",
+        "endpoint",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.76520004309714,
+      "degraded": false
+    },
+    {
+      "id": "hold-081",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "devices",
+        "access",
+        "access",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.894799997564405,
+      "degraded": false
+    },
+    {
+      "id": "hold-082",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.284200026188046,
+      "degraded": false
+    },
+    {
+      "id": "hold-083",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "licensing",
+        "devices",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.638099995907396,
+      "degraded": false
+    },
+    {
+      "id": "hold-084",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "endpoint",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.61830001976341,
+      "degraded": false
+    },
+    {
+      "id": "hold-085",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "software",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 48.59040002338588,
+      "degraded": false
+    },
+    {
+      "id": "hold-086",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "software",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.0719000287354,
+      "degraded": false
+    },
+    {
+      "id": "hold-087",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "endpoint",
+        "devices",
+        "endpoint",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.375999968498945,
+      "degraded": false
+    },
+    {
+      "id": "hold-088",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.01430000830442,
+      "degraded": false
+    },
+    {
+      "id": "hold-089",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.594200026243925,
+      "degraded": false
+    },
+    {
+      "id": "hold-090",
+      "mode": "vector",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.25,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 48.572200001217425,
+      "degraded": false
+    },
+    {
+      "id": "hold-091",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 47.336700023151934,
+      "degraded": false
+    },
+    {
+      "id": "hold-092",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.171799985226244,
+      "degraded": false
+    },
+    {
+      "id": "hold-093",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "permissions",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.26739997789264,
+      "degraded": false
+    },
+    {
+      "id": "hold-094",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.6275999895297,
+      "degraded": false
+    },
+    {
+      "id": "hold-095",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "endpoint",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.6094999788329,
+      "degraded": false
+    },
+    {
+      "id": "hold-096",
+      "mode": "vector",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.700599974021316,
+      "degraded": false
+    },
+    {
+      "id": "hold-097",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "access",
+        "permissions",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 89.07689998159185,
+      "degraded": false
+    },
+    {
+      "id": "hold-098",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 61.38999998802319,
+      "degraded": false
+    },
+    {
+      "id": "hold-099",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "access",
+        "licensing",
+        "endpoint",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 59.55559998983517,
+      "degraded": false
+    },
+    {
+      "id": "hold-100",
+      "mode": "vector",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "devices",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 67.37190001877025,
+      "degraded": false
+    },
+    {
+      "id": "hold-001",
+      "mode": "hybrid",
+      "documents": [
+        "access",
+        "access",
+        "licensing",
+        "endpoint",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 76.49360003415495,
+      "degraded": false
+    },
+    {
+      "id": "hold-002",
+      "mode": "hybrid",
+      "documents": [
+        "access",
+        "access",
+        "permissions",
+        "vpn",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 72.04739999724552,
+      "degraded": false
+    },
+    {
+      "id": "hold-003",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "permissions",
+        "licensing",
+        "devices",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.12219999358058,
+      "degraded": false
+    },
+    {
+      "id": "hold-004",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "access",
+        "access",
+        "access",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.37720000371337,
+      "degraded": false
+    },
+    {
+      "id": "hold-005",
+      "mode": "hybrid",
+      "documents": [
+        "access",
+        "permissions",
+        "access",
+        "access",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 55.21600000793114,
+      "degraded": false
+    },
+    {
+      "id": "hold-006",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "permissions",
+        "access",
+        "devices",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 47.546899993903935,
+      "degraded": false
+    },
+    {
+      "id": "hold-007",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "access",
+        "access",
+        "permissions",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 47.0117999939248,
+      "degraded": false
+    },
+    {
+      "id": "hold-008",
+      "mode": "hybrid",
+      "documents": [
+        "access",
+        "permissions",
+        "access",
+        "permissions",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.0962999924086,
+      "degraded": false
+    },
+    {
+      "id": "hold-009",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "permissions",
+        "access",
+        "permissions",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.682899966370314,
+      "degraded": false
+    },
+    {
+      "id": "hold-010",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "permissions",
+        "access",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.8748000045307,
+      "degraded": false
+    },
+    {
+      "id": "hold-011",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "permissions",
+        "permissions",
+        "access",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.57689996343106,
+      "degraded": false
+    },
+    {
+      "id": "hold-012",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "licensing",
+        "permissions",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.664799966383725,
+      "degraded": false
+    },
+    {
+      "id": "hold-013",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "licensing",
+        "access",
+        "devices",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.970199974253774,
+      "degraded": false
+    },
+    {
+      "id": "hold-014",
+      "mode": "hybrid",
+      "documents": [
+        "access",
+        "access",
+        "permissions",
+        "licensing",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.004000009503216,
+      "degraded": false
+    },
+    {
+      "id": "hold-015",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "permissions",
+        "licensing",
+        "access",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.25,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.77990000648424,
+      "degraded": false
+    },
+    {
+      "id": "hold-016",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "devices",
+        "licensing",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 0.0,
+      "mrr_at_5": 0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.02650001691654,
+      "degraded": false
+    },
+    {
+      "id": "hold-017",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "permissions",
+        "permissions",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.46750003565103,
+      "degraded": false
+    },
+    {
+      "id": "hold-018",
+      "mode": "hybrid",
+      "documents": [
+        "access",
+        "permissions",
+        "access",
+        "permissions",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.38250003941357,
+      "degraded": false
+    },
+    {
+      "id": "hold-019",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "permissions",
+        "permissions",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.38260004017502,
+      "degraded": false
+    },
+    {
+      "id": "hold-020",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "access",
+        "access",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.45499999867752,
+      "degraded": false
+    },
+    {
+      "id": "hold-021",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "access",
+        "permissions",
+        "access",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 46.01140000158921,
+      "degraded": false
+    },
+    {
+      "id": "hold-022",
+      "mode": "hybrid",
+      "documents": [
+        "permissions",
+        "access",
+        "permissions",
+        "access",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.31589995510876,
+      "degraded": false
+    },
+    {
+      "id": "hold-023",
+      "mode": "hybrid",
+      "documents": [
+        "access",
+        "permissions",
+        "permissions",
+        "devices",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.12340002413839,
+      "degraded": false
+    },
+    {
+      "id": "hold-024",
+      "mode": "hybrid",
+      "documents": [
+        "access",
+        "permissions",
+        "endpoint",
+        "access",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 38.412900001276284,
+      "degraded": false
+    },
+    {
+      "id": "hold-025",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "vpn",
+        "endpoint",
+        "vpn",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.23419996863231,
+      "degraded": false
+    },
+    {
+      "id": "hold-026",
+      "mode": "hybrid",
+      "documents": [
+        "vpn",
+        "access",
+        "vpn",
+        "permissions",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.21660000924021,
+      "degraded": false
+    },
+    {
+      "id": "hold-027",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "licensing",
+        "endpoint",
+        "devices",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.72139995312318,
+      "degraded": false
+    },
+    {
+      "id": "hold-028",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "licensing",
+        "endpoint",
+        "devices",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.42059999099001,
+      "degraded": false
+    },
+    {
+      "id": "hold-029",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "software",
+        "devices",
+        "endpoint",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 48.02729998482391,
+      "degraded": false
+    },
+    {
+      "id": "hold-030",
+      "mode": "hybrid",
+      "documents": [
+        "software",
+        "endpoint",
+        "licensing",
+        "licensing",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 48.613399965688586,
+      "degraded": false
+    },
+    {
+      "id": "hold-031",
+      "mode": "hybrid",
+      "documents": [
+        "software",
+        "software",
+        "devices",
+        "endpoint",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.512799988500774,
+      "degraded": false
+    },
+    {
+      "id": "hold-032",
+      "mode": "hybrid",
+      "documents": [
+        "vpn",
+        "endpoint",
+        "endpoint",
+        "vpn",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 48.93280001124367,
+      "degraded": false
+    },
+    {
+      "id": "hold-033",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "vpn",
+        "endpoint",
+        "licensing",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 49.65780000202358,
+      "degraded": false
+    },
+    {
+      "id": "hold-034",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "licensing",
+        "software",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.57399996276945,
+      "degraded": false
+    },
+    {
+      "id": "hold-035",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "vpn",
+        "access",
+        "endpoint",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.62150000128895,
+      "degraded": false
+    },
+    {
+      "id": "hold-036",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "devices",
+        "software",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 49.212500045541674,
+      "degraded": false
+    },
+    {
+      "id": "hold-037",
+      "mode": "hybrid",
+      "documents": [
+        "software",
+        "endpoint",
+        "endpoint",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 48.51190000772476,
+      "degraded": false
+    },
+    {
+      "id": "hold-038",
+      "mode": "hybrid",
+      "documents": [
+        "software",
+        "software",
+        "licensing",
+        "licensing",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.32139997091144,
+      "degraded": false
+    },
+    {
+      "id": "hold-039",
+      "mode": "hybrid",
+      "documents": [
+        "vpn",
+        "access",
+        "software",
+        "endpoint",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.32329996395856,
+      "degraded": false
+    },
+    {
+      "id": "hold-040",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "access",
+        "vpn",
+        "permissions",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.90630002692342,
+      "degraded": false
+    },
+    {
+      "id": "hold-041",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 48.49770001601428,
+      "degraded": false
+    },
+    {
+      "id": "hold-042",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "endpoint",
+        "devices",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.66249996423721,
+      "degraded": false
+    },
+    {
+      "id": "hold-043",
+      "mode": "hybrid",
+      "documents": [
+        "software",
+        "licensing",
+        "software",
+        "software",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.62890001013875,
+      "degraded": false
+    },
+    {
+      "id": "hold-044",
+      "mode": "hybrid",
+      "documents": [
+        "software",
+        "endpoint",
+        "licensing",
+        "licensing",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.38000002503395,
+      "degraded": false
+    },
+    {
+      "id": "hold-045",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "access",
+        "permissions",
+        "access",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 49.40419999184087,
+      "degraded": false
+    },
+    {
+      "id": "hold-046",
+      "mode": "hybrid",
+      "documents": [
+        "vpn",
+        "vpn",
+        "access",
+        "endpoint",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 46.16410000016913,
+      "degraded": false
+    },
+    {
+      "id": "hold-047",
+      "mode": "hybrid",
+      "documents": [
+        "software",
+        "licensing",
+        "licensing",
+        "permissions",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.77079997397959,
+      "degraded": false
+    },
+    {
+      "id": "hold-048",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "endpoint",
+        "software",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.25,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 46.18129995651543,
+      "degraded": false
+    },
+    {
+      "id": "hold-049",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "permissions",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 50.59240001719445,
+      "degraded": false
+    },
+    {
+      "id": "hold-050",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "permissions",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.25100003229454,
+      "degraded": false
+    },
+    {
+      "id": "hold-051",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 46.84819997055456,
+      "degraded": false
+    },
+    {
+      "id": "hold-052",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 57.78219999046996,
+      "degraded": false
+    },
+    {
+      "id": "hold-053",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 57.23399994894862,
+      "degraded": false
+    },
+    {
+      "id": "hold-054",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "access",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.70580001361668,
+      "degraded": false
+    },
+    {
+      "id": "hold-055",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "devices",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 46.42009997041896,
+      "degraded": false
+    },
+    {
+      "id": "hold-056",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "endpoint",
+        "permissions",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 58.14649997046217,
+      "degraded": false
+    },
+    {
+      "id": "hold-057",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "devices",
+        "endpoint",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.832799980416894,
+      "degraded": false
+    },
+    {
+      "id": "hold-058",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "software",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.813400007318705,
+      "degraded": false
+    },
+    {
+      "id": "hold-059",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.6586999935098,
+      "degraded": false
+    },
+    {
+      "id": "hold-060",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "permissions",
+        "licensing",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.32179998932406,
+      "degraded": false
+    },
+    {
+      "id": "hold-061",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.32699998142198,
+      "degraded": false
+    },
+    {
+      "id": "hold-062",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "access",
+        "access",
+        "licensing",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 46.41869995975867,
+      "degraded": false
+    },
+    {
+      "id": "hold-063",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 57.61919997166842,
+      "degraded": false
+    },
+    {
+      "id": "hold-064",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "software",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 47.9732999810949,
+      "degraded": false
+    },
+    {
+      "id": "hold-065",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "permissions",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 45.83680001087487,
+      "degraded": false
+    },
+    {
+      "id": "hold-066",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "permissions",
+        "licensing",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.50460001640022,
+      "degraded": false
+    },
+    {
+      "id": "hold-067",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 46.155799995176494,
+      "degraded": false
+    },
+    {
+      "id": "hold-068",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "permissions",
+        "devices",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.30310003226623,
+      "degraded": false
+    },
+    {
+      "id": "hold-069",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "software",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.79060004046187,
+      "degraded": false
+    },
+    {
+      "id": "hold-070",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "endpoint",
+        "licensing",
+        "access",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.834100033156574,
+      "degraded": false
+    },
+    {
+      "id": "hold-071",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.72920001251623,
+      "degraded": false
+    },
+    {
+      "id": "hold-072",
+      "mode": "hybrid",
+      "documents": [
+        "licensing",
+        "licensing",
+        "licensing",
+        "licensing",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.09269997570664,
+      "degraded": false
+    },
+    {
+      "id": "hold-073",
+      "mode": "hybrid",
+      "documents": [
+        "software",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.346700015012175,
+      "degraded": false
+    },
+    {
+      "id": "hold-074",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "devices",
+        "devices",
+        "devices",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.5,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 47.20890003954992,
+      "degraded": false
+    },
+    {
+      "id": "hold-075",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "access",
+        "devices",
+        "permissions"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.188900035806,
+      "degraded": false
+    },
+    {
+      "id": "hold-076",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.81270002340898,
+      "degraded": false
+    },
+    {
+      "id": "hold-077",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.455899994820356,
+      "degraded": false
+    },
+    {
+      "id": "hold-078",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 37.7235000487417,
+      "degraded": false
+    },
+    {
+      "id": "hold-079",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "endpoint",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 37.95239998726174,
+      "degraded": false
+    },
+    {
+      "id": "hold-080",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "endpoint",
+        "devices",
+        "licensing"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.76080002030358,
+      "degraded": false
+    },
+    {
+      "id": "hold-081",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "licensing",
+        "access",
+        "endpoint",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.183300036005676,
+      "degraded": false
+    },
+    {
+      "id": "hold-082",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.448800009675324,
+      "degraded": false
+    },
+    {
+      "id": "hold-083",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.67520001344383,
+      "degraded": false
+    },
+    {
+      "id": "hold-084",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "endpoint",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.229500038549304,
+      "degraded": false
+    },
+    {
+      "id": "hold-085",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "software",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 47.64280002564192,
+      "degraded": false
+    },
+    {
+      "id": "hold-086",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.11729997768998,
+      "degraded": false
+    },
+    {
+      "id": "hold-087",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "endpoint",
+        "devices",
+        "access",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 44.16049999417737,
+      "degraded": false
+    },
+    {
+      "id": "hold-088",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.16830004891381,
+      "degraded": false
+    },
+    {
+      "id": "hold-089",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.327000024262816,
+      "degraded": false
+    },
+    {
+      "id": "hold-090",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "licensing",
+        "licensing",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 37.516299984417856,
+      "degraded": false
+    },
+    {
+      "id": "hold-091",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.369000020902604,
+      "degraded": false
+    },
+    {
+      "id": "hold-092",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.68200000235811,
+      "degraded": false
+    },
+    {
+      "id": "hold-093",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "licensing",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 40.258900029584765,
+      "degraded": false
+    },
+    {
+      "id": "hold-094",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.3198999594897,
+      "degraded": false
+    },
+    {
+      "id": "hold-095",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "endpoint",
+        "vpn"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 38.79730001790449,
+      "degraded": false
+    },
+    {
+      "id": "hold-096",
+      "mode": "hybrid",
+      "documents": [
+        "devices",
+        "devices",
+        "devices",
+        "devices",
+        "devices"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.60500003490597,
+      "degraded": false
+    },
+    {
+      "id": "hold-097",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "devices",
+        "licensing",
+        "access"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 41.55580000951886,
+      "degraded": false
+    },
+    {
+      "id": "hold-098",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "devices",
+        "licensing",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 42.036700004246086,
+      "degraded": false
+    },
+    {
+      "id": "hold-099",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "access",
+        "licensing",
+        "devices",
+        "endpoint"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 43.482800014317036,
+      "degraded": false
+    },
+    {
+      "id": "hold-100",
+      "mode": "hybrid",
+      "documents": [
+        "endpoint",
+        "endpoint",
+        "devices",
+        "devices",
+        "software"
+      ],
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0,
+      "citation_valid": true,
+      "span_valid": true,
+      "latency_ms": 39.09829998156056,
+      "degraded": false
+    }
+  ],
+  "metrics": {
+    "bm25": {
+      "recall_at_5": 0.98,
+      "mrr_at_5": 0.8783333333333333,
+      "citation_valid": 1,
+      "span_valid": 1,
+      "latency_ms": 29.232573995832354
+    },
+    "vector": {
+      "recall_at_5": 0.98,
+      "mrr_at_5": 0.8816666666666667,
+      "citation_valid": 1,
+      "span_valid": 1,
+      "latency_ms": 44.47850499826018
+    },
+    "hybrid": {
+      "recall_at_5": 0.99,
+      "mrr_at_5": 0.925,
+      "citation_valid": 1,
+      "span_valid": 1,
+      "latency_ms": 44.80856400099583
+    }
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "2.441194",
+    "available_cny": "15.558806",
+    "calls": {
+      "settled": 579
+    },
+    "usage_input_tokens": 988513,
+    "usage_output_tokens": 58021,
+    "unresolved_reservation_cny": "0"
+  },
+  "finished": 1793103859.491012,
+  "budget_note": "Cumulative shared ledger is never reset; failures and uncertain calls remain charged conservatively."
+}
