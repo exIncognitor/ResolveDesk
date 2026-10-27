@@ -103,3 +103,18 @@ def test_postgres_concurrent_schema_initialization_and_time_precision(postgres_s
         db.execute("INSERT INTO quality_baselines VALUES('test','precision','test','{}',?)",(precise,))
     with store.db() as db:
         assert abs(db.execute("SELECT created FROM quality_baselines").fetchone()[0]-precise)<.00001
+
+
+@pytest.mark.services
+def test_postgres_fencing_uses_database_clock_despite_worker_clock_skew(postgres_store,monkeypatch):
+    import resolvedesk.store as module
+    from types import SimpleNamespace
+    p=Principal("demo","clock-worker")
+    run,_=postgres_store.create_run(p,"clock test","clock-key")
+    monkeypatch.setattr(module,"time",SimpleNamespace(time=lambda:0))
+    token=postgres_store.claim_execution(p,run["id"],"worker",60)
+    assert postgres_store.recover_expired()==0
+    assert postgres_store.renew_execution(p,token)
+    monkeypatch.setattr(module,"time",SimpleNamespace(time=lambda:9999999999))
+    with postgres_store.execution(token):postgres_store.checkpoint(p,run["id"],{"valid":True})
+    assert postgres_store.recover_expired()==0

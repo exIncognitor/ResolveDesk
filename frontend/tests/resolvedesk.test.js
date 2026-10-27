@@ -62,6 +62,30 @@ test('API permission failures remain failures',async t=>{
  await assert.rejects(deskRequest({pythonToken:'user',endpoints:{python:''}},'/skills/reload','POST'),e=>e.status===403)
 })
 
+test('losing the initial SSE stream after the UI adopts the conversation does not create a paid reply on retry',async t=>{
+ const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)
+ const s={pythonToken:'initial-retry',conversationId:'',endpoints:{python:''}}
+ const posts=[];let fail=true,key
+ globalThis.fetch=async(url,options)=>{
+  if(options.method==='POST'){
+   key=JSON.parse(options.body).request_key;posts.push([url,key])
+   return Response.json({id:'adopted-run',status:'queued',turn_key:key,event_cursor:1})
+  }
+  if(url.includes('/events?')){
+   if(fail){fail=false;throw Error('stream disconnected')}
+   return new Response('id: 3\nevent: completed\ndata: {}\n\n')
+  }
+  if(url.includes('/turns/'))return Response.json({id:'adopted-run',answer:'saved original answer',status:'completed',event_cursor:1,event_end:3})
+  if(url.includes('/trace/tool/'))return Response.json({trace:{events:[]}})
+  throw Error('Retry must not choose a new reply endpoint')
+ }
+ const onEvent=e=>{if(e.kind==='run')s.conversationId=e.payload.id}
+ await assert.rejects(requestChat('python',s,'initial message',{onEvent}),/stream disconnected/)
+ const result=await requestChat('python',s,'initial message',{onEvent})
+ assert.deepEqual(posts[0],posts[1]);assert.equal(posts[1][0],'/runs')
+ assert.equal(result.response,'saved original answer')
+})
+
 test('quality submission preserves options and returns job identity for baseline review',async t=>{
  const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)
  globalThis.fetch=async(url,options)=>{

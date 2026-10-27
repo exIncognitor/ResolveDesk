@@ -10,6 +10,7 @@ from contextlib import contextmanager
 import hashlib
 from pathlib import Path
 import re
+import time
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
@@ -82,6 +83,10 @@ class Connection:
 
     def locked(self, sql):
         return sql+" FOR UPDATE" if self.backend == "postgresql" and self.write else sql
+
+    def now(self):
+        # SQL owns lease expiry across worker hosts with different wall clocks.
+        return float(self.execute("SELECT EXTRACT(EPOCH FROM clock_timestamp())").fetchone()[0]) if self.backend=="postgresql" else time.time()
 
     def execute(self, sql, values=()):
         if self.backend=="postgresql" and re.match(r"^\s*CREATE TABLE IF NOT EXISTS\b",sql,re.I):

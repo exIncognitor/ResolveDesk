@@ -121,7 +121,7 @@ class Store:
             raise KeyError("Run not found")
         token = _execution.get()
         if token and token.run_id == run_id and db.write and row["status"] == "running":
-            if row["execution_owner"] != token.owner or row["execution_epoch"] != token.epoch or row["lease_until"] <= time.time():
+            if row["execution_owner"] != token.owner or row["execution_epoch"] != token.epoch or row["lease_until"] <= db.now():
                 raise FencedExecution("Execution ownership expired or changed")
         return row
 
@@ -205,15 +205,17 @@ class Store:
             if row["status"] != "queued":
                 return None
             epoch = row["execution_epoch"]+1
-            db.execute("UPDATE runs SET status='running',execution_owner=?,execution_epoch=?,lease_until=?,updated=? WHERE id=?", (owner,epoch,time.time()+lease_seconds,time.time(),run_id))
+            now=db.now()
+            db.execute("UPDATE runs SET status='running',execution_owner=?,execution_epoch=?,lease_until=?,updated=? WHERE id=?", (owner,epoch,now+lease_seconds,now,run_id))
             self._event(db, run_id, "running", {"epoch":epoch})
             self._receipt(db,self._run(db,p,run_id))
             return ExecutionToken(run_id,owner,epoch)
 
     def renew_execution(self,p,token,lease_seconds=120):
         with self.db(True) as db:
+            now=db.now()
             updated = db.execute("UPDATE runs SET lease_until=? WHERE id=? AND tenant=? AND owner=? AND status='running' AND execution_owner=? AND execution_epoch=? AND lease_until>?",
-                (time.time()+lease_seconds,token.run_id,p.tenant,p.user,token.owner,token.epoch,time.time()))
+                (now+lease_seconds,token.run_id,p.tenant,p.user,token.owner,token.epoch,now))
             return updated.rowcount==1
 
     def lose_execution(self,p,token,reason="lease_lost"):
@@ -378,8 +380,8 @@ class Store:
 
     def recover_expired(self):
         """Service mode: do not pause another live worker's active execution."""
-        now = time.time()
         with self.db(True) as db:
+            now=db.now()
             rows = db.execute(db.locked("SELECT id,tenant,owner FROM runs WHERE (status='running' AND lease_until<=?) OR (status='queued' AND updated<?)"),(now,now-180)).fetchall()
             for row in rows:
                 db.execute("UPDATE runs SET status='paused',execution_owner=NULL,lease_until=0,error='execution_interrupted',updated=? WHERE id=?",(now,row["id"]))

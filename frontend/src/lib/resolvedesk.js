@@ -59,6 +59,11 @@ export async function requestChat(_,s,message,{onEvent=()=>{},isCurrent=()=>true
     attempt={path,request_key:crypto.randomUUID()};attempts.set(key,attempt)
   }
   run=await deskRequest(s,attempt.path,'POST',{message,request_key:attempt.request_key},signal)
+  // The UI adopts a newly created conversation before SSE finishes. A retry
+  // after losing that stream must still reuse the original creation receipt.
+  attempt.keys??=new Set([key])
+  const adoptedKey=JSON.stringify([s.pythonToken,run.id,message])
+  attempt.keys.add(adoptedKey);attempts.set(adoptedKey,attempt)
   onEvent({kind:'run',payload:run})
   const turnKey=run.turn_key||attempt.request_key
   const events=await fetch(backendMeta('python',s).baseUrl+`/runs/${run.id}/events?after=${run.event_cursor||0}&turn_key=${encodeURIComponent(turnKey)}`,{headers:{Authorization:`Bearer ${s.pythonToken}`},signal:signal||AbortSignal.timeout(120000)})
@@ -66,10 +71,10 @@ export async function requestChat(_,s,message,{onEvent=()=>{},isCurrent=()=>true
   await consumeEvents(events,onEvent,isCurrent)
   if(!isCurrent())return null
   run=await deskRequest(s,`/runs/${run.id}/turns/${encodeURIComponent(turnKey)}`)
-  attempts.delete(key)
+  for(const alias of attempt.keys)if(attempts.get(alias)===attempt)attempts.delete(alias)
   const trace=await deskRequest(s,`/trace/tool/${run.id}`)
   const turnEvents=trace.trace.events.filter(e=>e.seq>=(run.event_cursor||0)&&e.seq<=(run.event_end||Infinity))
   const route=turnEvents.filter(e=>e.kind==='routing').at(-1)?.payload||{}
   return {conversationId:run.id,requestId:run.id,response:run.answer,intent:route.intent||'other',primaryAgent:route.primary||'general',agentType:route.primary||'general',
-    supportingAgents:route.supporting||[],routingReason:route.reason||'',routingConfidence:route.confidence||0,knowledgeUsed:trace.trace.events.some(e=>e.kind==='retrieval'),raw:run}
+    supportingAgents:route.supporting||[],routingReason:route.reason||'',routingConfidence:route.confidence||0,knowledgeUsed:turnEvents.some(e=>e.kind==='retrieval'),raw:run}
 }
