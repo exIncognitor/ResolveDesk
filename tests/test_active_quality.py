@@ -55,9 +55,14 @@ async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_pa
     async def search(self, p, query, top_k=5, **kwargs): return self.knowledge.search(p, query, top_k)
     async def route(self, p, run_id, message, history, context):
         label = classify(message)["intent"]
+        state=self.entities.merge(p,run_id,message,label)
+        if wrong_fields and '请准备权限申请' in message:
+            # Deliberately corrupt the authoritative extraction fixture. A
+            # wrong model suggestion alone is now corrected by literal slots.
+            state['entities']['duration_days']=['14']
         role = {"account_access": "general", "device_service": "technical", "network_endpoint": "technical", "software_license": "billing"}.get(label, "general")
         if '鼓包' in message:role='escalation'
-        return {"intent": label, "primary": role, "supporting": []}
+        return {"intent": label, "primary": role, "supporting": [],'entities':state['entities'],'entity_state':state}
     monkeypatch.setattr(DeskServices, "search", search)
     monkeypatch.setattr(DeskServices, "route", route)
     def fake_client():
