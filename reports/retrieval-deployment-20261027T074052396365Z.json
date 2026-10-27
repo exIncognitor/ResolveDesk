@@ -1,0 +1,40 @@
+{
+  "revision": "f1de2756b576d126144a808c23b40703b7e8cac9",
+  "running_container_revision": "f1de2756b576d126144a808c23b40703b7e8cac9",
+  "source_hashes_equal": true,
+  "source_sha256": {
+    "resolvedesk/reliable_retrieval.py": "3db6df2f5af11d4d5cabc8a9d4193fe782896df2742f93deadaf79df75ef8548",
+    "resolvedesk/retrieval.py": "e98fcba21a71aa98c8b5e7afdd99532b498f4ff47f223487dd81e2f5ee5649b3",
+    "resolvedesk/services.py": "7f7f139ce4d6e9a17ae1761443e5218d239880d6383867ab847623908778b7c9",
+    "resolvedesk/app.py": "66fd4cd735362eae355c1c3564f23986593fc6a1022e79210b0abab25785cfe3",
+    "resolvedesk/roles.py": "77cc4f6dedbfe8ad6d1d1fee71c93628b454f8c8829029f56adb3bcf6859b0d6",
+    "resolvedesk/agent.py": "52c5d639cb57da2c40a4a2702532e6039b673b843a933d899122ac64e48a0b5d",
+    "tooling/tool_manager.py": "842b38adcd4f9dab333841617fe2ecb658f0eec9fd23dbb43d760fb01383f788"
+  },
+  "python_tests": {
+    "passed": 270,
+    "subtests": 14
+  },
+  "real_retrieval_acceptance": {
+    "passed": 16,
+    "total": 16,
+    "evidence": "reports/retrieval-runtime-20261027T073230497072Z.json"
+  },
+  "host_retrieval": "reports/services-runtime-20261027T073955854929Z.json",
+  "docker_retrieval": "reports/services-runtime-20261027T073955823015Z.json",
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.724282",
+    "available_cny": "16.275718",
+    "calls": {
+      "settled": 381
+    },
+    "usage_input_tokens": 693605,
+    "usage_output_tokens": 42134,
+    "unresolved_reservation_cny": "0"
+  },
+  "snapshot": ".codex-runtime/checkpoints/g06-20261027T073743120550Z-1ae792bd",
+  "paid_calls_made_by_this_check": 0,
+  "host_workers": 2
+}
