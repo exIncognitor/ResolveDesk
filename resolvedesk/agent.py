@@ -189,7 +189,10 @@ class DeskAgent:
             # Revalidate every source against current permissions and document version.
             try:
                 for citation in state["sources"]:
-                    self.knowledge.citation(p,citation)
+                    current=self.knowledge.citation(p,citation)
+                    if any(state['sources'][citation].get(key)!=value for key,value in current.items()):
+                        state=None
+                        break
             except KeyError:
                 state = None
         if state is None or state.get("phase")=="bootstrap":
@@ -428,7 +431,7 @@ class DeskAgent:
                 signal=re.findall(hazards,latest)
                 selected=sorted(evidence,key=lambda item:-sum(term in item[1]["content"] for term in signal))[:2]
                 guidance="\n".join(item["content"].strip()+" ["+citation+"]" for citation,item in selected)
-                answer="本次按安全/人工升级问题处理。\n"+("以下是当前知识库可核验的制度原文：\n"+guidance if guidance else "当前知识库没有可核验的处置依据，请联系IT人员处理。")
+                answer="本次按安全/人工升级问题处理。\n"+("以下是当前知识库可核验的资料原文：\n"+guidance if guidance else "当前知识库没有可核验的处置依据，请联系IT人员处理。")
                 answer+="\n系统尚未连接真实人工队列；请通过现有IT渠道联系人员核验。尚未创建维修工单、提交审批或开通权限。"
                 self.store.event(p,run_id,"handoff_prepared",{"urgency":context["routing"].get("urgency"),"external_queue_connected":False,"citations":[citation for citation,_ in selected]})
                 self.store.finish(p,run_id,"failed" if result["status"]=="failed" else "completed",answer,
@@ -455,5 +458,5 @@ class DeskAgent:
 
     async def _validate_sources(self,p,sources):
         current=await asyncio.to_thread(self.knowledge.validate_citations,p,list(sources))
-        if len(current)!=len(sources) or any(current[c]!={k:sources[c][k] for k in current[c]} for c in current):
+        if len(current)!=len(sources) or any(current[c]!={k:sources[c].get(k) for k in current[c]} for c in current):
             raise RuntimeError("Knowledge authorization or version changed")

@@ -127,6 +127,27 @@ def test_review_api_enforces_authenticated_role_and_both_versions(knowledge):
 
 
 @pytest.mark.asyncio
+async def test_legacy_paused_checkpoint_refreshes_after_metadata_enrollment(knowledge):
+    from unittest.mock import AsyncMock
+    from resolvedesk.agent import DeskAgent
+    kb=knowledge
+    kb.add(SUPPORT,'policy','VPN','# VPN\nVPN legacy')
+    source=kb.search(USER,'VPN')['items'][0]
+    run,_=kb.store.create_run(USER,'VPN 连接超时','legacy-publication-checkpoint')
+    kb.store.claim(USER,run['id'])
+    kb.store.checkpoint(USER,run['id'],{'phase':'loop','sources':{source['citation']:source}})
+    kb.add(SUPPORT,'policy','VPN','# VPN\nVPN legacy',metadata=metadata());change(kb)
+    assert kb.citation(USER,source['citation'])['version']==source['version']
+    agent=DeskAgent(kb.store,kb,client_with())
+    agent._bootstrap=AsyncMock(return_value=None)
+    try:
+        with pytest.raises(RuntimeError):await agent._validate_sources(USER,{source['citation']:source})
+        await agent._loop(USER,run['id'])
+        assert agent._bootstrap.await_count==1 and agent._bootstrap.call_args.args[-1] is None
+    finally:await agent.close()
+
+
+@pytest.mark.asyncio
 async def test_frozen_sandbox_preserves_publication_authority(tmp_path,knowledge):
     kb=knowledge;add(kb);change(kb);add(kb,doc='draft')
     state=EvalState(kb.store,'synthetic-governance-snapshot')
