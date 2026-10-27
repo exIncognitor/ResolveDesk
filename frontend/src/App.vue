@@ -346,6 +346,7 @@
         </section>
         <section class="workspace-card"><h2>评测任务记录</h2><button @click="loadEvaluationJobs">加载记录（客服）</button><label>恢复时额外增加秒数（0–3600，0 表示只用剩余时间）<input v-model.number="evaluationExtraTime" type="number" min="0" max="3600" /></label><p>恢复会复用已完成结果；无法确认结果的付费步骤不会自动重调。</p><p v-for="job in evaluationJobs" :key="job.job_id">{{ job.options.kind || 'retrieval' }} · {{ job.status }} · {{ job.completed }}/{{ job.total }} · 用时 {{ Math.ceil(job.used_s || 0) }}/{{ job.budget_s }} 秒 <button @click="openEvaluationJob(job)" :disabled="busy">查看结果</button><button v-if="['paused','failed'].includes(job.status)" @click="continueEvaluationJob(job)" :disabled="busy">恢复未完成部分（可能产生模型费用）</button></p></section>
         <div v-if="evalData" class="evaluation-content">
+          <section class="workspace-card"><button @click="loadEvaluationRetention">预览评测保留（客服）</button><p>回收需在运维端核验备份后显式执行；已选基线、作者评测集和运行中任务会保留。</p><p v-if="evaluationRetention">当前可回收 {{ evaluationRetention.plans?.length || 0 }} 项，受保护 {{ evaluationRetention.protected?.length || 0 }} 项。</p><details v-if="evaluationRetention"><summary>查看范围与保护原因</summary><pre>{{ formatJson(evaluationRetention) }}</pre></details></section>
           <p v-if="evalData.kind === 'active_service_quality'">{{ evalData.provenance }} · 意图样本 {{ evalData.intent?.samples }} 条 · 对话 {{ evalData.total }} 组。评分错误不会记为有效评分。</p>
           <button v-if="evalData.kind === 'active_service_quality' && evalData.job_id" @click="saveQualityBaseline" :disabled="busy || evalData.evaluation_errors > 0 || evalData.passed !== evalData.total">将当前报告设为回归基线（客服）</button>
           <div class="evaluation-summary">
@@ -568,6 +569,7 @@ const evaluationDataset = ref('')
 const savedDatasetId = ref('')
 const evaluationTimeout = ref(540)
 const evaluationExtraTime = ref(0)
+const evaluationRetention = ref(null)
 const evaluationJobs = ref([])
 const toast = ref('')
 let toastTimer
@@ -906,6 +908,14 @@ async function loadEvaluationJobs() {
   const request = requestState.begin('evaluation-jobs')
   try { const data = await deskRequest(request.settings, '/eval/jobs'); if (request.isCurrent()) evaluationJobs.value = data }
   catch (error) { if (request.isCurrent()) showToast(error.message) }
+}
+
+async function loadEvaluationRetention() {
+  const request = requestState.begin('evaluation-retention')
+  try {
+    const data = await deskRequest(request.settings, '/eval/retention')
+    if (request.isCurrent()) evaluationRetention.value = data
+  } catch (error) { if (request.isCurrent()) showToast(error.message) }
 }
 
 async function openEvaluationJob(job) {

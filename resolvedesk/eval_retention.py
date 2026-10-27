@@ -45,7 +45,8 @@ class EvalRetention:
         row=db.execute('SELECT payload FROM eval_snapshots WHERE job_id=?',(job_id,)).fetchone()
         manifest=json.loads(row[0]) if row else {}
         resources=resource_plan(manifest)
-        return {'job_id':job_id,'tenant':p.tenant,'owner':p.user,'resources':resources,
+        if resources and resources['backend']!='postgresql':raise ValueError('Offline fixture is preserved; requires a separate verified file archive')
+        return {'job_id':job_id,'tenant':p.tenant,'owner':p.user,'source_schema':self.store.database.schema,'resources':resources,
             'result_fingerprint':digest(job['result']),'options_fingerprint':digest(job['options']),
             'manifest_fingerprint':digest(manifest),'units':db.execute('SELECT COUNT(*) FROM eval_units WHERE job_id=?',(job_id,)).fetchone()[0]}
 
@@ -115,6 +116,7 @@ class ServiceResourceCleaner:
     def remove(self,db,resources):
         if resources['backend']!='postgresql' or db.backend!='postgresql':raise ValueError('Use archived offline fixtures; service cleanup requires PostgreSQL')
         schema=resources['schema']
+        if schema==db.schema:raise ValueError('Cannot retire the source application schema')
         exists=db.execute('SELECT 1 FROM pg_namespace WHERE nspname=?',(schema,)).fetchone()
         if exists:
             marker=db.execute('SELECT fingerprint FROM "'+schema+'".eval_sandbox_meta WHERE id=1').fetchone()
@@ -137,14 +139,16 @@ class ServiceResourceCleaner:
         for key in self.redis.scan_iter(match=namespace+'*',count=100):
             if not key.startswith(namespace) or len(keys)>=5000:raise ValueError('Unexpected sandbox Redis key set')
             keys.append(key)
-        for name in names:
-            response=self.http.delete(self.base+'/'+name)
-            if response.status_code!=404:response.raise_for_status()
-        if keys:self.redis.delete(*keys)
+        # Execute transactional SQL dependency checks before remote deletion.
+        # Unknown views/FKs/functions cause a rollback, without any CASCADE.
         for table in sorted(tables):
             if not re.fullmatch('[a-z_][a-z0-9_]*',table):raise ValueError('Invalid sandbox table name')
             db.execute('DROP TABLE "'+schema+'"."'+table+'"')
         if exists:db.execute('DROP SCHEMA "'+schema+'"')
+        for name in names:
+            response=self.http.delete(self.base+'/'+name)
+            if response.status_code!=404:response.raise_for_status()
+        if keys:self.redis.delete(*keys)
 
     def close(self):self.redis.close();self.http.close()
 
@@ -159,5 +163,6 @@ class VerifiedArchive:
             if path.is_symlink() or path.is_junction():raise ValueError('Unexpected backup link')
         if not self.path.is_file() or self.path.stat().st_size<100 or hashlib.sha256(self.path.read_bytes()).hexdigest()!=self.sha256:raise ValueError('Backup verification failed')
         schema=(plan.get('resources') or {}).get('schema')
+        if plan.get('source_schema') and plan['source_schema'] not in self.schemas:raise ValueError('Backup does not cover the source application schema')
         if schema and schema not in self.schemas:raise ValueError('Backup does not cover the selected sandbox')
         return {'path':str(self.path),'sha256':self.sha256}

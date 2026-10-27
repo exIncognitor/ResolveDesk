@@ -98,7 +98,19 @@ async def test_real_services_retire_exact_sandbox_and_recover_after_remote_failu
         await sandbox.close()
         archive=backup_local_compose(store)
         plan=service.retention.preview(SUPPORT,job_id=identity)['plans'][0]
+        # An outside dependency must block retirement without deleting the view
+        # or any remote vectors. DROP ... CASCADE is deliberately forbidden.
+        with store.db(True) as db:
+            db.execute('CREATE VIEW external_synthetic_dependency AS SELECT id FROM "'+manifest['identity']+'".runs')
         original_delete=cleaner.http.delete
+        deletes=[]
+        def track_delete(*args,**kwargs):deletes.append(args[0]);return original_delete(*args,**kwargs)
+        monkeypatch.setattr(cleaner.http,'delete',track_delete)
+        with pytest.raises(Exception):service.retention.apply(SUPPORT,identity,plan['confirmation'],cleaner,archive)
+        assert not deletes
+        with store.db(True) as db:
+            assert db.execute('SELECT COUNT(*) FROM external_synthetic_dependency').fetchone()[0]==0
+            db.execute('DROP VIEW external_synthetic_dependency')
         calls=[]
         def fail_once(*args,**kwargs):
             calls.append(args[0])
