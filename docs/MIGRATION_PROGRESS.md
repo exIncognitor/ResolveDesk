@@ -4,6 +4,8 @@
 
 代码起点：86f2cfd。技术决策见 `ARCHITECTURE_DECISIONS.md`。静态审计基线保留，不覆盖既有失败或通过报告。
 
+最终本地发布：`a73e7c1`，Python334项及14子测试、前端29项与构建通过；宿主机双worker和Docker入口分别检索60/60、MCP11/11、API/真实CLI11/11，74个运行/前端/部署源文件及当前页面引用资源哈希一致。用户明确选择G13外部告警暂不配置，保留为待验收项，不发送通知。汇总见`FINAL_MIGRATION_ACCEPTANCE_2026-10-27.md`。
+
 | 包 | 状态 | 当前工作与证据 |
 | --- | --- | --- |
 | G01 意图链路 | 已实现并验收本包 | IT细粒度Flash/E5/规则三路融合实际驱动路由，记录来源/有效权重/融合分数；低置信追问、CRITICAL升级。自托管E5 HTTP与本地向量一致，配置确实进入当前router。已补职责说明与资产查询/设备政策/安装类别；G08真实开发回归51/52，仍保留401归属误判，不声称生产准确率 |
@@ -15,11 +17,11 @@
 | G07 MCP全链路 | 已实现并验收本包 | 正常启动JSON配置多stdio/HTTP服务、环境身份头、角色只读白名单、目录刷新/被动ping掉线重连；当前入口导出Bearer鉴权的/mcp/knowledge/标准Tools及计数/引用Resource、并发/切换身份隔离；support免费调试和真实意图向量provider/冷却状态；传输凭据脱敏。真实Flash主入口专业节点调用配置HTTP工具，17/17通过；泛化写MCP明确保留禁用。详见MCP_MIGRATION_2026-10-27.md |
 | G08 评测对齐 | 已实现并验收本包 | 实际识别器/逐轮Judge/自定义50轮/泛化断言/真实三服务沙盒/持久总时限和显式续时/不确定付费步骤不重调/跨版本有效基线/保留回收已接入。294项Python+14子测试、27项前端通过；独立进程强杀恢复和50轮当前ASGI通过；真实六段八轮及权限/维修状态全通过、意图51/52，标签不变同题23/26→25/26；部署端基线3/3、免费回收6/6。详见EVALUATION_MIGRATION_2026-10-27.md |
 | G09 监控对齐 | 已实现并验收本包 | 主执行epoch/专家实际角色和实例分别记账、未知中断耗时不造0、SQL累计Histogram/待投影恢复、Z-score、受限观察、工具熔断/结构化建议、成功率与延迟降权及真实恢复探测均已验。308项Python+14子测试、前端27通过，真实Flash15/15；两入口免费检索60/60和MCP11/11。见MONITORING_MIGRATION_2026-10-27.md |
-| G10 完整轨迹 | 已实现并验收当前ASGI；待统一发布 | 主/预检索/专业/MCP实际调用统一脱敏输入、输出摘要、独立时间/错误/缓存/回退；立即持久轨迹、逐轮/epoch隔离、稳定分页/最近列表和真实前端耗时均已验。315项Python+14子测试、前端28通过，真实Flash12/12。见TRACE_MIGRATION_2026-10-27.md |
-| G11 API与CLI | 待实施 | 原17接口去向、批量/文件导入、集成状态、交互CLI |
+| G10 完整轨迹 | 已实现并验收本包 | 主/预检索/专业/MCP实际调用统一脱敏输入、输出摘要、独立时间/错误/缓存/回退；立即持久轨迹、逐轮/epoch隔离、稳定分页/最近列表和真实前端耗时均已验。真实Flash12/12，最终334项Python+14子测试、前端29通过并已部署。见TRACE_MIGRATION_2026-10-27.md |
+| G11 API与CLI | 已实现并验收本包 | 原17接口及MCP/CLI逐项映射；服务端10 MiB/100篇导入、整批SQL事务/索引outbox、真实PG/Chroma/Redis投影与缓存失效、取消后并发仍受限；交互CLI走同一入口与身份/记忆/工具，网络不确定不自动重做恢复，草稿需确认版本。两入口API/上传/真实CLI各11/11，见API_CLI_MIGRATION_2026-10-27.md |
 | G12 请求/存储/并发 | 已实现并验收本包 | PostgreSQL、逐轮回执、前端重试、Redis续租/SQL fencing/数据库时钟、跨进程争用、Chroma outbox/ACL复核已验；原切换21表477条哈希证据保留。轨迹/检查点/响应体及评测/三服务沙盒均有显式保留策略：预览、备份、基线保护、精确归属、无CASCADE清理、失败重试及不可重执行墓碑。活动2/全局200/租户50作业限额和清理后容量释放已验；旧资料和离线夹具受保护。见EVAL_RETENTION_OPERATIONS.md |
-| G13 配置与部署 | 完整容器部署已验；外部通知未配置 | 应用/前端构建/网关/Prometheus/PG/Redis/Chroma六服务已运行；/ready全通过、Prometheus up=1。当前9fc64e8，宿主机2 workers与容器入口分别60/60免费检索、MCP11/11，50个运行源码哈希一致；308项Python/14子测试、27项前端通过。外部Webhook仍为空，不声称已发真实企业通知；实际配置RESOLVEDESK_ALERT_WEBHOOK |
+| G13 配置与部署 | 配置/容器已验；真实外部通知按用户选择延期 | 当前a73e7c1；六服务运行、两入口ready、Prometheus up=1；74个源码/前端/部署输入及当前引用资源哈希一致。334项Python/14子测试、前端29通过。已校验全库备份，不倒退财务账本。外部RESOLVEDESK_ALERT_WEBHOOK按用户明确选择暂不配置，不声称已发送真实企业通知 |
 
 不得依据文档计划将项目标记为完成。API继续共享原累计20元账本并保留2元余量；旧费用账本必须完整保留，不通过重建服务或库重置消费。
 
-存储部署证据见 `SERVICE_CUTOVER_2026-10-27.md`；G01–G04证据与边界见 `IT_ENGINE_MIGRATION_2026-10-27.md`；G05及共享费用账本切换见 `MEMORY_MIGRATION_2026-10-27.md`；G06见 `RETRIEVAL_RELIABILITY_2026-10-27.md`；G07见 `MCP_MIGRATION_2026-10-27.md`；G08/G12联合验收及实际意图失败见 `EVALUATION_MIGRATION_2026-10-27.md`、`EVAL_RETENTION_OPERATIONS.md`；G09见 `MONITORING_MIGRATION_2026-10-27.md`。G10、G11及G13外部配置继续按固定范围推进，完整目标尚未完成。
+存储部署证据见 `SERVICE_CUTOVER_2026-10-27.md`；G01–G04见 `IT_ENGINE_MIGRATION_2026-10-27.md`；G05见 `MEMORY_MIGRATION_2026-10-27.md`；G06见 `RETRIEVAL_RELIABILITY_2026-10-27.md`；G07见 `MCP_MIGRATION_2026-10-27.md`；G08/G12见 `EVALUATION_MIGRATION_2026-10-27.md`、`EVAL_RETENTION_OPERATIONS.md`；G09/G10/G11分别见 `MONITORING_MIGRATION_2026-10-27.md`、`TRACE_MIGRATION_2026-10-27.md`、`API_CLI_MIGRATION_2026-10-27.md`。当前授权范围已完成本地开发/验收/部署；唯一明确保留的迁移验收项为用户暂不配置的真实外部通知，不将其计作完成。
