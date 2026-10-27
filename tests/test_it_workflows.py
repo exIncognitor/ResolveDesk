@@ -143,4 +143,6 @@ async def test_agent_prepares_workflow_without_materializing_it(store):
     await agent.execute(USER, run["id"])
     result = store.get_run(USER, run["id"])
     assert result["status"] == "awaiting_confirmation" and result["draft"]["workflow"] == "access_request"
+    assert "repo-resolvedesk" in result["answer"] and "7 天" in result["answer"]
+    assert "待审批" in result["answer"] and "目前尚未提交申请或开通权限" in result["answer"]
     assert not store.list_tickets(USER) and not agent.business.context(USER)["my_grants"]

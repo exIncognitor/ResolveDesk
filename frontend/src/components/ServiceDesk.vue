@@ -4,7 +4,7 @@
     <p role="status">{{ status }}</p>
     <section class="workspace-card"><h2>资源与本人资产</h2>
       <p>权限资源：{{ Object.keys(catalog.resources || {}).join('、') }}；最长 30 天，审批后另行开通。</p>
-      <p v-for="asset in catalog.my_assets || []" :key="asset.id">{{ asset.id }} · {{ asset.model }} · {{ asset.warranty }} · {{ asset.status }}</p>
+      <p v-for="asset in catalog.my_assets || []" :key="asset.id">{{ asset.id }} · {{ asset.model }} · {{ asset.warranty === 'in_warranty' ? '保修期内' : '已过保' }} · {{ asset.status === 'in_repair' ? '维修中' : '可用' }}</p>
       <p v-for="grant in catalog.my_grants || []" :key="grant.resource">有效权限：{{ grant.resource }} / {{ grant.level }}，到期 {{ new Date(grant.expires * 1000).toLocaleString() }}</p>
       <p v-for="license in catalog.licenses || []" :key="license.product">{{ license.product }} · {{ license.approval }} · 演示席位 {{ license.available_seats ?? '不适用' }}</p>
       <button @click="$emit('compose', '请帮我准备权限申请，先核对可申请资源并询问缺少的信息。')">申请权限</button>
@@ -12,7 +12,7 @@
     </section>
     <section class="workspace-card"><h2>申请与维修记录</h2><p v-if="!cases.length">暂无业务流程。通过对话准备草稿并确认后，会显示在这里。</p>
       <article v-for="item in cases" :key="item.ticket_id" class="service-case">
-        <h3>{{ item.fields.summary }} · {{ item.ticket_id }}</h3><p>{{ item.kind }} · {{ item.status }} · 版本 {{ item.version }} · 申请人 {{ item.owner }}</p>
+        <h3>{{ item.fields.summary }} · {{ item.ticket_id }}</h3><p>{{ item.kind === 'access_request' ? '权限申请' : '设备维修' }} · {{ states[item.status] || item.status }} · 申请人 {{ item.owner }}</p>
         <p>{{ item.fields.description }}</p><p v-if="item.assignee">处理人：{{ item.assignee }}</p>
         <label v-if="item.allowed_actions.length">处理或验收说明<input v-model="notes[item.ticket_id]" maxlength="2000" placeholder="填写审批依据、排障结果或验收情况" /></label>
         <button v-for="action in item.allowed_actions" :key="action" :disabled="busy || !notes[item.ticket_id]?.trim()" @click="act(item, action)">{{ labels[action] }}</button>
@@ -38,6 +38,7 @@ const requests = createRequestState(props.settings)
 const catalog = ref({}), cases = ref([]), monitor = ref({}), status = ref(''), busy = ref(false)
 const notes = reactive({}), attempts = new Map()
 const labels = { approve: '批准申请', reject: '驳回申请', provision: '模拟开通', cancel: '取消申请', triage: '完成分诊', assign: '分派给我', start: '开始处理', resolve: '提交处理结果', accept: '验收并关闭', reopen: '验收不通过，返工' }
+const states = { pending_approval: '待审批', approved: '已批准，待开通', fulfilled: '已模拟开通', rejected: '已驳回', cancelled: '已取消', submitted: '已提交，待分诊', triaged: '已分诊，待派单', assigned: '已派单', in_progress: '处理中', resolved: '处理完成，待验收', closed: '已验收关闭' }
 async function load() {
   const request = requests.begin('load')
   try {
