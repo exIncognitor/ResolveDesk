@@ -2,6 +2,9 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import json
+import time
+from copy import copy
+from types import SimpleNamespace
 
 import httpx
 from prometheus_client.parser import text_string_to_metric_families
@@ -131,7 +134,7 @@ async def test_actual_fallback_records_each_instance_and_main_partial(environmen
 async def test_latency_penalty_changes_actual_routing_and_fast_probe_recovers(environment):
     store,kb=environment;model=model_for()
     svc=DeskServices(store,kb,model,mcp_configs=[])
-    svc.monitor.policy['agent_avg_ms']=10;svc.probe_cooldown=.01
+    svc.monitor.policy['agent_avg_ms']=10;svc.probe_cooldown=30
     run,_=store.create_run(USER,'VPN连接超时','slow-routing');store.claim(USER,run['id'])
     try:
         for _ in range(3):
@@ -145,13 +148,62 @@ async def test_latency_penalty_changes_actual_routing_and_fast_probe_recovers(en
         async def fast(**kwargs):
             from test_resolvedesk import response
             return response('合成只读建议。')
-        for agent in svc.roles._pool[next(k for k in svc.roles._pool if k.value=='technical')]:agent._client=type('Model',(),{'messages':type('Messages',(),{'create':staticmethod(fast)})()})()
-        await asyncio.sleep(.02)
+        for agent in svc.roles._pool[next(k for k in svc.roles._pool if k.value=='technical')]:agent._client=SimpleNamespace(messages=SimpleNamespace(create=fast))
+        svc.routing_health[(USER.tenant,'technical')]['retry_at']=time.monotonic()-1
         probe=await svc.route(USER,run['id'],run['message'],[],{})
         assert probe['primary']=='technical' and probe['recovery_probe']
         await svc.consult(USER,run['id'],run['message'],[],{'evidence':[]},probe)
         assert (await svc.route(USER,run['id'],run['message'],[],{}))['primary']=='technical'
     finally:await svc.close()
+
+
+@pytest.mark.asyncio
+async def test_instance_penalties_select_the_other_actual_expert_without_cross_tenant_state(environment):
+    from agents.agent_orchestrator import AgentStats,AgentType
+    store,kb=environment;svc=DeskServices(store,kb,model_for(),mcp_configs=[])
+    pool=svc.roles._pool[AgentType.TECHNICAL]
+    original=pool[0];alternative=copy(original)
+    alternative.instance_id='synthetic-alternative';alternative.stats=AgentStats()
+    pool.append(alternative)
+    run,_=store.create_run(USER,'VPN连接超时','instance-routing');store.claim(USER,run['id'])
+    try:
+        for _ in range(3):
+            svc.monitor.record('demo','agent','technical',True,10,instance=original.instance_id)
+            svc.monitor.record('demo','agent','technical',True,.1,instance=alternative.instance_id)
+        routed=await svc.route(USER,run['id'],run['message'],[],{})
+        assert routed['primary']=='technical'
+        await svc.consult(USER,run['id'],run['message'],[],{'evidence':[]},routed)
+        with store.db() as db:
+            observed=db.execute("SELECT instance FROM telemetry WHERE kind='agent' AND owner=? ORDER BY seq DESC LIMIT 1",(USER.user,)).fetchone()
+            assert observed['instance']==alternative.instance_id
+        assert not svc.monitor.refresh('foreign')['instance_penalties']
+        assert original.stats.monitor_penalty==0  # No global tenant penalty mutation.
+    finally:await svc.close()
+
+
+@pytest.mark.asyncio
+async def test_new_turn_queued_during_old_cleanup_is_scheduled_after_cancellation(tmp_path):
+    store=Store(tmp_path/'schedule.sqlite3');agent=DeskAgent(store,HybridKnowledge(store),client_with())
+    first_done=asyncio.Event();second_done=asyncio.Event();calls=[]
+    run,_=store.create_run(USER,'first','schedule-first-turn')
+    async def owned(p,run_id):
+        calls.append(store.get_run(p,run_id)['turn_key'])
+        store.finish(p,run_id,'completed','answer')
+        if len(calls)==1:
+            first_done.set();await asyncio.Event().wait()
+        else:second_done.set()
+    agent._execute_owned=owned
+    try:
+        agent.schedule(USER,run['id'])
+        await asyncio.wait_for(first_done.wait(),2)
+        store.reply(USER,run['id'],'second','schedule-second-turn')
+        agent.schedule(USER,run['id'])
+        old_task=agent.tasks[run['id']];old_task.cancel()
+        await asyncio.gather(old_task,return_exceptions=True)
+        await asyncio.wait_for(second_done.wait(),2)
+        assert calls==['schedule-first-turn','schedule-second-turn']
+        assert agent.monitor.snapshot(SUPPORT)['run_stats']['desk']['status_counts']=={'success':2}
+    finally:await agent.close()
 
 
 @pytest.mark.asyncio

@@ -150,7 +150,9 @@ class DeskServices:
         sources={item["citation"]:item for item in context.get("evidence",[])}
         turn=self.store.get_run(p,run_id)
         instance_penalties=self.monitor.refresh(p.tenant)['instance_penalties']
+        observed_durations={}
         async def record(event):
+            observed_durations.setdefault(event['request_id'],{})[event['role']]=event['seconds']*1000
             try:self.store.event(p,run_id,'agent_execution',{k:v for k,v in event.items() if k!='tools'})
             except Exception:pass
             self.monitor.record(p.tenant,'agent',event['role'],event['success'],event['seconds'],owner=p.user,instance=event['instance'],
@@ -168,10 +170,13 @@ class DeskServices:
             try:
                 response=await self.roles._execute(req,AgentType(role))
                 fallback=any(t.get("event")=="agent_fallback" for t in response.tool_traces)
+                total_ms=round((time.monotonic()-started)*1000,3)
+                node_ms=observed_durations.get(req.request_id,{}).get(response.agent_type.value)
+                if node_ms is None:node_ms=response.latency_ms if response.latency_ms>0 else total_ms
                 result={"requested_role":role,"role":response.agent_type.value,"status":response.status if response.success else "failed",
                     "success":response.success and response.status=="success","answer":response.content[:1800],"fallback":fallback,
                     "escalate":response.escalate,"tools_used":response.tools_used,"tool_traces":redact(response.tool_traces),
-                    "latency_ms":round((time.monotonic()-started)*1000,3),"error_code":response.error_code}
+                    "latency_ms":node_ms,'total_latency_ms':total_ms,"error_code":response.error_code}
             except asyncio.CancelledError:
                 health=self.routing_health.get((p.tenant,role))
                 if health and health["probe"]:health.update(probe=False,retry_at=time.monotonic()+self.probe_cooldown)
