@@ -1,0 +1,15 @@
+{
+  "servers": [
+    {
+      "name": "support",
+      "transport": "stdio",
+      "command": "{python}",
+      "args": ["{project_root}/resolvedesk/mcp_support.py"],
+      "allowed_tools": ["support_checklist"],
+      "agents": ["general", "technical", "billing", "escalation"],
+      "read_only": true,
+      "timeout_s": 10,
+      "cache_ttl": 30
+    }
+  ]
+}

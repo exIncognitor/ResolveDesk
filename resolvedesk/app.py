@@ -78,6 +78,12 @@ class EvaluationOptions(Input):
     use_judge: bool = True
 
 
+class MCPDebugCall(Input):
+    tool: str = Field(min_length=1,max_length=64,pattern=r"^[A-Za-z0-9_-]+$")
+    arguments: dict = Field(default_factory=dict)
+    role: Literal["general","technical","billing","escalation"] = "general"
+
+
 def create_app(store=None, knowledge=None, agent=None, accounts=None):
     injected = store is not None
 
@@ -109,8 +115,14 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
             app.state.evaluations = EvaluationService(app.state.store,app.state.knowledge)
             app.state.store.recover_expired()
             app.state.agent.monitor.start()
-            yield
+            from resolvedesk.knowledge_mcp import create_knowledge_mcp
+            server,protocol=create_knowledge_mcp(app)
+            app.state.knowledge_mcp=server
+            app.state.knowledge_mcp_http=protocol
+            async with server.session_manager.run():
+                yield
         finally:
+            app.state.knowledge_mcp_http=None
             if hasattr(app.state,"evaluations"):
                 await app.state.evaluations.close()
             if hasattr(app.state, "agent"):
@@ -120,6 +132,14 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
             if not injected and hasattr(app.state,"store"): app.state.store.close()
 
     app = FastAPI(title="ResolveDesk", version="0.1.0", lifespan=lifespan)
+    class KnowledgeProtocolEndpoint:
+        async def __call__(self,scope,receive,send):
+            protocol=getattr(app.state,'knowledge_mcp_http',None)
+            if protocol is None:
+                from starlette.responses import JSONResponse
+                return await JSONResponse({'detail':'MCP protocol not ready'},status_code=503)(scope,receive,send)
+            return await protocol(scope,receive,send)
+    app.mount('/mcp/knowledge',KnowledgeProtocolEndpoint(),name='knowledge-mcp')
     if injected:
         app.state.store, app.state.knowledge, app.state.agent = store, knowledge, agent
         app.state.accounts = accounts or {}
@@ -348,6 +368,29 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
     def mcp(request:Request,p=Depends(principal)):
         services = request.app.state.agent.services
         return services.mcp.summary() if services else {"servers":[]}
+
+    @app.get("/integrations/mcp")
+    def mcp_integration(request:Request,p=Depends(principal)):
+        services=request.app.state.agent.services
+        return {"protocol_endpoint":"/mcp/knowledge/","read_only":True,
+            **(services.mcp.summary() if services else {"servers":[]})}
+
+    @app.post("/integrations/mcp/call")
+    async def mcp_debug(data:MCPDebugCall,request:Request,p=Depends(principal)):
+        if p.role!='support':raise PermissionError()
+        if len(encode(data.arguments).encode())>16000:raise HTTPException(413,"MCP arguments too large")
+        services=request.app.state.agent.services
+        if services is None:raise HTTPException(503,"MCP not configured")
+        try:return await services.call_external(p,data.tool,data.arguments,data.role)
+        except PermissionError:raise
+        except Exception:raise HTTPException(502,"Read-only MCP call failed") from None
+
+    @app.get("/integrations/intent-embedding")
+    def intent_embedding(request:Request,p=Depends(principal)):
+        if p.role!='support':raise PermissionError()
+        services=request.app.state.agent.services
+        if services is None:return {"configured":False,"state":"not_configured"}
+        return services.roles._intent_recognizer.embedding_status()
 
     @app.get("/monitor")
     def monitor(request:Request,p=Depends(principal)):

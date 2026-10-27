@@ -49,9 +49,14 @@ class DeskServices:
         self.manager = MCPToolManager(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash")
         from resolvedesk.reliable_retrieval import ReliableRetrieval
         self.retrieval=ReliableRetrieval(knowledge,client,self.manager,coordination)
-        configs = mcp_configs if mcp_configs is not None else [MCPServerConfig(name="support",transport="stdio",
-            command=sys.executable,args=[str(ROOT/"resolvedesk"/"mcp_support.py")],allowed_tools=["support_checklist"],
-            agents=["general","technical","billing","escalation"],read_only=True,timeout_s=10,cache_ttl=30)]
+        if mcp_configs is None:
+            from tooling.mcp_client import load_servers
+            configured=os.getenv("RESOLVEDESK_MCP_SERVERS_CONFIG")
+            if not configured and os.getenv("MCP_EXTERNAL_ENABLED","").lower()=="true":configured=os.getenv("MCP_SERVERS_CONFIG")
+            path=Path(configured) if configured else ROOT/"deploy/mcp_servers.json"
+            if not path.is_absolute():path=ROOT/path
+            configs=load_servers(path)
+        else:configs=mcp_configs
         # Writing tools may not bypass the confirmed-ticket transaction.
         if any(not c.read_only for c in configs):
             raise ValueError("Only read-only MCP servers are enabled")

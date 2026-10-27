@@ -6,6 +6,7 @@ import logging
 import os
 import pathlib
 import re
+import sys
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from datetime import timedelta
@@ -39,8 +40,15 @@ class MCPServerConfig:
     timeout_s: float = 25
     cache_ttl: float = 300
     max_result_chars: int = 12000
+    ping_interval_s: float = 15
 
     def __post_init__(self):
+        if type(self.read_only)is not bool:raise ValueError("MCP read_only must be a boolean")
+        if not isinstance(self.args,list) or any(not isinstance(arg,str) for arg in self.args):raise ValueError("MCP args must be strings")
+        if not isinstance(self.headers_env,dict) or any(not re.fullmatch(r"[A-Za-z0-9-]+",key) or not isinstance(value,str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*",value) for key,value in self.headers_env.items()):raise ValueError("MCP headers_env requires header-to-variable names")
+        if not isinstance(self.env_vars,list) or any(not isinstance(value,str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*",value) for value in self.env_vars):raise ValueError("MCP env_vars requires variable names")
+        if set(self.headers_env.values())|set(self.env_vars) & {"ANTHROPIC_API_KEY","DEEPSEEK_API_KEY","SILICONFLOW_API_KEY"}:
+            if (set(self.headers_env.values())|set(self.env_vars)) & {"ANTHROPIC_API_KEY","DEEPSEEK_API_KEY","SILICONFLOW_API_KEY"}:raise ValueError("Model credentials must not be forwarded to MCP")
         if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,24}", self.name):
             raise ValueError("MCP 服务名必须是 1–25 位字母、数字、下划线或连字符")
         if self.transport not in {"streamable_http", "stdio"}:
@@ -51,12 +59,13 @@ class MCPServerConfig:
             raise ValueError("MCP agents 必须是有效 Agent 类型")
         if self.transport == "streamable_http":
             url = urlsplit(self.url)
-            if url.scheme not in {"http", "https"} or not url.hostname or url.username or url.password:
+            if url.scheme not in {"http", "https"} or not url.hostname or url.username or url.password or url.query or url.fragment:
                 raise ValueError("MCP URL 必须是无内嵌凭据的 HTTP(S) 地址")
         elif not self.command:
             raise ValueError("stdio MCP 必须配置 command")
         if not 1 <= self.timeout_s <= 120 or not 0 <= self.cache_ttl <= 3600 or not 256 <= self.max_result_chars <= 50000:
             raise ValueError("MCP 超时、缓存或输出上限超出允许范围")
+        if type(self.ping_interval_s)not in {int,float} or not .2<=self.ping_interval_s<=300:raise ValueError("Invalid MCP ping interval")
 
 
 def load_servers(path: pathlib.Path) -> List[MCPServerConfig]:
@@ -68,8 +77,12 @@ def load_servers(path: pathlib.Path) -> List[MCPServerConfig]:
         if not isinstance(item, dict):
             raise ValueError("MCP server 配置必须是对象")
         values = dict(item)
-        if not values.pop("enabled", True):
+        enabled=values.pop("enabled",True)
+        if type(enabled)is not bool:raise ValueError("MCP enabled must be a boolean")
+        if not enabled:
             continue
+        if values.get("command")=="{python}":values["command"]=sys.executable
+        if isinstance(values.get("args"),list):values["args"]=[arg.replace("{project_root}",str(pathlib.Path(__file__).resolve().parents[1])) if isinstance(arg,str) else arg for arg in values["args"]]
         configs.append(MCPServerConfig(**values))
     if len(configs) > 16 or len({c.name for c in configs}) != len(configs):
         raise ValueError("MCP 服务最多 16 个且名称不能重复")
@@ -100,6 +113,7 @@ class _Connection:
         self.protocol_version = None
         self.state = "connecting"
         self.error = None
+        self.connections = 0
 
 
 class StandardMCPClient:
@@ -143,6 +157,7 @@ class StandardMCPClient:
             "name": c.config.name, "transport": c.config.transport, "state": c.state,
             "protocol_version": c.protocol_version, "error": c.error,
             "agents": c.config.agents,
+            "connections":c.connections,
             "tools": [{"name": alias, "remote_name": origin[1]} for alias, origin in self._origins.items() if origin[0] == c.config.name],
         } for c in self.connections.values()]}
 
@@ -162,7 +177,7 @@ class StandardMCPClient:
                             headers[header] = value
                         http = await stack.enter_async_context(httpx.AsyncClient(
                             headers=headers, timeout=httpx.Timeout(config.timeout_s, connect=min(10, config.timeout_s)),
-                            follow_redirects=False))
+                            follow_redirects=False,trust_env=False))
                         read, write, _ = await stack.enter_async_context(streamable_http_client(config.url, http_client=http))
                     else:
                         # 默认不把应用模型 Key 等环境变量传入外部子进程。
@@ -182,6 +197,7 @@ class StandardMCPClient:
                     connection.session = session
                     connection.protocol_version = initialized.protocolVersion
                     connection.state, connection.error = "connected", None
+                    connection.connections += 1
                     connection.reconnect.clear()
                     self._register_catalog(connection, catalog)
                     connection.ready.set()
@@ -191,7 +207,8 @@ class StandardMCPClient:
                         broken = asyncio.create_task(connection.reconnect.wait())
                         changed = asyncio.create_task(connection.refresh.wait())
                         try:
-                            await asyncio.wait([stop, broken, changed], return_when=asyncio.FIRST_COMPLETED)
+                            done,_=await asyncio.wait([stop, broken, changed],timeout=config.ping_interval_s,return_when=asyncio.FIRST_COMPLETED)
+                            if not done:await asyncio.wait_for(session.send_ping(),config.timeout_s)
                         finally:
                             for task in (stop, broken, changed):
                                 task.cancel()
@@ -230,6 +247,7 @@ class StandardMCPClient:
         for _ in range(8):
             page = await asyncio.wait_for(session.list_tools(cursor=cursor), timeout)
             catalog.extend(page.tools)
+            if len(catalog)>256:raise ValueError("MCP catalog exceeds 256 tools")
             cursor = page.nextCursor
             if not cursor:
                 return catalog
@@ -315,7 +333,23 @@ class StandardMCPClient:
                 if not duplicate:
                     remaining.append(block)
             content = remaining
-        return bounded_result({"structured": structured, "content": content}, server, name,
+        protected=[]
+        for variable in connection.config.headers_env.values():
+            value=os.getenv(variable,"")
+            if value:
+                protected += [value,value[7:]] if value.lower().startswith("bearer ") else [value]
+        for variable in connection.config.env_vars:
+            if re.search(r"(?i)token|secret|password|key",variable) and os.getenv(variable):protected.append(os.getenv(variable))
+        def scrub(value,depth=0):
+            if depth>12:return "[depth limited]"
+            if isinstance(value,str):
+                for secret in protected:
+                    if secret:value=value.replace(secret,"[REDACTED]")
+                return value
+            if isinstance(value,list):return [scrub(item,depth+1) for item in value]
+            if isinstance(value,dict):return {key:scrub(item,depth+1) for key,item in value.items()}
+            return value
+        return bounded_result(scrub({"structured": structured, "content": content}), server, name,
                               connection.config.max_result_chars)
 
     async def close(self):

@@ -95,6 +95,18 @@ class ITIntentRecognizer:
         self.template_vectors=None
         self.vector_lock=asyncio.Lock()
         self.cache={}
+        self.vector_retry_at=0.
+        self.vector_cooldown_s=30.
+        self.vector_error=None
+        self.vector_success=False
+        self.vector_attempts=0
+
+    def embedding_status(self):
+        remaining=max(0.,self.vector_retry_at-time.monotonic())
+        return {"configured":self.embedding is not None,"provider":getattr(self.embedding,'identity',None),
+            "state":"not_configured" if self.embedding is None else "cooldown" if remaining else "ready" if self.vector_success else "cold",
+            "template_cache_ready":self.template_vectors is not None,"cooldown_remaining_s":round(remaining,3),
+            "last_error":self.vector_error,"attempts":self.vector_attempts}
 
     @staticmethod
     def patterns(message):
@@ -124,26 +136,31 @@ class ITIntentRecognizer:
 
     async def vectors(self,message):
         if self.embedding is None:return {"scores":{},"available":False,"error":"not_configured"}
-        try:
-            async with self.vector_lock:
+        async with self.vector_lock:
+            if time.monotonic()<self.vector_retry_at:return {"scores":{},"available":False,"error":"cooldown","source":self.embedding.identity}
+            self.vector_attempts+=1
+            try:
                 if self.template_vectors is None:
                     names,texts=[],[]
                     for fine,(_,examples,_) in CATALOG.items():
                         for example in examples:names.append(fine);texts.append(example)
                     embedded=await asyncio.to_thread(self.embedding.embed,texts)
                     self.template_vectors=list(zip(names,embedded,strict=True))
-            query=(await asyncio.to_thread(self.embedding.embed,[message],True))[0]
-            similarities={}
-            for fine,vector in self.template_vectors:
-                if len(vector)!=len(query):raise ValueError("Intent embedding dimensions differ")
-                norm=math.sqrt(sum(v*v for v in query)*sum(v*v for v in vector))
-                cosine=sum(a*b for a,b in zip(query,vector))/norm if norm else 0
-                similarities[fine]=max(similarities.get(fine,-1),cosine)
-            peak=max(similarities.values())
-            weights={k:math.exp((v-peak)/.06) for k,v in similarities.items()}
-            total=sum(weights.values())
-            return {"scores":{k:v/total for k,v in weights.items()},"available":True,"source":self.embedding.identity}
-        except Exception as exc:return {"scores":{},"available":False,"error":type(exc).__name__}
+                query=(await asyncio.to_thread(self.embedding.embed,[message],True))[0]
+                similarities={}
+                for fine,vector in self.template_vectors:
+                    if len(vector)!=len(query):raise ValueError("Intent embedding dimensions differ")
+                    norm=math.sqrt(sum(v*v for v in query)*sum(v*v for v in vector))
+                    cosine=sum(a*b for a,b in zip(query,vector))/norm if norm else 0
+                    similarities[fine]=max(similarities.get(fine,-1),cosine)
+                peak=max(similarities.values())
+                weights={k:math.exp((v-peak)/.06) for k,v in similarities.items()}
+                total=sum(weights.values())
+                self.vector_retry_at=0.;self.vector_error=None;self.vector_success=True
+                return {"scores":{k:v/total for k,v in weights.items()},"available":True,"source":self.embedding.identity}
+            except Exception as exc:
+                self.vector_error=type(exc).__name__;self.vector_retry_at=time.monotonic()+self.vector_cooldown_s;self.vector_success=False
+                return {"scores":{},"available":False,"error":self.vector_error}
 
     async def recognize(self,message,history=None,context=None):
         history,context=history or [],context or {}
