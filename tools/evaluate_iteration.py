@@ -38,8 +38,11 @@ async def run(args):
     from resolvedesk.eval_state import EvalState
     logging.getLogger().setLevel(logging.WARNING)
     contract=read_contract(args.suite_root)
+    if args.kind=='license':
+        names=['evaluation/license_extension_v1.json']+[path.relative_to(args.suite_root).as_posix() for path in sorted((args.suite_root/'knowledge').glob('*.md'))]
+        contract={'schema':'license-extension-contract-v1','sha256':{name:hashlib.sha256((args.suite_root/name).read_bytes()).hexdigest() for name in names}}
     if args.output.exists():raise ValueError('Refuse to overwrite an evaluation report')
-    if args.kind=='quality' and not args.live:raise ValueError('Paid quality run requires --live')
+    if args.kind!='retrieval' and not args.live:raise ValueError('Paid quality run requires --live')
     load_dotenv(args.config_root/'.env',override=False)
     settings=ServiceSettings.load(args.config_root)
     os.environ.update(RESOLVEDESK_DATABASE_URL=settings.database_url,RESOLVEDESK_REDIS_URL=settings.redis_url,RESOLVEDESK_CHROMA_URL=settings.chroma_url)
@@ -88,7 +91,8 @@ async def run(args):
             from resolvedesk.eval_metrics import measure_intent,intent_report
             from resolvedesk.quality import QualityRunner
             from resolvedesk.eval_models import EvalDataset
-            dataset=EvalDataset.model_validate(json.loads((args.suite_root/'evaluation/holdout_v1.json').read_text(encoding='utf-8'))).model_dump()
+            dataset_path='evaluation/license_extension_v1.json' if args.kind=='license' else 'evaluation/holdout_v1.json'
+            dataset=EvalDataset.model_validate(json.loads((args.suite_root/dataset_path).read_text(encoding='utf-8'))).model_dump()
             state=EvalState(store,'iteration-'+identity)
             recognizer=ITIntentRecognizer(client,embedding)
             slots=asyncio.Semaphore(4)
@@ -102,7 +106,7 @@ async def run(args):
             report['intent']=intent_report(observed)
             # Same single transient vector failure wrapper on both revisions.
             # It cannot affect live services: this is a separate process/schema.
-            faults=json.loads((args.suite_root/'evaluation/holdout_faults_v1.json').read_text(encoding='utf-8'))['faults']
+            faults=[] if args.kind=='license' else json.loads((args.suite_root/'evaluation/holdout_faults_v1.json').read_text(encoding='utf-8'))['faults']
             injected=[];original=HybridKnowledge.search
             def with_fault(knowledge,p,query,top_k=5,mode='hybrid'):
                 for fault in faults:
@@ -117,6 +121,18 @@ async def run(args):
                     lambda done,total:print(json.dumps({'stage':'dialog','done':done,'total':total}),flush=True),dataset=dialog_dataset,state=state)
                 report['quality']=result
                 report['faults']={'required':[f['dialog_id'] for f in faults],'injected':injected,'all_injected':len(injected)==len(faults)}
+                if args.kind=='license' and result['passed']==1:
+                    from resolvedesk.business import BusinessService
+                    effect_store=Store(settings.database_url,schema=result['sandbox']['identity'])
+                    try:
+                        business=BusinessService(effect_store)
+                        ticket=result['results'][0]['lifecycle']['ticket_id']
+                        owner=Principal('demo','license-learner')
+                        allocated=business.get(owner,ticket)
+                        reclaimed=business.transition(owner,ticket,'revoke',allocated['version'],'verify-license-revoke','模拟验收后归还席位')
+                        report['license_recovery']={'restarted_allocation':allocated['status']=='allocated','revoked':reclaimed['status']=='revoked',
+                            'available_seats':business.context(owner)['licenses'][0]['available_seats'],'audit_events':len(reclaimed['audit'])}
+                    finally:effect_store.close()
             finally:HybridKnowledge.search=original
     except Exception as exc:
         report['error']=type(exc).__name__
@@ -136,7 +152,7 @@ def main():
     parser.add_argument('--config-root',type=Path,default=ROOT)
     parser.add_argument('--suite-root',type=Path,default=ROOT)
     parser.add_argument('--output',type=Path,required=True)
-    parser.add_argument('--kind',choices=['retrieval','quality'],required=True)
+    parser.add_argument('--kind',choices=['retrieval','quality','license'],required=True)
     parser.add_argument('--live',action='store_true')
     asyncio.run(run(parser.parse_args()))
 

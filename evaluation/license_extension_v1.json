@@ -1,0 +1,20 @@
+{
+  "title": "新增软件授权生命周期端到端验收",
+  "version": "license-extension-v1",
+  "provenance": "合成业务扩展验收；只用于候选功能，不混入原始共同任务留出集，不与不支持该流程的旧版做伪对照。",
+  "intent_cases": [],
+  "assets": [],
+  "dialog_cases": [{
+    "id": "license-lifecycle-extension",
+    "user_id": "license-learner",
+    "turns": [
+      {"message": "我想申请IntelliJ IDEA Ultimate企业席位，请查询模拟实时目录。暂未说明用途和使用天数，请先询问我，不要创建草稿。", "expected_agent": "billing", "expected_status": "awaiting_input", "required_tools": ["ask_clarification"]},
+      {"message": "用途是后端接口联调和调试，需要7天。产品IntelliJ IDEA Ultimate，请准备software类license_request申请草稿，标题为后端调试软件席位申请。", "expected_agent": "billing", "expected_status": "awaiting_confirmation", "required_tools": ["prepare_ticket"]}
+    ],
+    "workflow": "license_request",
+    "expected_status": "awaiting_confirmation",
+    "expected_fields": {"product": "IntelliJ IDEA Ultimate", "duration_days": 7},
+    "documents": ["software_seat_lifecycle"],
+    "reference_answer": "只准备产品与七天期限、用途明确的草稿。用户确认后进入待审批，另一位操作员批准、预占、分配模拟席位；不声称获得真实厂商许可证。"
+  }]
+}
