@@ -774,7 +774,7 @@ async function sendMessage() {
       settings.conversationId = response.conversationId
       persist()
     }
-    const trace = await loadToolTrace(response.requestId, request)
+    const trace = response.toolTrace
     if (!request.isCurrent()) return
     lastResponse.value = response
     activeRun.value = response.raw

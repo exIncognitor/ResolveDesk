@@ -37,6 +37,15 @@ def summary(value,limit=4000):
     return {'preview':text[:limit],'truncated':True}
 
 
+def scrub(value):
+    """Remove credentials without truncating operational/SSE event contracts."""
+    if isinstance(value,dict):
+        return {redact_text(str(k),len(str(k))):('[REDACTED]' if re.search(r'(?i)password|passwd|secret|api.?key|authorization|(?:^|_)token$|cookie|credential|approval|密码|验证码',str(k)) else scrub(v)) for k,v in value.items()}
+    if isinstance(value,(list,tuple)):return [scrub(v) for v in value]
+    if isinstance(value,str):return redact_text(value,len(value))
+    return value
+
+
 def tool_trace(name,args,result,*,trace_id,tool_use_id,layer,role,instance,seconds,success,error_code=None):
     data=result if isinstance(result,dict) else {}
     return {'trace_id':trace_id,'tool_use_id':tool_use_id,'tool_name':name,'name':name,'layer':layer,

@@ -49,7 +49,7 @@
       </ol>
       <div class="request-metrics">
         <div>
-          <span>响应耗时</span>
+          <span>本次执行耗时</span>
           <strong>
             {{ lastResponse?.latencyMs ?? '—' }}
             <small v-if="lastResponse?.latencyMs != null"> ms</small>
@@ -72,7 +72,10 @@
             <strong>{{ call.tool_name }}</strong>
             <span>{{ call.latency_ms ?? '—' }} ms</span>
           </div>
-          <pre>{{ formatJson(call.input || {}) }}</pre>
+          <p>{{ call.layer || '历史记录' }} · {{ call.agent_type || '未记录角色' }} · {{ call.success ? '成功' : '未成功' }}{{ call.cached ? ' · 缓存命中' : '' }}{{ call.fallback ? ' · 已回退' : '' }}{{ call.error_code ? ' · ' + call.error_code : '' }}</p>
+          <p v-if="call.mcp_server">MCP：{{ call.mcp_server }} / {{ call.mcp_tool }}</p>
+          <pre>{{ formatJson(call.input ?? '未保存输入') }}</pre>
+          <pre>{{ formatJson(call.output_summary ?? '未保存结果摘要') }}</pre>
         </div>
         <p v-if="!lastTrace.trace.toolCalls?.length" class="muted">{{ lastTrace.trace.toolsUsed?.length ? lastTrace.trace.toolsUsed.join(' · ') : '本次没有记录到工具输入。' }}</p>
       </details>

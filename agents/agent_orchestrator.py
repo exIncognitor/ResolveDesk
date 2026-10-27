@@ -199,6 +199,7 @@ class Request:
     principal: Any = field(default=None,repr=False)
     authorized_sources: Dict[str, Any] = field(default_factory=dict,repr=False)
     on_agent_execution: Any = field(default=None,repr=False)
+    on_tool_trace: Any = field(default=None,repr=False)
     executing_role: Optional[str] = None
     instance_penalties: Dict[str,float] = field(default_factory=dict,repr=False)
 
@@ -387,6 +388,7 @@ class BaseAgent:
                     call_success = True
                     result_success: Optional[bool] = None
                     error_text = ""
+                    error_code = None
                     if spec is None:
                         call_success = False
                         result: Any = {"success": False, "error": f"工具不在 {self.agent_type.value} Agent 白名单中"}
@@ -410,30 +412,23 @@ class BaseAgent:
                                 result_success = bool(result.get("success"))
                         except Exception as ex:
                             call_success = False
+                            error_code = type(ex).__name__
                             logger.warning("Agent 工具 %s 执行失败: %s",name,type(ex).__name__)
                             error_text = str(ex)
                             result = {"success": False, "error": error_text}
                     tool_latency_ms = (time.monotonic() - tool_t0) * 1000
                     if not error_text and isinstance(result, dict):
                         error_text = str(result.get("error", "") or "")
-                    tool_traces.append(
-                        {
-                            "agent_type": self.agent_type.value,
-                            "tool_name": name,
-                            "tool_use_id": tool_use_id,
-                            "input": dict(args),
-                            "success": call_success,
-                            "result_success": result_success,
-                            "latency_ms": round(tool_latency_ms, 1),
-                            "cached": bool(result.get("cached")) if isinstance(result, dict) else False,
-                            "reranked": bool(result.get("reranked")) if isinstance(result, dict) else False,
-                            "error": error_text,
-                            "source": result.get("source", "local") if isinstance(result, dict) else "local",
-                            "mcp_server": result.get("mcp_server") if isinstance(result, dict) else None,
-                            "mcp_tool": result.get("mcp_tool") if isinstance(result, dict) else None,
-                            "retry_safe": spec.retry_safe if spec else True,
-                        }
-                    )
+                    from resolvedesk.tracing import tool_trace,redact_text
+                    trace=tool_trace(name,args,result,trace_id=uuid.uuid4().hex,tool_use_id=tool_use_id,layer='specialist',
+                        role=self.agent_type.value,instance=getattr(self,'instance_id','legacy'),seconds=tool_latency_ms/1000,
+                        success=call_success and result_success is not False,error_code=error_code)
+                    trace.update(result_success=result_success,reranked=bool(result.get('reranked')) if isinstance(result,dict) else False,
+                        error=redact_text(error_text),retry_safe=spec.retry_safe if spec else True,request_id=req.request_id)
+                    tool_traces.append(trace)
+                    if req.on_tool_trace:
+                        try:await req.on_tool_trace(trace)
+                        except Exception:pass
                     tool_results.append({
                         "type": "tool_result",
                         "tool_use_id": tool_use_id,

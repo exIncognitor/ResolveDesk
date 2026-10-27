@@ -16,7 +16,21 @@ export const requestSkills=(_,s)=>deskRequest(s,'/skills')
 export const reloadSkills=(_,s)=>deskRequest(s,'/skills/reload','POST')
 export const requestKnowledgeStats=(_,s)=>deskRequest(s,'/knowledge/stats')
 export const requestSearch=async(_,s,query,top_k=5)=>({results:(await deskRequest(s,'/knowledge/search','POST',{query,top_k})).items})
-export const requestToolTrace=async(_,s,id)=>{const r=await deskRequest(s,`/trace/tool/${id}`);return {...r,trace:{...r.trace,toolsUsed:r.trace.tools_used,toolCalls:r.trace.tool_calls}}}
+export async function requestToolTrace(_,s,id,turnKey){
+  let result,after=0,through,turn=turnKey
+  for(let page=0;page<100;page++){
+    const q=new URLSearchParams();if(turn)q.set('turn_key',turn);if(after)q.set('after',after);if(through!=null)q.set('through',through)
+    const r=await deskRequest(s,`/trace/tool/${id}${q.size?'?'+q:''}`)
+    if(!result)result=r
+    else {result.trace.events.push(...r.trace.events);result.trace.tool_calls.push(...r.trace.tool_calls);result.trace.fallback_events.push(...(r.trace.fallback_events||[]))}
+    turn??=r.trace.turn_key;through??=r.trace.snapshot_end
+    const next=r.trace.next_after
+    if(next==null){result.trace.tools_used=[...new Set((result.trace.tool_calls||[]).map(c=>c.tool_name))];return {...result,trace:{...result.trace,toolsUsed:result.trace.tools_used,toolCalls:result.trace.tool_calls}}}
+    if(next<=after)throw Error('轨迹分页游标未前进')
+    after=next
+  }
+  throw Error('轨迹超过单次读取上限，请按页查询')
+}
 export async function addKnowledge(_,s,documents){const results=[];for(const d of documents)results.push(await deskRequest(s,'/knowledge/documents','POST',{...d,document_id:d.document_id||crypto.randomUUID()}));return {results}}
 export async function uploadKnowledge(_,s,file){
   if(file.size>300000)throw Error('单次上传不超过 300 KB')
@@ -73,13 +87,13 @@ export async function requestChat(_,s,message,{onEvent=()=>{},isCurrent=()=>true
   run=await deskRequest(s,`/runs/${run.id}/turns/${encodeURIComponent(turnKey)}`)
   for(const alias of attempt.keys)if(attempts.get(alias)===attempt)attempts.delete(alias)
   let trace={trace:{events:[]}},traceAvailable=true
-  try{trace=await deskRequest(s,`/trace/tool/${run.id}?turn_key=${encodeURIComponent(turnKey)}`)}catch{traceAvailable=false}
+  try{trace=await requestToolTrace(_,s,run.id,turnKey)}catch{traceAvailable=false}
   const turnEvents=trace.trace.events.filter(e=>e.seq>=(run.event_cursor||0)&&e.seq<=(run.event_end||Infinity))
   const route=turnEvents.filter(e=>e.kind==='routing').at(-1)?.payload||{}
   const outcome=turnEvents.filter(e=>e.kind==='execution_outcome').at(-1)?.payload||{}
   const actual=outcome.actual_roles||(route.primary?[route.primary]:[])
   return {conversationId:run.id,requestId:run.id,response:run.answer,intent:route.intent||'other',fineIntent:route.fine_intent,
-    primaryAgent:actual[0]||null,agentType:actual[0]||null,requestedAgent:route.primary||null,supportingAgents:actual.slice(1),traceAvailable,
-    executionStatus:outcome.status||(run.error==='specialist_partial'?'partial':run.status),escalated:!!outcome.escalated,latencyMs:run.latency_ms??null,
+    primaryAgent:actual[0]||null,agentType:actual[0]||null,requestedAgent:route.primary||null,supportingAgents:actual.slice(1),traceAvailable,toolTrace:traceAvailable?trace:null,turnKey,
+    executionStatus:outcome.status||(run.error==='specialist_partial'?'partial':run.status),escalated:!!outcome.escalated,latencyMs:run.latency_ms??trace.trace.latency_ms??null,
     routingReason:route.reason||'',routingConfidence:route.confidence??null,knowledgeUsed:traceAvailable?turnEvents.some(e=>e.kind==='retrieval'):null,raw:run}
 }

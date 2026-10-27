@@ -164,10 +164,12 @@ class DeskServices:
                     owner=p.user,instance=event['instance'],event_key=f'tool:{event["request_id"]}:{event["instance"]}:{index}',run_id=run_id,turn_key=turn.get('turn_key'),detail={'layer':'specialist','cached':bool(tool.get('cached'))})
         async def execute(role):
             if role in cached and cached[role]["status"]!="failed":return cached[role]
+            async def trace_tool(payload):
+                await self._persist_trace(p,run_id,turn.get('turn_key'),payload)
             req=Request(message=message,user_id=hashlib.sha256(encode([p.tenant,p.user]).encode()).hexdigest(),conv_id=run_id,
                 context=encode(context),history=history,entities=routing.get("entities",{}),intent=DOMAIN_CATEGORY[routing["intent"]],
                 intent_group=routing["intent"],urgency=UrgencyLevel[routing.get("urgency","LOW")],intent_confidence=routing.get("confidence",0),
-                request_id=uuid.uuid4().hex,principal=p,authorized_sources=sources,on_agent_execution=record,instance_penalties=instance_penalties)
+                request_id=uuid.uuid4().hex,principal=p,authorized_sources=sources,on_agent_execution=record,on_tool_trace=trace_tool,instance_penalties=instance_penalties)
             started=time.monotonic()
             try:
                 response=await self.roles._execute(req,AgentType(role))
@@ -235,9 +237,25 @@ class DeskServices:
     def external_tools(self,role):
         return {name:spec for name,spec in self.mcp.agent_tools().items() if role in (spec.allowed_agents or ()) and spec.retry_safe}
 
+    async def _persist_trace(self,p,run_id,turn_key,payload):
+        async def persist():
+            await self.observer_slots.acquire()
+            task=asyncio.create_task(asyncio.to_thread(self.store.trace_tool,p,run_id,turn_key,payload))
+            def done(future):
+                self.observer_slots.release()
+                if not future.cancelled():future.exception()
+            task.add_done_callback(done)
+            await asyncio.shield(task)
+        try:await asyncio.wait_for(persist(),.2)
+        except Exception:pass
+
     async def call_external(self,p,name,args,role):
         if name not in self.external_tools(role):raise PermissionError("Tool is not available for this role")
         result = await self.manager.call(name,args,context={"tenant":p.tenant,"user_id":p.user,"role":role},use_cache=True)
-        if not result.success:raise RuntimeError("MCP tool failed")
+        if not result.success:
+            failure=RuntimeError('MCP tool failed')
+            origin=self.mcp._origins.get(name,('',name))
+            failure.trace_data={'success':False,'error_code':result.error,'cached':result.cached,'source':'external_mcp','mcp_server':origin[0],'mcp_tool':origin[1]}
+            raise failure
         return {**result.data,"cached":result.cached,"source":"external_mcp",
             "mcp_server":result.data.get('server'),"mcp_tool":result.data.get('tool')}

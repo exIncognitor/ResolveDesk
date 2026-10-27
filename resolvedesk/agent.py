@@ -250,6 +250,7 @@ class DeskAgent:
             for call in calls:
                 name, args = call["name"], call.get("input", {})
                 tool_started = time.monotonic()
+                data=None;tool_success=False;tool_error=None
                 try:
                     from jsonschema import validate, ValidationError
                     spec = next(t for t in tools if t["name"] == name)
@@ -258,8 +259,8 @@ class DeskAgent:
                         question = args["question"].strip()
                         if not question:
                             raise ValueError("Empty clarification")
-                        self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"local"})
                         self.store.finish(p, run_id, "awaiting_input", question)
+                        data={'status':'awaiting_input','question':question};tool_success=True
                         observe_tool(name,True,tool_started)
                         return
                     if name == "prepare_ticket":
@@ -275,8 +276,8 @@ class DeskAgent:
                         missing = fields.missing() + self.business.validate_draft(p, payload)
                         if fields.workflow == "generic":
                             payload = {key: payload[key] for key in ("summary", "description", "category", "priority")}
-                        self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"local"})
                         self.store.prepare(p, run_id, payload, missing)
+                        data={'draft':payload,'missing':missing,'submitted':False};tool_success=True
                         observe_tool(name,True,tool_started)
                         return
                     if name == "knowledge_search":
@@ -293,14 +294,24 @@ class DeskAgent:
                         data = await self.services.call_external(p,name,args,role)
                     else:
                         raise ValueError("Tool is not allowed")
-                    self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"mcp" if name in external else "local"})
+                    tool_success=True
                     observe_tool(name,True,tool_started)
                     outputs.append({"type": "tool_result", "tool_use_id": call["id"], "content": encode(data)})
                 except (KeyError, ValueError, StopIteration, ValidationError, PermissionError, RuntimeError) as exc:
-                    self.store.event(p,run_id,"tool_result",{"name":name,"success":False,"error":type(exc).__name__})
+                    tool_error=type(exc).__name__
+                    data=getattr(exc,'trace_data',{'error_code':tool_error})
                     observe_tool(name,False,tool_started)
                     outputs.append({"type": "tool_result", "tool_use_id": call["id"], "is_error": True,
                                     "content": encode({"error": type(exc).__name__, "detail": str(exc)[:160] if isinstance(exc, ValueError) else "工具未执行成功"})})
+                except BaseException as exc:
+                    tool_error=type(exc).__name__
+                    raise
+                finally:
+                    from resolvedesk.tracing import tool_trace
+                    trace=tool_trace(name,args,data,trace_id=uuid.uuid4().hex,tool_use_id=call.get('id'),layer='main',role=role,
+                        instance='desk-'+self.worker_id,seconds=time.monotonic()-tool_started,success=tool_success,error_code=tool_error)
+                    try:self.store.trace_tool(p,run_id,run.get('turn_key'),trace)
+                    except Exception:pass  # Trace failure cannot undo an answer or a confirmed draft.
             messages.append({"role": "user", "content": outputs})
             state.update(step=step+1,pending=None,messages=messages,sources=sources)
             self.store.checkpoint(p,run_id,state)

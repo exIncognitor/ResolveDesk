@@ -111,8 +111,9 @@ class Store:
 
     @staticmethod
     def _event(db, run_id, kind, payload):
+        from resolvedesk.tracing import scrub
         db.execute("INSERT INTO events(run_id,kind,payload,created) VALUES(?,?,?,?)",
-                   (run_id, kind, encode(payload), time.time()))
+                   (run_id, kind, encode(scrub(payload)), time.time()))
 
     @staticmethod
     def _run(db, principal, run_id):
@@ -218,7 +219,8 @@ class Store:
             if db.backend=='postgresql':db.execute("SET LOCAL lock_timeout='100ms'")
             row=self._run(db,p,run_id)
             token=_execution.get()
-            if token is None or token.run_id!=run_id or row['execution_owner']!=token.owner or row['execution_epoch']!=token.epoch:
+            explicit_cancel=row['status']=='paused' and row['error'] is None and payload.get('error_code')=='CancelledError'
+            if token is None or token.run_id!=run_id or row['execution_epoch']!=token.epoch or (row['execution_owner']!=token.owner and not explicit_cancel):
                 raise FencedExecution('Tool trace belongs to an obsolete execution')
             latest=db.execute('SELECT request_key FROM turn_receipts WHERE run_id=? ORDER BY user_seq DESC LIMIT 1',(run_id,)).fetchone()
             if latest is None or latest['request_key']!=turn_key:raise FencedExecution('Tool trace belongs to an obsolete turn')
