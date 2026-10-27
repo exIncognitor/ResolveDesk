@@ -26,6 +26,11 @@ class EvaluationService:
             return {"job_id":r["id"],"status":r["status"],"completed":r["completed"],"total":r["total"],
                     "result":json.loads(r["result"]) if r["result"] else None,"error":r["error"]}
 
+    def list(self,p):
+        if p.role!="support":raise PermissionError()
+        with self.store.db() as db:
+            return [dict(r,options=json.loads(r["options"])) for r in db.execute("SELECT id AS job_id,status,completed,total,error,created,options FROM eval_jobs WHERE tenant=? AND owner=? ORDER BY created DESC LIMIT 20",(p.tenant,p.user))]
+
     def submit(self,p,kind="retrieval",limit=6,use_judge=True):
         if p.role!="support":raise PermissionError()
         if kind not in {"retrieval","quality"} or type(limit) is not int or not 1 <= limit <= 6:

@@ -4,8 +4,8 @@ export async function pollEvaluation(initial, fetchJob, { isCurrent = () => true
   while (isCurrent()) {
     onProgress(job)
     if (job.status === 'completed') return job.result
-    if (job.status === 'failed' || job.status === 'cancelled') {
-      const error = new Error(job.error || '评测任务失败')
+    if (job.status === 'failed' || job.status === 'cancelled' || job.status === 'paused') {
+      const error = new Error(job.status === 'paused' ? `评测已暂停（${job.job_id}），可在任务记录中显式继续；继续会重新执行并可能产生模型费用。` : job.error || '评测任务失败')
       error.terminal = true
       throw error
     }

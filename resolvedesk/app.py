@@ -347,6 +347,10 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
     def evaluation_job(job_id:str,request:Request,p=Depends(principal)):
         return request.app.state.evaluations.get(p,job_id)
 
+    @app.get("/eval/jobs")
+    def evaluation_jobs(request:Request,p=Depends(principal)):
+        return request.app.state.evaluations.list(p)
+
     @app.post("/eval/jobs/{job_id}/resume")
     async def resume_evaluation(job_id:str,request:Request,p=Depends(principal)):
         return request.app.state.evaluations.resume(p,job_id)

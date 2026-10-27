@@ -142,10 +142,10 @@ class DeskAgent:
                 with self.store.db(True) as db:
                     self.store._event(db, run_id, "duration", {"seconds": round(time.monotonic()-started, 3)})
                 status = self.store.get_run(p, run_id)["status"]
-                self.monitor.record(p.tenant, "run", "desk", status in {"completed", "awaiting_input", "awaiting_confirmation"}, time.monotonic()-started)
+                self.monitor.record(p.tenant, "run", "interrupted" if status=="paused" else "desk", status in {"completed", "awaiting_input", "awaiting_confirmation", "paused"}, time.monotonic()-started)
                 with self.store.db() as db:
                     row = db.execute("SELECT payload FROM events WHERE run_id=? AND kind='routing' ORDER BY seq DESC LIMIT 1", (run_id,)).fetchone()
-                if row:
+                if row and status!="paused":
                     role = json.loads(row["payload"])["primary"]
                     self.monitor.record(p.tenant,"agent",role,status in {"completed","awaiting_input","awaiting_confirmation"},time.monotonic()-started)
 
@@ -246,6 +246,8 @@ class DeskAgent:
                         question = args["question"].strip()
                         if not question:
                             raise ValueError("Empty clarification")
+                        self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"local"})
+                        self.monitor.record(p.tenant,"tool",name,True,time.monotonic()-tool_started)
                         self.store.finish(p, run_id, "awaiting_input", question)
                         return
                     if name == "prepare_ticket":
