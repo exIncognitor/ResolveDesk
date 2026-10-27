@@ -1,0 +1,422 @@
+{
+  "health": {
+    "status": "ok",
+    "service": "ResolveDesk",
+    "model": "deepseek-flash",
+    "database": "postgresql",
+    "vector_backend": "chroma",
+    "coordination": "redis",
+    "semantic_retrieval": true,
+    "paid_api_enabled": true
+  },
+  "readiness": {
+    "ready": true,
+    "components": {
+      "database": true,
+      "redis": true,
+      "chroma": true
+    }
+  },
+  "base": "http://127.0.0.1:18080",
+  "paid_budget_changed": false,
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.759536",
+    "available_cny": "16.240464",
+    "calls": {
+      "settled": 388
+    },
+    "usage_input_tokens": 707632,
+    "usage_output_tokens": 43034,
+    "unresolved_reservation_cny": "0"
+  },
+  "retrieval": [
+    {
+      "id": "vpn691",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "vpn-timeout",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "account-lock",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "repo-access",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "reset",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "python-pip",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "ide",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "ticket-fields",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "least-privilege",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "access-approval",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "access-expiry",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "dns",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "wifi",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "disk",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "idea-license",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "license-return",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "activation",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "battery",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "repair-process",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "asset-lock",
+      "mode": "bm25",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "vpn691",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "vpn-timeout",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "account-lock",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "repo-access",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "reset",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "python-pip",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "ide",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "ticket-fields",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "least-privilege",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "access-approval",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "access-expiry",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "dns",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "wifi",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "disk",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "idea-license",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "license-return",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "activation",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "battery",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "repair-process",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "asset-lock",
+      "mode": "vector",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "vpn691",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "vpn-timeout",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "account-lock",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "repo-access",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "reset",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "python-pip",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "ide",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "ticket-fields",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "least-privilege",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "access-approval",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "access-expiry",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "dns",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "wifi",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "disk",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "idea-license",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "license-return",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "activation",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "battery",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "repair-process",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    },
+    {
+      "id": "asset-lock",
+      "mode": "hybrid",
+      "passed": true,
+      "degraded": false
+    }
+  ],
+  "passed": 60,
+  "total": 60,
+  "mcp": {
+    "servers": [
+      {
+        "name": "support",
+        "transport": "stdio",
+        "state": "connected",
+        "protocol_version": "2025-11-25",
+        "error": null,
+        "agents": [
+          "general",
+          "technical",
+          "billing",
+          "escalation"
+        ],
+        "connections": 1,
+        "tools": [
+          {
+            "name": "mcp_support_support_checklist",
+            "remote_name": "support_checklist"
+          }
+        ]
+      }
+    ]
+  }
+}

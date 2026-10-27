@@ -1,0 +1,45 @@
+{
+  "revision": "d87279364f834480e52a2766cbc02ae145419219",
+  "running_container_revision": "d87279364f834480e52a2766cbc02ae145419219",
+  "source_hashes_equal": true,
+  "source_sha256": {
+    "resolvedesk/app.py": "2bd978d4cc065e21d7bde8fd8b051b9a5b7d137e179044345d77f803208a1f96",
+    "resolvedesk/services.py": "f4e680cb86769495553636be8759d8b6ad6330620eb750e5b2b4cc7a4a7afab0",
+    "resolvedesk/knowledge_mcp.py": "4466b7de13cf1d3b4ea9440f709b09c86b8c374f37178458f4d4b8715c271a53",
+    "resolvedesk/intent.py": "fa9e6edba2c040088239e53d29f003b79a511272f3c430386ed3f2af90ff60cb",
+    "tooling/mcp_client.py": "756fdd3a0b9ca80cb7c84e496ec53a958e6ba5a48ce48b1f559b69fb1d623425",
+    "deploy/mcp_servers.json": "b832d1f868db7d7666f1718aa34ec03190a06463babbba2a208c98d2d03bb92d"
+  },
+  "python_tests": {
+    "passed": 276,
+    "subtests": 14
+  },
+  "real_mcp_acceptance": {
+    "passed": 17,
+    "total": 17,
+    "evidence": "reports/mcp-runtime-20261027T081017528404Z.json"
+  },
+  "deployed_protocol": [
+    "reports/mcp-deployment-20261027T082010865652Z.json",
+    "reports/mcp-deployment-20261027T082010925740Z.json"
+  ],
+  "retrieval": [
+    "reports/services-runtime-20261027T082012690898Z.json",
+    "reports/services-runtime-20261027T082012746935Z.json"
+  ],
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.759536",
+    "available_cny": "16.240464",
+    "calls": {
+      "settled": 388
+    },
+    "usage_input_tokens": 707632,
+    "usage_output_tokens": 43034,
+    "unresolved_reservation_cny": "0"
+  },
+  "snapshot": ".codex-runtime/checkpoints/g07-20261027T081652326906Z-be48c5e6",
+  "host_workers": 2,
+  "paid_calls_made_by_this_check": 0
+}

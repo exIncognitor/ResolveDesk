@@ -42,3 +42,9 @@ C06的泛化写MCP明确不迁移：当前只允许配置read_only=true、工具
 以网关为例，MCP URL为`http://127.0.0.1:18080/mcp/knowledge/`，HTTP头为`Authorization: Bearer <本地API访问令牌>`，使用与网页相同的learner/support身份。令牌从本机ignored的`.codex-runtime/access.json`取得，不是模型API Key。部署到自定义域名时，明确配置`RESOLVEDESK_MCP_ALLOWED_HOSTS`和`RESOLVEDESK_MCP_ALLOWED_ORIGINS`；默认启用DNS rebinding防护，不使用任意Host/Origin放行。
 
 免费部署验收：`python -X utf8 -B tools/verify_mcp_deployment.py http://127.0.0.1:18080`。隔离的真实模型专业节点验收需显式`tools/verify_mcp_runtime.py --live`，从同一预算付费，不应为看状态重复运行。
+
+## 部署复核与恢复点
+
+代码`d872793`最终再次通过276项/14子测试；宿主机两个worker和Docker应用均已运行，容器healthy。宿主机/网关标准SDK验收各11/11，证据为`reports/mcp-deployment-20261027T082010925740Z.json`和`...082010865652Z.json`；免费检索各60/60，证据为`reports/services-runtime-20261027T082012746935Z.json`和`...082012690898Z.json`。均未增加费用。
+
+`reports/mcp-release-20261027T082208690409Z.json`核对运行镜像标签和6个关键源码/配置SHA256，与已测工作区一致。代码由Git保留；部署前PG完整备份位于`.codex-runtime/checkpoints/g07-20261027T081652326906Z-be48c5e6/`，未上传。恢复应用数据时必须单独保留最新费用记录，不能用旧快照重置预算；没有清除容器卷或旧数据。
