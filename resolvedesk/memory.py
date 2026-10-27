@@ -257,6 +257,8 @@ class ScopedMemory:
             text = safe_text(row["content"], 4000)
             for field, pattern in patterns.items():
                 for match in re.finditer(pattern,text):
+                    if re.search(r"不是|不用|不使用|不再用|不喜欢|不要用",text[max(0,match.start()-8):match.start()]):
+                        continue
                     facts.append({"category":"environment","field":field,"value":match[0],"source_seq":row["seq"],"quote":match[0]})
         return facts
 
@@ -346,7 +348,7 @@ class ScopedMemory:
             state = db.execute(db.locked("SELECT * FROM memory_runs WHERE run_id=?"), (run_id,)).fetchone()
             generation = state["generation"]+1
             for segment in segments:
-                db.execute("INSERT INTO memory_segments VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING",
+                db.execute("INSERT INTO memory_segments VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING",
                     (segment["id"],job["tenant"],job["owner"],run_id,segment["slot"],segment["first_seq"],segment["last_seq"],segment["content"],segment["vector"],segment["model"],db.now()))
                 db.execute("INSERT INTO memory_slots VALUES(?,?,?) ON CONFLICT(run_id,slot) DO UPDATE SET segment_id=excluded.segment_id",
                            (run_id,segment["slot"],segment["id"]))
