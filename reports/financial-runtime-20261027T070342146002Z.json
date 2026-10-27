@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "synthetic_only": true,
+  "paid_api_called": false,
+  "backend": "postgresql",
+  "host": {
+    "accepted": 60,
+    "blocked": 20,
+    "errors": []
+  },
+  "container": {
+    "accepted": 30,
+    "blocked": 50,
+    "errors": []
+  },
+  "rows": 90,
+  "summary": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "18",
+    "available_cny": "0",
+    "calls": {
+      "settled": 90
+    },
+    "usage_input_tokens": 9000000,
+    "usage_output_tokens": 0,
+    "unresolved_reservation_cny": "0"
+  }
+}

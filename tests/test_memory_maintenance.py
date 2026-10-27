@@ -5,10 +5,11 @@ import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 import uuid
+import threading
 
 import pytest
 
-from resolvedesk.memory import ScopedMemory, MemoryLeaseLost
+from resolvedesk.memory import ScopedMemory, MemoryLeaseLost, safe_text
 from resolvedesk.store import Principal, Store, encode
 from test_resolvedesk import USER, OTHER, FOREIGN, FakeEmbedding, response, client_with
 from test_database_backends import postgres_store
@@ -138,10 +139,40 @@ async def test_crashed_paid_attempt_falls_back_and_assistant_tail_is_not_skipped
     await memory.remember(USER,run['id']);await drain(memory)
     with store.db() as db:
         segment=db.execute('SELECT e.* FROM memory_segments e JOIN memory_slots c ON c.segment_id=e.id WHERE e.run_id=?',(run['id'],)).fetchone()
-        assert segment['last_seq']==store.history(USER,run['id'])[-1].get('seq',segment['last_seq'])
+        assert segment['last_seq']==db.execute('SELECT MAX(seq) FROM messages WHERE run_id=?',(run['id'],)).fetchone()[0]
         assert 'VPN 尾部结果' in segment['content']
         assert db.execute('SELECT COUNT(*) FROM memory_slots WHERE run_id=?',(run['id'],)).fetchone()[0]==1
     assert len(store.history(USER,run['id']))==2
+
+
+def test_redaction_precedes_memory_slicing_and_chinese_explicit_environment(store,monkeypatch):
+    secret='synthetic-credential-value-for-memory-test'
+    monkeypatch.setenv('ANTHROPIC_API_KEY',secret)
+    text='x'*995+' '+secret+' password=other-synthetic-value'
+    clean=safe_text(text,1600)
+    assert secret not in clean and 'other-synthetic-value' not in clean and '[REDACTED]' in clean
+    memory=ScopedMemory(store,None,None)
+    facts=memory._explicit_facts([{'seq':1,'role':'user','content':'我使用Windows 11和IntelliJ IDEA，不用PyCharm'}])
+    assert {f['field']:f['value'] for f in facts}=={'os':'Windows 11','ide':'IntelliJ IDEA'}
+
+
+@pytest.mark.asyncio
+async def test_timed_out_embedding_threads_keep_slots_until_they_actually_finish(store):
+    release=threading.Event();started=[]
+    class HungEmbedding:
+        identity='test-bounded-hang'
+        def embed(self,texts,query=False):
+            started.append(texts);release.wait(2)
+            return [[1.,0.]]
+    memory=ScopedMemory(store,HungEmbedding(),None,workers=2)
+    try:
+        results=await asyncio.gather(*(memory._embed(['VPN'],timeout=.05) for _ in range(8)),return_exceptions=True)
+        assert all(isinstance(r,TimeoutError) for r in results)
+        assert len(started)==2
+    finally:
+        release.set()
+        async with asyncio.timeout(3):
+            while memory.embedding_slots._value!=2:await asyncio.sleep(.01)
 
 
 @pytest.mark.asyncio

@@ -13,7 +13,7 @@ import re
 import uuid
 
 from resolvedesk.store import Principal, digest, encode
-from resolvedesk.tracing import redact
+from resolvedesk.tracing import redact_text
 
 
 MEMORY_TABLES = {"memory_summary", "memory_episode", "memory_profile", "memory_users",
@@ -28,8 +28,7 @@ class MemoryLeaseLost(RuntimeError):
 
 
 def safe_text(value, limit=1600):
-    # Redaction has its own 1200-character bound; apply to independent chunks.
-    return "".join(redact(str(value)[i:i+1000]) for i in range(0, min(len(str(value)), limit), 1000))[:limit]
+    return redact_text(str(value),limit)
 
 
 def extractive(previous, rows):
@@ -249,8 +248,8 @@ class ScopedMemory:
 
     def _explicit_facts(self, rows):
         facts = []
-        patterns = {"os":r"(?i)\b(?:Windows\s*(?:10|11)|Ubuntu\s*[\d.]*|macOS\s*[\w.]*)",
-                    "ide":r"(?i)\b(?:IntelliJ(?:\s+IDEA)?|VS\s*Code|PyCharm|Eclipse)\b"}
+        patterns = {"os":r"(?i)(?<![a-z0-9_])(?:Windows\s*(?:10|11)|Ubuntu\s*[\d.]*|macOS\s*[\w.]*)",
+                    "ide":r"(?i)(?<![a-z0-9_])(?:IntelliJ(?:\s+IDEA)?|VS\s*Code|PyCharm|Eclipse)(?![a-z0-9_])"}
         for row in rows:
             if row["role"] != "user":
                 continue

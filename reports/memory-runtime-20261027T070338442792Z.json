@@ -1,0 +1,47 @@
+{
+  "kind": "current_asgi_real_memory",
+  "simulation": true,
+  "checks": {
+    "foreground_no_paid_call": true,
+    "extractive_bridge": true,
+    "flash_summary": true,
+    "rich_profile": true,
+    "segmented_archive": true,
+    "raw_messages_preserved": true,
+    "real_private_chroma": true,
+    "real_redis_hit": true,
+    "other_user_isolated": true,
+    "current_agent_injects_profile": true,
+    "current_agent_cross_run_recall": true,
+    "current_agent_finishes": true,
+    "no_business_write": true,
+    "authenticated_memory_api": true
+  },
+  "passed": 14,
+  "total": 14,
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.622768",
+    "available_cny": "16.377232",
+    "calls": {
+      "settled": 348
+    },
+    "usage_input_tokens": 658080,
+    "usage_output_tokens": 38326,
+    "unresolved_reservation_cny": "0"
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.674524",
+    "available_cny": "16.325476",
+    "calls": {
+      "settled": 363
+    },
+    "usage_input_tokens": 674446,
+    "usage_output_tokens": 40704,
+    "unresolved_reservation_cny": "0"
+  },
+  "dependencies": "real PostgreSQL Redis Chroma local E5 stdio MCP; only deepseek-flash is paid"
+}
