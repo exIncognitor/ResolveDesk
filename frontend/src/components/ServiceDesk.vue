@@ -7,12 +7,15 @@
       <p v-for="asset in catalog.my_assets || []" :key="asset.id">{{ asset.id }} · {{ asset.model }} · {{ asset.warranty === 'in_warranty' ? '保修期内' : '已过保' }} · {{ asset.status === 'in_repair' ? '维修中' : '可用' }}</p>
       <p v-for="grant in catalog.my_grants || []" :key="grant.resource">有效权限：{{ grant.resource }} / {{ grant.level }}，到期 {{ new Date(grant.expires * 1000).toLocaleString() }}</p>
       <p v-for="license in catalog.licenses || []" :key="license.product">{{ license.product }} · {{ license.approval }} · 演示席位 {{ license.available_seats ?? '不适用' }}</p>
+      <p v-for="license in (catalog.licenses || []).filter(item => item.total_seats != null)" :key="`${license.product}-usage`">总席位 {{ license.total_seats }} · 预占 {{ license.reserved_seats }} · 已分配 {{ license.allocated_seats }}；预占 {{ license.reservation_seconds / 60 }} 分钟后到期。</p>
       <button @click="$emit('compose', '请帮我准备权限申请，先核对可申请资源并询问缺少的信息。')">申请权限</button>
       <button @click="$emit('compose', '请帮我准备本人设备维修申请，先核对本人资产并询问缺少的信息。')">设备报修</button>
+      <button @click="$emit('compose', '请帮我准备 IntelliJ IDEA Ultimate 模拟软件授权申请，先查询实时席位，询问我的用途和使用天数。')">申请软件授权</button>
     </section>
-    <section class="workspace-card"><h2>申请与维修记录</h2><p v-if="!cases.length">暂无业务流程。通过对话准备草稿并确认后，会显示在这里。</p>
+    <section class="workspace-card"><h2>业务申请记录</h2><p v-if="!cases.length">暂无业务流程。通过对话准备草稿并确认后，会显示在这里。</p>
       <article v-for="item in cases" :key="item.ticket_id" class="service-case">
-        <h3>{{ item.fields.summary }} · {{ item.ticket_id }}</h3><p>{{ item.kind === 'access_request' ? '权限申请' : '设备维修' }} · {{ states[item.status] || item.status }} · 申请人 {{ item.owner }}</p>
+        <h3>{{ item.fields.summary }} · {{ item.ticket_id }}</h3><p>{{ kinds[item.kind] || item.kind }} · {{ states[item.status] || item.status }} · 申请人 {{ item.owner }}</p>
+        <p v-if="item.kind === 'license_request'">{{ item.fields.product }} · 申请 {{ item.fields.duration_days }} 天<span v-if="item.license"> · 席位 {{ item.license.state }}，到期 {{ new Date(item.license.expires * 1000).toLocaleString() }}</span></p>
         <p>{{ item.fields.description }}</p><p v-if="item.assignee">处理人：{{ item.assignee }}</p>
         <label v-if="item.allowed_actions.length">处理或验收说明<input v-model="notes[item.ticket_id]" maxlength="2000" placeholder="填写审批依据、排障结果或验收情况" /></label>
         <button v-for="action in item.allowed_actions" :key="action" :disabled="busy || !notes[item.ticket_id]?.trim()" @click="act(item, action)">{{ labels[action] }}</button>
@@ -38,8 +41,9 @@ defineEmits(['compose'])
 const requests = createRequestState(props.settings)
 const catalog = ref({}), cases = ref([]), monitor = ref({}), status = ref(''), busy = ref(false)
 const notes = reactive({}), attempts = new Map()
-const labels = { approve: '批准申请', reject: '驳回申请', provision: '模拟开通', cancel: '取消申请', triage: '完成分诊', assign: '分派给我', start: '开始处理', resolve: '提交处理结果', accept: '验收并关闭', reopen: '验收不通过，返工' }
-const states = { pending_approval: '待审批', approved: '已批准，待开通', fulfilled: '已模拟开通', rejected: '已驳回', cancelled: '已取消', submitted: '已提交，待分诊', triaged: '已分诊，待派单', assigned: '已派单', in_progress: '处理中', resolved: '处理完成，待验收', closed: '已验收关闭' }
+const kinds = { access_request: '权限申请', device_repair: '设备维修', license_request: '软件授权' }
+const labels = { approve: '批准申请', reject: '驳回申请', provision: '模拟开通', cancel: '取消申请', triage: '完成分诊', assign: '分派给我', start: '开始处理', resolve: '提交处理结果', accept: '验收并关闭', reopen: '验收不通过，返工', reserve: '预占模拟席位', allocate: '分配模拟席位', revoke: '回收模拟席位' }
+const states = { pending_approval: '待审批', approved: '已批准，待执行', fulfilled: '已模拟开通', rejected: '已驳回', cancelled: '已取消', submitted: '已提交，待分诊', triaged: '已分诊，待派单', assigned: '已派单', in_progress: '处理中', resolved: '处理完成，待验收', closed: '已验收关闭', reserved: '已预占，待分配', allocated: '已模拟分配', revoked: '已回收', expired: '已到期回收' }
 async function load() {
   const request = requests.begin('load')
   try {

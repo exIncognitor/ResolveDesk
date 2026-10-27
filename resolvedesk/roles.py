@@ -9,7 +9,7 @@ import uuid
 
 from agents.agent_orchestrator import BaseAgent,AgentType,AgentProfile
 from agents.tools import AgentToolSpec
-from resolvedesk.business import BusinessService,LICENSES
+from resolvedesk.business import BusinessService
 
 
 def profile(label,mission,workflow):
@@ -96,12 +96,12 @@ def build_it_tools(services):
     def business(req,args):return BusinessService(services.store).context(scope(req))
 
     def license_check(req,args):
-        scope(req)
+        p=scope(req)
         product=args["product"].lower()
-        matches=[entry for entry in LICENSES if product in entry["product"].lower()]
+        matches=[entry for entry in BusinessService(services.store).context(p)['licenses'] if product in entry["product"].lower()]
         return {"simulation":True,"matches":matches,"purpose_provided":bool(args.get("purpose","").strip()),
-            "required_fields":["软件产品与版本","业务用途"],"can_assign_license":False,
-            "next_step":"软件目录及席位是模拟数据；按知识库审批路径申请，不执行授权分配。"}
+            "required_fields":["软件产品与版本","业务用途","使用期限1至30天"],"can_assign_license":False,
+            "next_step":"先由申请人核对草稿确认；其他IT操作员审批、预占后再分配本地模拟席位。模型无执行权限。"}
 
     def asset(req,args):
         p=scope(req)
@@ -113,7 +113,7 @@ def build_it_tools(services):
     def fields(req,args):
         scope(req)
         entities=req.entities or {}
-        required={"access_request":["resource_id","access_level","duration_days"],"device_repair":["asset_id"]}[args["workflow"]]
+        required={"access_request":["resource_id","access_level","duration_days"],"device_repair":["asset_id"],"license_request":["software","duration_days"]}[args["workflow"]]
         return {"workflow":args["workflow"],"known":{k:entities.get(k,[]) for k in required},"missing":[k for k in required if not entities.get(k)],
             "ambiguous":[k for k in required if len(entities.get(k,[]))>1],"submitted":False}
 
@@ -130,7 +130,7 @@ def build_it_tools(services):
         spec("read_business_catalog","读取当前用户的模拟资源/有效权限/资产和软件目录。",{},[],business),
         spec("check_license_request","核验软件授权目录与申请必要字段，不使用订单或支付金额。",{"product":{"type":"string","minLength":1,"maxLength":100},"purpose":{"type":"string","maxLength":300}},["product"],license_check,("billing",)),
         spec("read_owned_asset","只读查询申请人本人模拟资产，不能维修或变更状态。",{"asset_id":{"type":"string","pattern":"^LT-[0-9]{3,8}$"}},["asset_id"],asset,("technical",)),
-        spec("collect_request_fields","根据已提供且有来源的实体核对权限/维修申请字段。",{"workflow":{"type":"string","enum":["access_request","device_repair"]}},["workflow"],fields,("general","technical")),
+        spec("collect_request_fields","根据已提供且有来源的实体核对权限/维修/软件授权申请字段；用途与产品版本还需核对。",{"workflow":{"type":"string","enum":["access_request","device_repair","license_request"]}},["workflow"],fields,("general","technical","billing")),
         spec("prepare_handoff_summary","只生成有边界的人工交接材料，不声称已接入外部队列。",{"reason":{"type":"string","minLength":1,"maxLength":300}},["reason"],handoff,("escalation",))]
     # Retain the original deterministic diagnostic functions, scoped to IT
     # technical nodes. Billing/order tools are deliberately replaced above.

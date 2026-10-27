@@ -83,6 +83,8 @@ class DeskServices:
                     try:
                         await asyncio.to_thread(self.knowledge.drain_index)
                         await asyncio.to_thread(self.store.recover_expired)
+                        from resolvedesk.licenses import expire_due
+                        await asyncio.to_thread(expire_due,self.store)
                     except asyncio.CancelledError: raise
                     except Exception: pass  # Durable outbox retains failure evidence.
                     await asyncio.sleep(2)
