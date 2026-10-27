@@ -113,6 +113,7 @@ class _Connection:
         self.state = "connecting"
         self.error = None
         self.connections = 0
+        self.credentials = ()
 
 
 class StandardMCPClient:
@@ -174,6 +175,7 @@ class StandardMCPClient:
                             if not value:
                                 raise ValueError(f"MCP 认证环境变量未配置: {variable}")
                             headers[header] = value
+                        connection.credentials=tuple(headers.values())
                         http = await stack.enter_async_context(httpx.AsyncClient(
                             headers=headers, timeout=httpx.Timeout(config.timeout_s, connect=min(10, config.timeout_s)),
                             follow_redirects=False,trust_env=False))
@@ -181,6 +183,7 @@ class StandardMCPClient:
                     else:
                         # 默认不把应用模型 Key 等环境变量传入外部子进程。
                         env = {k: os.environ[k] for k in {"PATH", "SYSTEMROOT", "HOME", *config.env_vars} if k in os.environ}
+                        connection.credentials=tuple(env[k] for k in config.env_vars if k in env and re.search(r"(?i)token|secret|password|key",k))
                         read, write = await stack.enter_async_context(stdio_client(
                             StdioServerParameters(command=config.command, args=config.args, env=env)))
                     async def on_message(message):
@@ -228,6 +231,7 @@ class StandardMCPClient:
                 logger.warning("MCP 服务 %s 连接失败: %s", config.name, connection.error)
             finally:
                 connection.session = None
+                connection.credentials = ()
                 if not connection.stop.is_set():
                     connection.state = "disconnected"
                 self._remove_server(config.name)
@@ -298,6 +302,9 @@ class StandardMCPClient:
         connection = self.connections[server]
         if connection.session is None:
             raise MCPRemoteError(f"MCP 服务 {server} 未连接")
+        protected=list(connection.credentials)
+        for value in list(protected):
+            if value.lower().startswith('bearer '):protected.append(value[7:])
         try:
             result = await connection.session.call_tool(name, arguments)
         except Exception:
@@ -332,7 +339,6 @@ class StandardMCPClient:
                 if not duplicate:
                     remaining.append(block)
             content = remaining
-        protected=[]
         for variable in connection.config.headers_env.values():
             value=os.getenv(variable,"")
             if value:

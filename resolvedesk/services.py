@@ -5,7 +5,6 @@ import asyncio
 from dataclasses import replace
 import hashlib
 from pathlib import Path
-import sys
 import time
 import uuid
 
@@ -13,7 +12,7 @@ from agents.agent_orchestrator import AgentOrchestrator, AgentType, Request
 from core.skill_loader import SkillManager
 from resolvedesk.store import encode
 from resolvedesk.memory import ScopedMemory
-from tooling.mcp_client import MCPServerConfig, StandardMCPClient
+from tooling.mcp_client import StandardMCPClient
 from tooling.tool_manager import MCPToolManager
 
 ROOT = Path(__file__).resolve().parents[1]

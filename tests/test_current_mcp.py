@@ -60,6 +60,8 @@ async def test_current_protocol_auth_resources_acl_token_switch_and_no_paid_call
                     private=next(i for i in result.structuredContent['results'] if i['document_id']=='alice-private')
                     content=await session.read_resource('resolvedesk://knowledge/citations/'+private['citation'])
                     assert json.loads(content.contents[0].text)['document_id']=='alice-private'
+                    kb.add(Principal('demo','alice','support'),'alice-private','新版','VPN Alice 新版',visibility='private')
+                    with pytest.raises(McpError):await session.read_resource('resolvedesk://knowledge/citations/'+private['citation'])
                     http.headers['Authorization']='Bearer bob'
                     switched=await session.call_tool('search_local_knowledge',{'query':'VPN','tenant':'other','user':'alice'})
                     assert switched.isError or {i['document_id'] for i in switched.structuredContent['results']}=={'shared','bob-private'}
@@ -108,6 +110,10 @@ async def test_normal_config_http_auth_professional_wire_refresh_restart_and_deb
         assert set(services.external_tools('technical'))=={alias} and not services.external_tools('general')
         result=await services.call_external(USER,alias,{'category':'network'},'technical')
         assert result['structured']['category']=='network' and fixture.token not in json.dumps(result)
+        monkeypatch.setenv('MCP_TEST_HTTP_AUTH','Bearer replacement-synthetic-credential')
+        rotated=await services.call_external(USER,alias,{'category':'network'},'technical')
+        assert fixture.token not in json.dumps(rotated)
+        monkeypatch.setenv('MCP_TEST_HTTP_AUTH','Bearer '+fixture.token)
         with pytest.raises(PermissionError):await services.call_external(USER,alias,{'category':'network'},'general')
         from agents.agent_orchestrator import AgentType
         assert alias in services.roles._pool[AgentType.TECHNICAL][0].get_tools()
@@ -169,3 +175,22 @@ async def test_intent_embedding_status_is_real_cooldown_and_endpoint_is_free(env
     embedding.failed=False;recognizer.vector_retry_at=0
     assert (await recognizer.vectors('VPN'))['available'] and recognizer.embedding_status()['state']=='ready'
     model.messages.create.assert_not_called();await services.close()
+
+
+@pytest.mark.asyncio
+async def test_missing_transport_credentials_and_write_config_do_not_execute_tools(environment,tmp_path,monkeypatch):
+    store,kb,model,unused,app=environment
+    from tooling.mcp_client import MCPServerConfig
+    write=MCPServerConfig(name='write',transport='stdio',command='must-not-execute',allowed_tools=['write'],agents=['general'],read_only=False)
+    with pytest.raises(ValueError):DeskServices(store,kb,model,mcp_configs=[write])
+    monkeypatch.delenv('MCP_UNCONFIGURED_TEST_AUTH',raising=False)
+    config=MCPServerConfig(name='missing',transport='streamable_http',url='http://127.0.0.1:1/mcp',
+        headers_env={'Authorization':'MCP_UNCONFIGURED_TEST_AUTH'},allowed_tools=['read'],agents=['general'],timeout_s=1)
+    service=DeskServices(store,kb,model,mcp_configs=[config])
+    try:
+        await service.start()
+        state=service.mcp.summary()['servers'][0]
+        assert state['state']=='disconnected' and state['error']=='ValueError' and state['connections']==0
+        assert not service.external_tools('general')
+        model.messages.create.assert_not_called()
+    finally:await service.close();await unused.close()

@@ -65,7 +65,8 @@ def create_knowledge_mcp(api):
         def read():
             with api.state.store.db() as db:
                 return db.execute("SELECT COUNT(*) FROM chunks WHERE tenant=? AND (visibility='tenant' OR owner=?)",(p.tenant,p.user)).fetchone()[0]
-        return json.dumps({'total_chunks':await asyncio.to_thread(read)})
+        try:return json.dumps({'total_chunks':await asyncio.to_thread(read)})
+        except Exception:raise ValueError('Knowledge stats unavailable') from None
 
     @server.resource("resolvedesk://knowledge/citations/{citation}")
     async def knowledge_citation(citation:str)->str:
