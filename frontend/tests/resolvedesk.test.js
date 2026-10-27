@@ -24,13 +24,36 @@ test('chat uses authorized run reply, streams progress and returns the final dra
   calls.push([url,options]);assert.equal(new Headers(options.headers).get('Authorization'),'Bearer test-token')
   if(url.endsWith('/reply'))return Response.json({...run,status:'queued'})
   if(url.includes('/events?'))return new Response('id: 1\nevent: answer_delta\ndata: {"text":"草稿"}\n\nid: 2\nevent: awaiting_confirmation\ndata: {}\n\n')
-  if(url.includes('/trace/tool/'))return Response.json({trace:{events:[{kind:'routing',payload:{intent:'technical',primary:'technical',supporting:[]}}]}})
+  if(url.includes('/trace/tool/'))return Response.json({trace:{events:[{seq:1,kind:'routing',payload:{intent:'technical',primary:'technical',supporting:[]}}]}})
   return Response.json(run)
  }
  const result=await requestChat('python',s,'补充信息',{onEvent:e=>events.push(e)})
  assert.equal(result.raw.status,'awaiting_confirmation');assert.equal(result.primaryAgent,'technical')
  assert.ok(calls.some(([u])=>u.endsWith('/reply')));assert.ok(!calls.some(([u])=>u==='/chat'))
  assert.equal(events.find(e=>e.kind==='answer_delta').payload.text,'草稿')
+ const body=JSON.parse(calls.find(([u])=>u.endsWith('/reply'))[1].body)
+ assert.ok(body.request_key);assert.ok(calls.some(([u])=>u.includes('/turns/'+body.request_key)))
+})
+
+test('ambiguous reply failure retries the same turn key and endpoint and returns that saved answer',async t=>{
+ const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)
+ const s={pythonToken:'retry-token',conversationId:'retry-run',endpoints:{python:''}}
+ const posts=[];let loseResponse=true;let key
+ globalThis.fetch=async(url,options)=>{
+  if(options.method==='POST'){
+   const body=JSON.parse(options.body);key=body.request_key;posts.push([url,key])
+   if(loseResponse){loseResponse=false;throw Error('connection dropped after commit')}
+   return Response.json({id:'retry-run',turn_key:key,status:'completed',event_cursor:5,event_end:8,replayed:true})
+  }
+  if(url.includes('/events?'))return new Response('id: 8\nevent: completed\ndata: {}\n\n')
+  if(url.includes('/turns/'))return Response.json({id:'retry-run',turn_key:key,status:'completed',answer:'original reply answer',event_cursor:5,event_end:8})
+  if(url.includes('/trace/tool/'))return Response.json({trace:{events:[{seq:6,kind:'routing',payload:{primary:'technical'}},{seq:12,kind:'routing',payload:{primary:'billing'}}]}})
+  return Response.json({id:'retry-run',status:'completed',answer:'later answer'})
+ }
+ await assert.rejects(requestChat('python',s,'retry-message'),/connection dropped/)
+ const result=await requestChat('python',s,'retry-message')
+ assert.deepEqual(posts[0],posts[1]);assert.ok(posts[0][0].endsWith('/reply'))
+ assert.equal(result.response,'original reply answer');assert.equal(result.primaryAgent,'technical')
 })
 
 test('API permission failures remain failures',async t=>{
