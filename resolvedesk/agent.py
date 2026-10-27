@@ -20,11 +20,12 @@ class TicketFields(BaseModel):
     description: str = Field(default="", max_length=2000)
     category: Literal["software", "network", "access", "hardware", "other", ""] = ""
     priority: Literal["low", "normal", "high"] = "normal"
-    workflow: Literal["generic", "access_request", "device_repair"] = "generic"
+    workflow: Literal["generic", "access_request", "device_repair", "license_request"] = "generic"
     resource_id: str = Field(default="", max_length=100)
     access_level: Literal["", "read", "write"] = ""
     duration_days: int = Field(default=0, ge=0, le=30)
     asset_id: str = Field(default="", max_length=100)
+    product: str = Field(default="",max_length=100)
 
     def missing(self):
         labels = {"summary": "问题标题", "description": "具体故障描述", "category": "问题类别"}
@@ -41,7 +42,8 @@ TOOLS = [
          "summary": {"type": "string", "maxLength": 120}, "description": {"type": "string", "maxLength": 2000},
          "category": {"type": "string", "enum": ["software", "network", "access", "hardware", "other"]},
          "priority": {"type": "string", "enum": ["low", "normal", "high"]},
-         "workflow": {"type": "string", "enum": ["generic", "access_request", "device_repair"]},
+         "workflow": {"type": "string", "enum": ["generic", "access_request", "device_repair", "license_request"]},
+         "product": {"type": "string", "maxLength":100},
          "resource_id": {"type": "string", "maxLength": 100}, "access_level": {"type": "string", "enum": ["read", "write"]},
          "duration_days": {"type": "integer", "minimum": 1, "maximum": 30}, "asset_id": {"type": "string", "maxLength": 100}}, "additionalProperties": False}},
     {"name": "business_context", "description": "读取当前用户模拟企业的可申请资源、有效权限、本人资产、软件授权目录。不能写入。",
@@ -67,10 +69,12 @@ category 根据用户问题归类为 software/network/access/hardware/other；�
 业务包括账号权限、网络与终端故障、软件授权和设备服务。模拟业务数据会在上下文中明确标注。
 用户要求申请权限时，prepare_ticket 必须使用 workflow=access_request、category=access，填写用户提供的 resource_id、access_level、duration_days 和用途描述。
 用户要求设备维修时，prepare_ticket 必须使用 workflow=device_repair、category=hardware，填写属于用户的 asset_id 和故障描述。
+用户明确申请商业软件席位时，prepare_ticket 使用 workflow=license_request、category=software，product 必须为目录产品 IntelliJ IDEA Ultimate，description 填写用户用途，duration_days 为用户指定的1至30天。产品版本、用途或期限未知时先追问。只咨询政策或激活排障不用申请流程。
 不能为了少填字段把上述申请降级为 generic。只回答政策或排障问题时不用准备工单。
 缺少业务字段时先读取 business_context 获取真实目录并向用户追问；不得自行选择权限级别、有效期或设备。
 申请人确认仅提交申请，审批和授权由客服通过业务接口分步执行，设备维修还需分诊、派单、处理和申请人验收。
 模型无审批、开通权限、改变维修状态的工具，不得声称已执行。所有业务状态仅以查询结果为准。
+软件席位也仅由确认接口提交申请，其他IT操作员审批后才可预占、再分配；预占15分钟或授权到期自动回收。模型不能审批、预占、分配或撤销；这些只更改本地模拟数据，不会获得厂商真实授权。
 """
 
 

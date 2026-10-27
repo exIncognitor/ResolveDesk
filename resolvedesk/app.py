@@ -66,7 +66,7 @@ class Regression(Input):
 
 
 class ServiceAction(Input):
-    action: Literal["approve","reject","provision","cancel","triage","assign","start","resolve","accept","reopen"]
+    action: Literal["approve","reject","provision","cancel","triage","assign","start","resolve","accept","reopen","reserve","allocate","revoke"]
     version: int = Field(ge=1)
     request_key: str = Field(min_length=8,max_length=100,pattern=r"^[a-zA-Z0-9_-]+$")
     note: str = Field(min_length=1,max_length=2000)

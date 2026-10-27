@@ -18,6 +18,8 @@ LICENSES = [
 
 
 def initialize(db):
+    from resolvedesk.licenses import initialize as initialize_licenses
+    initialize_licenses(db)
     db.executescript("""
         CREATE TABLE IF NOT EXISTS desk_assets(tenant TEXT,id TEXT,owner TEXT,model TEXT,warranty TEXT,status TEXT,
             PRIMARY KEY(tenant,id));
@@ -63,12 +65,14 @@ class BusinessService:
                            (asset_id, owner, model, warranty))
 
     def context(self, p):
+        from resolvedesk.licenses import catalog
         with self.store.db() as db:
+            license_catalog=catalog(db,p)
             assets = [dict(r) for r in db.execute("SELECT * FROM desk_assets WHERE tenant=? AND owner=?", (p.tenant, p.user))]
             grants = [dict(r) for r in db.execute("SELECT resource,level,expires,source_ticket FROM desk_grants WHERE tenant=? AND owner=? AND expires>?",
                                                 (p.tenant, p.user, time.time()))]
         return {"simulation": True, "notice": "模拟企业制度和本地业务系统，不会更改真实账号或设备。",
-                "resources": RESOURCES, "licenses": LICENSES, "my_assets": assets, "my_grants": grants}
+                "resources": RESOURCES, "licenses": [license_catalog]+[entry for entry in LICENSES if entry['product']!=license_catalog['product']], "my_assets": assets, "my_grants": grants}
 
     @staticmethod
     def validate(db, p, fields):
@@ -90,6 +94,9 @@ class BusinessService:
             if not days: missing.append("权限有效天数")
             elif type(days) is not int or not 1 <= days <= RESOURCES.get(resource, {"max_days": 30})["max_days"]:
                 raise ValueError("权限有效期为 1 至 30 天")
+        elif kind == 'license_request':
+            from resolvedesk.licenses import validate
+            missing.extend(validate(fields))
         elif kind == "device_repair":
             if fields.get("category") != "hardware":
                 raise ValueError("设备维修必须选择 hardware 类别")
@@ -113,7 +120,7 @@ class BusinessService:
         if kind == "generic": return
         missing = BusinessService.validate(db, p, fields)
         if missing: raise ValueError("业务字段不完整：" + "、".join(missing))
-        state = "pending_approval" if kind == "access_request" else "submitted"
+        state = "pending_approval" if kind in {"access_request","license_request"} else "submitted"
         if kind == "device_repair":
             db.execute("UPDATE desk_assets SET status='in_repair' WHERE tenant=? AND id=?", (p.tenant, fields["asset_id"]))
         db.execute("INSERT INTO service_cases VALUES(?,?,?,?,?,1,?,NULL,?)", (ticket_id, p.tenant, p.user, kind, state, encode(fields), time.time()))
@@ -136,12 +143,18 @@ class BusinessService:
     @staticmethod
     def _public(db, p, row):
         result = dict(row, fields=json.loads(row["fields"]), simulation=True)
+        if row['kind']=='license_request':
+            slot=db.execute('SELECT state,expires,product FROM license_allocations WHERE ticket_id=? AND tenant=?',(row['ticket_id'],p.tenant)).fetchone()
+            result['license']=dict(slot) if slot else None
         result["audit"] = [dict(r) for r in db.execute("SELECT actor,action,from_status,to_status,note,created FROM service_audit WHERE ticket_id=? AND tenant=? ORDER BY seq", (row["ticket_id"], p.tenant))]
         result["allowed_actions"] = BusinessService.allowed(p, row)
         return result
 
     @staticmethod
     def allowed(p, row):
+        if row['kind']=='license_request':
+            from resolvedesk.licenses import allowed
+            return allowed(p,row)
         state, kind = row["status"], row["kind"]
         actions = []
         if row["owner"] == p.user:
@@ -156,9 +169,12 @@ class BusinessService:
         return actions
 
     def get(self, p, ticket_id):
-        with self.store.db() as db: return self._public(db, p, self._get(db, p, ticket_id))
+        from resolvedesk.licenses import expire_case
+        with self.store.db(True) as db: return self._public(db, p, expire_case(db,self._get(db, p, ticket_id)))
 
     def list(self, p):
+        from resolvedesk.licenses import expire_due
+        expire_due(self.store)
         with self.store.db() as db:
             rows = db.execute("SELECT * FROM service_cases WHERE tenant=?" + ("" if p.role == "support" else " AND owner=?") + " ORDER BY updated DESC LIMIT 100",
                               [p.tenant] + ([] if p.role == "support" else [p.user])).fetchall()
@@ -174,12 +190,18 @@ class BusinessService:
             if previous:
                 if previous["fingerprint"] != fingerprint: raise Conflict("幂等键已经用于其他操作")
                 return json.loads(previous["response"])
+            from resolvedesk.licenses import expire_case
+            row=expire_case(db,row)
             if row["version"] != version: raise Conflict("流程已更新，请刷新后操作")
             if action not in self.allowed(p, row): raise Conflict("当前状态或角色不允许此操作")
             fields = json.loads(row["fields"])
             targets = {"approve": "approved", "reject": "rejected", "provision": "fulfilled", "cancel": "cancelled",
-                       "triage": "triaged", "assign": "assigned", "start": "in_progress", "resolve": "resolved", "accept": "closed", "reopen": "in_progress"}
+                       "triage": "triaged", "assign": "assigned", "start": "in_progress", "resolve": "resolved", "accept": "closed", "reopen": "in_progress",
+                       "reserve":"reserved","allocate":"allocated","revoke":"revoked"}
             target = targets[action]
+            if row['kind']=='license_request':
+                from resolvedesk.licenses import apply
+                apply(db,p,row,fields,action)
             if action == "assign":
                 # Local demo has one support operator; no invented external employee identity.
                 if assignee != p.user: raise ValueError("本地模拟仅支持分派给当前 IT 操作员")

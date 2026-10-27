@@ -340,6 +340,9 @@ class Store:
                 answer = (f"权限申请草稿已准备：{fields['summary']}。\n资源：{fields['resource_id']}；权限：{fields['access_level']}；有效期：{fields['duration_days']} 天。\n"
                           f"用途与说明：{fields['description']}\n请核对后点击确认提交。确认后进入待审批，须由其他 IT 客服审核；批准后仍需执行模拟开通。"
                           "有效期从模拟开通时起算，所有操作保留审计记录。目前尚未提交申请或开通权限；本流程只更改本地模拟系统。")
+            elif not missing and fields.get('workflow')=='license_request':
+                answer=(f"软件授权草稿已准备：{fields['summary']}。\n产品：{fields['product']}；期限：{fields['duration_days']} 天；用途：{fields['description']}。\n"
+                    "请核对后确认提交。当前尚未提交、审批、预占或分配席位；后续均为本地模拟流程。")
             elif not missing and fields.get("workflow") == "device_repair":
                 answer = (f"设备维修草稿已准备：{fields['summary']}。\n资产：{fields['asset_id']}；故障：{fields['description']}\n"
                           "请核对后点击确认提交。提交后由 IT 分诊、派单并记录维修处理结果，再由你验收关闭；未解决可退回返工。"
