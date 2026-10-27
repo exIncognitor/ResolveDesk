@@ -193,7 +193,9 @@ class HybridKnowledge:
         for document_id in results:
             projection=self.drain_index(1,tenant=p.tenant,document_id=document_id) if self.vector_index else {'failed':0,'pending':0}
             results[document_id]['index_pending']=bool(projection['failed'] or projection['pending'])
-        return {'results':[results[d['document_id']] for d in documents],'documents':len(results),'added_chunks':sum(r['chunks'] for r in results.values()),'atomic_sql':True}
+        with self.store.db() as db:
+            total=db.execute("SELECT COUNT(*) FROM chunks WHERE tenant=? AND (visibility='tenant' OR owner=?)",(p.tenant,p.user)).fetchone()[0]
+        return {'results':[results[d['document_id']] for d in documents],'documents':len(results),'added_chunks':sum(r['chunks'] for r in results.values()),'total_chunks':total,'atomic_sql':True}
 
     def drain_index(self,limit=10,*,tenant=None,document_id=None):
         """Project latest SQL state, serialized per document. Retries never use stale payloads."""

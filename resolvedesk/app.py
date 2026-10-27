@@ -333,7 +333,7 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         if services:return await services.search(p,data.query,data.top_k,optimize=False,mode=data.mode)
         return await asyncio.to_thread(request.app.state.knowledge.search, p, data.query, data.top_k, data.mode)
 
-    @app.post("/knowledge/documents")
+    @app.post("/knowledge/documents",openapi_extra={'requestBody':{'required':True,'content':{'application/json':{'schema':Document.model_json_schema()}}}})
     async def add_document(request:Request,p=Depends(principal)):
         result=await import_documents(request,p,False,single=True)
         return result['results'][0]
@@ -366,12 +366,14 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         # actual completion and never claim that disconnected imports rolled back.
         return await asyncio.shield(task)
 
-    @app.post('/knowledge/add')
-    @app.post('/knowledge/batch')
+    from resolvedesk.imports import ImportDocument
+    batch_schema={'type':'object','required':['documents'],'additionalProperties':False,'properties':{'documents':{'type':'array','minItems':1,'maxItems':100,'items':ImportDocument.model_json_schema()}}}
+    @app.post('/knowledge/add',openapi_extra={'requestBody':{'required':True,'content':{'application/json':{'schema':batch_schema}}}})
+    @app.post('/knowledge/batch',openapi_extra={'requestBody':{'required':True,'content':{'application/json':{'schema':batch_schema}}}})
     async def batch_knowledge(request:Request,p=Depends(principal)):
         return await import_documents(request,p,False)
 
-    @app.post('/knowledge/upload')
+    @app.post('/knowledge/upload',openapi_extra={'requestBody':{'required':True,'content':{'multipart/form-data':{'schema':{'type':'object','required':['file'],'properties':{'file':{'type':'string','format':'binary'}}}}}}})
     async def upload_knowledge(request:Request,p=Depends(principal)):
         return await import_documents(request,p,True)
 

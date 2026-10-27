@@ -1,6 +1,20 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {consumeEvents,requestChat,deskRequest,runEvaluation,requestToolTrace} from '../src/lib/resolvedesk.js'
+import {consumeEvents,requestChat,deskRequest,runEvaluation,requestToolTrace,addKnowledge,uploadKnowledge} from '../src/lib/resolvedesk.js'
+
+test('knowledge import uses one authenticated server batch and actual multipart upload',async t=>{
+ const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)
+ const s={pythonToken:'local-support',endpoints:{python:''}},calls=[]
+ globalThis.fetch=async(url,options)=>{calls.push([url,options]);return Response.json({documents:1})}
+ await addKnowledge('python',s,[{title:'VPN',content:'policy'}])
+ assert.equal(calls[0][0],'/knowledge/add');assert.deepEqual(JSON.parse(calls[0][1].body),{documents:[{title:'VPN',content:'policy'}]})
+ const file=new File(['x'.repeat(310000)],'policy.md',{type:'text/markdown'})
+ await uploadKnowledge('python',s,file)
+ assert.equal(calls[1][0],'/knowledge/upload');assert.ok(calls[1][1].body instanceof FormData)
+ assert.equal(calls[1][1].body.get('file').size,310000)
+ assert.equal(calls[1][1].headers.Authorization,'Bearer local-support')
+ assert.equal(calls[1][1].headers['Content-Type'],undefined)
+})
 
 test('trace pagination pins the original turn and snapshot and preserves actual tool output and timing',async t=>{
  const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)

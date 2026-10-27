@@ -8,7 +8,9 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 EXCLUDED = {'history', '.venv', 'venv', 'node_modules', 'data', '.codex-runtime', '.codex-tmp',
             '__pycache__', '.pytest_cache', 'logs', '.idea'}
-PATTERNS = [rb'sk-[A-Za-z0-9_-]{20,}', rb'gh[pousr]_[A-Za-z0-9]{20,}',
+# Provider keys begin a token. A substring in desk-<worker UUID> is an
+# execution identity, not a secret; actual local keys are also matched exactly.
+PATTERNS = [rb'\bsk-[A-Za-z0-9_-]{20,}', rb'gh[pousr]_[A-Za-z0-9]{20,}',
             rb'github_pat_[A-Za-z0-9_]{20,}', rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----']
 
 
