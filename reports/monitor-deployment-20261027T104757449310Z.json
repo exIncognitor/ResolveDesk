@@ -1,0 +1,52 @@
+{
+  "revision": "9fc64e8464b9c631958bc6af05511941bdcfa251",
+  "source_files": 50,
+  "source_mismatches": [],
+  "ready": {
+    "8080": {
+      "ready": true,
+      "components": {
+        "database": true,
+        "redis": true,
+        "chroma": true
+      }
+    },
+    "18080": {
+      "ready": true,
+      "components": {
+        "database": true,
+        "redis": true,
+        "chroma": true
+      }
+    }
+  },
+  "prometheus": {
+    "status": "success",
+    "data": {
+      "resultType": "vector",
+      "result": [
+        {
+          "metric": {
+            "__name__": "up",
+            "instance": "app:8080",
+            "job": "resolvedesk"
+          },
+          "value": [
+            1793098077.386,
+            "1"
+          ]
+        }
+      ]
+    }
+  },
+  "host_workers": 2,
+  "python_tests": 308,
+  "python_subtests": 14,
+  "frontend_tests": 27,
+  "live_monitor_checks": [
+    15,
+    15
+  ],
+  "backup": ".codex-runtime/checkpoints/eval-retention-20261027T104631083572Z-d8557be6/resolvedesk.dump",
+  "backup_sha256": "2095856cfede4b42c3d9b42017b75a296039cf70ee75d2ed779ff587150f95ce"
+}

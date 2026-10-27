@@ -14,12 +14,12 @@
 | G06 工具可靠性 | 已实现并验收本包 | 主聊天/专业节点/知识搜索API统一进入原工具管理层；完整流水线缓存位于付费改写/重排前，Redis跨进程复用，SQL权限/文档/索引水位失效且命中复核；原生RAG与BM25独立超时/有界线程/熔断/单探测恢复；严格vector不冒充词法。只读MCP按TTL缓存，原地业务校验/事务不缓存或自动重放；知识故障无证据停止生成，流式与最终引用复核。真实Flash当前ASGI与真实跨进程缓存16/16，详见RETRIEVAL_RELIABILITY_2026-10-27.md |
 | G07 MCP全链路 | 已实现并验收本包 | 正常启动JSON配置多stdio/HTTP服务、环境身份头、角色只读白名单、目录刷新/被动ping掉线重连；当前入口导出Bearer鉴权的/mcp/knowledge/标准Tools及计数/引用Resource、并发/切换身份隔离；support免费调试和真实意图向量provider/冷却状态；传输凭据脱敏。真实Flash主入口专业节点调用配置HTTP工具，17/17通过；泛化写MCP明确保留禁用。详见MCP_MIGRATION_2026-10-27.md |
 | G08 评测对齐 | 已实现并验收本包 | 实际识别器/逐轮Judge/自定义50轮/泛化断言/真实三服务沙盒/持久总时限和显式续时/不确定付费步骤不重调/跨版本有效基线/保留回收已接入。294项Python+14子测试、27项前端通过；独立进程强杀恢复和50轮当前ASGI通过；真实六段八轮及权限/维修状态全通过、意图51/52，标签不变同题23/26→25/26；部署端基线3/3、免费回收6/6。详见EVALUATION_MIGRATION_2026-10-27.md |
-| G09 监控对齐 | 部分执行归因已补，整包待验收 | 专业执行已按实际角色/实例/独立耗时记录；仍待完整Z-score、Histogram、工具状态、主执行结果口径及失败/延迟反馈 |
+| G09 监控对齐 | 已实现并验收本包 | 主执行epoch/专家实际角色和实例分别记账、未知中断耗时不造0、SQL累计Histogram/待投影恢复、Z-score、受限观察、工具熔断/结构化建议、成功率与延迟降权及真实恢复探测均已验。308项Python+14子测试、前端27通过，真实Flash15/15；两入口免费检索60/60和MCP11/11。见MONITORING_MIGRATION_2026-10-27.md |
 | G10 完整轨迹 | 部分基础已补，整包待验收 | 专业/MCP轨迹已脱敏入事件，按turn_key读取旧轮次，前端显示实际回退/partial；仍待完整主工具输入/输出摘要、分页/最近轨迹和真实主执行耗时 |
 | G11 API与CLI | 待实施 | 原17接口去向、批量/文件导入、集成状态、交互CLI |
 | G12 请求/存储/并发 | 已实现并验收本包 | PostgreSQL、逐轮回执、前端重试、Redis续租/SQL fencing/数据库时钟、跨进程争用、Chroma outbox/ACL复核已验；原切换21表477条哈希证据保留。轨迹/检查点/响应体及评测/三服务沙盒均有显式保留策略：预览、备份、基线保护、精确归属、无CASCADE清理、失败重试及不可重执行墓碑。活动2/全局200/租户50作业限额和清理后容量释放已验；旧资料和离线夹具受保护。见EVAL_RETENTION_OPERATIONS.md |
-| G13 配置与部署 | 完整容器部署已验；外部通知未配置 | 应用/前端构建/网关/Prometheus/PG/Redis/Chroma六服务已运行；/ready全通过、静态资源200、Prometheus up=1。当前8cf74d4，宿主机2 workers与容器入口分别60/60免费检索、MCP11/11；294项Python/14子测试、27项前端通过。外部Webhook仍为空，不声称已发真实企业通知；实际配置RESOLVEDESK_ALERT_WEBHOOK |
+| G13 配置与部署 | 完整容器部署已验；外部通知未配置 | 应用/前端构建/网关/Prometheus/PG/Redis/Chroma六服务已运行；/ready全通过、Prometheus up=1。当前9fc64e8，宿主机2 workers与容器入口分别60/60免费检索、MCP11/11，50个运行源码哈希一致；308项Python/14子测试、27项前端通过。外部Webhook仍为空，不声称已发真实企业通知；实际配置RESOLVEDESK_ALERT_WEBHOOK |
 
 不得依据文档计划将项目标记为完成。API继续共享原累计20元账本并保留2元余量；旧费用账本必须完整保留，不通过重建服务或库重置消费。
 
-存储部署证据见 `SERVICE_CUTOVER_2026-10-27.md`；G01–G04证据与边界见 `IT_ENGINE_MIGRATION_2026-10-27.md`；G05及共享费用账本切换见 `MEMORY_MIGRATION_2026-10-27.md`；G06见 `RETRIEVAL_RELIABILITY_2026-10-27.md`；G07见 `MCP_MIGRATION_2026-10-27.md`；G08/G12联合验收及实际意图失败见 `EVALUATION_MIGRATION_2026-10-27.md`、`EVAL_RETENTION_OPERATIONS.md`。G09、G10、G11及G13外部配置继续按固定范围推进，完整目标尚未完成。
+存储部署证据见 `SERVICE_CUTOVER_2026-10-27.md`；G01–G04证据与边界见 `IT_ENGINE_MIGRATION_2026-10-27.md`；G05及共享费用账本切换见 `MEMORY_MIGRATION_2026-10-27.md`；G06见 `RETRIEVAL_RELIABILITY_2026-10-27.md`；G07见 `MCP_MIGRATION_2026-10-27.md`；G08/G12联合验收及实际意图失败见 `EVALUATION_MIGRATION_2026-10-27.md`、`EVAL_RETENTION_OPERATIONS.md`；G09见 `MONITORING_MIGRATION_2026-10-27.md`。G10、G11及G13外部配置继续按固定范围推进，完整目标尚未完成。
