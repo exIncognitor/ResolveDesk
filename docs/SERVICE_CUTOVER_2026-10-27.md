@@ -19,7 +19,8 @@
 
 ## 阶段最终核验
 
-- 最终运行代码 `470a92c`；宿主机8080以两个工作进程运行，容器网关18080、Prometheus19090。六服务均已启动；`/ready`数据库/Redis/Chroma全通过，Vue静态资源200，Prometheus `up{job="resolvedesk"}=1`。
+- 最终验证实现 `470a92c`，镜像打包版本 `99c066c`（其后只增加说明/报告）；宿主机8080以两个工作进程运行，容器网关18080、Prometheus19090。六服务均已启动；`/ready`数据库/Redis/Chroma全通过，Vue静态资源200，Prometheus `up{job="resolvedesk"}=1`。
+- [最终容器证据](../reports/docker-runtime-20261027T052147995006Z.json)直接读取运行容器元数据，并核对9个关键Python/前端源码的SHA-256与已验证工作区一致。镜像另保留 `resolvedesk-app:99c066c` 版本标签，避免仅凭可变local标签判断版本。
 - 最终全量Python **224 passed + 14 subtests**；前端 **24 passed**，构建通过；本机和镜像内 `pip check` 通过；发布内容扫描无凭据发现。GitHub新增真实三依赖CI配置，尚未把本地执行结果冒称为远端Actions结果。
 - [宿主机2工作进程免费检索](../reports/services-runtime-20261027T051628846249Z.json)和[Docker网关免费检索](../reports/services-runtime-20261027T051630478022Z.json)各60/60、费用账本不变。
 - Redis失租/SQL旧认领拒绝写入、真实跨进程唯一执行、初始SSE丢失后采用新会话ID仍复用原请求、按原轮次返回旧答案均已回归。租约以数据库时钟为准，避免工作进程时钟偏差改变有效期。

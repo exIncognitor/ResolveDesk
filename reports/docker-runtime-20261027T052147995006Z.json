@@ -1,0 +1,40 @@
+{
+  "ready": {
+    "ready": true,
+    "components": {
+      "database": true,
+      "redis": true,
+      "chroma": true
+    }
+  },
+  "metadata_source": "running container",
+  "image_id": "sha256:09ccc100237505d976767829b7b09d9d77c968ba92a99bdae721d6bb480cedfa",
+  "revision": "99c066c8e8b41b339a816f428b5e8b838c94737a",
+  "source_hashes_match": true,
+  "source_hashes": {
+    "resolvedesk/app.py": "96d8fab4a301420c4ec230024c7a9499acd959979742ea0e8739311926ea4af1",
+    "resolvedesk/store.py": "161487d879aff270adf81bb1dd22d684ac643a1a21095f347fca6031dd7dd325",
+    "resolvedesk/database.py": "2d4c6b09ed68802c456e69e733c78346e1c32b306fa800d727043063f05aa4fd",
+    "resolvedesk/agent.py": "36f62668f5eea855ba66d01a87b1ff97c27d79dc13a41b7d7f42e93a267462da",
+    "resolvedesk/coordination.py": "8b3db0d636c880529fb5a071d88f6bd9d51efad986dffc75effa722bba711ed0",
+    "resolvedesk/retrieval.py": "15b151daa63569220b8a8b7d64f5cb6f483b2cf5510418a242bc595e2b3b1393",
+    "resolvedesk/vectors.py": "5fd03f96c02ca49a72aa4f6577a73d27c6609a625afb559042615d4cb2face95",
+    "resolvedesk/services.py": "03dbecf691c9cf6ac6e8fbcf26debc4cf290cd984c023f03f6a83a2f3cc74a20",
+    "frontend/src/lib/resolvedesk.js": "90572351f39b3fcbf0adfb43aeea7a2067ad716af3dc1d7b27a7cf4e07fcffaa"
+  },
+  "frontend_assets": [
+    "/assets/index-BcTsAZQ8.js",
+    "/assets/index-BjemALXS.css"
+  ],
+  "prometheus_up": 1,
+  "paid_calls": 0,
+  "services": [
+    "app",
+    "gateway",
+    "prometheus",
+    "postgres",
+    "redis",
+    "chroma"
+  ],
+  "metadata_correction": "Earlier report docker-runtime-20261027T051803913711Z.json read mutable image tag metadata, not running container; its revision was not runtime evidence. All builders now completed; image has a separate revision tag."
+}
