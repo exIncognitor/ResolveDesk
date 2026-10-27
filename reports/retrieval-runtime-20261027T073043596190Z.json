@@ -1,0 +1,81 @@
+{
+  "kind": "current_asgi_real_retrieval_reliability",
+  "simulation": true,
+  "checks": {
+    "flash_rewrite_and_rerank": false,
+    "cache_precedes_paid_stages": true,
+    "cross_process_redis_cache": true,
+    "free_api_and_child_do_not_spend": true,
+    "reimport_acl_invalidates_cache": true,
+    "lexical_fallback_0": true,
+    "lexical_fallback_1": true,
+    "lexical_fallback_2": true,
+    "lexical_fallback_3": true,
+    "lexical_fallback_4": true,
+    "breaker_opens": true,
+    "strict_vector_unavailable": true,
+    "real_chroma_probe_recovers": true,
+    "current_agent_retrieval_path": true,
+    "current_agent_answers_with_evidence": true,
+    "no_business_write": true
+  },
+  "details": {
+    "cache_worker": {
+      "pid": 53124,
+      "cached": true,
+      "layer": "redis",
+      "native_calls": 0
+    },
+    "final_status": "completed",
+    "retrieval": {
+      "cache_layer": null,
+      "cached": false,
+      "candidate_count": 7,
+      "citations": [
+        "C-035e665bb381939fd1e5a108",
+        "C-7a2210cccff41422c2b3a0d5",
+        "C-839c26b2551f98cd2f38b542",
+        "C-61c11a1d392c4fce9aeeb79d",
+        "C-f69fdd6724b266660e571a6f"
+      ],
+      "degraded": false,
+      "effective_mode": "hybrid",
+      "errors": [],
+      "latency_ms": 1844.0,
+      "mode": "hybrid",
+      "queries": [
+        "VPN连接超时，请依据制度给出排查建议，不要建单。",
+        "VPN连接超时 排查建议 制度",
+        "VPN连接超时 故障排查 制度 不建单"
+      ],
+      "reranked": true
+    }
+  },
+  "passed": 15,
+  "total": 16,
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.675506",
+    "available_cny": "16.324494",
+    "calls": {
+      "settled": 364
+    },
+    "usage_input_tokens": 674681,
+    "usage_output_tokens": 40768,
+    "unresolved_reservation_cny": "0"
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.702892",
+    "available_cny": "16.297108",
+    "calls": {
+      "settled": 373
+    },
+    "usage_input_tokens": 685658,
+    "usage_output_tokens": 41447,
+    "unresolved_reservation_cny": "0"
+  },
+  "source_revision": "f0ad42e00b16a72564b750b8cc9b0e21f1a13918"
+}
