@@ -1,0 +1,552 @@
+{
+  "version": "sourced-it-v1",
+  "provenance": "2026-10-27依据公开官方文档由助手自写简明中文手册；非生产资料、非企业真实制度，引用不代表厂商背书。",
+  "documents": [
+    {
+      "document_id": "ref-entra-sspr",
+      "path": "knowledge/reference/entra-sspr.md",
+      "title": "Entra自助密码重置失败",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/authentication/troubleshoot-sspr"
+        ],
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-entra-mfa",
+      "path": "knowledge/reference/entra-mfa.md",
+      "title": "Entra更换MFA手机与认证方式",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userdevicesettings"
+        ],
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-entra-signin",
+      "path": "knowledge/reference/entra-signin.md",
+      "title": "Entra登录错误的脱敏取证",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/monitoring-health/howto-troubleshoot-sign-in-errors"
+        ],
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-entra-conditional",
+      "path": "knowledge/reference/entra-conditional.md",
+      "title": "Entra条件访问与设备合规阻断",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access"
+        ],
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-entra-least-privilege",
+      "path": "knowledge/reference/entra-least-privilege.md",
+      "title": "Entra最小权限与限时角色",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/best-practices"
+        ],
+        "applicability": [
+          "Microsoft Entra RBAC"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-entra-revoke",
+      "path": "knowledge/reference/entra-revoke.md",
+      "title": "Entra会话撤销与应用访问回收",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/entra/identity/users/users-revoke-access"
+        ],
+        "applicability": [
+          "Microsoft Entra ID"
+        ],
+        "domains": [
+          "account_access"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-dns-client",
+      "path": "knowledge/reference/dns-client.md",
+      "title": "Windows DNS客户端解析失败",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/troubleshoot-dns-client-resolution-issues"
+        ],
+        "applicability": [
+          "Windows 11；受支持的Windows客户端"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-dns-tests",
+      "path": "knowledge/reference/dns-tests.md",
+      "title": "DNS短名与完整域名对照测试",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client"
+        ],
+        "applicability": [
+          "Windows DNS客户端/服务器诊断"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-nslookup",
+      "path": "knowledge/reference/nslookup.md",
+      "title": "nslookup指定DNS服务器只读检查",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/nslookup"
+        ],
+        "applicability": [
+          "Windows 11/Windows Server"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-tcp-connect",
+      "path": "knowledge/reference/tcp-connect.md",
+      "title": "Test-NetConnection核验TCP连接",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection?view=windowsserver2025-ps"
+        ],
+        "applicability": [
+          "Windows PowerShell NetTCPIP"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-vpn-691",
+      "path": "knowledge/reference/vpn-691.md",
+      "title": "RRAS VPN错误691与认证协议",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/rras-vpn-connections-fail-ms-chapv2-authentication"
+        ],
+        "applicability": [
+          "Windows RRAS；MS-CHAPv2场景"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-winhttp-proxy",
+      "path": "knowledge/reference/winhttp-proxy.md",
+      "title": "Windows WinHTTP代理只读核对",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh-winhttp"
+        ],
+        "applicability": [
+          "Windows WinHTTP"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-idea-register",
+      "path": "knowledge/reference/idea-register.md",
+      "title": "IDEA产品激活方式与授权核验",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://www.jetbrains.com/help/idea/register.html"
+        ],
+        "applicability": [
+          "IntelliJ IDEA 2026.2文档"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-idea-plugins",
+      "path": "knowledge/reference/idea-plugins.md",
+      "title": "IDEA插件授权与兼容性检查",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://www.jetbrains.com/help/idea/managing-plugins.html"
+        ],
+        "applicability": [
+          "IntelliJ IDEA 2026.2文档"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-idea-proxy",
+      "path": "knowledge/reference/idea-proxy.md",
+      "title": "IDEA许可证检查与IDE代理",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://www.jetbrains.com/help/idea/settings-http-proxy.html"
+        ],
+        "applicability": [
+          "IntelliJ IDEA 2026.2文档"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-vault-requirements",
+      "path": "knowledge/reference/vault-requirements.md",
+      "title": "License Vault支持的许可证类型",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://www.jetbrains.com/help/license-vault-cloud/Requirements.html"
+        ],
+        "applicability": [
+          "JetBrains License Vault Cloud独立产品"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-vault-revoke",
+      "path": "knowledge/reference/vault-revoke.md",
+      "title": "License Vault回收与再次获取区别",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://www.jetbrains.com/help/license-vault-cloud/Revoking_licenses.html"
+        ],
+        "applicability": [
+          "JetBrains License Vault Cloud独立产品"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-vault-capacity",
+      "path": "knowledge/reference/vault-capacity.md",
+      "title": "License Vault容量通知与采购边界",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://www.jetbrains.com/help/license-vault-cloud/Notifications.html"
+        ],
+        "applicability": [
+          "JetBrains License Vault Cloud独立产品"
+        ],
+        "domains": [
+          "software_license"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-surface-battery",
+      "path": "knowledge/reference/surface-battery.md",
+      "title": "Surface电池膨胀的停止使用边界",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/surface/battery/caring-for-your-surface-battery"
+        ],
+        "applicability": [
+          "Microsoft Surface；按具体型号核对"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-battery-report",
+      "path": "knowledge/reference/battery-report.md",
+      "title": "Windows电池报告与续航记录",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options"
+        ],
+        "applicability": [
+          "Windows powercfg；兼容设备"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-bitlocker-key",
+      "path": "knowledge/reference/bitlocker-key.md",
+      "title": "BitLocker恢复密钥的官方查找途径",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/windows/security/encryption/find-your-bitlocker-recovery-key"
+        ],
+        "applicability": [
+          "Windows 11；组织管理设备"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-surface-service",
+      "path": "knowledge/reference/surface-service.md",
+      "title": "Surface送修前的数据与配件准备",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/surface/service-repair/how-to-prepare-your-surface-for-service"
+        ],
+        "applicability": [
+          "Microsoft Surface厂商送修"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-device-manager",
+      "path": "knowledge/reference/device-manager.md",
+      "title": "Windows设备管理器错误信息收集",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/windows/hardware/drivers/error-codes-in-device-manager-in-windows"
+        ],
+        "applicability": [
+          "受支持的Windows客户端"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-surface-startup",
+      "path": "knowledge/reference/surface-startup.md",
+      "title": "Surface不能开机的低风险分诊",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://support.microsoft.com/en-us/surface/startup/surface-won-t-turn-on-or-start"
+        ],
+        "applicability": [
+          "Microsoft Surface；按具体型号核对"
+        ],
+        "domains": [
+          "device_service"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-python-venv",
+      "path": "knowledge/reference/python-venv.md",
+      "title": "Python3.12虚拟环境与解释器核对",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://docs.python.org/3.12/library/venv.html"
+        ],
+        "applicability": [
+          "Python 3.12；Windows/POSIX"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    },
+    {
+      "document_id": "ref-pip-resolver",
+      "path": "knowledge/reference/pip-resolver.md",
+      "title": "pip依赖回溯与冲突排查",
+      "visibility": "tenant",
+      "metadata": {
+        "material_type": "technical_reference",
+        "source_urls": [
+          "https://pip.pypa.io/en/stable/topics/dependency-resolution/"
+        ],
+        "applicability": [
+          "pip 26.2.2文档；适用其依赖解析机制"
+        ],
+        "domains": [
+          "network_endpoint"
+        ],
+        "source_checked_on": "2026-10-27",
+        "effective_from": 1793059200,
+        "expires_at": 1800835200
+      }
+    }
+  ]
+}

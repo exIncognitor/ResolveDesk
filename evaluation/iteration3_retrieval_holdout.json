@@ -1,0 +1,643 @@
+{
+  "version": "iteration3-retrieval-v1",
+  "provenance": "2026-10-27依据公开官方文档由助手自写简明中文手册；非生产资料、非企业真实制度，引用不代表厂商背书。",
+  "scoring": "Positive document Recall@5/MRR@5; unsupported questions separately check evidence_sufficient, not the absence of ranked candidates; all current citations and original spans must be valid.",
+  "cases": [
+    {
+      "id": "kb-1-1",
+      "query": "Entra自助重置页面提示没有登记验证方式，先核对什么？",
+      "relevant_documents": [
+        "ref-entra-sspr"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-1-2",
+      "query": "SSPR在本企业是否可用应找谁确认？",
+      "relevant_documents": [
+        "ref-entra-sspr"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-1-3",
+      "query": "密码重置失败需要我把短信验证码交给客服吗？",
+      "relevant_documents": [
+        "ref-entra-sspr"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-2-1",
+      "query": "换手机后进不了Entra认证，谁能协助重新登记？",
+      "relevant_documents": [
+        "ref-entra-mfa"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-2-2",
+      "query": "通讯录手机号能直接当作MFA认证信息吗？",
+      "relevant_documents": [
+        "ref-entra-mfa"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-2-3",
+      "query": "能在哪里管理工作账号的安全验证方式？",
+      "relevant_documents": [
+        "ref-entra-mfa"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-3-1",
+      "query": "Entra登录失败，错误码和关联ID有什么用？",
+      "relevant_documents": [
+        "ref-entra-signin"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-3-2",
+      "query": "谁可以查企业身份平台的登录失败事件？",
+      "relevant_documents": [
+        "ref-entra-signin"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-3-3",
+      "query": "同样的登录提示是否一定是密码错误？",
+      "relevant_documents": [
+        "ref-entra-signin"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-4-1",
+      "query": "设备不合规导致Entra登录被阻止，先看什么？",
+      "relevant_documents": [
+        "ref-entra-conditional"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-4-2",
+      "query": "条件访问阻断可以直接关闭全公司的策略吗？",
+      "relevant_documents": [
+        "ref-entra-conditional"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-4-3",
+      "query": "怎么确定登录失败命中了哪条条件访问规则？",
+      "relevant_documents": [
+        "ref-entra-conditional"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-5-1",
+      "query": "申请管理员角色时为什么要同时写范围和期限？",
+      "relevant_documents": [
+        "ref-entra-least-privilege"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-5-2",
+      "query": "普通支持任务可以默认授予全局管理员吗？",
+      "relevant_documents": [
+        "ref-entra-least-privilege"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-5-3",
+      "query": "临时提权与永久管理员有什么制度差别？",
+      "relevant_documents": [
+        "ref-entra-least-privilege"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-6-1",
+      "query": "撤销Entra会话后所有应用都会立刻退出吗？",
+      "relevant_documents": [
+        "ref-entra-revoke"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-6-2",
+      "query": "账号疑似失陷时谁来执行访问回收？",
+      "relevant_documents": [
+        "ref-entra-revoke"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-6-3",
+      "query": "Agent能否直接声称已经踢掉企业账号会话？",
+      "relevant_documents": [
+        "ref-entra-revoke"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-7-1",
+      "query": "短主机名打不开但完整域名正常，先核对什么？",
+      "relevant_documents": [
+        "ref-dns-client"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-7-2",
+      "query": "nslookup与系统解析结果不一致说明什么？",
+      "relevant_documents": [
+        "ref-dns-client"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-7-3",
+      "query": "排查内部DNS时可以随意改公共解析器吗？",
+      "relevant_documents": [
+        "ref-dns-client"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-8-1",
+      "query": "DNS短名测试和FQDN测试怎样对照？",
+      "relevant_documents": [
+        "ref-dns-tests"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-8-2",
+      "query": "完整域名可解析时还应检查DNS后缀吗？",
+      "relevant_documents": [
+        "ref-dns-tests"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-8-3",
+      "query": "nslookup会直接使用Windows客户端DNS缓存吗？",
+      "relevant_documents": [
+        "ref-dns-tests"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-9-1",
+      "query": "如何指定获准的DNS服务器查询一个域名？",
+      "relevant_documents": [
+        "ref-nslookup"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-9-2",
+      "query": "nslookup超时与找不到记录能混为一谈吗？",
+      "relevant_documents": [
+        "ref-nslookup"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-9-3",
+      "query": "查询内部主机名是否可以发往任意公网DNS？",
+      "relevant_documents": [
+        "ref-nslookup"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-10-1",
+      "query": "Test-NetConnection端口成功能证明已经登录业务吗？",
+      "relevant_documents": [
+        "ref-tcp-connect"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-10-2",
+      "query": "TCP端口测试能直接证明UDP服务正常吗？",
+      "relevant_documents": [
+        "ref-tcp-connect"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-10-3",
+      "query": "用PowerShell检查指定主机端口时需要记录什么？",
+      "relevant_documents": [
+        "ref-tcp-connect"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-11-1",
+      "query": "RRAS连接报691是否只有密码错误一种原因？",
+      "relevant_documents": [
+        "ref-vpn-691"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-11-2",
+      "query": "MS-CHAPv2场景下691需要管理员核对哪些配置？",
+      "relevant_documents": [
+        "ref-vpn-691"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-11-3",
+      "query": "为解决VPN691能把密码发给Agent核对吗？",
+      "relevant_documents": [
+        "ref-vpn-691"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-12-1",
+      "query": "浏览器正常但WinHTTP组件连不上，先看什么代理信息？",
+      "relevant_documents": [
+        "ref-winhttp-proxy"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-12-2",
+      "query": "netsh winhttp show proxy会修改系统代理吗？",
+      "relevant_documents": [
+        "ref-winhttp-proxy"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-12-3",
+      "query": "可以为排障直接重置企业下发的代理设置吗？",
+      "relevant_documents": [
+        "ref-winhttp-proxy"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-13-1",
+      "query": "IDEA账号能登录是否就拥有对应商业产品许可？",
+      "relevant_documents": [
+        "ref-idea-register"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-13-2",
+      "query": "核验IntelliJ激活问题应该提供完整激活码吗？",
+      "relevant_documents": [
+        "ref-idea-register"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-13-3",
+      "query": "ResolveDesk两个模拟席位代表JetBrains真实库存吗？",
+      "relevant_documents": [
+        "ref-idea-register"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-14-1",
+      "query": "购买IDEA许可是否自动获得所有商业插件？",
+      "relevant_documents": [
+        "ref-idea-plugins"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-14-2",
+      "query": "排查插件导致IDE启动异常时怎样保留项目数据？",
+      "relevant_documents": [
+        "ref-idea-plugins"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-14-3",
+      "query": "安装IDE插件前应核对哪些版本与来源信息？",
+      "relevant_documents": [
+        "ref-idea-plugins"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-15-1",
+      "query": "IDEA插件下载和许可证检查会受哪个代理设置影响？",
+      "relevant_documents": [
+        "ref-idea-proxy"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-15-2",
+      "query": "IDE默认是否可以沿用系统代理？",
+      "relevant_documents": [
+        "ref-idea-proxy"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-15-3",
+      "query": "许可校验连接失败时能否提交代理密码给客服？",
+      "relevant_documents": [
+        "ref-idea-proxy"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-16-1",
+      "query": "过期订阅能直接放入License Vault继续分发吗？",
+      "relevant_documents": [
+        "ref-vault-requirements"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-16-2",
+      "query": "License Vault独立产品是否支持所有团队工具许可？",
+      "relevant_documents": [
+        "ref-vault-requirements"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-16-3",
+      "query": "本地两个席位是否证明满足厂商License Vault方案要求？",
+      "relevant_documents": [
+        "ref-vault-requirements"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-17-1",
+      "query": "License Vault回收一次就能永久阻止用户再次取许可吗？",
+      "relevant_documents": [
+        "ref-vault-revoke"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-17-2",
+      "query": "运行中的IDE被回收许可后可能再次请求吗？",
+      "relevant_documents": [
+        "ref-vault-revoke"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-17-3",
+      "query": "真实License Vault回收次数是否与使用方案有关？",
+      "relevant_documents": [
+        "ref-vault-revoke"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-18-1",
+      "query": "License Vault容量通知能证明采购已经完成吗？",
+      "relevant_documents": [
+        "ref-vault-capacity"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-18-2",
+      "query": "容量告警收到后能直接承诺新席位立即可用吗？",
+      "relevant_documents": [
+        "ref-vault-capacity"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-18-3",
+      "query": "厂商许可容量通知应由谁核对配置？",
+      "relevant_documents": [
+        "ref-vault-capacity"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-19-1",
+      "query": "Surface外壳被电池顶起时还能继续用吗？",
+      "relevant_documents": [
+        "ref-surface-battery"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-19-2",
+      "query": "电池鼓胀能按压或刺穿来恢复外形吗？",
+      "relevant_documents": [
+        "ref-surface-battery"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-19-3",
+      "query": "电池变形时是否应重新通电复现给客服看？",
+      "relevant_documents": [
+        "ref-surface-battery"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-20-1",
+      "query": "powercfg哪个选项可以生成电池使用报告？",
+      "relevant_documents": [
+        "ref-battery-report"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-20-2",
+      "query": "电池报告能直接判断是否免费保修吗？",
+      "relevant_documents": [
+        "ref-battery-report"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-20-3",
+      "query": "电池已经变形时还应先跑完电池报告再停机吗？",
+      "relevant_documents": [
+        "ref-battery-report"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-21-1",
+      "query": "BitLocker恢复界面应先记录密钥还是密钥ID？",
+      "relevant_documents": [
+        "ref-bitlocker-key"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-21-2",
+      "query": "公司设备的完整BitLocker恢复密钥可以发聊天里吗？",
+      "relevant_documents": [
+        "ref-bitlocker-key"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-21-3",
+      "query": "厂商客服是否能重新生成遗失的BitLocker恢复密钥？",
+      "relevant_documents": [
+        "ref-bitlocker-key"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-22-1",
+      "query": "Surface送修之前如何安排工作资料备份？",
+      "relevant_documents": [
+        "ref-surface-service"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-22-2",
+      "query": "厂商维修是否可能清除Surface中的数据？",
+      "relevant_documents": [
+        "ref-surface-service"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-22-3",
+      "query": "设备送修能否让Agent直接执行恢复出厂？",
+      "relevant_documents": [
+        "ref-surface-service"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-23-1",
+      "query": "设备管理器黄叹号是否一定说明硬件坏了？",
+      "relevant_documents": [
+        "ref-device-manager"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-23-2",
+      "query": "硬件排障要收集哪些设备管理器信息？",
+      "relevant_documents": [
+        "ref-device-manager"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-23-3",
+      "query": "设备管理器报错能让Agent直接改注册表吗？",
+      "relevant_documents": [
+        "ref-device-manager"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-24-1",
+      "query": "Surface完全没反应和卡在恢复画面能用同一套步骤吗？",
+      "relevant_documents": [
+        "ref-surface-startup"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-24-2",
+      "query": "企业Surface开不了机应先记录什么现象？",
+      "relevant_documents": [
+        "ref-surface-startup"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-24-3",
+      "query": "Agent能直接给不能开机的办公设备格式化吗？",
+      "relevant_documents": [
+        "ref-surface-startup"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-25-1",
+      "query": "Python3.12虚拟环境中找不到setuptools就是环境损坏吗？",
+      "relevant_documents": [
+        "ref-python-venv"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-25-2",
+      "query": "Windows与Linux虚拟环境的解释器目录一样吗？",
+      "relevant_documents": [
+        "ref-python-venv"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-25-3",
+      "query": "依赖装到别的项目环境时应先检查什么解释器信息？",
+      "relevant_documents": [
+        "ref-python-venv"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-26-1",
+      "query": "pip反复下载同一个包的不同版本一定是网络故障吗？",
+      "relevant_documents": [
+        "ref-pip-resolver"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-26-2",
+      "query": "ResolutionImpossible应保存哪些依赖冲突信息？",
+      "relevant_documents": [
+        "ref-pip-resolver"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-26-3",
+      "query": "依赖冲突时可以跳过依赖检查就算修复完成吗？",
+      "relevant_documents": [
+        "ref-pip-resolver"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-outside-01",
+      "query": "单位食堂的午饭补贴每餐具体是多少钱？",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-outside-02",
+      "query": "帮我确认本公司出差机票报销上限是多少。",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    }
+  ]
+}

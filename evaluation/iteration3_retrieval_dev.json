@@ -1,0 +1,285 @@
+{
+  "version": "iteration3-retrieval-dev-v1",
+  "cases": [
+    {
+      "id": "kb-dev-1",
+      "query": "Entra自助密码重置失败有哪些核对要点？",
+      "relevant_documents": [
+        "ref-entra-sspr"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-2",
+      "query": "Entra更换MFA手机与认证方式有哪些核对要点？",
+      "relevant_documents": [
+        "ref-entra-mfa"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-3",
+      "query": "Entra登录错误的脱敏取证有哪些核对要点？",
+      "relevant_documents": [
+        "ref-entra-signin"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-4",
+      "query": "Entra条件访问与设备合规阻断有哪些核对要点？",
+      "relevant_documents": [
+        "ref-entra-conditional"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-5",
+      "query": "Entra最小权限与限时角色有哪些核对要点？",
+      "relevant_documents": [
+        "ref-entra-least-privilege"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-6",
+      "query": "Entra会话撤销与应用访问回收有哪些核对要点？",
+      "relevant_documents": [
+        "ref-entra-revoke"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-7",
+      "query": "Windows DNS客户端解析失败有哪些核对要点？",
+      "relevant_documents": [
+        "ref-dns-client"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-8",
+      "query": "DNS短名与完整域名对照测试有哪些核对要点？",
+      "relevant_documents": [
+        "ref-dns-tests"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-9",
+      "query": "nslookup指定DNS服务器只读检查有哪些核对要点？",
+      "relevant_documents": [
+        "ref-nslookup"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-10",
+      "query": "Test-NetConnection核验TCP连接有哪些核对要点？",
+      "relevant_documents": [
+        "ref-tcp-connect"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-11",
+      "query": "RRAS VPN错误691与认证协议有哪些核对要点？",
+      "relevant_documents": [
+        "ref-vpn-691"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-12",
+      "query": "Windows WinHTTP代理只读核对有哪些核对要点？",
+      "relevant_documents": [
+        "ref-winhttp-proxy"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-13",
+      "query": "IDEA产品激活方式与授权核验有哪些核对要点？",
+      "relevant_documents": [
+        "ref-idea-register"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-14",
+      "query": "IDEA插件授权与兼容性检查有哪些核对要点？",
+      "relevant_documents": [
+        "ref-idea-plugins"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-15",
+      "query": "IDEA许可证检查与IDE代理有哪些核对要点？",
+      "relevant_documents": [
+        "ref-idea-proxy"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-16",
+      "query": "License Vault支持的许可证类型有哪些核对要点？",
+      "relevant_documents": [
+        "ref-vault-requirements"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-17",
+      "query": "License Vault回收与再次获取区别有哪些核对要点？",
+      "relevant_documents": [
+        "ref-vault-revoke"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-18",
+      "query": "License Vault容量通知与采购边界有哪些核对要点？",
+      "relevant_documents": [
+        "ref-vault-capacity"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-19",
+      "query": "Surface电池膨胀的停止使用边界有哪些核对要点？",
+      "relevant_documents": [
+        "ref-surface-battery"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-20",
+      "query": "Windows电池报告与续航记录有哪些核对要点？",
+      "relevant_documents": [
+        "ref-battery-report"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-21",
+      "query": "BitLocker恢复密钥的官方查找途径有哪些核对要点？",
+      "relevant_documents": [
+        "ref-bitlocker-key"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-22",
+      "query": "Surface送修前的数据与配件准备有哪些核对要点？",
+      "relevant_documents": [
+        "ref-surface-service"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-23",
+      "query": "Windows设备管理器错误信息收集有哪些核对要点？",
+      "relevant_documents": [
+        "ref-device-manager"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-24",
+      "query": "Surface不能开机的低风险分诊有哪些核对要点？",
+      "relevant_documents": [
+        "ref-surface-startup"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-25",
+      "query": "Python3.12虚拟环境与解释器核对有哪些核对要点？",
+      "relevant_documents": [
+        "ref-python-venv"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-26",
+      "query": "pip依赖回溯与冲突排查有哪些核对要点？",
+      "relevant_documents": [
+        "ref-pip-resolver"
+      ],
+      "expect_sufficient": true
+    },
+    {
+      "id": "kb-dev-unsupported-0",
+      "query": "学校奖学金什么时候发放",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-1",
+      "query": "我们公司哪天发工资",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-2",
+      "query": "请替我购买股票",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-3",
+      "query": "今晚食堂菜单有什么",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-4",
+      "query": "下个月公司组织哪趟旅游",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-5",
+      "query": "公司出租车报销可以报多少钱",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-6",
+      "query": "企业法人今年几岁",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-7",
+      "query": "公积金缴存比例固定多少",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-8",
+      "query": "请查我的社保缴费记录",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-9",
+      "query": "个人信用贷款利率是多少",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-10",
+      "query": "附近酒店房价怎么样",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    },
+    {
+      "id": "kb-dev-unsupported-11",
+      "query": "请帮我购买电影票",
+      "relevant_documents": [],
+      "expect_sufficient": false
+    }
+  ]
+}
