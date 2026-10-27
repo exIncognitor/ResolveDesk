@@ -1,0 +1,27 @@
+{
+  "revision": "886cb803f86ccfb2645408dbc32576c880f42abb",
+  "deployed_source_matches": true,
+  "source_sha256": {
+    "resolvedesk/quality.py": "a58adf22328a2bb48032459a6c18598ce3060a8c442c486b70620ed835d84d60",
+    "resolvedesk/evaluations.py": "ff416bc1c65540ecd9c958fec48daaab9a72a4a47933be2ceb86612318fe7670",
+    "resolvedesk/eval_models.py": "9dcd0ce4ae960599668ff46df5f20b86e114e35c37b44ab47debeade2abab699",
+    "resolvedesk/eval_state.py": "c4d826e257b46f81bc196263141381040a3bdc15a36672e315aee5739814b3cc",
+    "resolvedesk/eval_sandbox.py": "0caa80a9175e0141b60cf37c99fde233bfe51431ec47a7bf30f6a0d6d7357e24",
+    "resolvedesk/app.py": "2fc24a5e1ffde7de308ef011fd08eec29e3990f7ef38e863a6f788aebf979fd8",
+    "evaluation/evaluator.py": "0636bb296e3596852e1ba5fcbea79d12f01db3a568ed4809bafe82784b613e9f"
+  },
+  "verification": {
+    "python_tests_passed": 285,
+    "python_subtests_passed": 14,
+    "frontend_tests_passed": 27,
+    "frontend_build": "passed"
+  },
+  "backup": ".codex-runtime/checkpoints/g08-core-20261027T085934871918Z-63f5f610",
+  "residuals": [
+    "G08/G12 evaluation report and sandbox retention/reclamation acceptance",
+    "G09 monitoring",
+    "G10 full tracing",
+    "G11 API and CLI",
+    "G13 external notification destination"
+  ]
+}
