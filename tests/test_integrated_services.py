@@ -67,7 +67,8 @@ async def test_memory_summary_profile_semantic_recall_and_isolation(store):
     while await memory.process_one():pass
     context=await memory.context(USER,current['id'])
     assert context['summary'] and context['profile']['os']=='Windows 11'
-    assert context['relevant_history'][0]['run_id']==old['id']
+    assert context['relevant_history'][0]['same_run']
+    assert any(item['run_id']==old['id'] for item in context['relevant_history'])
     assert memory.inspect(OTHER)['profile']=={} and memory.inspect(OTHER)['episodes']==0
     with pytest.raises(KeyError):await memory.context(FOREIGN,current['id'])
     await memory.context(USER,current['id'])
