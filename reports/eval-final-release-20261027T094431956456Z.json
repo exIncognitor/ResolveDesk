@@ -1,0 +1,25 @@
+{
+  "revision": "8cf74d4197cfb0efe8feb834906db5f0cf582dc9",
+  "deployed_source_matches": true,
+  "source_sha256": {
+    "resolvedesk/quality.py": "95a15566fb528cfbb58164afe5006227b419960e3148c1b69d8cba4bbb024e56",
+    "resolvedesk/evaluations.py": "78a7e6f2a4b60c4b07a3ba67bb7fb31f7799a85049e65357542287a5de0a00e9",
+    "resolvedesk/eval_state.py": "c4d826e257b46f81bc196263141381040a3bdc15a36672e315aee5739814b3cc",
+    "resolvedesk/eval_sandbox.py": "78104cea7dc0524ff383325a2f51e9c52a404b65cbc20cbfc112c11e3d4775e1",
+    "resolvedesk/eval_retention.py": "e429ce77b0a0754bb734b8520757e21c5127906b07f148c11c3319bcdf720b7e",
+    "resolvedesk/schema_tables.py": "bcf34e89aeb93ea7a3748d6a5cd24cda17314b8668541ba0229deb390827397a",
+    "resolvedesk/intent.py": "bc89302a7ab87b4f2c0deee401cf8e863f953bd4cf5c9c60aff2352493e11516",
+    "resolvedesk/app.py": "0caa065dc7e114580f32dee4abedae51329c0f5f78984a947abefdb75a63482d",
+    "evaluation/evaluator.py": "0636bb296e3596852e1ba5fcbea79d12f01db3a568ed4809bafe82784b613e9f",
+    "evaluation/it_service_cases.json": "d3f2835e70b9dd7be2c756b1468281084db76dd1088f30ec07063cf23024bfa0"
+  },
+  "python_tests": 294,
+  "python_subtests": 14,
+  "frontend_tests": 27,
+  "frontend_build": "passed",
+  "live_generation_evidence": "reports/eval-runtime-20261027T093142208425Z.json",
+  "baseline_contract_evidence": "reports/eval-baseline-deployment-20261027T094203615514Z.json",
+  "retirement_evidence": "reports/eval-retention-deployment-20261027T094206675742Z.json",
+  "backup": ".codex-runtime/checkpoints/eval-retention-20261027T094111572275Z-10064433",
+  "financial_authority": "existing PostgreSQL cumulative ledger, never reset or restored"
+}

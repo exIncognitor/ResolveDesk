@@ -1,0 +1,68 @@
+{
+  "base": "http://127.0.0.1:18080",
+  "checks": [
+    {
+      "name": "current_api_preview_exact_new_job",
+      "passed": true
+    },
+    {
+      "name": "cli_verified_backup_and_retirement",
+      "passed": true
+    },
+    {
+      "name": "report_tombstone_readable",
+      "passed": true
+    },
+    {
+      "name": "resume_rejects_expired",
+      "passed": true
+    },
+    {
+      "name": "baseline_rejects_expired",
+      "passed": true
+    },
+    {
+      "name": "no_paid_calls",
+      "passed": true
+    }
+  ],
+  "scope": "Only this probe-created free retrieval evaluation is retired. Existing evaluations, baselines and datasets remain intact.",
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "2.31206",
+    "available_cny": "15.68794",
+    "calls": {
+      "settled": 555
+    },
+    "usage_input_tokens": 936654,
+    "usage_output_tokens": 54844,
+    "unresolved_reservation_cny": "0"
+  },
+  "job_id": "52c237f850ea459c908284855f2c3945",
+  "retirement": {
+    "applied": true,
+    "job_id": "52c237f850ea459c908284855f2c3945",
+    "status": "expired",
+    "backup": {
+      "path": "D:\\desktop\\实习\\ResolveDesk\\.codex-runtime\\checkpoints\\eval-retention-20261027T094205614989Z-efaa99dd\\resolvedesk.dump",
+      "sha256": "642069430c6291c186cda29d91040f8d995cf82628317299be29e9e1183a79d9"
+    },
+    "resources_removed": false,
+    "recovery_note": "Restore selected application evidence only; never rewind the shared financial ledger."
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "2.31206",
+    "available_cny": "15.68794",
+    "calls": {
+      "settled": 555
+    },
+    "usage_input_tokens": 936654,
+    "usage_output_tokens": 54844,
+    "unresolved_reservation_cny": "0"
+  },
+  "passed": 6,
+  "total": 6
+}

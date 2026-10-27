@@ -1,0 +1,25 @@
+{
+  "revision": "31af2234f7269854737a47f4a372ade1e0242865",
+  "deployed_source_matches": true,
+  "source_sha256": {
+    "resolvedesk/quality.py": "1d7dc1706bcfd5d8ac2f4eb4c888ea5e77f9ea1b20c5c7e89dfc04e8976a63dc",
+    "resolvedesk/evaluations.py": "b366b613620084b6ffe3c08d2e7f8706d6a9ddd64544cb4f9d971cf592f237e8",
+    "resolvedesk/eval_models.py": "9dcd0ce4ae960599668ff46df5f20b86e114e35c37b44ab47debeade2abab699",
+    "resolvedesk/eval_state.py": "c4d826e257b46f81bc196263141381040a3bdc15a36672e315aee5739814b3cc",
+    "resolvedesk/eval_sandbox.py": "78104cea7dc0524ff383325a2f51e9c52a404b65cbc20cbfc112c11e3d4775e1",
+    "resolvedesk/eval_retention.py": "e429ce77b0a0754bb734b8520757e21c5127906b07f148c11c3319bcdf720b7e",
+    "resolvedesk/schema_tables.py": "bcf34e89aeb93ea7a3748d6a5cd24cda17314b8668541ba0229deb390827397a",
+    "resolvedesk/intent.py": "bc89302a7ab87b4f2c0deee401cf8e863f953bd4cf5c9c60aff2352493e11516",
+    "resolvedesk/app.py": "0caa065dc7e114580f32dee4abedae51329c0f5f78984a947abefdb75a63482d",
+    "evaluation/evaluator.py": "0636bb296e3596852e1ba5fcbea79d12f01db3a568ed4809bafe82784b613e9f",
+    "evaluation/it_service_cases.json": "d3f2835e70b9dd7be2c756b1468281084db76dd1088f30ec07063cf23024bfa0",
+    "evaluation/it_intent_boundary_cases.json": "1359c925d403071206548850b30a6416f78fb21af42b1d1706e89db574cd12e3"
+  },
+  "verification": {
+    "python_tests_passed": 291,
+    "python_subtests_passed": 14,
+    "frontend_tests_passed": 27,
+    "frontend_build": "passed"
+  },
+  "backup": ".codex-runtime/checkpoints/eval-retention-20261027T092838542181Z-4d9b5d61"
+}

@@ -1,0 +1,8 @@
+{
+  "job_id": "83ea3b7601154757b4a86fcf086b5427",
+  "valid_imperfect_baseline_saved": true,
+  "retirement_protected": true,
+  "paid_budget_changed": false,
+  "intent_accuracy": 0.9807692307692307,
+  "scope": "Explicitly pin this agent-created synthetic full measurement; v1 historical suite is preserved without silently migrating it to v2."
+}

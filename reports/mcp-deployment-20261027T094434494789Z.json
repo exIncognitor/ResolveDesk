@@ -1,0 +1,35 @@
+{
+  "base": "http://127.0.0.1:8080",
+  "checks": {
+    "unauthenticated_rejected": true,
+    "protocol_is_distinct_from_status": true,
+    "standard_tool_discovery": true,
+    "current_knowledge_read": true,
+    "stats_resource": true,
+    "citation_matches_current_api": true,
+    "citation_template_discovery": true,
+    "debug_support_only": true,
+    "real_stdio_debug": true,
+    "current_intent_provider_status": true,
+    "no_paid_calls": true
+  },
+  "details": {
+    "protocol_version": "2025-11-25",
+    "visible_chunks": 32
+  },
+  "passed": 11,
+  "total": 11,
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "2.31206",
+    "available_cny": "15.68794",
+    "calls": {
+      "settled": 555
+    },
+    "usage_input_tokens": 936654,
+    "usage_output_tokens": 54844,
+    "unresolved_reservation_cny": "0"
+  },
+  "paid_budget_changed": false
+}

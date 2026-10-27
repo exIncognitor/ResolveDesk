@@ -1,0 +1,4276 @@
+{
+  "base": "http://127.0.0.1:18080",
+  "checks": [
+    {
+      "name": "saved_dataset_roundtrip",
+      "passed": true
+    },
+    {
+      "name": "completed_without_evaluation_errors",
+      "passed": true
+    },
+    {
+      "name": "same_formal_technologies",
+      "passed": true
+    },
+    {
+      "name": "actual_intents_all_channels",
+      "passed": true
+    },
+    {
+      "name": "judge_every_requested_turn",
+      "passed": true
+    },
+    {
+      "name": "all_dialog_business_and_quality_checks",
+      "passed": true
+    }
+  ],
+  "provenance": "合成开发数据；真实 Flash 与真实服务；不是生产效果证明。",
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.895764",
+    "available_cny": "16.104236",
+    "calls": {
+      "settled": 441
+    },
+    "usage_input_tokens": 761834,
+    "usage_output_tokens": 46512,
+    "unresolved_reservation_cny": "0"
+  },
+  "dataset_id": "f954671f492c45d08307bd98f93dd603",
+  "job_id": "83ea3b7601154757b4a86fcf086b5427",
+  "job": {
+    "job_id": "83ea3b7601154757b4a86fcf086b5427",
+    "status": "completed",
+    "completed": 58,
+    "total": 58,
+    "result": {
+      "avg_scores": {
+        "accuracy": 1.0,
+        "business_check_rate": 1.0,
+        "completeness": 0.925,
+        "helpfulness": 0.975,
+        "intent_accuracy": 0.9807692307692307,
+        "intent_macro_f1": 0.9848171152518979,
+        "relevance": 1.0
+      },
+      "corpus_version": "it-service-v3-business-scopes",
+      "evaluation_errors": 0,
+      "intent": {
+        "accuracy": 0.9807692307692307,
+        "channel_coverage": {
+          "embedding": 52,
+          "llm": 52,
+          "pattern": 52
+        },
+        "evaluation_errors": 0,
+        "implementation": "ITIntentRecognizer.recognize",
+        "macro_f1": 0.9848171152518979,
+        "per_class": {
+          "account_access": {
+            "f1": 0.9523809523809523,
+            "precision": 0.9090909090909091,
+            "recall": 1.0,
+            "support": 10
+          },
+          "device_service": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 10
+          },
+          "escalation": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 6
+          },
+          "general": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 6
+          },
+          "network_endpoint": {
+            "f1": 0.9565217391304348,
+            "precision": 1.0,
+            "recall": 0.9166666666666666,
+            "support": 12
+          },
+          "software_license": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 8
+          }
+        },
+        "results": [
+          {
+            "confidence": 0.7875924948222183,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "account_unlock",
+            "id": "access-1",
+            "message": "账号连续输错密码被锁定",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.06511326674039261,
+                  "account_unlock": 0.10296247411109209,
+                  "asset_lookup": 0.06523513960889425,
+                  "device_hazard": 0.053467576827433506,
+                  "device_policy": 0.05315225175381663,
+                  "device_repair": 0.05050887735618227,
+                  "dns_failure": 0.06498194773700586,
+                  "endpoint_failure": 0.060492711168838746,
+                  "greeting": 0.07185796853394702,
+                  "human_handoff": 0.0795478540722862,
+                  "license_request": 0.053982574598473686,
+                  "software_activation": 0.06836838774491284,
+                  "software_install": 0.05235717875934504,
+                  "ticket_status": 0.04948753531759558,
+                  "unknown": 0.04746684320368723,
+                  "vpn_failure": 0.0610174124660964
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "账号因连续输错密码被锁定，属于账号解锁诉求",
+                "scores": {
+                  "account_unlock": 0.97
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "account_unlock": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.8187971656752125,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "access_request",
+            "id": "access-2",
+            "message": "申请开发仓库的只读权限",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.2239858283760633,
+                  "account_unlock": 0.06392920494808753,
+                  "asset_lookup": 0.05881584487617074,
+                  "device_hazard": 0.04101574067558819,
+                  "device_policy": 0.046401828534866664,
+                  "device_repair": 0.04714965876046538,
+                  "dns_failure": 0.0424858569055563,
+                  "endpoint_failure": 0.037919623012628995,
+                  "greeting": 0.05548711898154137,
+                  "human_handoff": 0.05810403276459945,
+                  "license_request": 0.07362860566181476,
+                  "software_activation": 0.05926744908153973,
+                  "software_install": 0.05679667419775273,
+                  "ticket_status": 0.05281061176897143,
+                  "unknown": 0.044618333571025626,
+                  "vpn_failure": 0.03758358788332775
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "明确申请开发仓库只读权限，属于账号资源权限申请",
+                "scores": {
+                  "access_request": 0.98
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.680207597191514,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "account_unlock",
+            "id": "access-3",
+            "message": "密码重置网页打不开",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.06113287790764581,
+                  "account_unlock": 0.09103798595757034,
+                  "asset_lookup": 0.06460551483250203,
+                  "device_hazard": 0.05993653097621656,
+                  "device_policy": 0.061259394890772007,
+                  "device_repair": 0.04458690685425238,
+                  "dns_failure": 0.07697702451960181,
+                  "endpoint_failure": 0.07406999205305641,
+                  "greeting": 0.06439186041807479,
+                  "human_handoff": 0.061527095422566666,
+                  "license_request": 0.045950697759955784,
+                  "software_activation": 0.06468667943989817,
+                  "software_install": 0.06075676978324645,
+                  "ticket_status": 0.04239915900067974,
+                  "unknown": 0.046636967222698424,
+                  "vpn_failure": 0.08004454296126262
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "密码重置入口网页无法打开，属于未明确网络根因的账号恢复入口异常，归账号访问域",
+                "scores": {
+                  "account_unlock": 0.82
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "account_unlock": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7874528103681308,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "account_unlock",
+            "id": "access-4",
+            "message": "MFA 设备丢失无法登录",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.057516524020240704,
+                  "account_unlock": 0.17226405184065444,
+                  "asset_lookup": 0.07494564462120569,
+                  "device_hazard": 0.06457904756355537,
+                  "device_policy": 0.04118019356926583,
+                  "device_repair": 0.04830877491961521,
+                  "dns_failure": 0.05914654726581309,
+                  "endpoint_failure": 0.05332792385790289,
+                  "greeting": 0.06423151011483617,
+                  "human_handoff": 0.07104196127161273,
+                  "license_request": 0.046125078687113616,
+                  "software_activation": 0.05692624140206738,
+                  "software_install": 0.06058178548777019,
+                  "ticket_status": 0.040145263732848886,
+                  "unknown": 0.0390998098790939,
+                  "vpn_failure": 0.05057964176640398
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "MFA设备丢失导致无法登录，属于账号认证/MFA恢复场景",
+                "scores": {
+                  "account_unlock": 0.95
+                },
+                "urgency": 3,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "account_unlock": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.6031758027243876,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "access_request",
+            "id": "access-5",
+            "message": "权限有效期最多几天",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.14587901362193822,
+                  "account_unlock": 0.07473703705426561,
+                  "asset_lookup": 0.05497373938274969,
+                  "device_hazard": 0.04687400045865291,
+                  "device_policy": 0.060243193099634496,
+                  "device_repair": 0.051181459730213714,
+                  "dns_failure": 0.05018946159523812,
+                  "endpoint_failure": 0.043545353396364145,
+                  "greeting": 0.06320283928542904,
+                  "human_handoff": 0.06306147507177466,
+                  "license_request": 0.07213850290339804,
+                  "software_activation": 0.062422024361637796,
+                  "software_install": 0.04124992217068108,
+                  "ticket_status": 0.05977979424311403,
+                  "unknown": 0.055304718401788494,
+                  "vpn_failure": 0.05521746522311994
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "询问权限申请的有效期规则，属于账号资源权限申请范畴",
+                "scores": {
+                  "access_request": 0.82
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "unknown": 0.8
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7916883816780881,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "account_unlock",
+            "id": "access-6",
+            "message": "内部账户怎么解锁",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.0872558792205891,
+                  "account_unlock": 0.1234419083904407,
+                  "asset_lookup": 0.06007255852284894,
+                  "device_hazard": 0.053209200201350206,
+                  "device_policy": 0.054817413161601276,
+                  "device_repair": 0.05081563442586048,
+                  "dns_failure": 0.07870587580958133,
+                  "endpoint_failure": 0.052311884265219454,
+                  "greeting": 0.06134196064418095,
+                  "human_handoff": 0.06237460491357406,
+                  "license_request": 0.05734902952281461,
+                  "software_activation": 0.06545653000347093,
+                  "software_install": 0.042568958457954664,
+                  "ticket_status": 0.05037083258012768,
+                  "unknown": 0.0503725096605066,
+                  "vpn_failure": 0.04953522021987893
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户询问内部账户解锁方式，属于企业账号解锁/恢复入口诉求",
+                "scores": {
+                  "account_unlock": 0.97
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "account_unlock": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7987737632081543,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "vpn_failure",
+            "id": "network-1",
+            "message": "VPN 提示错误 691",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05594455762570362,
+                  "account_unlock": 0.05959026619865044,
+                  "asset_lookup": 0.0662756608662709,
+                  "device_hazard": 0.059272893675837546,
+                  "device_policy": 0.04276684033417515,
+                  "device_repair": 0.055621782253825816,
+                  "dns_failure": 0.07061605547773342,
+                  "endpoint_failure": 0.0528933508309867,
+                  "greeting": 0.06741554012043798,
+                  "human_handoff": 0.06292302450171953,
+                  "license_request": 0.03837310915104335,
+                  "software_activation": 0.060737162912817465,
+                  "software_install": 0.06695081455392661,
+                  "ticket_status": 0.037338267493952124,
+                  "unknown": 0.04441185796214755,
+                  "vpn_failure": 0.1588688160407718
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "VPN连接提示691认证失败，属网络接入技术故障，未涉及安全或大范围影响",
+                "scores": {
+                  "vpn_failure": 0.97
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "vpn_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.8045461142311775,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "dns_failure",
+            "id": "network-2",
+            "message": "DNS 域名解析失败",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05025117457497298,
+                  "account_unlock": 0.06534165133978984,
+                  "asset_lookup": 0.06608367243451226,
+                  "device_hazard": 0.05153968724719179,
+                  "device_policy": 0.03698754899333343,
+                  "device_repair": 0.04737930029341034,
+                  "dns_failure": 0.1527305711558881,
+                  "endpoint_failure": 0.061373629249683946,
+                  "greeting": 0.06200862857292683,
+                  "human_handoff": 0.061655218316725054,
+                  "license_request": 0.042625021114792654,
+                  "software_activation": 0.0664255021832209,
+                  "software_install": 0.07058867102578963,
+                  "ticket_status": 0.04602911690096005,
+                  "unknown": 0.040522053271140494,
+                  "vpn_failure": 0.0784585533256617
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "明确描述DNS域名解析失败，属网络端点故障",
+                "scores": {
+                  "dns_failure": 0.98
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "dns_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.6131964493951143,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "dns_failure",
+            "id": "network-3",
+            "message": "公司网络大部分网页连接超时",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05918573864323521,
+                  "account_unlock": 0.07334576155024415,
+                  "asset_lookup": 0.05626049351351835,
+                  "device_hazard": 0.0491141539658125,
+                  "device_policy": 0.05518978268099507,
+                  "device_repair": 0.03891530826456311,
+                  "dns_failure": 0.10598224697557179,
+                  "endpoint_failure": 0.056683845455213856,
+                  "greeting": 0.05573842517608807,
+                  "human_handoff": 0.08563347464550182,
+                  "license_request": 0.041568543397380815,
+                  "software_activation": 0.06141721970518403,
+                  "software_install": 0.05211905100012448,
+                  "ticket_status": 0.04465866451442586,
+                  "unknown": 0.04632663414372207,
+                  "vpn_failure": 0.1178606563684188
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "公司网络大部分网页连接超时，属网络访问故障，未明确DNS但归网络端点域",
+                "scores": {
+                  "dns_failure": 0.72
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "dns_failure": 0.88,
+                  "vpn_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.778475783216871,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "endpoint_failure",
+            "id": "network-4",
+            "message": "终端蓝屏有停止码",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.04918942199296726,
+                  "account_unlock": 0.06138325790448448,
+                  "asset_lookup": 0.06362439698990205,
+                  "device_hazard": 0.06423935850473428,
+                  "device_policy": 0.05193447638060724,
+                  "device_repair": 0.053741875718816175,
+                  "dns_failure": 0.05900813968429266,
+                  "endpoint_failure": 0.1273789160843556,
+                  "greeting": 0.07225617764457551,
+                  "human_handoff": 0.06994342205216125,
+                  "license_request": 0.04935451485315001,
+                  "software_activation": 0.05320640099487486,
+                  "software_install": 0.05171529044817666,
+                  "ticket_status": 0.044413724278217645,
+                  "unknown": 0.06145892760433151,
+                  "vpn_failure": 0.06715169886435288
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "终端蓝屏并出现停止码，属于系统/终端启动崩溃类技术故障，归network_endpoint域",
+                "scores": {
+                  "endpoint_failure": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "endpoint_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.6177320559721694,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "dns_failure",
+            "id": "network-5",
+            "message": "WiFi 断网怎么办",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.048962276735234095,
+                  "account_unlock": 0.06467222722711342,
+                  "asset_lookup": 0.06433698932179395,
+                  "device_hazard": 0.0654420236250082,
+                  "device_policy": 0.0525326646615102,
+                  "device_repair": 0.04198575901074569,
+                  "dns_failure": 0.1286602798608472,
+                  "endpoint_failure": 0.06732149382955592,
+                  "greeting": 0.054193066086819355,
+                  "human_handoff": 0.06832435915541406,
+                  "license_request": 0.05027349195354078,
+                  "software_activation": 0.058706225115463834,
+                  "software_install": 0.07053890636446958,
+                  "ticket_status": 0.04700665024356723,
+                  "unknown": 0.04518065979229428,
+                  "vpn_failure": 0.07186292701662227
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户反映WiFi断网，属于网络连接故障，结合域定义归入网络端点类故障",
+                "scores": {
+                  "dns_failure": 0.72
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "dns_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.5183924481232264,
+            "domain": "account_access",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "account_unlock",
+            "id": "network-6",
+            "message": "登录接口 401",
+            "method": "it_three_way_fusion_v1",
+            "passed": false,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.07449417948845943,
+                  "account_unlock": 0.07196224061613198,
+                  "asset_lookup": 0.05550037093055364,
+                  "device_hazard": 0.05320643430176532,
+                  "device_policy": 0.057087962921451185,
+                  "device_repair": 0.05905748586405397,
+                  "dns_failure": 0.0602158995966574,
+                  "endpoint_failure": 0.05349959797493805,
+                  "greeting": 0.07435016830631587,
+                  "human_handoff": 0.0652589632626928,
+                  "license_request": 0.06398008322141409,
+                  "software_activation": 0.07108965428536416,
+                  "software_install": 0.05132053531589747,
+                  "ticket_status": 0.049831313111372184,
+                  "unknown": 0.058265884056431176,
+                  "vpn_failure": 0.08087922674650123
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "登录接口返回401，属于认证/登录异常，未明确网络根因，归账号访问域",
+                "scores": {
+                  "account_unlock": 0.72
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "vpn_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7061503641354256,
+            "domain": "software_license",
+            "error": null,
+            "expected": "software_license",
+            "fine_intent": "license_request",
+            "id": "software-1",
+            "message": "IDEA 商业许可证到期",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "software_license",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.104131004926313,
+                  "account_unlock": 0.07266633164416583,
+                  "asset_lookup": 0.05373970584233611,
+                  "device_hazard": 0.0463277106761782,
+                  "device_policy": 0.045471150160255366,
+                  "device_repair": 0.05008533208164712,
+                  "dns_failure": 0.05286406979601651,
+                  "endpoint_failure": 0.045625578303906525,
+                  "greeting": 0.05756199718340577,
+                  "human_handoff": 0.06599928223355495,
+                  "license_request": 0.11575182067712864,
+                  "software_activation": 0.07906375273137264,
+                  "software_install": 0.0581505700857101,
+                  "ticket_status": 0.05482253747516468,
+                  "unknown": 0.054337869059100354,
+                  "vpn_failure": 0.04340128712374417
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "IDEA商业许可证到期，涉及企业软件许可席位续期/申请，属软件许可域",
+                "scores": {
+                  "license_request": 0.85
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "license_request": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.6687246124336118,
+            "domain": "software_license",
+            "error": null,
+            "expected": "software_license",
+            "fine_intent": "license_request",
+            "id": "software-2",
+            "message": "软件白名单怎么申请",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "software_license",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.08248670705270413,
+                  "account_unlock": 0.0699746607377063,
+                  "asset_lookup": 0.0651944309356465,
+                  "device_hazard": 0.04556418390254783,
+                  "device_policy": 0.05870589146181312,
+                  "device_repair": 0.05853454642325746,
+                  "dns_failure": 0.04674744134429539,
+                  "endpoint_failure": 0.05442041773460173,
+                  "greeting": 0.050963746289878493,
+                  "human_handoff": 0.07189430557565551,
+                  "license_request": 0.08862306216805917,
+                  "software_activation": 0.06967162337950729,
+                  "software_install": 0.057968701305653,
+                  "ticket_status": 0.08612904998017379,
+                  "unknown": 0.04927462771195253,
+                  "vpn_failure": 0.043846603996547696
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "询问软件白名单申请流程，属于软件许可与白名单审批范畴",
+                "scores": {
+                  "license_request": 0.93
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "unknown": 0.8
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7791003996235657,
+            "domain": "software_license",
+            "error": null,
+            "expected": "software_license",
+            "fine_intent": "software_activation",
+            "id": "software-3",
+            "message": "IntelliJ license 无法激活",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "software_license",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.07614435952163508,
+                  "account_unlock": 0.059191177029869195,
+                  "asset_lookup": 0.06196606303314313,
+                  "device_hazard": 0.04277112046971545,
+                  "device_policy": 0.03999532047313458,
+                  "device_repair": 0.05137563205300678,
+                  "dns_failure": 0.05741543761120571,
+                  "endpoint_failure": 0.057351982260733396,
+                  "greeting": 0.06328475138795663,
+                  "human_handoff": 0.06874493387699968,
+                  "license_request": 0.07852984510260975,
+                  "software_activation": 0.130501998117829,
+                  "software_install": 0.0685257913945569,
+                  "ticket_status": 0.04501732823916647,
+                  "unknown": 0.04530645216189259,
+                  "vpn_failure": 0.05387780726654565
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "IntelliJ许可证无法激活，属于软件激活问题",
+                "scores": {
+                  "software_activation": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "license_request": 0.88,
+                  "software_activation": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7537317824696246,
+            "domain": "software_license",
+            "error": null,
+            "expected": "software_license",
+            "fine_intent": "license_request",
+            "id": "software-4",
+            "message": "还有可用的商业席位吗",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "software_license",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.061882995727630924,
+                  "account_unlock": 0.07120696987567009,
+                  "asset_lookup": 0.052356079634018546,
+                  "device_hazard": 0.05471937986723481,
+                  "device_policy": 0.05868165599584151,
+                  "device_repair": 0.061580712039322506,
+                  "dns_failure": 0.061437901446668546,
+                  "endpoint_failure": 0.042141696826753526,
+                  "greeting": 0.07105504772139586,
+                  "human_handoff": 0.06568825541719008,
+                  "license_request": 0.10865891234812279,
+                  "software_activation": 0.0643797561679712,
+                  "software_install": 0.052443771638820816,
+                  "ticket_status": 0.05736191184075535,
+                  "unknown": 0.07144104454726072,
+                  "vpn_failure": 0.04496390890534276
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "询问商业席位可用情况，属于软件许可席位咨询",
+                "scores": {
+                  "license_request": 0.92
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "license_request": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7813211667124031,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "software_install",
+            "id": "software-5",
+            "message": "pip 安装包失败",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05127171736574883,
+                  "account_unlock": 0.05647835518710237,
+                  "asset_lookup": 0.06412540353023555,
+                  "device_hazard": 0.060786455400940735,
+                  "device_policy": 0.04426846263336725,
+                  "device_repair": 0.04407904808485121,
+                  "dns_failure": 0.07347839591132979,
+                  "endpoint_failure": 0.06882347596239842,
+                  "greeting": 0.07112427412862463,
+                  "human_handoff": 0.05767064761877481,
+                  "license_request": 0.04107562483719938,
+                  "software_activation": 0.06735867472092641,
+                  "software_install": 0.1416058335620165,
+                  "ticket_status": 0.04046628586095417,
+                  "unknown": 0.04889765531130441,
+                  "vpn_failure": 0.06848968988422549
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "pip安装包失败属于开发工具依赖环境安装错误，归入技术故障域",
+                "scores": {
+                  "software_install": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "software_install": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7742561823773519,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "endpoint_failure",
+            "id": "software-6",
+            "message": "IDE 启动崩溃",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05575257769399655,
+                  "account_unlock": 0.060578150809162505,
+                  "asset_lookup": 0.08621010599121473,
+                  "device_hazard": 0.05557317840284896,
+                  "device_policy": 0.04816370715086308,
+                  "device_repair": 0.05354643813804495,
+                  "dns_failure": 0.07184940993358407,
+                  "endpoint_failure": 0.10628091188676002,
+                  "greeting": 0.06077216329620362,
+                  "human_handoff": 0.06710286394191631,
+                  "license_request": 0.049782152447324333,
+                  "software_activation": 0.06503571433994051,
+                  "software_install": 0.08165848621027115,
+                  "ticket_status": 0.04469696739201272,
+                  "unknown": 0.04100137564411475,
+                  "vpn_failure": 0.05199579672174172
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "IDE启动崩溃属于应用启动崩溃的技术故障，归network_endpoint域",
+                "scores": {
+                  "endpoint_failure": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "endpoint_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.8117530313688818,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "device_hazard",
+            "id": "device-1",
+            "message": "笔记本电池鼓包",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.0472433331340312,
+                  "account_unlock": 0.050639988927837845,
+                  "asset_lookup": 0.0733591693422652,
+                  "device_hazard": 0.18876515684440953,
+                  "device_policy": 0.06262251308407263,
+                  "device_repair": 0.0689033553293908,
+                  "dns_failure": 0.046261561103700985,
+                  "endpoint_failure": 0.05482065956851131,
+                  "greeting": 0.0569290663037093,
+                  "human_handoff": 0.05429779690099977,
+                  "license_request": 0.04778820544409124,
+                  "software_activation": 0.04951253046108021,
+                  "software_install": 0.05686869334484682,
+                  "ticket_status": 0.0455228720152827,
+                  "unknown": 0.052863453098391515,
+                  "vpn_failure": 0.043601645097378974
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "电池鼓包属于硬件安全隐患，需立即停止使用并安全处理",
+                "scores": {
+                  "device_hazard": 0.98
+                },
+                "urgency": 4,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "device_hazard": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7442504433627104,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "device_policy",
+            "id": "device-2",
+            "message": "设备过保可以报修吗",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05626368949077739,
+                  "account_unlock": 0.06765844926803256,
+                  "asset_lookup": 0.12389278511893606,
+                  "device_hazard": 0.08287222219345473,
+                  "device_policy": 0.06125221681355217,
+                  "device_repair": 0.08206119773020415,
+                  "dns_failure": 0.04889972674725956,
+                  "endpoint_failure": 0.05286076290602808,
+                  "greeting": 0.056709380527957064,
+                  "human_handoff": 0.07040972159864978,
+                  "license_request": 0.05570138532918568,
+                  "software_activation": 0.055433665061910296,
+                  "software_install": 0.04761760800790155,
+                  "ticket_status": 0.04314640365284299,
+                  "unknown": 0.050618616267150834,
+                  "vpn_failure": 0.044602169286157026
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "询问过保设备能否报修，属于设备维修/保修制度咨询，非实际报修",
+                "scores": {
+                  "device_policy": 0.92
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "device_policy": 0.88,
+                  "device_repair": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7857546899850135,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "asset_lookup",
+            "id": "device-3",
+            "message": "查询我的资产 LT-1001",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.06376136186437267,
+                  "account_unlock": 0.06025627457613262,
+                  "asset_lookup": 0.09377344992506804,
+                  "device_hazard": 0.04141999334633867,
+                  "device_policy": 0.052853317382250284,
+                  "device_repair": 0.15636294807472575,
+                  "dns_failure": 0.04902579091406262,
+                  "endpoint_failure": 0.04015879039681556,
+                  "greeting": 0.05259082269494627,
+                  "human_handoff": 0.059079765182516876,
+                  "license_request": 0.0602790279457058,
+                  "software_activation": 0.05707994412628556,
+                  "software_install": 0.04940980349417623,
+                  "ticket_status": 0.059802236665244535,
+                  "unknown": 0.05398425804757368,
+                  "vpn_failure": 0.05016221536378484
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户明确查询本人资产LT-1001，属于资产查询而非报修",
+                "scores": {
+                  "asset_lookup": 0.97
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "asset_lookup": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.721149941015826,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "device_repair",
+            "id": "device-4",
+            "message": "维修后还是无法开机",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.045721439093285215,
+                  "account_unlock": 0.0640918096344487,
+                  "asset_lookup": 0.0865703107264723,
+                  "device_hazard": 0.07680564106842716,
+                  "device_policy": 0.06232064517512986,
+                  "device_repair": 0.08574970507913017,
+                  "dns_failure": 0.06644639451267344,
+                  "endpoint_failure": 0.07492445580770471,
+                  "greeting": 0.05340097469226641,
+                  "human_handoff": 0.07062818309848226,
+                  "license_request": 0.04649759256960368,
+                  "software_activation": 0.06695676022562423,
+                  "software_install": 0.06554213304562082,
+                  "ticket_status": 0.04144036119112255,
+                  "unknown": 0.04284131295473276,
+                  "vpn_failure": 0.05006228112527577
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "维修后仍无法开机，属于维修工单后续故障，需继续维修处理",
+                "scores": {
+                  "device_repair": 0.88
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "device_repair": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.5871762001088746,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "device_policy",
+            "id": "device-5",
+            "message": "外设坏了申请更换",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.0576908110874701,
+                  "account_unlock": 0.07039009199206217,
+                  "asset_lookup": 0.08488479717055127,
+                  "device_hazard": 0.06531113816456185,
+                  "device_policy": 0.06588100054437328,
+                  "device_repair": 0.07226527794087441,
+                  "dns_failure": 0.054615494590391736,
+                  "endpoint_failure": 0.05954260057171036,
+                  "greeting": 0.05535196874405446,
+                  "human_handoff": 0.075479339429743,
+                  "license_request": 0.059397879549917806,
+                  "software_activation": 0.0630200227440042,
+                  "software_install": 0.05799376574594954,
+                  "ticket_status": 0.07103378418061147,
+                  "unknown": 0.04059054497450327,
+                  "vpn_failure": 0.04655148256922105
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "外设损坏申请更换，属于设备更换制度/流程咨询，未涉及硬件安全风险",
+                "scores": {
+                  "device_policy": 0.82
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "device_repair": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7722071298035584,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "device_policy",
+            "id": "device-6",
+            "message": "设备借用和归还的规则",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05857067680115047,
+                  "account_unlock": 0.07148508865308258,
+                  "asset_lookup": 0.09297157952912063,
+                  "device_hazard": 0.08508587924762073,
+                  "device_policy": 0.09603564901779278,
+                  "device_repair": 0.063703539364205,
+                  "dns_failure": 0.0414108429288534,
+                  "endpoint_failure": 0.042249209644232504,
+                  "greeting": 0.04998998553046686,
+                  "human_handoff": 0.06589602021009633,
+                  "license_request": 0.07541320338453439,
+                  "software_activation": 0.051599837430579436,
+                  "software_install": 0.050823971002808575,
+                  "ticket_status": 0.05437333853593966,
+                  "unknown": 0.05588629330989287,
+                  "vpn_failure": 0.04450488540962383
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "询问设备借用和归还的管理规则，属于设备政策咨询，非报修或安全事件",
+                "scores": {
+                  "device_policy": 0.95
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "device_policy": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7559651475419439,
+            "domain": "escalation",
+            "error": null,
+            "expected": "escalation",
+            "fine_intent": "human_handoff",
+            "id": "escalation-1",
+            "message": "公司大面积断网需要升级",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "escalation",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.061897778920181654,
+                  "account_unlock": 0.0732548475817675,
+                  "asset_lookup": 0.06287415702757536,
+                  "device_hazard": 0.055426943356110224,
+                  "device_policy": 0.06815102155376997,
+                  "device_repair": 0.046988328166562926,
+                  "dns_failure": 0.10100924996141607,
+                  "endpoint_failure": 0.04733661021203867,
+                  "greeting": 0.05898762495305757,
+                  "human_handoff": 0.11982573770971955,
+                  "license_request": 0.0480566425978302,
+                  "software_activation": 0.05685347677637766,
+                  "software_install": 0.05944770901189221,
+                  "ticket_status": 0.041260486393034805,
+                  "unknown": 0.04530900770693172,
+                  "vpn_failure": 0.05332037807173395
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "公司大面积断网需升级，属影响大范围业务的事件，需人工交接处理",
+                "scores": {
+                  "human_handoff": 0.92
+                },
+                "urgency": 4,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "dns_failure": 0.88,
+                  "human_handoff": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.772984523090134,
+            "domain": "escalation",
+            "error": null,
+            "expected": "escalation",
+            "fine_intent": "human_handoff",
+            "id": "escalation-2",
+            "message": "怀疑密钥泄露请联系人工",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "escalation",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.0689162529024971,
+                  "account_unlock": 0.06811428195934108,
+                  "asset_lookup": 0.07150632520456199,
+                  "device_hazard": 0.06247404394386433,
+                  "device_policy": 0.05020015284250311,
+                  "device_repair": 0.058241028366851064,
+                  "dns_failure": 0.05964191645524078,
+                  "endpoint_failure": 0.04997814162106294,
+                  "greeting": 0.06832213517314274,
+                  "human_handoff": 0.09992261545067073,
+                  "license_request": 0.050859012668124086,
+                  "software_activation": 0.05930917931048318,
+                  "software_install": 0.05719404273089785,
+                  "ticket_status": 0.05663217886045272,
+                  "unknown": 0.05830844963576269,
+                  "vpn_failure": 0.060380242874543556
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户怀疑密钥泄露并要求联系人工，属于人工交接及潜在信息泄露事件",
+                "scores": {
+                  "human_handoff": 0.95
+                },
+                "urgency": 3,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "human_handoff": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7109031942141051,
+            "domain": "general",
+            "error": null,
+            "expected": "general",
+            "fine_intent": "greeting",
+            "id": "general-1",
+            "message": "你好，有什么服务",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "general",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05699917035841352,
+                  "account_unlock": 0.0669505367736635,
+                  "asset_lookup": 0.05614723868438907,
+                  "device_hazard": 0.056023017025439145,
+                  "device_policy": 0.06143725974965092,
+                  "device_repair": 0.055653314465557886,
+                  "dns_failure": 0.052964007308819686,
+                  "endpoint_failure": 0.049746778653525794,
+                  "greeting": 0.1245159710705256,
+                  "human_handoff": 0.06763769098435499,
+                  "license_request": 0.06453705180084368,
+                  "software_activation": 0.06250239713844968,
+                  "software_install": 0.04878894359898904,
+                  "ticket_status": 0.06455859496069084,
+                  "unknown": 0.05777598208477985,
+                  "vpn_failure": 0.05376204534190673
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户仅问候并询问可用服务，无具体诉求",
+                "scores": {
+                  "greeting": 0.98
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "unknown": 0.8
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7895486744099277,
+            "domain": "general",
+            "error": null,
+            "expected": "general",
+            "fine_intent": "greeting",
+            "id": "general-2",
+            "message": "谢谢",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "general",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.061121028326347845,
+                  "account_unlock": 0.05657938994183961,
+                  "asset_lookup": 0.05205464842043792,
+                  "device_hazard": 0.05006383728141021,
+                  "device_policy": 0.05713472482779374,
+                  "device_repair": 0.059174336835823425,
+                  "dns_failure": 0.04683552016793831,
+                  "endpoint_failure": 0.0503616142771846,
+                  "greeting": 0.18274337204963928,
+                  "human_handoff": 0.06621556820984066,
+                  "license_request": 0.047496060275944725,
+                  "software_activation": 0.049470313228435675,
+                  "software_install": 0.05122123392205653,
+                  "ticket_status": 0.050881541682403636,
+                  "unknown": 0.06847909933558585,
+                  "vpn_failure": 0.05016771121731794
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户仅表达感谢，属于问候/结束语类，无具体诉求",
+                "scores": {
+                  "greeting": 0.95
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "greeting": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.764051337225685,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "account_unlock",
+            "id": "boundary-01",
+            "message": "密码找回页一直转圈，我想恢复公司登录",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.06466187242623786,
+                  "account_unlock": 0.12525668612842492,
+                  "asset_lookup": 0.0689835027527325,
+                  "device_hazard": 0.051242357071554084,
+                  "device_policy": 0.06261764754456783,
+                  "device_repair": 0.05694382656772244,
+                  "dns_failure": 0.06460391156322068,
+                  "endpoint_failure": 0.05632027920357367,
+                  "greeting": 0.06186656811074544,
+                  "human_handoff": 0.07874548612902396,
+                  "license_request": 0.05098133376060422,
+                  "software_activation": 0.06366681224398821,
+                  "software_install": 0.047863220178103696,
+                  "ticket_status": 0.051332118175597775,
+                  "unknown": 0.04400624309220338,
+                  "vpn_failure": 0.050908135051699346
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "密码找回入口异常，诉求为恢复企业账号登录，属账号恢复入口异常",
+                "scores": {
+                  "account_unlock": 0.93
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "account_unlock": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7615860771951992,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "account_unlock",
+            "id": "boundary-02",
+            "message": "换手机后企业账号收不到MFA验证码",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.06134615156026328,
+                  "account_unlock": 0.11293038597599628,
+                  "asset_lookup": 0.06130233981193092,
+                  "device_hazard": 0.05231186467723379,
+                  "device_policy": 0.049734169862744745,
+                  "device_repair": 0.051160680846738,
+                  "dns_failure": 0.06540860202293661,
+                  "endpoint_failure": 0.05198854830876518,
+                  "greeting": 0.060455668074142245,
+                  "human_handoff": 0.08546067911672596,
+                  "license_request": 0.060113425771358975,
+                  "software_activation": 0.08553059609885728,
+                  "software_install": 0.05417183976691393,
+                  "ticket_status": 0.04829117503705072,
+                  "unknown": 0.047623419656112165,
+                  "vpn_failure": 0.05217045341222991
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "更换手机后无法接收MFA验证码，属于认证/MFA绑定恢复问题，归账号访问域",
+                "scores": {
+                  "account_unlock": 0.93
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "account_unlock": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.779919604267062,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "access_request",
+            "id": "boundary-03",
+            "message": "申请docs-internal的read访问，先说审批要求",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.13459802133531018,
+                  "account_unlock": 0.05781653706542012,
+                  "asset_lookup": 0.06376210845276184,
+                  "device_hazard": 0.04322229587924921,
+                  "device_policy": 0.07356069365348972,
+                  "device_repair": 0.055035748095194126,
+                  "dns_failure": 0.05898396509542884,
+                  "endpoint_failure": 0.04145922844142288,
+                  "greeting": 0.0545584939043566,
+                  "human_handoff": 0.07073436844461489,
+                  "license_request": 0.06425167321062757,
+                  "software_activation": 0.05486057494058797,
+                  "software_install": 0.043676525149806626,
+                  "ticket_status": 0.07576871231009236,
+                  "unknown": 0.05905507780428326,
+                  "vpn_failure": 0.048655976217353826
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户申请内部文档只读访问权限，并询问审批要求，属于账号资源权限申请",
+                "scores": {
+                  "access_request": 0.95
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.774951715502203,
+            "domain": "account_access",
+            "error": null,
+            "expected": "account_access",
+            "fine_intent": "account_unlock",
+            "id": "boundary-04",
+            "message": "账号输错被锁，我该向谁申请解锁",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "account_access",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.06527844906050018,
+                  "account_unlock": 0.10975857751101539,
+                  "asset_lookup": 0.0710558018243663,
+                  "device_hazard": 0.058379441496843036,
+                  "device_policy": 0.05702835124563053,
+                  "device_repair": 0.06201459048892785,
+                  "dns_failure": 0.05165363290104275,
+                  "endpoint_failure": 0.05487181792996331,
+                  "greeting": 0.05809399140817672,
+                  "human_handoff": 0.07446013040498291,
+                  "license_request": 0.056580341108522926,
+                  "software_activation": 0.05987221405161117,
+                  "software_install": 0.05362551565319003,
+                  "ticket_status": 0.0757828634904765,
+                  "unknown": 0.04935417160433677,
+                  "vpn_failure": 0.04219010982041365
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "账号因输错被锁定，询问解锁申请渠道，属账号解锁诉求",
+                "scores": {
+                  "account_unlock": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "account_unlock": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7840727875358835,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "software_install",
+            "id": "boundary-05",
+            "message": "装Python依赖时pip提示下载失败",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.04907318422436095,
+                  "account_unlock": 0.05745435180619746,
+                  "asset_lookup": 0.05667994310960164,
+                  "device_hazard": 0.06141913570128968,
+                  "device_policy": 0.04543820033460925,
+                  "device_repair": 0.050073354761407715,
+                  "dns_failure": 0.06260739540796387,
+                  "endpoint_failure": 0.060508803833763544,
+                  "greeting": 0.06874196815843323,
+                  "human_handoff": 0.05903095911185593,
+                  "license_request": 0.05035618209635713,
+                  "software_activation": 0.06557300182271887,
+                  "software_install": 0.1553639376794181,
+                  "ticket_status": 0.03881095841335495,
+                  "unknown": 0.05409560154952799,
+                  "vpn_failure": 0.06477302198913969
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "pip下载依赖失败属于开发工具安装/依赖环境技术故障，归network_endpoint域",
+                "scores": {
+                  "software_install": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "software_install": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7576429470923437,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "endpoint_failure",
+            "id": "boundary-06",
+            "message": "IDE刚打开就闪退，没有许可证错误",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.07266484876845303,
+                  "account_unlock": 0.06089976389497158,
+                  "asset_lookup": 0.07405398567042615,
+                  "device_hazard": 0.049592119667234286,
+                  "device_policy": 0.05107374313447297,
+                  "device_repair": 0.04746726475809427,
+                  "dns_failure": 0.05769599129052033,
+                  "endpoint_failure": 0.09321473546171873,
+                  "greeting": 0.06600462790606425,
+                  "human_handoff": 0.056273925810483176,
+                  "license_request": 0.0574692697260251,
+                  "software_activation": 0.10175018823132799,
+                  "software_install": 0.07446015757965802,
+                  "ticket_status": 0.045535012609757966,
+                  "unknown": 0.043935869724239955,
+                  "vpn_failure": 0.047908495766552275
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "IDE启动即闪退，且明确无许可证错误，属应用启动崩溃的技术故障，归network_endpoint域",
+                "scores": {
+                  "endpoint_failure": 0.93
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "endpoint_failure": 0.88,
+                  "license_request": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.774874512866329,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "dns_failure",
+            "id": "boundary-07",
+            "message": "只有内网域名查不到地址，其他网站能打开",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.08463311035370556,
+                  "account_unlock": 0.07653522168726874,
+                  "asset_lookup": 0.06177416832098986,
+                  "device_hazard": 0.05391473420174847,
+                  "device_policy": 0.04820728009895803,
+                  "device_repair": 0.044721685263074906,
+                  "dns_failure": 0.10937256433164584,
+                  "endpoint_failure": 0.05559411321540946,
+                  "greeting": 0.06298846514607283,
+                  "human_handoff": 0.05968553996518805,
+                  "license_request": 0.042395243212732865,
+                  "software_activation": 0.0757394197226887,
+                  "software_install": 0.059830742540138086,
+                  "ticket_status": 0.04503438642055993,
+                  "unknown": 0.045094717019922126,
+                  "vpn_failure": 0.07447860849989649
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "仅内网域名解析失败、其他网站正常，符合DNS故障特征",
+                "scores": {
+                  "dns_failure": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "dns_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7845429815881446,
+            "domain": "network_endpoint",
+            "error": null,
+            "expected": "network_endpoint",
+            "fine_intent": "vpn_failure",
+            "id": "boundary-08",
+            "message": "办公VPN报809，家里网络能上网",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "network_endpoint",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.06354414892477685,
+                  "account_unlock": 0.0636147159276394,
+                  "asset_lookup": 0.0735281732425636,
+                  "device_hazard": 0.05641163682277504,
+                  "device_policy": 0.07261992776221479,
+                  "device_repair": 0.05555135562047334,
+                  "dns_failure": 0.09253584444329206,
+                  "endpoint_failure": 0.06069004515730234,
+                  "greeting": 0.05853321901588484,
+                  "human_handoff": 0.06754012955487569,
+                  "license_request": 0.04951313877517837,
+                  "software_activation": 0.05656774119652417,
+                  "software_install": 0.049344185384267845,
+                  "ticket_status": 0.0453030698873567,
+                  "unknown": 0.04698776034415129,
+                  "vpn_failure": 0.08771490794072363
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "VPN报809错误，家庭网络正常，属VPN连接故障",
+                "scores": {
+                  "vpn_failure": 0.97
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "dns_failure": 0.88,
+                  "vpn_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.775240506372862,
+            "domain": "software_license",
+            "error": null,
+            "expected": "software_license",
+            "fine_intent": "license_request",
+            "id": "boundary-09",
+            "message": "商业开发工具没有剩余席位，如何申请",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "software_license",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.09800759769587873,
+                  "account_unlock": 0.07000774927597046,
+                  "asset_lookup": 0.0584581783493771,
+                  "device_hazard": 0.03857196296572843,
+                  "device_policy": 0.06032542593544408,
+                  "device_repair": 0.05295379536345106,
+                  "dns_failure": 0.0488078544947376,
+                  "endpoint_failure": 0.038565557081106684,
+                  "greeting": 0.05479373459750947,
+                  "human_handoff": 0.06986642210463619,
+                  "license_request": 0.11120253186431071,
+                  "software_activation": 0.06622684463447621,
+                  "software_install": 0.06783218248747576,
+                  "ticket_status": 0.07737653629631092,
+                  "unknown": 0.04879888447481562,
+                  "vpn_failure": 0.03820474237877089
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "咨询商业开发工具无剩余席位时的申请流程，属于软件许可席位申请",
+                "scores": {
+                  "license_request": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "license_request": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7703869661793362,
+            "domain": "software_license",
+            "error": null,
+            "expected": "software_license",
+            "fine_intent": "license_request",
+            "id": "boundary-10",
+            "message": "IntelliJ许可证快过期，需要企业授权续期",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "software_license",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.10542231117906435,
+                  "account_unlock": 0.08053294225512175,
+                  "asset_lookup": 0.05427770422474898,
+                  "device_hazard": 0.04709172862724676,
+                  "device_policy": 0.05782623842997706,
+                  "device_repair": 0.05073292790895779,
+                  "dns_failure": 0.06111956374887782,
+                  "endpoint_failure": 0.049120183320204264,
+                  "greeting": 0.05650814515119557,
+                  "human_handoff": 0.07527705740926852,
+                  "license_request": 0.0869348308966817,
+                  "software_activation": 0.08136990111416305,
+                  "software_install": 0.05556940392387885,
+                  "ticket_status": 0.04432401427345155,
+                  "unknown": 0.04579593306747149,
+                  "vpn_failure": 0.04809711446969056
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "IntelliJ许可证到期，需企业授权续期，属软件许可/席位申请",
+                "scores": {
+                  "license_request": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "license_request": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7888028011874794,
+            "domain": "software_license",
+            "error": null,
+            "expected": "software_license",
+            "fine_intent": "software_activation",
+            "id": "boundary-11",
+            "message": "激活页显示当前账号组织与企业许可不匹配",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "software_license",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.07524539861003704,
+                  "account_unlock": 0.08963614191849592,
+                  "asset_lookup": 0.060122757719481446,
+                  "device_hazard": 0.03954656148933105,
+                  "device_policy": 0.05302324382254546,
+                  "device_repair": 0.039171139472067774,
+                  "dns_failure": 0.060415473004120146,
+                  "endpoint_failure": 0.04883128015448434,
+                  "greeting": 0.05507136963214167,
+                  "human_handoff": 0.06109385259231462,
+                  "license_request": 0.0530572147792962,
+                  "software_activation": 0.17901400593739736,
+                  "software_install": 0.045642480301443245,
+                  "ticket_status": 0.04805676401072159,
+                  "unknown": 0.04530179949561828,
+                  "vpn_failure": 0.046770517060503836
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "激活页提示账号组织与企业许可不匹配，属于软件激活问题",
+                "scores": {
+                  "software_activation": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "account_unlock": 0.88,
+                  "software_activation": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.6619205959406895,
+            "domain": "software_license",
+            "error": null,
+            "expected": "software_license",
+            "fine_intent": "license_request",
+            "id": "boundary-12",
+            "message": "想安装商业插件，软件白名单和审批怎么走",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "software_license",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.0775725093952691,
+                  "account_unlock": 0.07451555040630001,
+                  "asset_lookup": 0.07000800412532944,
+                  "device_hazard": 0.05492787158963724,
+                  "device_policy": 0.0566616287601078,
+                  "device_repair": 0.05525227914245945,
+                  "dns_failure": 0.05501959870248692,
+                  "endpoint_failure": 0.05220930672673168,
+                  "greeting": 0.0538257455212645,
+                  "human_handoff": 0.06328621034521058,
+                  "license_request": 0.08960297970344747,
+                  "software_activation": 0.06476859271988908,
+                  "software_install": 0.06883011606668685,
+                  "ticket_status": 0.06565676104230694,
+                  "unknown": 0.05214413875629756,
+                  "vpn_failure": 0.04571870699657531
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "咨询商业插件安装的白名单与审批流程，属于软件许可与使用/采购审批",
+                "scores": {
+                  "license_request": 0.92
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "unknown": 0.8
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7947716261066721,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "asset_lookup",
+            "id": "boundary-13",
+            "message": "看看我名下电脑的保修状态，不需要维修",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.054097296492228705,
+                  "account_unlock": 0.059456558110073034,
+                  "asset_lookup": 0.10385813053336068,
+                  "device_hazard": 0.06265531543948052,
+                  "device_policy": 0.07345374731451428,
+                  "device_repair": 0.08956151558791235,
+                  "dns_failure": 0.05857705751305401,
+                  "endpoint_failure": 0.06492616960549186,
+                  "greeting": 0.05088294565022864,
+                  "human_handoff": 0.0646437390969518,
+                  "license_request": 0.05048159465949971,
+                  "software_activation": 0.05592297145899203,
+                  "software_install": 0.0573117760581534,
+                  "ticket_status": 0.04780279960310954,
+                  "unknown": 0.053740162039485596,
+                  "vpn_failure": 0.05262822083746384
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "查询本人名下电脑保修状态，明确不需要维修，属于资产查询",
+                "scores": {
+                  "asset_lookup": 0.98
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "asset_lookup": 0.88,
+                  "device_policy": 0.88,
+                  "device_repair": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7774573117043527,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "device_policy",
+            "id": "boundary-14",
+            "message": "出差想暂借一台办公笔记本，归还要登记什么",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.06381678207002602,
+                  "account_unlock": 0.07729594320343762,
+                  "asset_lookup": 0.07642055773364483,
+                  "device_hazard": 0.07303473677451217,
+                  "device_policy": 0.12228655852176423,
+                  "device_repair": 0.07170775235329657,
+                  "dns_failure": 0.05296354046883458,
+                  "endpoint_failure": 0.04645806368679955,
+                  "greeting": 0.040855692279672166,
+                  "human_handoff": 0.05927985561113623,
+                  "license_request": 0.07063570717645642,
+                  "software_activation": 0.049670843534320726,
+                  "software_install": 0.04713185227153491,
+                  "ticket_status": 0.05234751150582355,
+                  "unknown": 0.049789845793823694,
+                  "vpn_failure": 0.04630475701491675
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "咨询出差临时借用办公设备的归还登记手续，属于设备管理制度咨询，非报修或资产查询",
+                "scores": {
+                  "device_policy": 0.95
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "device_policy": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7728381542936009,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "device_repair",
+            "id": "boundary-15",
+            "message": "电脑修完问题又出现了，能否返工",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.04747547317389571,
+                  "account_unlock": 0.06804761831388258,
+                  "asset_lookup": 0.07523871159479761,
+                  "device_hazard": 0.056621454274285984,
+                  "device_policy": 0.08094294822519964,
+                  "device_repair": 0.09919077146800495,
+                  "dns_failure": 0.055879438103664934,
+                  "endpoint_failure": 0.06738475076505711,
+                  "greeting": 0.06406069235451992,
+                  "human_handoff": 0.07092922793377093,
+                  "license_request": 0.041558859240375216,
+                  "software_activation": 0.0584914372235948,
+                  "software_install": 0.06089727039159324,
+                  "ticket_status": 0.047967693078273886,
+                  "unknown": 0.04891634462572539,
+                  "vpn_failure": 0.056397309233358034
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "维修后问题复现，询问返工，属设备维修范畴",
+                "scores": {
+                  "device_repair": 0.95
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "device_repair": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7229170332724463,
+            "domain": "device_service",
+            "error": null,
+            "expected": "device_service",
+            "fine_intent": "device_policy",
+            "id": "boundary-16",
+            "message": "我的办公电脑已经过保，报修需要先核价吗",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "device_service",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.0690203608300643,
+                  "account_unlock": 0.0637670554039332,
+                  "asset_lookup": 0.10233253031012225,
+                  "device_hazard": 0.06057032920410665,
+                  "device_policy": 0.09458516636223176,
+                  "device_repair": 0.0705812528580389,
+                  "dns_failure": 0.05478123004026436,
+                  "endpoint_failure": 0.060420236492847945,
+                  "greeting": 0.05023419875187126,
+                  "human_handoff": 0.0737353247611816,
+                  "license_request": 0.05138578846586189,
+                  "software_activation": 0.05204771913574941,
+                  "software_install": 0.049436312937558256,
+                  "ticket_status": 0.04453223871675043,
+                  "unknown": 0.05070989455854308,
+                  "vpn_failure": 0.05186036117087464
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "询问过保设备报修前是否需核价，涉及维修流程与设备管理制度咨询，非紧急故障",
+                "scores": {
+                  "device_policy": 0.88,
+                  "device_repair": 0.792
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "device_policy": 0.88,
+                  "device_repair": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7996578063094736,
+            "domain": "escalation",
+            "error": null,
+            "expected": "escalation",
+            "fine_intent": "human_handoff",
+            "id": "boundary-17",
+            "message": "请转人工IT支持，我需要人来核验",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "escalation",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.075793450289774,
+                  "account_unlock": 0.05869552560319367,
+                  "asset_lookup": 0.07659142550942766,
+                  "device_hazard": 0.04949136898188904,
+                  "device_policy": 0.06314500693371805,
+                  "device_repair": 0.05608771955289467,
+                  "dns_failure": 0.04723282077153079,
+                  "endpoint_failure": 0.048150266128734666,
+                  "greeting": 0.060628680573465196,
+                  "human_handoff": 0.1282890315473683,
+                  "license_request": 0.06106214939416186,
+                  "software_activation": 0.0531688436439472,
+                  "software_install": 0.053362097512067094,
+                  "ticket_status": 0.06364095034166485,
+                  "unknown": 0.05664598969091657,
+                  "vpn_failure": 0.04801467352524639
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户明确要求转人工IT支持并由人工核验，属于人工交接诉求",
+                "scores": {
+                  "human_handoff": 0.98
+                },
+                "urgency": 2,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "human_handoff": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.781026162697877,
+            "domain": "escalation",
+            "error": null,
+            "expected": "escalation",
+            "fine_intent": "human_handoff",
+            "id": "boundary-18",
+            "message": "怀疑企业凭据被盗，需要按安全事件升级",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "escalation",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05781687942335443,
+                  "account_unlock": 0.0836646373313924,
+                  "asset_lookup": 0.06838164701699209,
+                  "device_hazard": 0.06383375320424935,
+                  "device_policy": 0.06561658765549161,
+                  "device_repair": 0.06342009422202882,
+                  "dns_failure": 0.05658107148978645,
+                  "endpoint_failure": 0.05219223126082235,
+                  "greeting": 0.0527526776248568,
+                  "human_handoff": 0.14013081348938544,
+                  "license_request": 0.04928435616024672,
+                  "software_activation": 0.06073404600712766,
+                  "software_install": 0.0543100457245055,
+                  "ticket_status": 0.03795289096158842,
+                  "unknown": 0.04543479783682505,
+                  "vpn_failure": 0.04789347059134691
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "怀疑企业凭据被盗，属信息泄露/安全事件，需按安全事件升级并转人工处理",
+                "scores": {
+                  "human_handoff": 0.95
+                },
+                "urgency": 4,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "human_handoff": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.6881381644257355,
+            "domain": "escalation",
+            "error": null,
+            "expected": "escalation",
+            "fine_intent": "human_handoff",
+            "id": "boundary-19",
+            "message": "全公司核心网络都断了，影响生产，需要升级处理",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "escalation",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05619998180975339,
+                  "account_unlock": 0.07216346336904828,
+                  "asset_lookup": 0.07104350413778178,
+                  "device_hazard": 0.06422260440823302,
+                  "device_policy": 0.05683037208222169,
+                  "device_repair": 0.0460455993701817,
+                  "dns_failure": 0.09162031897959813,
+                  "endpoint_failure": 0.05943399041424447,
+                  "greeting": 0.06228424869612872,
+                  "human_handoff": 0.1156908221286779,
+                  "license_request": 0.043002704177136364,
+                  "software_activation": 0.05428485950010183,
+                  "software_install": 0.06846489219550703,
+                  "ticket_status": 0.039243077953055414,
+                  "unknown": 0.03766363314378531,
+                  "vpn_failure": 0.06180592763454505
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "全公司核心网络中断影响生产，属大范围业务事件，需升级人工处理",
+                "scores": {
+                  "human_handoff": 0.95
+                },
+                "urgency": 4,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "dns_failure": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7744852862340815,
+            "domain": "escalation",
+            "error": null,
+            "expected": "escalation",
+            "fine_intent": "human_handoff",
+            "id": "boundary-20",
+            "message": "怀疑发生数据泄露，该联系谁处理",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "escalation",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.06326600385308974,
+                  "account_unlock": 0.07409248379557357,
+                  "asset_lookup": 0.07473750809105068,
+                  "device_hazard": 0.06458000556237461,
+                  "device_policy": 0.055405636367736884,
+                  "device_repair": 0.05435074624467267,
+                  "dns_failure": 0.062017960197807136,
+                  "endpoint_failure": 0.04901665895058049,
+                  "greeting": 0.05626379129999099,
+                  "human_handoff": 0.10742643117040804,
+                  "license_request": 0.054832439816265455,
+                  "software_activation": 0.0632038876945816,
+                  "software_install": 0.04848514160729852,
+                  "ticket_status": 0.05971261977800009,
+                  "unknown": 0.054829845760654146,
+                  "vpn_failure": 0.05777883980991545
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "怀疑数据泄露，属安全事件，需人工升级处理",
+                "scores": {
+                  "human_handoff": 0.95
+                },
+                "urgency": 4,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "human_handoff": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.837455458204324,
+            "domain": "general",
+            "error": null,
+            "expected": "general",
+            "fine_intent": "greeting",
+            "id": "boundary-21",
+            "message": "你好",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "general",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.05573672427299433,
+                  "account_unlock": 0.05318962960731052,
+                  "asset_lookup": 0.049276886312979384,
+                  "device_hazard": 0.0427766717102013,
+                  "device_policy": 0.04851564415610721,
+                  "device_repair": 0.04624689374117074,
+                  "dns_failure": 0.04284777140502293,
+                  "endpoint_failure": 0.04313711190855267,
+                  "greeting": 0.2822772910216202,
+                  "human_handoff": 0.05243103107824564,
+                  "license_request": 0.04719498338553497,
+                  "software_activation": 0.05135303281357757,
+                  "software_install": 0.041590393670512205,
+                  "ticket_status": 0.048102178669311955,
+                  "unknown": 0.05275806033140007,
+                  "vpn_failure": 0.04256569591545829
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户仅发送问候语，无具体诉求",
+                "scores": {
+                  "greeting": 0.99
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "greeting": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7895486744099277,
+            "domain": "general",
+            "error": null,
+            "expected": "general",
+            "fine_intent": "greeting",
+            "id": "boundary-22",
+            "message": "谢谢",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "general",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.061121028326347845,
+                  "account_unlock": 0.05657938994183961,
+                  "asset_lookup": 0.05205464842043792,
+                  "device_hazard": 0.05006383728141021,
+                  "device_policy": 0.05713472482779374,
+                  "device_repair": 0.059174336835823425,
+                  "dns_failure": 0.04683552016793831,
+                  "endpoint_failure": 0.0503616142771846,
+                  "greeting": 0.18274337204963928,
+                  "human_handoff": 0.06621556820984066,
+                  "license_request": 0.047496060275944725,
+                  "software_activation": 0.049470313228435675,
+                  "software_install": 0.05122123392205653,
+                  "ticket_status": 0.050881541682403636,
+                  "unknown": 0.06847909933558585,
+                  "vpn_failure": 0.05016771121731794
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户仅表达感谢，属于问候/结束语类，无具体诉求",
+                "scores": {
+                  "greeting": 0.95
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "greeting": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.8239327932297429,
+            "domain": "general",
+            "error": null,
+            "expected": "general",
+            "fine_intent": "ticket_status",
+            "id": "boundary-23",
+            "message": "查询工单RD-ABCDEF012345状态",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "general",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.050068640997673115,
+                  "account_unlock": 0.050808791257735894,
+                  "asset_lookup": 0.05456755472685498,
+                  "device_hazard": 0.043383221306581184,
+                  "device_policy": 0.05243779538485558,
+                  "device_repair": 0.06175560908249688,
+                  "dns_failure": 0.051792897207804306,
+                  "endpoint_failure": 0.03770501818421098,
+                  "greeting": 0.055971460982337,
+                  "human_handoff": 0.056112353363373765,
+                  "license_request": 0.05132378624878607,
+                  "software_activation": 0.047650078846743785,
+                  "software_install": 0.045323885438342204,
+                  "ticket_status": 0.249663966148715,
+                  "unknown": 0.04782622266403685,
+                  "vpn_failure": 0.04360871815945234
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户明确查询已有工单状态，属于general域的ticket_status",
+                "scores": {
+                  "ticket_status": 0.98
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "ticket_status": 0.88
+                },
+                "weight": 0.1
+              }
+            }
+          },
+          {
+            "confidence": 0.7725305567820351,
+            "domain": "general",
+            "error": null,
+            "expected": "general",
+            "fine_intent": "unknown",
+            "id": "boundary-24",
+            "message": "我的问题还没说清楚",
+            "method": "it_three_way_fusion_v1",
+            "passed": true,
+            "prediction": "general",
+            "sources": {
+              "embedding": {
+                "available": true,
+                "scores": {
+                  "access_request": 0.053207794171728155,
+                  "account_unlock": 0.05288387292600279,
+                  "asset_lookup": 0.07358069744989494,
+                  "device_hazard": 0.052036437070311865,
+                  "device_policy": 0.039125738167453974,
+                  "device_repair": 0.05098302120089992,
+                  "dns_failure": 0.05547510669305267,
+                  "endpoint_failure": 0.05042538841392049,
+                  "greeting": 0.09499505092549315,
+                  "human_handoff": 0.06212299293795584,
+                  "license_request": 0.04499095621362144,
+                  "software_activation": 0.054769428113560406,
+                  "software_install": 0.05901862940364351,
+                  "ticket_status": 0.06932807107307006,
+                  "unknown": 0.13765278391017594,
+                  "vpn_failure": 0.04940403132921485
+                },
+                "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "weight": 0.2
+              },
+              "llm": {
+                "available": true,
+                "reason": "用户明确表示问题尚未说明，无可识别诉求",
+                "scores": {
+                  "unknown": 0.95
+                },
+                "urgency": 1,
+                "weight": 0.7
+              },
+              "pattern": {
+                "available": true,
+                "scores": {
+                  "unknown": 0.8
+                },
+                "weight": 0.1
+              }
+            }
+          }
+        ],
+        "samples": 52
+      },
+      "judge_enabled": true,
+      "kind": "active_service_quality",
+      "overall_pass_rate": 0.9827586206896551,
+      "pass_rate": 1.0,
+      "passed": 6,
+      "provenance": "人工编写的合成开发评测集；不是生产数据或独立盲测。v3按技术故障与软件授权职责边界将pip安装失败、IDE启动崩溃两题归为network_endpoint，其余标签不变；不得与v2全量分数直接比较。；追加依据业务职责定义手工构造，首次模型运行前固定；同一开发者编写，属于开发回归而非独立盲测。",
+      "recommendations": [
+        "合成开发集不能证明生产效果；同一 Flash 生成和评分存在评判偏差。",
+        "逐轮独立 Judge，任一轮不通过即整段不通过。中断后的不确定付费单元禁止自动重放。"
+      ],
+      "regression_note": "需人工选定相同数据、引擎、知识版本与评分配置的有效基线。",
+      "regressions": [],
+      "requested_intents": 52,
+      "requested_total": 58,
+      "requested_turns": 8,
+      "results": [
+        {
+          "answer": "**政策说明（仅解释，未提交任何申请）**\n\n1. **可申请级别与期限**：repo-resolvedesk 允许 read、write；有效期 1–30 天，须由申请人自行提供资源 ID、用途、权限级别和天数；不可申请 admin 或永久权限，也不能申请目录外资源 [C-df4b79ac4222f49ae31e27a5]。\n2. **审批流程**：草稿确认后进入 pending_approval；申请人不能审批自己的申请，需由其他 support 操作员 approve 或 reject 并填写说明；批准后还须执行 provision 才写入模拟权限表，批准不等于已开通 [C-e4bff9169967c359718d6392]。\n3. **有效期起算与审计**：授权有效期从 provision 时开始计算，到期后不再出现在有效权限查询中；每一步记录操作者、时间、前后状态和处理说明 [C-a1a980aeecb4b9afe04e1e37]。\n\n补充：以上为本地模拟制度，真实企业权限仍需管理员在企业系统中操作 [C-eefc2cccca255b6d7afb79bb]。\n\n如需提交申请，请告知具体用途和 1–30 天内的有效天数，我再为你准备草稿（草稿需你在确认接口核对后提交）。",
+          "checks": {
+            "agent": true,
+            "cited_answer": true,
+            "execution_complete": true,
+            "execution_status": true,
+            "retrieved_evidence": true,
+            "status": true
+          },
+          "cited_documents": [
+            "access",
+            "permissions"
+          ],
+          "draft": null,
+          "evidence_documents": [
+            "access",
+            "permissions"
+          ],
+          "lifecycle": null,
+          "metadata": {
+            "judge_failed": false
+          },
+          "passed": true,
+          "run_id": "f1cb4eaa38554c099652fd3b518bd825",
+          "scores": {
+            "accuracy": 1.0,
+            "completeness": 1.0,
+            "helpfulness": 1.0,
+            "relevance": 1.0
+          },
+          "test_id": "account-policy",
+          "turn_states": [
+            "completed"
+          ],
+          "turns": [
+            {
+              "answer": "**政策说明（仅解释，未提交任何申请）**\n\n1. **可申请级别与期限**：repo-resolvedesk 允许 read、write；有效期 1–30 天，须由申请人自行提供资源 ID、用途、权限级别和天数；不可申请 admin 或永久权限，也不能申请目录外资源 [C-df4b79ac4222f49ae31e27a5]。\n2. **审批流程**：草稿确认后进入 pending_approval；申请人不能审批自己的申请，需由其他 support 操作员 approve 或 reject 并填写说明；批准后还须执行 provision 才写入模拟权限表，批准不等于已开通 [C-e4bff9169967c359718d6392]。\n3. **有效期起算与审计**：授权有效期从 provision 时开始计算，到期后不再出现在有效权限查询中；每一步记录操作者、时间、前后状态和处理说明 [C-a1a980aeecb4b9afe04e1e37]。\n\n补充：以上为本地模拟制度，真实企业权限仍需管理员在企业系统中操作 [C-eefc2cccca255b6d7afb79bb]。\n\n如需提交申请，请告知具体用途和 1–30 天内的有效天数，我再为你准备草稿（草稿需你在确认接口核对后提交）。",
+              "checks": {
+                "execution_complete": true,
+                "execution_status": true,
+                "no_unconfirmed_write": true
+              },
+              "judge": {
+                "accuracy": 1.0,
+                "attempts": 1,
+                "completeness": 1.0,
+                "error": null,
+                "error_type": null,
+                "helpfulness": 1.0,
+                "judge_failed": false,
+                "relevance": 1.0,
+                "stop_reason": "end_turn"
+              },
+              "passed": true,
+              "routing": {
+                "confidence": 0.7717197387311304,
+                "domains": [
+                  "account_access"
+                ],
+                "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "entities": {
+                  "access_level": [
+                    "read"
+                  ],
+                  "resource_id": [
+                    "repo-resolvedesk"
+                  ]
+                },
+                "entity_state": {
+                  "domain": "account_access",
+                  "entities": {
+                    "access_level": [
+                      "read"
+                    ],
+                    "resource_id": [
+                      "repo-resolvedesk"
+                    ]
+                  },
+                  "reset": false,
+                  "sources": {
+                    "access_level": {
+                      "source": "explicit_user_text",
+                      "turn_seq": 1,
+                      "values": [
+                        "read"
+                      ]
+                    },
+                    "resource_id": {
+                      "source": "explicit_user_text",
+                      "turn_seq": 1,
+                      "values": [
+                        "repo-resolvedesk"
+                      ]
+                    }
+                  },
+                  "task_epoch": 0,
+                  "turn_seq": 1
+                },
+                "fine_intent": "access_request",
+                "intent": "account_access",
+                "intent_method": "it_three_way_fusion_v1",
+                "mission": "核对账号/权限诉求，解释申请及审批边界。",
+                "needs_clarification": false,
+                "primary": "general",
+                "reason": "用户询问仓库只读权限的期限与审批规则，属于账号访问权限政策咨询，明确不提交申请",
+                "recovery_probe": false,
+                "source_scores": {
+                  "embedding": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.1635986936556519,
+                      "account_unlock": 0.05939955601129737,
+                      "asset_lookup": 0.06177361856838114,
+                      "device_hazard": 0.044382349857405225,
+                      "device_policy": 0.06018723602090257,
+                      "device_repair": 0.055094654395456,
+                      "dns_failure": 0.04661987768160811,
+                      "endpoint_failure": 0.03713180986497466,
+                      "greeting": 0.05812392423131814,
+                      "human_handoff": 0.05759138299416235,
+                      "license_request": 0.07123208712833617,
+                      "software_activation": 0.06506081862464416,
+                      "software_install": 0.048609867331027255,
+                      "ticket_status": 0.06493856202642498,
+                      "unknown": 0.059460718023614564,
+                      "vpn_failure": 0.04679484358479542
+                    },
+                    "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                    "weight": 0.2
+                  },
+                  "llm": {
+                    "available": true,
+                    "reason": "用户询问仓库只读权限的期限与审批规则，属于账号访问权限政策咨询，明确不提交申请",
+                    "scores": {
+                      "access_request": 0.93
+                    },
+                    "urgency": 1,
+                    "weight": 0.7
+                  },
+                  "pattern": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.88
+                    },
+                    "weight": 0.1
+                  }
+                },
+                "supporting": [],
+                "urgency": "LOW",
+                "workflow": [
+                  "确认诉求",
+                  "查询制度",
+                  "核对必要字段",
+                  "说明下一步"
+                ]
+              },
+              "scores": {
+                "accuracy": 1.0,
+                "completeness": 1.0,
+                "helpfulness": 1.0,
+                "relevance": 1.0
+              },
+              "status": "completed",
+              "tools": [
+                "collect_request_fields"
+              ],
+              "turn": 1
+            }
+          ]
+        },
+        {
+          "answer": "**内网 DNS 解析失败（外网正常）排查建议**\n\n1. **先界定范围**：确认是单一内网域名还是全部内网域名失败，记录发生时间、网络环境（办公网/家庭/VPN）和脱敏后的报错信息；用系统只读诊断查看 DNS 配置与解析结果，并与企业下发的配置核对 [C-3befcc0639e3005be47f046f]。\n2. **核对 VPN 与 DNS 策略**：外网正常而内网域名失败时，重点核对 VPN 连接状态和企业 DNS 策略；不要自行切换公共 DNS 去访问内部域名 [C-3befcc0639e3005be47f046f]。\n3. **若伴随 VPN 超时**：先确认普通网页可访问，再切换网络重连 VPN，记录报错时间、客户端版本和错误码；不要关闭系统防火墙或安装来源不明的证书 [C-428c41317e890086604273d7]。\n\n以上仅为低风险排查建议，未创建任何工单。若按上述步骤仍持续失败，或影响多人，建议交由 IT/网络值班人工核验后再决定是否升级处理。",
+          "checks": {
+            "agent": true,
+            "cited_answer": true,
+            "execution_complete": true,
+            "execution_status": true,
+            "retrieved_evidence": true,
+            "status": true
+          },
+          "cited_documents": [
+            "endpoint",
+            "vpn"
+          ],
+          "draft": null,
+          "evidence_documents": [
+            "access",
+            "endpoint",
+            "software",
+            "vpn"
+          ],
+          "lifecycle": null,
+          "metadata": {
+            "judge_failed": false
+          },
+          "passed": true,
+          "run_id": "5855e34309bc4998ad189fbe4ce1d657",
+          "scores": {
+            "accuracy": 1.0,
+            "completeness": 1.0,
+            "helpfulness": 1.0,
+            "relevance": 1.0
+          },
+          "test_id": "network-dns",
+          "turn_states": [
+            "completed"
+          ],
+          "turns": [
+            {
+              "answer": "**内网 DNS 解析失败（外网正常）排查建议**\n\n1. **先界定范围**：确认是单一内网域名还是全部内网域名失败，记录发生时间、网络环境（办公网/家庭/VPN）和脱敏后的报错信息；用系统只读诊断查看 DNS 配置与解析结果，并与企业下发的配置核对 [C-3befcc0639e3005be47f046f]。\n2. **核对 VPN 与 DNS 策略**：外网正常而内网域名失败时，重点核对 VPN 连接状态和企业 DNS 策略；不要自行切换公共 DNS 去访问内部域名 [C-3befcc0639e3005be47f046f]。\n3. **若伴随 VPN 超时**：先确认普通网页可访问，再切换网络重连 VPN，记录报错时间、客户端版本和错误码；不要关闭系统防火墙或安装来源不明的证书 [C-428c41317e890086604273d7]。\n\n以上仅为低风险排查建议，未创建任何工单。若按上述步骤仍持续失败，或影响多人，建议交由 IT/网络值班人工核验后再决定是否升级处理。",
+              "checks": {
+                "execution_complete": true,
+                "execution_status": true,
+                "no_unconfirmed_write": true
+              },
+              "judge": {
+                "accuracy": 1.0,
+                "attempts": 1,
+                "completeness": 1.0,
+                "error": null,
+                "error_type": null,
+                "helpfulness": 1.0,
+                "judge_failed": false,
+                "relevance": 1.0,
+                "stop_reason": "end_turn"
+              },
+              "passed": true,
+              "routing": {
+                "confidence": 0.7885122476294849,
+                "domains": [
+                  "network_endpoint"
+                ],
+                "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "entities": {},
+                "entity_state": {
+                  "domain": "network_endpoint",
+                  "entities": {},
+                  "reset": false,
+                  "sources": {},
+                  "task_epoch": 0,
+                  "turn_seq": 3
+                },
+                "fine_intent": "dns_failure",
+                "intent": "network_endpoint",
+                "intent_method": "it_three_way_fusion_v1",
+                "mission": "基于知识和本人资产给出低风险、可验证的排查。",
+                "needs_clarification": false,
+                "primary": "technical",
+                "reason": "内网DNS解析失败而外网正常，属于网络端点域DNS故障，用户仅需排障建议，不涉及工单或安全事件",
+                "recovery_probe": false,
+                "source_scores": {
+                  "embedding": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.058740852179431674,
+                      "account_unlock": 0.06029254195728675,
+                      "asset_lookup": 0.07226723883675287,
+                      "device_hazard": 0.054710497802214986,
+                      "device_policy": 0.04937812427469827,
+                      "device_repair": 0.05654024517331743,
+                      "dns_failure": 0.10756123814742502,
+                      "endpoint_failure": 0.05124287901852269,
+                      "greeting": 0.06393151629566599,
+                      "human_handoff": 0.0596994858501893,
+                      "license_request": 0.046835949179053794,
+                      "software_activation": 0.056192852236560877,
+                      "software_install": 0.07308884856031746,
+                      "ticket_status": 0.06290198582035897,
+                      "unknown": 0.06177733734844919,
+                      "vpn_failure": 0.06483840731975482
+                    },
+                    "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                    "weight": 0.2
+                  },
+                  "llm": {
+                    "available": true,
+                    "reason": "内网DNS解析失败而外网正常，属于网络端点域DNS故障，用户仅需排障建议，不涉及工单或安全事件",
+                    "scores": {
+                      "dns_failure": 0.97
+                    },
+                    "urgency": 2,
+                    "weight": 0.7
+                  },
+                  "pattern": {
+                    "available": true,
+                    "scores": {
+                      "dns_failure": 0.88
+                    },
+                    "weight": 0.1
+                  }
+                },
+                "supporting": [],
+                "urgency": "MEDIUM",
+                "workflow": [
+                  "确认范围",
+                  "查询知识/资产",
+                  "给出排查",
+                  "必要时维修升级"
+                ]
+              },
+              "scores": {
+                "accuracy": 1.0,
+                "completeness": 1.0,
+                "helpfulness": 1.0,
+                "relevance": 1.0
+              },
+              "status": "completed",
+              "tools": [],
+              "turn": 1
+            }
+          ]
+        },
+        {
+          "answer": "**IntelliJ IDEA Ultimate 企业席位申请规则（仅政策说明，未提交工单）**\n\n1. **授权方式与申请要素**：使用企业命名用户席位，模拟目录现有 2 个可用席位；申请需提供产品与版本、工作用途、使用期限和主管审批 [C-575ae46b973ba786036f8ad2]。命名用户许可证不可共享或互借 [C-2971e77e8697e531a1c23c23]。\n2. **到期处理**：先核对企业账号、产品版本与到期日期，勿粘贴授权码；席位由 IT 管理员分配并记录审计 [C-c22be39cf16fdde7b042f1d1]。若激活失败，记录脱敏报错、版本、账号所属组织与时间，提交 software 工单人工核验 [C-e9313f1d537ce5b80a789530]。\n3. **边界**：席位数量为演示库存，本系统只查询与记录申请，不自动采购或分配真实许可证；无席位时进入采购审核，不承诺开通时间 [C-575ae46b973ba786036f8ad2]。个人购买不自动报销 [C-c22be39cf16fdde7b042f1d1]。\n\n如需提交申请，请补充：使用期限（天数）、具体工作用途、主管审批状态。审批与分配需人工处理。",
+          "checks": {
+            "agent": true,
+            "cited_answer": true,
+            "execution_complete": true,
+            "execution_status": true,
+            "retrieved_evidence": true,
+            "status": true
+          },
+          "cited_documents": [
+            "licensing"
+          ],
+          "draft": null,
+          "evidence_documents": [
+            "licensing"
+          ],
+          "lifecycle": null,
+          "metadata": {
+            "judge_failed": false
+          },
+          "passed": true,
+          "run_id": "98df847e121f457987f70228072d474d",
+          "scores": {
+            "accuracy": 1.0,
+            "completeness": 0.9,
+            "helpfulness": 0.9,
+            "relevance": 1.0
+          },
+          "test_id": "software-license",
+          "turn_states": [
+            "completed"
+          ],
+          "turns": [
+            {
+              "answer": "**IntelliJ IDEA Ultimate 企业席位申请规则（仅政策说明，未提交工单）**\n\n1. **授权方式与申请要素**：使用企业命名用户席位，模拟目录现有 2 个可用席位；申请需提供产品与版本、工作用途、使用期限和主管审批 [C-575ae46b973ba786036f8ad2]。命名用户许可证不可共享或互借 [C-2971e77e8697e531a1c23c23]。\n2. **到期处理**：先核对企业账号、产品版本与到期日期，勿粘贴授权码；席位由 IT 管理员分配并记录审计 [C-c22be39cf16fdde7b042f1d1]。若激活失败，记录脱敏报错、版本、账号所属组织与时间，提交 software 工单人工核验 [C-e9313f1d537ce5b80a789530]。\n3. **边界**：席位数量为演示库存，本系统只查询与记录申请，不自动采购或分配真实许可证；无席位时进入采购审核，不承诺开通时间 [C-575ae46b973ba786036f8ad2]。个人购买不自动报销 [C-c22be39cf16fdde7b042f1d1]。\n\n如需提交申请，请补充：使用期限（天数）、具体工作用途、主管审批状态。审批与分配需人工处理。",
+              "checks": {
+                "execution_complete": true,
+                "execution_status": true,
+                "no_unconfirmed_write": true
+              },
+              "judge": {
+                "accuracy": 1.0,
+                "attempts": 1,
+                "completeness": 0.9,
+                "error": null,
+                "error_type": null,
+                "helpfulness": 0.9,
+                "judge_failed": false,
+                "relevance": 1.0,
+                "stop_reason": "end_turn"
+              },
+              "passed": true,
+              "routing": {
+                "confidence": 0.7783405584463539,
+                "domains": [
+                  "software_license"
+                ],
+                "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "entities": {
+                  "software": [
+                    "IntelliJ IDEA Ultimate"
+                  ]
+                },
+                "entity_state": {
+                  "domain": "software_license",
+                  "entities": {
+                    "software": [
+                      "IntelliJ IDEA Ultimate"
+                    ]
+                  },
+                  "reset": false,
+                  "sources": {
+                    "software": {
+                      "source": "explicit_user_text",
+                      "turn_seq": 5,
+                      "values": [
+                        "IntelliJ IDEA Ultimate"
+                      ]
+                    }
+                  },
+                  "task_epoch": 0,
+                  "turn_seq": 5
+                },
+                "fine_intent": "license_request",
+                "intent": "software_license",
+                "intent_method": "it_three_way_fusion_v1",
+                "mission": "核验软件白名单、模拟席位和授权申请要求。",
+                "needs_clarification": false,
+                "primary": "billing",
+                "reason": "咨询IntelliJ IDEA Ultimate企业席位申请规则，属于软件许可与席位政策咨询，非故障或安全事件",
+                "recovery_probe": false,
+                "source_scores": {
+                  "embedding": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.09374843554855859,
+                      "account_unlock": 0.06576771692542868,
+                      "asset_lookup": 0.05614232450605662,
+                      "device_hazard": 0.043915895247949886,
+                      "device_policy": 0.054789606380826604,
+                      "device_repair": 0.06438280547769792,
+                      "dns_failure": 0.05205922756420996,
+                      "endpoint_failure": 0.03744416375015905,
+                      "greeting": 0.05621829093172853,
+                      "human_handoff": 0.06511163770660192,
+                      "license_request": 0.12670279223176983,
+                      "software_activation": 0.07262241402050883,
+                      "software_install": 0.04851213062335841,
+                      "ticket_status": 0.06347790429246934,
+                      "unknown": 0.057174215265032656,
+                      "vpn_failure": 0.041930439527643165
+                    },
+                    "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                    "weight": 0.2
+                  },
+                  "llm": {
+                    "available": true,
+                    "reason": "咨询IntelliJ IDEA Ultimate企业席位申请规则，属于软件许可与席位政策咨询，非故障或安全事件",
+                    "scores": {
+                      "license_request": 0.95
+                    },
+                    "urgency": 1,
+                    "weight": 0.7
+                  },
+                  "pattern": {
+                    "available": true,
+                    "scores": {
+                      "license_request": 0.88
+                    },
+                    "weight": 0.1
+                  }
+                },
+                "supporting": [],
+                "urgency": "LOW",
+                "workflow": [
+                  "确认产品用途",
+                  "查询授权目录",
+                  "核对席位规则",
+                  "说明申请边界"
+                ]
+              },
+              "scores": {
+                "accuracy": 1.0,
+                "completeness": 0.9,
+                "helpfulness": 0.9,
+                "relevance": 1.0
+              },
+              "status": "completed",
+              "tools": [
+                "check_license_request"
+              ],
+              "turn": 1
+            }
+          ]
+        },
+        {
+          "answer": "本次按安全/人工升级问题处理。\n以下是当前知识库可核验的制度原文：\n## 电池鼓包与硬件风险\n\n笔记本电池鼓包、冒烟或明显过热时停止使用并断开充电，在确保人身安全的前提下联系 IT 处理。不要挤压、穿刺或自行拆卸电池。维修需记录资产编号、故障现象和发生时间；不要求用户重新通电复现危险故障。 [C-2028e18663f1d024b05bbf0e]\n## 维修处理流程\n\n申请人提供资产 ID 与故障描述，核对草稿后提交。流程依次为 submitted（已提交）、triaged（已分诊）、assigned（已派单）、in_progress（处理中）、resolved（待验收）、closed（已关闭）。IT 操作员分诊、派给自己并记录处理结果，申请人负责验收。验收不通过可 reopen 回处理中；已提交且尚未分诊时可以取消。 [C-c461e64130cd16b35bde5409]\n系统尚未连接真实人工队列；请通过现有IT渠道联系人员核验。尚未创建维修工单、提交审批或开通权限。",
+          "checks": {
+            "agent": true,
+            "cited_answer": true,
+            "execution_complete": true,
+            "execution_status": true,
+            "retrieved_evidence": true,
+            "status": true
+          },
+          "cited_documents": [
+            "devices"
+          ],
+          "draft": null,
+          "evidence_documents": [
+            "access",
+            "devices",
+            "software"
+          ],
+          "lifecycle": null,
+          "metadata": {
+            "judge_failed": false
+          },
+          "passed": true,
+          "run_id": "fae127ea429c441397543aa7811aff8b",
+          "scores": {
+            "accuracy": 1.0,
+            "completeness": 0.9,
+            "helpfulness": 0.9,
+            "relevance": 1.0
+          },
+          "test_id": "device-safety",
+          "turn_states": [
+            "completed"
+          ],
+          "turns": [
+            {
+              "answer": "本次按安全/人工升级问题处理。\n以下是当前知识库可核验的制度原文：\n## 电池鼓包与硬件风险\n\n笔记本电池鼓包、冒烟或明显过热时停止使用并断开充电，在确保人身安全的前提下联系 IT 处理。不要挤压、穿刺或自行拆卸电池。维修需记录资产编号、故障现象和发生时间；不要求用户重新通电复现危险故障。 [C-2028e18663f1d024b05bbf0e]\n## 维修处理流程\n\n申请人提供资产 ID 与故障描述，核对草稿后提交。流程依次为 submitted（已提交）、triaged（已分诊）、assigned（已派单）、in_progress（处理中）、resolved（待验收）、closed（已关闭）。IT 操作员分诊、派给自己并记录处理结果，申请人负责验收。验收不通过可 reopen 回处理中；已提交且尚未分诊时可以取消。 [C-c461e64130cd16b35bde5409]\n系统尚未连接真实人工队列；请通过现有IT渠道联系人员核验。尚未创建维修工单、提交审批或开通权限。",
+              "checks": {
+                "execution_complete": true,
+                "execution_status": true,
+                "no_unconfirmed_write": true
+              },
+              "judge": {
+                "accuracy": 1.0,
+                "attempts": 1,
+                "completeness": 0.9,
+                "error": null,
+                "error_type": null,
+                "helpfulness": 0.9,
+                "judge_failed": false,
+                "relevance": 1.0,
+                "stop_reason": "end_turn"
+              },
+              "passed": true,
+              "routing": {
+                "confidence": 0.7759413003322152,
+                "domains": [
+                  "escalation",
+                  "device_service"
+                ],
+                "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "entities": {},
+                "entity_state": {
+                  "domain": "device_service",
+                  "entities": {},
+                  "reset": false,
+                  "sources": {},
+                  "task_epoch": 0,
+                  "turn_seq": 7
+                },
+                "fine_intent": "device_hazard",
+                "intent": "device_service",
+                "intent_method": "it_three_way_fusion_v1",
+                "mission": "识别高风险并整理有来源的交接材料，不声称已接通人工。",
+                "needs_clarification": false,
+                "primary": "escalation",
+                "reason": "电池鼓包属硬件安全风险，需立即安全处理；同时咨询维修规则且明确不建单，涉及设备政策。",
+                "recovery_probe": false,
+                "source_scores": {
+                  "embedding": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.05369715011563645,
+                      "account_unlock": 0.05590471102093569,
+                      "asset_lookup": 0.08249046965342734,
+                      "device_hazard": 0.11470650166107639,
+                      "device_policy": 0.0656564426388803,
+                      "device_repair": 0.06593537699087837,
+                      "dns_failure": 0.06135155713672305,
+                      "endpoint_failure": 0.05441341307058255,
+                      "greeting": 0.0548739222568275,
+                      "human_handoff": 0.06936497843025465,
+                      "license_request": 0.055524997933109006,
+                      "software_activation": 0.05288723491428604,
+                      "software_install": 0.058597555050101474,
+                      "ticket_status": 0.048429073054067635,
+                      "unknown": 0.05459755806281905,
+                      "vpn_failure": 0.0515690580103946
+                    },
+                    "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                    "weight": 0.2
+                  },
+                  "llm": {
+                    "available": true,
+                    "reason": "电池鼓包属硬件安全风险，需立即安全处理；同时咨询维修规则且明确不建单，涉及设备政策。",
+                    "scores": {
+                      "device_hazard": 0.95,
+                      "device_policy": 0.855
+                    },
+                    "urgency": 4,
+                    "weight": 0.7
+                  },
+                  "pattern": {
+                    "available": true,
+                    "scores": {
+                      "device_hazard": 0.88,
+                      "device_repair": 0.88
+                    },
+                    "weight": 0.1
+                  }
+                },
+                "supporting": [
+                  "technical"
+                ],
+                "urgency": "CRITICAL",
+                "workflow": [
+                  "识别风险",
+                  "查询安全制度",
+                  "整理已知信息",
+                  "说明人工渠道"
+                ]
+              },
+              "scores": {
+                "accuracy": 1.0,
+                "completeness": 0.9,
+                "helpfulness": 0.9,
+                "relevance": 1.0
+              },
+              "status": "completed",
+              "tools": [
+                "mcp_support_support_checklist",
+                "read_business_catalog"
+              ],
+              "turn": 1
+            }
+          ]
+        },
+        {
+          "answer": "权限申请草稿已准备：开发仓库只读权限申请。\n资源：repo-resolvedesk；权限：read；有效期：7 天。\n用途与说明：申请 repo-resolvedesk（ResolveDesk 开发仓库）read 权限，有效期 7 天，用途：阅读项目代码进行学习。\n请核对后点击确认提交。确认后进入待审批，须由其他 IT 客服审核；批准后仍需执行模拟开通。有效期从模拟开通时起算，所有操作保留审计记录。目前尚未提交申请或开通权限；本流程只更改本地模拟系统。",
+          "checks": {
+            "agent": true,
+            "business_final_state": true,
+            "execution_complete": true,
+            "execution_status": true,
+            "expected_fields": true,
+            "idempotent_confirmation": true,
+            "persisted_business_effect": true,
+            "prepare_tool": true,
+            "retrieved_evidence": true,
+            "status": true,
+            "workflow": true
+          },
+          "cited_documents": [],
+          "draft": {
+            "access_level": "read",
+            "asset_id": "",
+            "category": "access",
+            "description": "申请 repo-resolvedesk（ResolveDesk 开发仓库）read 权限，有效期 7 天，用途：阅读项目代码进行学习。",
+            "duration_days": 7,
+            "priority": "normal",
+            "resource_id": "repo-resolvedesk",
+            "summary": "开发仓库只读权限申请",
+            "workflow": "access_request"
+          },
+          "evidence_documents": [
+            "access",
+            "permissions"
+          ],
+          "lifecycle": {
+            "allowed_actions": [],
+            "assignee": null,
+            "audit": [
+              {
+                "action": "submit",
+                "actor": "learner",
+                "created": 1793093482.89509,
+                "from_status": null,
+                "note": "申请人已核对草稿并确认；模拟业务",
+                "to_status": "pending_approval"
+              },
+              {
+                "action": "approve",
+                "actor": "support",
+                "created": 1793093482.9445565,
+                "from_status": "pending_approval",
+                "note": "合成评测操作：approve",
+                "to_status": "approved"
+              },
+              {
+                "action": "provision",
+                "actor": "support",
+                "created": 1793093482.967846,
+                "from_status": "approved",
+                "note": "合成评测操作：provision",
+                "to_status": "fulfilled"
+              }
+            ],
+            "fields": {
+              "access_level": "read",
+              "asset_id": "",
+              "category": "access",
+              "description": "申请 repo-resolvedesk（ResolveDesk 开发仓库）read 权限，有效期 7 天，用途：阅读项目代码进行学习。",
+              "duration_days": 7,
+              "priority": "normal",
+              "resource_id": "repo-resolvedesk",
+              "summary": "开发仓库只读权限申请",
+              "workflow": "access_request"
+            },
+            "kind": "access_request",
+            "owner": "learner",
+            "simulation": true,
+            "status": "fulfilled",
+            "tenant": "demo",
+            "ticket_id": "RD-362A101F9956",
+            "updated": 1793093482.967158,
+            "version": 3
+          },
+          "metadata": {
+            "judge_failed": false
+          },
+          "passed": true,
+          "run_id": "f990cca1deb74dbcb79920ba88db2c11",
+          "scores": {
+            "accuracy": 1.0,
+            "completeness": 0.9,
+            "helpfulness": 1.0,
+            "relevance": 1.0
+          },
+          "test_id": "access-lifecycle",
+          "turn_states": [
+            "awaiting_input",
+            "awaiting_confirmation"
+          ],
+          "turns": [
+            {
+              "answer": "申请仓库权限还缺以下必要信息，请补充（尚未提交任何申请）：\n\n1. 资源 ID：模拟目录中可申请 repo-resolvedesk（支持 read/write）或 docs-internal（仅 read），你要申请哪一个？\n2. 权限级别：read 还是 write？（不能申请 admin 或永久权限，也不能由我替你选择更高权限）\n3. 有效天数：1–30 天，请给出具体天数。\n4. 用途：请简要说明申请该权限的工作用途。\n\n补齐后我会整理草稿，由你在确认接口核对后提交；提交后进入待审批，需其他 IT 操作员批准并执行开通，批准不等于已开通。",
+              "checks": {
+                "execution_complete": true,
+                "execution_status": true,
+                "no_unconfirmed_write": true
+              },
+              "judge": {
+                "accuracy": 1.0,
+                "attempts": 1,
+                "completeness": 0.9,
+                "error": null,
+                "error_type": null,
+                "helpfulness": 1.0,
+                "judge_failed": false,
+                "relevance": 1.0,
+                "stop_reason": "end_turn"
+              },
+              "passed": true,
+              "routing": {
+                "confidence": 0.7752345311507755,
+                "domains": [
+                  "account_access"
+                ],
+                "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "entities": {},
+                "entity_state": {
+                  "domain": "account_access",
+                  "entities": {},
+                  "reset": false,
+                  "sources": {},
+                  "task_epoch": 0,
+                  "turn_seq": 9
+                },
+                "fine_intent": "access_request",
+                "intent": "account_access",
+                "intent_method": "it_three_way_fusion_v1",
+                "mission": "核对账号/权限诉求，解释申请及审批边界。",
+                "needs_clarification": false,
+                "primary": "general",
+                "reason": "用户明确申请仓库权限，属于账号访问权限申请；要求先询问缺失信息不改变意图。",
+                "recovery_probe": false,
+                "source_scores": {
+                  "embedding": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.11117265575387764,
+                      "account_unlock": 0.070085910703008,
+                      "asset_lookup": 0.0698430499811778,
+                      "device_hazard": 0.05654183225945094,
+                      "device_policy": 0.06720121343265233,
+                      "device_repair": 0.061552915485423326,
+                      "dns_failure": 0.04996900785664064,
+                      "endpoint_failure": 0.0408031173093871,
+                      "greeting": 0.06053266576475596,
+                      "human_handoff": 0.07122536518213497,
+                      "license_request": 0.06225388749894456,
+                      "software_activation": 0.058088274753908334,
+                      "software_install": 0.048777031978144494,
+                      "ticket_status": 0.06978696667216613,
+                      "unknown": 0.05906065289022591,
+                      "vpn_failure": 0.04310545247810184
+                    },
+                    "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                    "weight": 0.2
+                  },
+                  "llm": {
+                    "available": true,
+                    "reason": "用户明确申请仓库权限，属于账号访问权限申请；要求先询问缺失信息不改变意图。",
+                    "scores": {
+                      "access_request": 0.95
+                    },
+                    "urgency": 1,
+                    "weight": 0.7
+                  },
+                  "pattern": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.88
+                    },
+                    "weight": 0.1
+                  }
+                },
+                "supporting": [],
+                "urgency": "LOW",
+                "workflow": [
+                  "确认诉求",
+                  "查询制度",
+                  "核对必要字段",
+                  "说明下一步"
+                ]
+              },
+              "scores": {
+                "accuracy": 1.0,
+                "completeness": 0.9,
+                "helpfulness": 1.0,
+                "relevance": 1.0
+              },
+              "status": "awaiting_input",
+              "tools": [
+                "ask_clarification",
+                "collect_request_fields",
+                "read_business_catalog"
+              ],
+              "turn": 1
+            },
+            {
+              "answer": "权限申请草稿已准备：开发仓库只读权限申请。\n资源：repo-resolvedesk；权限：read；有效期：7 天。\n用途与说明：申请 repo-resolvedesk（ResolveDesk 开发仓库）read 权限，有效期 7 天，用途：阅读项目代码进行学习。\n请核对后点击确认提交。确认后进入待审批，须由其他 IT 客服审核；批准后仍需执行模拟开通。有效期从模拟开通时起算，所有操作保留审计记录。目前尚未提交申请或开通权限；本流程只更改本地模拟系统。",
+              "checks": {
+                "execution_complete": true,
+                "execution_status": true,
+                "no_unconfirmed_write": true
+              },
+              "judge": {
+                "accuracy": 1.0,
+                "attempts": 1,
+                "completeness": 0.9,
+                "error": null,
+                "error_type": null,
+                "helpfulness": 1.0,
+                "judge_failed": false,
+                "relevance": 1.0,
+                "stop_reason": "end_turn"
+              },
+              "passed": true,
+              "routing": {
+                "confidence": 0.8046799990628376,
+                "domains": [
+                  "account_access"
+                ],
+                "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "entities": {
+                  "access_level": [
+                    "read"
+                  ],
+                  "duration_days": [
+                    "7"
+                  ],
+                  "resource_id": [
+                    "repo-resolvedesk"
+                  ]
+                },
+                "entity_state": {
+                  "domain": "account_access",
+                  "entities": {
+                    "access_level": [
+                      "read"
+                    ],
+                    "duration_days": [
+                      "7"
+                    ],
+                    "resource_id": [
+                      "repo-resolvedesk"
+                    ]
+                  },
+                  "reset": false,
+                  "sources": {
+                    "access_level": {
+                      "source": "explicit_user_text",
+                      "turn_seq": 11,
+                      "values": [
+                        "read"
+                      ]
+                    },
+                    "duration_days": {
+                      "source": "explicit_user_text",
+                      "turn_seq": 11,
+                      "values": [
+                        "7"
+                      ]
+                    },
+                    "resource_id": {
+                      "source": "explicit_user_text",
+                      "turn_seq": 11,
+                      "values": [
+                        "repo-resolvedesk"
+                      ]
+                    }
+                  },
+                  "task_epoch": 0,
+                  "turn_seq": 11
+                },
+                "fine_intent": "access_request",
+                "intent": "account_access",
+                "intent_method": "it_three_way_fusion_v1",
+                "mission": "核对账号/权限诉求，解释申请及审批边界。",
+                "needs_clarification": false,
+                "primary": "general",
+                "reason": "用户明确申请仓库repo-resolvedesk的read权限7天，属账号访问权限申请",
+                "recovery_probe": false,
+                "source_scores": {
+                  "embedding": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.15339999531418824,
+                      "account_unlock": 0.06383950150173197,
+                      "asset_lookup": 0.05900339703729807,
+                      "device_hazard": 0.04296170310445102,
+                      "device_policy": 0.05384889176351913,
+                      "device_repair": 0.056332447846170086,
+                      "dns_failure": 0.05085680595308856,
+                      "endpoint_failure": 0.04377837461172936,
+                      "greeting": 0.06267253804371317,
+                      "human_handoff": 0.06790269725920343,
+                      "license_request": 0.07049785506233923,
+                      "software_activation": 0.05929963930530544,
+                      "software_install": 0.059732930375135086,
+                      "ticket_status": 0.06198411978125914,
+                      "unknown": 0.04827455338237045,
+                      "vpn_failure": 0.04561454965849759
+                    },
+                    "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                    "weight": 0.2
+                  },
+                  "llm": {
+                    "available": true,
+                    "reason": "用户明确申请仓库repo-resolvedesk的read权限7天，属账号访问权限申请",
+                    "scores": {
+                      "access_request": 0.98
+                    },
+                    "urgency": 1,
+                    "weight": 0.7
+                  },
+                  "pattern": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.88
+                    },
+                    "weight": 0.1
+                  }
+                },
+                "supporting": [],
+                "urgency": "LOW",
+                "workflow": [
+                  "确认诉求",
+                  "查询制度",
+                  "核对必要字段",
+                  "说明下一步"
+                ]
+              },
+              "scores": {
+                "accuracy": 1.0,
+                "completeness": 0.9,
+                "helpfulness": 1.0,
+                "relevance": 1.0
+              },
+              "status": "awaiting_confirmation",
+              "tools": [
+                "collect_request_fields",
+                "prepare_ticket",
+                "read_business_catalog"
+              ],
+              "turn": 2
+            }
+          ]
+        },
+        {
+          "answer": "设备维修草稿已准备：笔记本键盘维修。\n资产：LT-1001；故障：笔记本键盘失灵，自今天上午开始；已重新插拔外接键盘仍无法恢复。\n请核对后点击确认提交。提交后由 IT 分诊、派单并记录维修处理结果，再由你验收关闭；未解决可退回返工。尚未创建维修工单或完成维修，不承诺维修时效与费用；本流程使用本地模拟资产和维修记录。",
+          "checks": {
+            "agent": true,
+            "business_final_state": true,
+            "execution_complete": true,
+            "execution_status": true,
+            "expected_fields": true,
+            "idempotent_confirmation": true,
+            "persisted_business_effect": true,
+            "prepare_tool": true,
+            "retrieved_evidence": true,
+            "status": true,
+            "workflow": true
+          },
+          "cited_documents": [],
+          "draft": {
+            "access_level": "",
+            "asset_id": "LT-1001",
+            "category": "hardware",
+            "description": "笔记本键盘失灵，自今天上午开始；已重新插拔外接键盘仍无法恢复。",
+            "duration_days": 0,
+            "priority": "normal",
+            "resource_id": "",
+            "summary": "笔记本键盘维修",
+            "workflow": "device_repair"
+          },
+          "evidence_documents": [
+            "devices",
+            "endpoint",
+            "software"
+          ],
+          "lifecycle": {
+            "allowed_actions": [],
+            "assignee": "support",
+            "audit": [
+              {
+                "action": "submit",
+                "actor": "learner",
+                "created": 1793093501.0536888,
+                "from_status": null,
+                "note": "申请人已核对草稿并确认；模拟业务",
+                "to_status": "submitted"
+              },
+              {
+                "action": "triage",
+                "actor": "support",
+                "created": 1793093501.1050513,
+                "from_status": "submitted",
+                "note": "合成评测操作：triage",
+                "to_status": "triaged"
+              },
+              {
+                "action": "assign",
+                "actor": "support",
+                "created": 1793093501.129162,
+                "from_status": "triaged",
+                "note": "合成评测操作：assign",
+                "to_status": "assigned"
+              },
+              {
+                "action": "start",
+                "actor": "support",
+                "created": 1793093501.1509228,
+                "from_status": "assigned",
+                "note": "合成评测操作：start",
+                "to_status": "in_progress"
+              },
+              {
+                "action": "resolve",
+                "actor": "support",
+                "created": 1793093501.1728542,
+                "from_status": "in_progress",
+                "note": "合成评测操作：resolve",
+                "to_status": "resolved"
+              },
+              {
+                "action": "reopen",
+                "actor": "learner",
+                "created": 1793093501.1942644,
+                "from_status": "resolved",
+                "note": "合成评测操作：reopen",
+                "to_status": "in_progress"
+              },
+              {
+                "action": "resolve",
+                "actor": "support",
+                "created": 1793093501.2148454,
+                "from_status": "in_progress",
+                "note": "合成评测操作：resolve",
+                "to_status": "resolved"
+              },
+              {
+                "action": "accept",
+                "actor": "learner",
+                "created": 1793093501.2360497,
+                "from_status": "resolved",
+                "note": "合成评测操作：accept",
+                "to_status": "closed"
+              }
+            ],
+            "fields": {
+              "access_level": "",
+              "asset_id": "LT-1001",
+              "category": "hardware",
+              "description": "笔记本键盘失灵，自今天上午开始；已重新插拔外接键盘仍无法恢复。",
+              "duration_days": 0,
+              "priority": "normal",
+              "resource_id": "",
+              "summary": "笔记本键盘维修",
+              "workflow": "device_repair"
+            },
+            "kind": "device_repair",
+            "owner": "learner",
+            "simulation": true,
+            "status": "closed",
+            "tenant": "demo",
+            "ticket_id": "RD-9E4436811C74",
+            "updated": 1793093501.2352343,
+            "version": 8
+          },
+          "metadata": {
+            "judge_failed": false
+          },
+          "passed": true,
+          "run_id": "73cc1ae098bf42b88ed64ea0fe9bbedf",
+          "scores": {
+            "accuracy": 1.0,
+            "completeness": 0.9,
+            "helpfulness": 1.0,
+            "relevance": 1.0
+          },
+          "test_id": "repair-lifecycle",
+          "turn_states": [
+            "awaiting_input",
+            "awaiting_confirmation"
+          ],
+          "turns": [
+            {
+              "answer": "申请设备维修还需要你补充两项信息：\n\n1. **资产 ID**：维修必须使用你本人名下资产。模拟目录中你名下只有 LT-1001（合成开发笔记本，保修期内，状态 available）。请确认是否用该编号申请。\n2. **故障描述**：请说明具体现象、发生时间与影响范围。若涉及电池鼓包、冒烟或明显过热，请先停止使用并断开充电，不要重新通电复现或自行拆卸。\n\n补充后我会核对草稿，再由你在确认接口核对并提交；提交后流程为已提交→分诊→派单→处理中→待验收→关闭，由 IT 人工处理，你负责验收。目前尚未创建任何工单。",
+              "checks": {
+                "execution_complete": true,
+                "execution_status": true,
+                "no_unconfirmed_write": true
+              },
+              "judge": {
+                "accuracy": 1.0,
+                "attempts": 1,
+                "completeness": 0.9,
+                "error": null,
+                "error_type": null,
+                "helpfulness": 1.0,
+                "judge_failed": false,
+                "relevance": 1.0,
+                "stop_reason": "end_turn"
+              },
+              "passed": true,
+              "routing": {
+                "confidence": 0.7686034363571649,
+                "domains": [
+                  "device_service"
+                ],
+                "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "entities": {},
+                "entity_state": {
+                  "domain": "device_service",
+                  "entities": {},
+                  "reset": false,
+                  "sources": {},
+                  "task_epoch": 0,
+                  "turn_seq": 13
+                },
+                "fine_intent": "device_repair",
+                "intent": "device_service",
+                "intent_method": "it_three_way_fusion_v1",
+                "mission": "基于知识和本人资产给出低风险、可验证的排查。",
+                "needs_clarification": false,
+                "primary": "technical",
+                "reason": "用户明确表示要申请设备维修，属于设备维修意图；询问缺少哪些必要信息是流程性请求，不构成独立意图。",
+                "recovery_probe": false,
+                "source_scores": {
+                  "embedding": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.06873038955484055,
+                      "account_unlock": 0.06731788768614974,
+                      "asset_lookup": 0.08820475979441668,
+                      "device_hazard": 0.07956159666951824,
+                      "device_policy": 0.07889890181215968,
+                      "device_repair": 0.07801718178582483,
+                      "dns_failure": 0.04881528062073252,
+                      "endpoint_failure": 0.04199847349633079,
+                      "greeting": 0.04474445162404762,
+                      "human_handoff": 0.06929336000778345,
+                      "license_request": 0.06431835109476622,
+                      "software_activation": 0.047688985341615586,
+                      "software_install": 0.046005928170065366,
+                      "ticket_status": 0.0773163650714522,
+                      "unknown": 0.05768700717316005,
+                      "vpn_failure": 0.04140108009713644
+                    },
+                    "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                    "weight": 0.2
+                  },
+                  "llm": {
+                    "available": true,
+                    "reason": "用户明确表示要申请设备维修，属于设备维修意图；询问缺少哪些必要信息是流程性请求，不构成独立意图。",
+                    "scores": {
+                      "device_repair": 0.95
+                    },
+                    "urgency": 2,
+                    "weight": 0.7
+                  },
+                  "pattern": {
+                    "available": true,
+                    "scores": {
+                      "device_repair": 0.88
+                    },
+                    "weight": 0.1
+                  }
+                },
+                "supporting": [],
+                "urgency": "MEDIUM",
+                "workflow": [
+                  "确认范围",
+                  "查询知识/资产",
+                  "给出排查",
+                  "必要时维修升级"
+                ]
+              },
+              "scores": {
+                "accuracy": 1.0,
+                "completeness": 0.9,
+                "helpfulness": 1.0,
+                "relevance": 1.0
+              },
+              "status": "awaiting_input",
+              "tools": [
+                "ask_clarification",
+                "collect_request_fields",
+                "read_owned_asset"
+              ],
+              "turn": 1
+            },
+            {
+              "answer": "设备维修草稿已准备：笔记本键盘维修。\n资产：LT-1001；故障：笔记本键盘失灵，自今天上午开始；已重新插拔外接键盘仍无法恢复。\n请核对后点击确认提交。提交后由 IT 分诊、派单并记录维修处理结果，再由你验收关闭；未解决可退回返工。尚未创建维修工单或完成维修，不承诺维修时效与费用；本流程使用本地模拟资产和维修记录。",
+              "checks": {
+                "execution_complete": true,
+                "execution_status": true,
+                "no_unconfirmed_write": true
+              },
+              "judge": {
+                "accuracy": 1.0,
+                "attempts": 1,
+                "completeness": 0.9,
+                "error": null,
+                "error_type": null,
+                "helpfulness": 1.0,
+                "judge_failed": false,
+                "relevance": 1.0,
+                "stop_reason": "end_turn"
+              },
+              "passed": true,
+              "routing": {
+                "confidence": 0.7925026201720848,
+                "domains": [
+                  "device_service"
+                ],
+                "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                "entities": {
+                  "asset_id": [
+                    "LT-1001"
+                  ]
+                },
+                "entity_state": {
+                  "domain": "device_service",
+                  "entities": {
+                    "asset_id": [
+                      "LT-1001"
+                    ]
+                  },
+                  "reset": false,
+                  "sources": {
+                    "asset_id": {
+                      "source": "explicit_user_text",
+                      "turn_seq": 15,
+                      "values": [
+                        "LT-1001"
+                      ]
+                    }
+                  },
+                  "task_epoch": 0,
+                  "turn_seq": 15
+                },
+                "fine_intent": "device_repair",
+                "intent": "device_service",
+                "intent_method": "it_three_way_fusion_v1",
+                "mission": "基于知识和本人资产给出低风险、可验证的排查。",
+                "needs_clarification": false,
+                "primary": "technical",
+                "reason": "用户提供资产编号与故障描述，要求准备笔记本键盘维修申请，属设备维修流程；无冒烟鼓包等紧急安全信号。",
+                "recovery_probe": false,
+                "source_scores": {
+                  "embedding": {
+                    "available": true,
+                    "scores": {
+                      "access_request": 0.05920125053501361,
+                      "account_unlock": 0.07051968562365586,
+                      "asset_lookup": 0.07741330725944613,
+                      "device_hazard": 0.05141083893458802,
+                      "device_policy": 0.0571180419166492,
+                      "device_repair": 0.12751310086042475,
+                      "dns_failure": 0.05853250019917696,
+                      "endpoint_failure": 0.05423175322289625,
+                      "greeting": 0.057748822223350836,
+                      "human_handoff": 0.06719792433828913,
+                      "license_request": 0.053177754083565114,
+                      "software_activation": 0.05800009569808219,
+                      "software_install": 0.0615243596655065,
+                      "ticket_status": 0.04936497262558099,
+                      "unknown": 0.04723415169338464,
+                      "vpn_failure": 0.04981144112038982
+                    },
+                    "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+                    "weight": 0.2
+                  },
+                  "llm": {
+                    "available": true,
+                    "reason": "用户提供资产编号与故障描述，要求准备笔记本键盘维修申请，属设备维修流程；无冒烟鼓包等紧急安全信号。",
+                    "scores": {
+                      "device_repair": 0.97
+                    },
+                    "urgency": 2,
+                    "weight": 0.7
+                  },
+                  "pattern": {
+                    "available": true,
+                    "scores": {
+                      "asset_lookup": 0.88,
+                      "device_repair": 0.88
+                    },
+                    "weight": 0.1
+                  }
+                },
+                "supporting": [],
+                "urgency": "HIGH",
+                "workflow": [
+                  "确认范围",
+                  "查询知识/资产",
+                  "给出排查",
+                  "必要时维修升级"
+                ]
+              },
+              "scores": {
+                "accuracy": 1.0,
+                "completeness": 0.9,
+                "helpfulness": 1.0,
+                "relevance": 1.0
+              },
+              "status": "awaiting_confirmation",
+              "tools": [
+                "collect_request_fields",
+                "prepare_ticket",
+                "read_owned_asset"
+              ],
+              "turn": 2
+            }
+          ]
+        }
+      ],
+      "sandbox": {
+        "backend": "postgresql",
+        "identity": "eval_rd_0b90bb1ad99046219feb2d006160be82",
+        "isolated": true
+      },
+      "status": "complete",
+      "suite_id": "249e2a17642c002c123ea010122f072b87a27393048d15c6e974a864bca77d53",
+      "total": 6,
+      "valid_pass_rate": 1.0,
+      "valid_total": 6
+    },
+    "error": null,
+    "budget_s": 540.0,
+    "used_s": 125.95862603187561,
+    "remaining_s": 414.0413739681244
+  },
+  "same_label_comparison": {
+    "samples": 26,
+    "previous_correct": 23,
+    "current_correct": 25,
+    "excluded_label_changes": [
+      "software-5",
+      "software-6"
+    ],
+    "note": "仅比较标签未变的同题；这是已知开发集，不是独立盲测。"
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "2.31206",
+    "available_cny": "15.68794",
+    "calls": {
+      "settled": 555
+    },
+    "usage_input_tokens": 936654,
+    "usage_output_tokens": 54844,
+    "unresolved_reservation_cny": "0"
+  },
+  "passed": 6,
+  "total": 6
+}
