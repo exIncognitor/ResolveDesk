@@ -1,0 +1,260 @@
+{
+  "baseline_commit": "f09efe7f25fe8028f2df97ef39b989bfd97212b0",
+  "deployed_runtime_commit": "f93c1ff",
+  "live_candidate_commit": "d402425",
+  "live_runs": [
+    {
+      "label": "baseline",
+      "repeat": 1,
+      "passed": 3,
+      "total": 8,
+      "execution_errors": 0,
+      "source_report": "reports/iteration3-baseline-live-r1.json",
+      "failed_cases": [
+        {
+          "id": "v3-access-numeral",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "status": false,
+              "tools": false
+            },
+            {
+              "entities": false
+            }
+          ]
+        },
+        {
+          "id": "v3-access-select",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "entities": false
+            }
+          ]
+        },
+        {
+          "id": "v3-access-negation",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "status": false,
+              "tools": false
+            },
+            {
+              "entities": false
+            }
+          ]
+        },
+        {
+          "id": "v3-license-numeral",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "entities": false
+            }
+          ]
+        },
+        {
+          "id": "v3-access-fullwidth",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "entities": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "baseline",
+      "repeat": 2,
+      "passed": 3,
+      "total": 8,
+      "execution_errors": 0,
+      "source_report": "reports/iteration3-baseline-live-r2.json",
+      "failed_cases": [
+        {
+          "id": "v3-access-numeral",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "status": false,
+              "tools": false
+            },
+            {
+              "entities": false
+            }
+          ]
+        },
+        {
+          "id": "v3-access-select",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "entities": false
+            }
+          ]
+        },
+        {
+          "id": "v3-access-negation",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "status": false,
+              "tools": false
+            },
+            {
+              "entities": false
+            }
+          ]
+        },
+        {
+          "id": "v3-license-numeral",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "entities": false
+            }
+          ]
+        },
+        {
+          "id": "v3-access-fullwidth",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "entities": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "candidate",
+      "repeat": 1,
+      "passed": 5,
+      "total": 8,
+      "execution_errors": 0,
+      "source_report": "reports/iteration3-candidate-live-r1.json",
+      "failed_cases": [
+        {
+          "id": "v3-access-numeral",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "status": false,
+              "tools": false
+            }
+          ]
+        },
+        {
+          "id": "v3-access-negation",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "status": false,
+              "tools": false
+            }
+          ]
+        },
+        {
+          "id": "v3-license-numeral",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {}
+          ]
+        }
+      ]
+    },
+    {
+      "label": "candidate",
+      "repeat": 2,
+      "passed": 6,
+      "total": 8,
+      "execution_errors": 0,
+      "source_report": "reports/iteration3-candidate-live-r2.json",
+      "failed_cases": [
+        {
+          "id": "v3-access-numeral",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "status": false,
+              "tools": false
+            }
+          ]
+        },
+        {
+          "id": "v3-access-negation",
+          "failed_final_checks": [],
+          "failed_turn_checks": [
+            {
+              "status": false,
+              "tools": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "retrieval": {
+    "baseline": {
+      "paid_calls": 0,
+      "split": "frozen_acceptance",
+      "contract_sha256": "88a1f9388ecfac6731fed0ebb00d98af5b5d22187c6b6f524e0bb8f644d9bd8f",
+      "corpus_documents": 26,
+      "services": "PostgreSQL + Chroma HNSW + multilingual-e5-small",
+      "governance_supported": false,
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.9572649572649573,
+      "positive_count": 78,
+      "unsupported_count": 2,
+      "unsupported_false_sufficiency": null,
+      "positive_sufficiency": null,
+      "all_citations_valid": true,
+      "limitations": "Synthetic questions and concise paraphrased official references. Ranked candidates alone do not imply a false generated answer. No paid generation tested. Isolated fixtures retained."
+    },
+    "candidate": {
+      "paid_calls": 0,
+      "split": "frozen_acceptance",
+      "contract_sha256": "88a1f9388ecfac6731fed0ebb00d98af5b5d22187c6b6f524e0bb8f644d9bd8f",
+      "corpus_documents": 26,
+      "services": "PostgreSQL + Chroma HNSW + multilingual-e5-small",
+      "governance_supported": true,
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.9572649572649573,
+      "positive_count": 78,
+      "unsupported_count": 2,
+      "unsupported_false_sufficiency": 0,
+      "positive_sufficiency": 70,
+      "all_citations_valid": true,
+      "limitations": "Synthetic questions and concise paraphrased official references. Ranked candidates alone do not imply a false generated answer. No paid generation tested. Isolated fixtures retained."
+    }
+  },
+  "cost": {
+    "start_cny": "6.146332",
+    "final_cny": "8.864576",
+    "iteration_cny": "2.718244",
+    "iteration_cap_cny": "3",
+    "settled_calls": 1931,
+    "unresolved_cny": "0"
+  },
+  "limitations": [
+    "All data synthetic; not production accuracy.",
+    "Paid comparison uses the immutable entity candidate, not final governance code. Final code uses offline/service regressions.",
+    "Conservative sufficiency requests clarification for 8 of 78 positive questions.",
+    "Some first-turn waiting/tool contracts still fail; no business state errors observed in these runs."
+  ],
+  "baseline_entities": {
+    "entity_passed": 27,
+    "entity_total": 80,
+    "sequence_passed": 2,
+    "sequence_total": 12
+  },
+  "candidate_entities": {
+    "entity_passed": 80,
+    "entity_total": 80,
+    "sequence_passed": 12,
+    "sequence_total": 12
+  }
+}
