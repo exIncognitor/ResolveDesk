@@ -102,7 +102,7 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
                 app.state.knowledge = HybridKnowledge(app.state.store,embedding,vectors)
                 app.state.agent = DeskAgent(app.state.store,app.state.knowledge,coordination=coordination)
                 from resolvedesk.services import DeskServices
-                app.state.agent.services = DeskServices(app.state.store,app.state.knowledge,app.state.agent.client)
+                app.state.agent.services = DeskServices(app.state.store,app.state.knowledge,app.state.agent.client,coordination=coordination)
                 await app.state.agent.services.start()
                 app.state.accounts = json.loads((ROOT / "data" / "auth.json").read_text(encoding="utf-8"))
             from resolvedesk.evaluations import EvaluationService

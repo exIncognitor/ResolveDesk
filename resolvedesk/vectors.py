@@ -48,9 +48,14 @@ class ChromaVectors:
                 self.request("POST",self.path+"/upsert",json={"ids":[r["id"] for r in batch],
                     "embeddings":[r["vector"] for r in batch],"metadatas":[{k:r[k] for k in ("tenant","owner","visibility","document_id","version")} for r in batch]})
 
-    def search(self,p,vector,count=40):
+    def search(self,p,vector,count=40,*,document_id=None,exclude_document=None,private_only=False):
+        clauses=[self.scope(p)]
+        if private_only:
+            clauses += [{"owner":{"$eq":p.user}},{"visibility":{"$eq":"private"}}]
+        if document_id is not None:clauses.append({"document_id":{"$eq":document_id}})
+        if exclude_document is not None:clauses.append({"document_id":{"$ne":exclude_document}})
         result = self.request("POST",self.path+"/query",json={"query_embeddings":[vector],"n_results":count,
-            "where":self.scope(p),"include":["distances","metadatas"]})
+            "where":clauses[0] if len(clauses)==1 else {"$and":clauses},"include":["distances","metadatas"]})
         return [{"id":key,"cosine":1-distance,"metadata":meta} for key,distance,meta in
             zip(result["ids"][0],result["distances"][0],result["metadatas"][0],strict=True)]
 

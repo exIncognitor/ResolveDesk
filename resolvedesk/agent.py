@@ -115,9 +115,9 @@ class DeskAgent:
         for task in list(self.tasks.values()):
             task.cancel()
         await asyncio.gather(*list(self.tasks.values()), return_exceptions=True)
-        await self.client.close()
         if self.services:
             await self.services.close()
+        await self.client.close()
         await self.monitor.close()
 
     async def execute(self, p, run_id):
@@ -169,6 +169,13 @@ class DeskAgent:
                 if self.store.get_run(p,run_id)["status"] == "running":
                     self.store.finish(p,run_id,"failed","本次处理未完成，可恢复重试；尚未创建工单。",type(exc).__name__)
             except Conflict: pass
+        finally:
+            if self.services:
+                try:
+                    if self.store.get_run(p,run_id)["status"] not in {"running","queued"}:
+                        await self.services.memory.remember(p,run_id)
+                except Exception as exc:
+                    self.store.event(p,run_id,"memory_error",{"phase":"enqueue","type":type(exc).__name__})
 
     async def _loop(self, p, run_id):
         run = self.store.get_run(p, run_id)
@@ -299,7 +306,7 @@ class DeskAgent:
 
     async def _bootstrap(self,p,run_id,run,history,state):
         latest=history[-1]["content"][:4000]
-        messages=[{"role":m["role"],"content":m["content"][:500]} for m in history[-4:-1]]+[{"role":"user","content":latest}]
+        messages=[{"role":m["role"],"content":m["content"][:800]} for m in history[-6:-1]]+[{"role":"user","content":latest}]
         state=state or {"messages":messages,
             "sources":{},"role":"general","step":0,"pending":None,"phase":"bootstrap","context":{"current_draft":run["draft"],"business":self.business.context(p)}}
         context=state["context"]

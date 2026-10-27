@@ -7,6 +7,7 @@ from sqlalchemy import text
 
 from resolvedesk.database import bindings
 from resolvedesk.store import Conflict, Principal, Store
+from resolvedesk.memory import MEMORY_TABLES
 
 
 def test_bound_parameters_preserve_literals_comments_and_values():
@@ -24,7 +25,7 @@ def postgres_store():
     from resolvedesk.settings import ServiceSettings
     schema = "test_rd_"+uuid.uuid4().hex
     store = Store(ServiceSettings.load().database_url,schema=schema)
-    allowed = {"runs","events","messages","tickets","feedback","checkpoints","turn_receipts","entity_state","desk_assets","service_cases","service_audit","service_actions","desk_grants",
+    allowed = MEMORY_TABLES|{"runs","events","messages","tickets","feedback","checkpoints","turn_receipts","entity_state","desk_assets","service_cases","service_audit","service_actions","desk_grants",
                "chunks","knowledge_documents","index_outbox","memory_summary","memory_episode","memory_profile","eval_jobs","regression_cases","quality_baselines","telemetry","desk_alerts","alert_outbox"}
     try: yield store
     finally:
