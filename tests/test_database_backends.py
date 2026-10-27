@@ -8,6 +8,7 @@ from sqlalchemy import text
 from resolvedesk.database import bindings
 from resolvedesk.store import Conflict, Principal, Store
 from resolvedesk.memory import MEMORY_TABLES
+from resolvedesk.metrics import METRIC_TABLES
 
 
 def test_bound_parameters_preserve_literals_comments_and_values():
@@ -27,7 +28,7 @@ def postgres_store():
     store = Store(ServiceSettings.load().database_url,schema=schema)
     allowed = MEMORY_TABLES|{"runs","events","messages","tickets","feedback","checkpoints","turn_receipts","entity_state","desk_assets","service_cases","service_audit","service_actions","desk_grants",
                "chunks","knowledge_documents","index_outbox","memory_summary","memory_episode","memory_profile","eval_jobs","regression_cases","quality_baselines","telemetry","desk_alerts","alert_outbox",
-               'eval_suites','eval_snapshots','eval_units','eval_queue_guard','eval_retirements'}
+               'eval_suites','eval_snapshots','eval_units','eval_queue_guard','eval_retirements'}|METRIC_TABLES
     try: yield store
     finally:
         # This unique schema was created by this fixture in this task. Never

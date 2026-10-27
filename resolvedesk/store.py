@@ -89,6 +89,8 @@ class Store:
                 if not db.has_column("runs",column): db.execute("ALTER TABLE runs ADD COLUMN "+column+" "+declaration)
             from resolvedesk.business import initialize
             initialize(db)
+            from resolvedesk.metrics import initialize as initialize_metrics
+            initialize_metrics(db)
 
     @contextmanager
     def db(self, write=False):
@@ -148,6 +150,14 @@ class Store:
         seq = db.execute("SELECT MAX(seq) FROM messages WHERE run_id=? AND role='user'",(row["id"],)).fetchone()[0]
         db.execute("UPDATE turn_receipts SET status=?,response=?,updated=? WHERE run_id=? AND user_seq=?",
                    (row["status"],encode(Store._snapshot(db,row)),time.time(),row["id"],seq))
+        from resolvedesk.metrics import finish_attempt
+        # Observability failure must not undo a completed answer/approval state.
+        db.execute('SAVEPOINT attempt_metrics')
+        try:finish_attempt(db,row)
+        except Exception as exc:
+            db.execute('ROLLBACK TO SAVEPOINT attempt_metrics')
+            Store._event(db,row['id'],'monitor_error',{'type':type(exc).__name__})
+        finally:db.execute('RELEASE SAVEPOINT attempt_metrics')
 
     def create_run(self, p, message, request_key):
         with self.db(True) as db:
@@ -199,13 +209,16 @@ class Store:
     def claim(self, p, run_id):
         return self.claim_execution(p,run_id,uuid.uuid4().hex) is not None
 
-    def claim_execution(self,p,run_id,owner,lease_seconds=120):
+    def claim_execution(self,p,run_id,owner,lease_seconds=120,*,instance='unknown'):
         with self.db(True) as db:
             row = self._run(db, p, run_id)
             if row["status"] != "queued":
                 return None
             epoch = row["execution_epoch"]+1
             now=db.now()
+            turn=db.execute('SELECT request_key,user_seq FROM turn_receipts WHERE run_id=? ORDER BY user_seq DESC LIMIT 1',(run_id,)).fetchone()
+            db.execute('INSERT INTO execution_attempts VALUES(?,?,?,?,?,?,?,?,?,NULL,\'running\',NULL)',
+                (run_id,epoch,p.tenant,p.user,turn['request_key'] if turn else '',turn['user_seq'] if turn else 0,instance,now,now+lease_seconds))
             db.execute("UPDATE runs SET status='running',execution_owner=?,execution_epoch=?,lease_until=?,updated=? WHERE id=?", (owner,epoch,now+lease_seconds,now,run_id))
             self._event(db, run_id, "running", {"epoch":epoch})
             self._receipt(db,self._run(db,p,run_id))
@@ -216,6 +229,7 @@ class Store:
             now=db.now()
             updated = db.execute("UPDATE runs SET lease_until=? WHERE id=? AND tenant=? AND owner=? AND status='running' AND execution_owner=? AND execution_epoch=? AND lease_until>?",
                 (now+lease_seconds,token.run_id,p.tenant,p.user,token.owner,token.epoch,now))
+            if updated.rowcount:db.execute('UPDATE execution_attempts SET lease_until=? WHERE run_id=? AND epoch=?',(now+lease_seconds,token.run_id,token.epoch))
             return updated.rowcount==1
 
     def lose_execution(self,p,token,reason="lease_lost"):
@@ -403,6 +417,8 @@ class Store:
             for row in rows:
                 db.execute("UPDATE runs SET status='paused',error='process_interrupted',updated=? WHERE id=?", (time.time(), row["id"]))
                 self._event(db, row["id"], "paused", {"reason": "process_interrupted"})
+                current=db.execute('SELECT * FROM runs WHERE id=?',(row['id'],)).fetchone()
+                self._receipt(db,current)
             return len(rows)
 
     def feedback(self, p, run_id, rating, note):

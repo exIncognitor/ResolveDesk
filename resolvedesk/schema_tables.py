@@ -3,8 +3,9 @@ from resolvedesk.memory import MEMORY_TABLES
 from resolvedesk.eval_data import EVAL_DATA_TABLES
 from resolvedesk.eval_state import EVAL_STATE_TABLES
 from resolvedesk.eval_retention import EVAL_RETENTION_TABLES
+from resolvedesk.metrics import METRIC_TABLES
 
-APPLICATION_TABLES=MEMORY_TABLES|EVAL_DATA_TABLES|EVAL_STATE_TABLES|EVAL_RETENTION_TABLES|{
+APPLICATION_TABLES=MEMORY_TABLES|EVAL_DATA_TABLES|EVAL_STATE_TABLES|EVAL_RETENTION_TABLES|METRIC_TABLES|{
     'runs','events','messages','tickets','feedback','checkpoints','turn_receipts','entity_state',
     'desk_assets','service_cases','service_audit','service_actions','desk_grants',
     'chunks','knowledge_documents','index_outbox','eval_jobs','regression_cases','quality_baselines','eval_queue_guard',

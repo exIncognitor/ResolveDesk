@@ -129,7 +129,7 @@ class DeskAgent:
                     from resolvedesk.coordination import LeaseBusy, LeaseLost
                     try:
                         async with self.coordination.lease([p.tenant,p.user,run_id]) as lease:
-                            token = await asyncio.to_thread(self.store.claim_execution,p,run_id,lease.owner,60)
+                            token = await asyncio.to_thread(self.store.claim_execution,p,run_id,lease.owner,60,instance='desk-'+self.worker_id)
                             if token is None: return False
                             async def renew():
                                 if await asyncio.to_thread(self.store.renew_execution,p,token,60): return True
@@ -142,15 +142,11 @@ class DeskAgent:
                     except LeaseLost:
                         if token: await asyncio.to_thread(self.store.lose_execution,p,token)
                 else:
-                    token = self.store.claim_execution(p,run_id,self.worker_id)
+                    token = self.store.claim_execution(p,run_id,self.worker_id,instance='desk-'+self.worker_id)
                     if token is None: return False
                     with self.store.execution(token): await self._execute_owned(p,run_id)
             finally:
-                if token:
-                    with self.store.db(True) as db:
-                        self.store._event(db, run_id, "duration", {"seconds": round(time.monotonic()-started, 3),"epoch":token.epoch})
-                    status = self.store.get_run(p, run_id)["status"]
-                    self.monitor.record(p.tenant, "run", "interrupted" if status=="paused" else "desk", status in {"completed", "awaiting_input", "awaiting_confirmation"}, time.monotonic()-started)
+                pass  # Terminal outcome/duration is committed with its exact epoch receipt.
             return token is not None
 
     async def _execute_owned(self,p,run_id):
