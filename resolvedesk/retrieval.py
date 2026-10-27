@@ -140,7 +140,7 @@ def evidence_sufficient(query,items):
     for item in items:
         common=anchors & set(terms(item['title']+'\n'+item['section']+'\n'+item['content']))
         cosine=item.get('cosine')
-        if common and cosine is not None and cosine>=.80:return True
+        if common and cosine is not None and cosine>=.86:return True
         if cosine is None and len(common)>=3 and (item.get('bm25') or 0)>=3:return True
     return False
 

@@ -3,6 +3,7 @@ import hashlib
 import uuid
 
 from resolvedesk.store import Store,digest,encode
+from resolvedesk.knowledge_governance import readable
 
 
 def freeze(state,p,dataset,root):
@@ -12,11 +13,13 @@ def freeze(state,p,dataset,root):
             sources[str(path.relative_to(root))]=hashlib.sha256(path.read_bytes()).hexdigest()
     embedding=getattr(state,'embedding_identity',None)
     def prepare(db):
-        rows=[dict(r) for r in db.execute("SELECT * FROM chunks WHERE tenant=? AND visibility='tenant' ORDER BY id",(p.tenant,))]
+        rows=[dict(r) for r in db.execute("SELECT * FROM chunks c WHERE tenant=? AND visibility='tenant' AND "+readable(db)+" ORDER BY id",(p.tenant,))]
+        documents={r['document_id'] for r in rows}
+        publications=[dict(r) for r in db.execute('SELECT * FROM knowledge_publications WHERE tenant=? ORDER BY document_id',(p.tenant,)) if r['document_id'] in documents]
         identity='eval_rd_'+uuid.uuid4().hex
         collection=identity.replace('_','-')
         namespace=getattr(state,'redis_namespace',None)
-        return {'dataset':dataset,'evidence':rows,'identity':identity,'backend':state.store.backend,
+        return {'dataset':dataset,'evidence':rows,'publications':publications,'identity':identity,'backend':state.store.backend,
                 'resources':{'schema':identity,'knowledge_collection':collection,
                     'memory_collection':'resolvedesk-memory-'+hashlib.sha256(collection.encode()).hexdigest()[:16],
                     'redis_namespace':namespace+':'+identity if namespace else None},
@@ -69,6 +72,9 @@ class EvalSandbox:
                     item=next(r for r in m['evidence'] if r['document_id']==doc)
                     db.execute('INSERT INTO knowledge_documents VALUES(?,?,?,?,?,1,?)',(p.tenant,doc,item['owner'],item['visibility'],item['version'],db.now()))
                     if self.vectors:db.execute("INSERT INTO index_outbox VALUES(?,?,?,1,'pending',0,?,NULL,?)",(uuid.uuid4().hex,p.tenant,doc,db.now(),db.now()))
+                for publication in m.get('publications',[]):
+                    columns=list(publication)
+                    db.execute('INSERT INTO knowledge_publications('+','.join(columns)+') VALUES('+','.join('?' for _ in columns)+')',tuple(publication[c] for c in columns))
                 for asset in m['dataset']['assets']:
                     db.execute("INSERT INTO desk_assets VALUES(?,?,?,?,?,'available')",(p.tenant,asset['id'],asset['owner'],asset['model'],asset['warranty']))
                 db.execute('INSERT INTO eval_sandbox_meta VALUES(1,?)',(expected,))

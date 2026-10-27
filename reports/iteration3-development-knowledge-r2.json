@@ -1,0 +1,1387 @@
+{
+  "engine_root": ".",
+  "paid_calls": 0,
+  "split": "development",
+  "contract_sha256": "88a1f9388ecfac6731fed0ebb00d98af5b5d22187c6b6f524e0bb8f644d9bd8f",
+  "corpus_documents": 26,
+  "services": "PostgreSQL + Chroma HNSW + multilingual-e5-small",
+  "governance_supported": true,
+  "recall_at_5": 1.0,
+  "mrr_at_5": 1.0,
+  "positive_count": 26,
+  "unsupported_count": 12,
+  "unsupported_false_sufficiency": 0,
+  "positive_sufficiency": 26,
+  "all_citations_valid": true,
+  "results": [
+    {
+      "id": "kb-dev-1",
+      "rank": 1,
+      "ranked": [
+        "ref-entra-sspr",
+        "ref-entra-signin",
+        "ref-vpn-691",
+        "ref-entra-revoke",
+        "ref-entra-mfa"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-sspr",
+          "bm25": 48.79984459257065,
+          "cosine": 0.91902441
+        },
+        {
+          "document_id": "ref-entra-signin",
+          "bm25": 9.249328865686614,
+          "cosine": 0.879053056
+        },
+        {
+          "document_id": "ref-vpn-691",
+          "bm25": 9.28080019823989,
+          "cosine": 0.8594278399999999
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-2",
+      "rank": 1,
+      "ranked": [
+        "ref-entra-mfa",
+        "ref-entra-revoke",
+        "ref-idea-register",
+        "ref-entra-sspr",
+        "ref-vpn-691"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-mfa",
+          "bm25": 59.87167388724108,
+          "cosine": 0.93332055
+        },
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 5.161952267707878,
+          "cosine": 0.87495723
+        },
+        {
+          "document_id": "ref-idea-register",
+          "bm25": 7.835200238063905,
+          "cosine": 0.85107356
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-3",
+      "rank": 1,
+      "ranked": [
+        "ref-entra-signin",
+        "ref-entra-conditional",
+        "ref-entra-sspr",
+        "ref-idea-register",
+        "ref-entra-revoke"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-signin",
+          "bm25": 50.504980685400504,
+          "cosine": 0.92185688
+        },
+        {
+          "document_id": "ref-entra-conditional",
+          "bm25": 13.910549152234335,
+          "cosine": 0.88178015
+        },
+        {
+          "document_id": "ref-entra-sspr",
+          "bm25": 14.889342389001214,
+          "cosine": 0.8703946499999999
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-4",
+      "rank": 1,
+      "ranked": [
+        "ref-entra-conditional",
+        "ref-entra-revoke",
+        "ref-winhttp-proxy",
+        "ref-device-manager",
+        "ref-idea-proxy"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-conditional",
+          "bm25": 73.95387839779141,
+          "cosine": 0.93461722
+        },
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 13.225324307408219,
+          "cosine": 0.86941051
+        },
+        {
+          "document_id": "ref-winhttp-proxy",
+          "bm25": 7.2927933057053975,
+          "cosine": 0.85220563
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-5",
+      "rank": 1,
+      "ranked": [
+        "ref-entra-least-privilege",
+        "ref-entra-signin",
+        "ref-entra-revoke",
+        "ref-entra-conditional",
+        "ref-entra-sspr"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-least-privilege",
+          "bm25": 57.82588646791535,
+          "cosine": 0.92792618
+        },
+        {
+          "document_id": "ref-entra-signin",
+          "bm25": 10.046799176445484,
+          "cosine": 0.85699722
+        },
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 8.16751948416813,
+          "cosine": 0.85985586
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-6",
+      "rank": 1,
+      "ranked": [
+        "ref-entra-revoke",
+        "ref-entra-conditional",
+        "ref-entra-mfa",
+        "ref-vault-capacity",
+        "ref-vault-revoke"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 80.67849994556752,
+          "cosine": 0.92355561
+        },
+        {
+          "document_id": "ref-entra-conditional",
+          "bm25": 16.765060694706758,
+          "cosine": 0.87426239
+        },
+        {
+          "document_id": "ref-entra-mfa",
+          "bm25": 4.680053262039721,
+          "cosine": 0.86169031
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-7",
+      "rank": 1,
+      "ranked": [
+        "ref-dns-client",
+        "ref-dns-tests",
+        "ref-vpn-691",
+        "ref-entra-sspr",
+        "ref-nslookup"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-dns-client",
+          "bm25": 44.73787496684793,
+          "cosine": 0.90770084
+        },
+        {
+          "document_id": "ref-dns-tests",
+          "bm25": 19.67097473029857,
+          "cosine": 0.87896407
+        },
+        {
+          "document_id": "ref-vpn-691",
+          "bm25": 10.832532416557575,
+          "cosine": 0.85593504
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-8",
+      "rank": 1,
+      "ranked": [
+        "ref-dns-tests",
+        "ref-nslookup",
+        "ref-dns-client",
+        "ref-vpn-691",
+        "ref-entra-conditional"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-dns-tests",
+          "bm25": 67.41726273020065,
+          "cosine": 0.91589135
+        },
+        {
+          "document_id": "ref-nslookup",
+          "bm25": 10.869514196758766,
+          "cosine": 0.86427206
+        },
+        {
+          "document_id": "ref-dns-client",
+          "bm25": 23.459667196338096,
+          "cosine": 0.85582823
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-9",
+      "rank": 1,
+      "ranked": [
+        "ref-nslookup",
+        "ref-dns-tests",
+        "ref-winhttp-proxy",
+        "ref-dns-client",
+        "ref-idea-proxy"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-nslookup",
+          "bm25": 56.37995363594972,
+          "cosine": 0.931545556
+        },
+        {
+          "document_id": "ref-dns-tests",
+          "bm25": 27.64468854996865,
+          "cosine": 0.8790550500000001
+        },
+        {
+          "document_id": "ref-winhttp-proxy",
+          "bm25": 11.98227027662838,
+          "cosine": 0.88633713
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-10",
+      "rank": 1,
+      "ranked": [
+        "ref-tcp-connect",
+        "ref-idea-proxy",
+        "ref-vpn-691",
+        "ref-winhttp-proxy",
+        "ref-idea-register"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-tcp-connect",
+          "bm25": 22.10081593759255,
+          "cosine": 0.9144184
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 5.998215847235826,
+          "cosine": 0.84858793
+        },
+        {
+          "document_id": "ref-vpn-691",
+          "bm25": 3.551248803396011,
+          "cosine": 0.84022215
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-11",
+      "rank": 1,
+      "ranked": [
+        "ref-vpn-691",
+        "ref-entra-sspr",
+        "ref-entra-mfa",
+        "ref-entra-conditional",
+        "ref-idea-proxy"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-vpn-691",
+          "bm25": 57.279438392720955,
+          "cosine": 0.9363663799999999
+        },
+        {
+          "document_id": "ref-entra-sspr",
+          "bm25": 7.764750891096549,
+          "cosine": 0.85269153
+        },
+        {
+          "document_id": "ref-entra-mfa",
+          "bm25": 12.534865321904203,
+          "cosine": 0.8402934
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-12",
+      "rank": 1,
+      "ranked": [
+        "ref-winhttp-proxy",
+        "ref-nslookup",
+        "ref-idea-proxy",
+        "ref-dns-tests",
+        "ref-python-venv"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-winhttp-proxy",
+          "bm25": 31.39008977996233,
+          "cosine": 0.942081273
+        },
+        {
+          "document_id": "ref-nslookup",
+          "bm25": 10.405644301532103,
+          "cosine": 0.86521637
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 5.820227681164579,
+          "cosine": 0.86953431
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-13",
+      "rank": 1,
+      "ranked": [
+        "ref-idea-register",
+        "ref-idea-plugins",
+        "ref-idea-proxy",
+        "ref-entra-mfa",
+        "ref-entra-revoke"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-idea-register",
+          "bm25": 52.35810827771645,
+          "cosine": 0.93351221
+        },
+        {
+          "document_id": "ref-idea-plugins",
+          "bm25": 7.503126923605816,
+          "cosine": 0.87480032
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 5.388458022986918,
+          "cosine": 0.87421772
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-14",
+      "rank": 1,
+      "ranked": [
+        "ref-idea-plugins",
+        "ref-idea-proxy",
+        "ref-idea-register",
+        "ref-vault-capacity",
+        "ref-vault-requirements"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-idea-plugins",
+          "bm25": 54.13010227643662,
+          "cosine": 0.92815304
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 15.736629239577782,
+          "cosine": 0.897358656
+        },
+        {
+          "document_id": "ref-idea-register",
+          "bm25": 5.5922875490613215,
+          "cosine": 0.8938488099999999
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-15",
+      "rank": 1,
+      "ranked": [
+        "ref-idea-proxy",
+        "ref-idea-plugins",
+        "ref-idea-register",
+        "ref-vault-requirements",
+        "ref-winhttp-proxy"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 37.63118308472199,
+          "cosine": 0.937811673
+        },
+        {
+          "document_id": "ref-idea-plugins",
+          "bm25": 19.370196979819458,
+          "cosine": 0.9058733
+        },
+        {
+          "document_id": "ref-idea-register",
+          "bm25": 13.856417571243625,
+          "cosine": 0.90081346
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-16",
+      "rank": 1,
+      "ranked": [
+        "ref-vault-requirements",
+        "ref-vault-capacity",
+        "ref-vault-revoke",
+        "ref-idea-proxy",
+        "ref-idea-register"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-vault-requirements",
+          "bm25": 51.19495818889106,
+          "cosine": 0.92428854
+        },
+        {
+          "document_id": "ref-vault-capacity",
+          "bm25": 10.599133094610066,
+          "cosine": 0.88778651
+        },
+        {
+          "document_id": "ref-vault-revoke",
+          "bm25": 10.234423783094252,
+          "cosine": 0.86548227
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-17",
+      "rank": 1,
+      "ranked": [
+        "ref-vault-revoke",
+        "ref-entra-revoke",
+        "ref-vault-capacity",
+        "ref-vault-requirements",
+        "ref-pip-resolver"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-vault-revoke",
+          "bm25": 69.52883351988882,
+          "cosine": 0.931482434
+        },
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 10.813091246046485,
+          "cosine": 0.8572596
+        },
+        {
+          "document_id": "ref-vault-capacity",
+          "bm25": 8.966241441442346,
+          "cosine": 0.8811025
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-18",
+      "rank": 1,
+      "ranked": [
+        "ref-vault-capacity",
+        "ref-vault-requirements",
+        "ref-surface-battery",
+        "ref-vault-revoke",
+        "ref-winhttp-proxy"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-vault-capacity",
+          "bm25": 71.44712557813766,
+          "cosine": 0.945073396
+        },
+        {
+          "document_id": "ref-vault-requirements",
+          "bm25": 17.84690708827667,
+          "cosine": 0.877942026
+        },
+        {
+          "document_id": "ref-surface-battery",
+          "bm25": 11.165033403578601,
+          "cosine": 0.8379160800000001
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-19",
+      "rank": 1,
+      "ranked": [
+        "ref-surface-battery",
+        "ref-vault-capacity",
+        "ref-battery-report",
+        "ref-surface-startup",
+        "ref-surface-service"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-surface-battery",
+          "bm25": 79.46525271638652,
+          "cosine": 0.939439237
+        },
+        {
+          "document_id": "ref-vault-capacity",
+          "bm25": 13.93351468605011,
+          "cosine": 0.85848483
+        },
+        {
+          "document_id": "ref-battery-report",
+          "bm25": 26.34636821000457,
+          "cosine": 0.83484402
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-20",
+      "rank": 1,
+      "ranked": [
+        "ref-battery-report",
+        "ref-surface-battery",
+        "ref-device-manager",
+        "ref-entra-conditional",
+        "ref-tcp-connect"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-battery-report",
+          "bm25": 64.43182756149277,
+          "cosine": 0.91186866
+        },
+        {
+          "document_id": "ref-surface-battery",
+          "bm25": 12.272381090803533,
+          "cosine": 0.85438919
+        },
+        {
+          "document_id": "ref-device-manager",
+          "bm25": 6.602593252867787,
+          "cosine": 0.84054434
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-21",
+      "rank": 1,
+      "ranked": [
+        "ref-bitlocker-key",
+        "ref-idea-proxy",
+        "ref-pip-resolver",
+        "ref-entra-sspr",
+        "ref-idea-register"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-bitlocker-key",
+          "bm25": 74.36537809271526,
+          "cosine": 0.92325729
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 3.425879233225516,
+          "cosine": 0.85295692
+        },
+        {
+          "document_id": "ref-pip-resolver",
+          "bm25": 3.0187291802028895,
+          "cosine": 0.85226312
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-22",
+      "rank": 1,
+      "ranked": [
+        "ref-surface-service",
+        "ref-surface-startup",
+        "ref-vault-capacity",
+        "ref-surface-battery",
+        "ref-entra-conditional"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-surface-service",
+          "bm25": 70.52868708261713,
+          "cosine": 0.9243299700000001
+        },
+        {
+          "document_id": "ref-surface-startup",
+          "bm25": 6.0456537161034385,
+          "cosine": 0.85396993
+        },
+        {
+          "document_id": "ref-vault-capacity",
+          "bm25": 6.062899929943088,
+          "cosine": 0.8486065899999999
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-23",
+      "rank": 1,
+      "ranked": [
+        "ref-device-manager",
+        "ref-entra-signin",
+        "ref-entra-conditional",
+        "ref-winhttp-proxy",
+        "ref-nslookup"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-device-manager",
+          "bm25": 55.562456574102185,
+          "cosine": 0.91906017
+        },
+        {
+          "document_id": "ref-entra-signin",
+          "bm25": 15.761383654564103,
+          "cosine": 0.85863727
+        },
+        {
+          "document_id": "ref-entra-conditional",
+          "bm25": 14.233086070386804,
+          "cosine": 0.8789981
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-24",
+      "rank": 1,
+      "ranked": [
+        "ref-surface-startup",
+        "ref-surface-battery",
+        "ref-surface-service",
+        "ref-entra-conditional",
+        "ref-entra-sspr"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-surface-startup",
+          "bm25": 60.37696640675717,
+          "cosine": 0.93142879
+        },
+        {
+          "document_id": "ref-surface-battery",
+          "bm25": 3.976028450388793,
+          "cosine": 0.8577728
+        },
+        {
+          "document_id": "ref-surface-service",
+          "bm25": 3.99021376863043,
+          "cosine": 0.85531187
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-25",
+      "rank": 1,
+      "ranked": [
+        "ref-python-venv",
+        "ref-pip-resolver",
+        "ref-entra-revoke",
+        "ref-vault-requirements",
+        "ref-idea-register"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-python-venv",
+          "bm25": 66.51814828167316,
+          "cosine": 0.92938945
+        },
+        {
+          "document_id": "ref-pip-resolver",
+          "bm25": 8.858144467016848,
+          "cosine": 0.83753139
+        },
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 9.181310898588288,
+          "cosine": 0.82528228
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-26",
+      "rank": 1,
+      "ranked": [
+        "ref-pip-resolver",
+        "ref-python-venv",
+        "ref-entra-revoke",
+        "ref-entra-conditional",
+        "ref-entra-least-privilege"
+      ],
+      "recall_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "positive": true,
+      "expect_sufficient": true,
+      "evidence_sufficient": true,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-pip-resolver",
+          "bm25": 70.0034959552181,
+          "cosine": 0.91817486
+        },
+        {
+          "document_id": "ref-python-venv",
+          "bm25": 11.888450254787303,
+          "cosine": 0.84064692
+        },
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 4.887796580399485,
+          "cosine": 0.83979979
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-0",
+      "rank": null,
+      "ranked": [
+        "ref-entra-least-privilege",
+        "ref-nslookup",
+        "ref-vault-revoke",
+        "ref-vault-capacity",
+        "ref-idea-proxy"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-least-privilege",
+          "bm25": 1.1082076912537049,
+          "cosine": 0.80067807
+        },
+        {
+          "document_id": "ref-nslookup",
+          "bm25": 1.6116626360988975,
+          "cosine": 0.79128844
+        },
+        {
+          "document_id": "ref-vault-revoke",
+          "bm25": 1.280621740532833,
+          "cosine": 0.79717231
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-1",
+      "rank": null,
+      "ranked": [
+        "ref-nslookup",
+        "ref-vault-requirements",
+        "ref-idea-proxy",
+        "ref-idea-register",
+        "ref-entra-least-privilege"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-nslookup",
+          "bm25": 2.8349718628022784,
+          "cosine": 0.82163697
+        },
+        {
+          "document_id": "ref-vault-requirements",
+          "bm25": 2.923618541446457,
+          "cosine": 0.81372902
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 2.6250964168572697,
+          "cosine": 0.82125032
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-2",
+      "rank": null,
+      "ranked": [
+        "ref-vault-capacity",
+        "ref-entra-revoke",
+        "ref-idea-proxy",
+        "ref-nslookup",
+        "ref-vault-revoke"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-vault-capacity",
+          "bm25": 4.031931571354827,
+          "cosine": 0.83181205
+        },
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 2.344418086309735,
+          "cosine": 0.8297932100000001
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 0.019210647028843897,
+          "cosine": 0.82751107
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-3",
+      "rank": null,
+      "ranked": [
+        "ref-winhttp-proxy",
+        "ref-vpn-691",
+        "ref-idea-register",
+        "ref-vault-requirements",
+        "ref-idea-proxy"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-winhttp-proxy",
+          "bm25": 1.4864279206767481,
+          "cosine": 0.83472574
+        },
+        {
+          "document_id": "ref-vpn-691",
+          "bm25": 2.765805752607056,
+          "cosine": 0.81289724
+        },
+        {
+          "document_id": "ref-idea-register",
+          "bm25": 2.6670540013853814,
+          "cosine": 0.8119190000000001
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-4",
+      "rank": null,
+      "ranked": [
+        "ref-entra-conditional",
+        "ref-winhttp-proxy",
+        "ref-idea-proxy",
+        "ref-nslookup",
+        "ref-pip-resolver"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-conditional",
+          "bm25": 6.51518088226628,
+          "cosine": 0.82058394
+        },
+        {
+          "document_id": "ref-winhttp-proxy",
+          "bm25": 2.5368785274108316,
+          "cosine": 0.8260978800000001
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 1.8414623254366098,
+          "cosine": 0.8218664
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-5",
+      "rank": null,
+      "ranked": [
+        "ref-entra-revoke",
+        "ref-battery-report",
+        "ref-entra-sspr",
+        "ref-vault-capacity",
+        "ref-vault-requirements"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 5.086643445025429,
+          "cosine": 0.82452226
+        },
+        {
+          "document_id": "ref-battery-report",
+          "bm25": 7.457581826890089,
+          "cosine": 0.80244845
+        },
+        {
+          "document_id": "ref-entra-sspr",
+          "bm25": 4.19548500851735,
+          "cosine": 0.81127375
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-6",
+      "rank": null,
+      "ranked": [
+        "ref-entra-least-privilege",
+        "ref-entra-conditional",
+        "ref-entra-signin",
+        "ref-winhttp-proxy",
+        "ref-entra-revoke"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-least-privilege",
+          "bm25": 2.1592555368115907,
+          "cosine": 0.83534506
+        },
+        {
+          "document_id": "ref-entra-conditional",
+          "bm25": 1.6592408458157522,
+          "cosine": 0.83136123
+        },
+        {
+          "document_id": "ref-entra-signin",
+          "bm25": 1.6674045924168301,
+          "cosine": 0.8226167600000001
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-7",
+      "rank": null,
+      "ranked": [
+        "ref-entra-sspr",
+        "ref-entra-least-privilege",
+        "ref-nslookup",
+        "ref-vault-capacity",
+        "ref-battery-report"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-entra-sspr",
+          "bm25": 1.8021455886529367,
+          "cosine": 0.83251512
+        },
+        {
+          "document_id": "ref-entra-least-privilege",
+          "bm25": 1.612462532710886,
+          "cosine": 0.81635013
+        },
+        {
+          "document_id": "ref-nslookup",
+          "bm25": 4.568999454086649,
+          "cosine": 0.80572903
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-8",
+      "rank": null,
+      "ranked": [
+        "ref-battery-report",
+        "ref-entra-revoke",
+        "ref-idea-proxy",
+        "ref-nslookup",
+        "ref-entra-conditional"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-battery-report",
+          "bm25": 6.160180070365441,
+          "cosine": 0.8419007000000001
+        },
+        {
+          "document_id": "ref-entra-revoke",
+          "bm25": 4.903797903966245,
+          "cosine": 0.8312603199999999
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 3.8402527966707805,
+          "cosine": 0.8291672800000001
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-9",
+      "rank": null,
+      "ranked": [
+        "ref-vault-capacity",
+        "ref-entra-sspr",
+        "ref-entra-signin",
+        "ref-entra-conditional",
+        "ref-battery-report"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-vault-capacity",
+          "bm25": 2.216157726352489,
+          "cosine": 0.82194936
+        },
+        {
+          "document_id": "ref-entra-sspr",
+          "bm25": 2.718358672545577,
+          "cosine": 0.79711929
+        },
+        {
+          "document_id": "ref-entra-signin",
+          "bm25": 3.3903132935118965,
+          "cosine": 0.79265535
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-10",
+      "rank": null,
+      "ranked": [
+        "ref-vault-requirements",
+        "ref-vault-revoke",
+        "ref-vault-capacity",
+        "ref-entra-conditional",
+        "ref-winhttp-proxy"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-vault-requirements",
+          "bm25": 0.0,
+          "cosine": 0.81487438
+        },
+        {
+          "document_id": "ref-vault-revoke",
+          "bm25": 0.0,
+          "cosine": 0.8147938299999999
+        },
+        {
+          "document_id": "ref-vault-capacity",
+          "bm25": 0.0,
+          "cosine": 0.8096172500000001
+        }
+      ]
+    },
+    {
+      "id": "kb-dev-unsupported-11",
+      "rank": null,
+      "ranked": [
+        "ref-vault-capacity",
+        "ref-vault-requirements",
+        "ref-idea-proxy",
+        "ref-vault-revoke",
+        "ref-entra-conditional"
+      ],
+      "recall_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "positive": false,
+      "expect_sufficient": false,
+      "evidence_sufficient": false,
+      "citations_valid": true,
+      "source_spans_valid": true,
+      "sources_attached": true,
+      "top_signals": [
+        {
+          "document_id": "ref-vault-capacity",
+          "bm25": 4.013387281249764,
+          "cosine": 0.82595164
+        },
+        {
+          "document_id": "ref-vault-requirements",
+          "bm25": 2.3873427453714355,
+          "cosine": 0.81778443
+        },
+        {
+          "document_id": "ref-idea-proxy",
+          "bm25": 2.0997481386084593,
+          "cosine": 0.82386053
+        }
+      ]
+    }
+  ],
+  "limitations": "Synthetic questions and concise paraphrased official references. Ranked candidates alone do not imply a false generated answer. No paid generation tested. Isolated fixtures retained."
+}

@@ -295,6 +295,7 @@
             </form>
           </section>
         </div>
+        <KnowledgeGovernance :settings="settings" />
         <section class="workspace-card skills-workspace">
           <div class="card-heading">
             <div>
@@ -517,6 +518,8 @@ import { pollEvaluation } from './lib/evaluationJobs'
 import AppIcon from './components/AppIcon.vue'
 import RequestInspector from './components/RequestInspector.vue'
 import ServiceDesk from './components/ServiceDesk.vue'
+import KnowledgeGovernance from './components/KnowledgeGovernance.vue'
+import { citationText as formatCitation } from './lib/knowledgePublication'
 
 import { createRequestState } from './lib/requestState'
 
@@ -996,7 +999,7 @@ async function restoreRun(id){
   try{activeRun.value=await deskRequest(settings,`/runs/${id}`);settings.conversationId=id;const history=await deskRequest(settings,`/runs/${id}/messages`);messages.value=history.map(m=>({...m,id:createMessageId()}));if(activeRun.value.ticket_id)messages.value.push({id:createMessageId(),role:'assistant',content:activeRun.value.answer});lastResponse.value={response:activeRun.value.answer,raw:activeRun.value};lastTrace.value=await requestToolTrace('python',settings,id);activeView.value='chat'}catch(e){showToast(e.message)}
 }
 async function submitFeedback(rating){try{await deskRequest(settings,`/runs/${activeRun.value.id}/feedback`,'POST',{rating,note:''});showToast('反馈已保存')}catch(e){showToast(e.message)}}
-async function showCitation(citation){try{const source=await deskRequest(settings,`/knowledge/citations/${citation}`);citationText.value=source.title+' · '+source.section+' · '+source.version+'\n'+source.content}catch(e){showToast(e.message)}}
+async function showCitation(citation){const r=requestState.begin('citation');try{const source=await deskRequest(r.settings,`/knowledge/citations/${citation}`);if(r.isCurrent())citationText.value=formatCitation(source)}catch(e){if(r.isCurrent())showToast(e.message)}}
 async function loadOperations(){const r=requestState.begin('operations');try{const data=await Promise.all([deskRequest(r.settings,'/runs'),deskRequest(r.settings,'/memory'),deskRequest(r.settings,'/mcp')]);if(r.isCurrent())[runList.value,memoryData.value,mcpData.value]=data}catch(e){if(r.isCurrent())showToast(e.message)}}
 async function loadCandidates(){const r=requestState.begin('candidates');try{const data=await deskRequest(r.settings,'/evaluation/candidates');if(r.isCurrent())candidates.value=data}catch(e){if(r.isCurrent())showToast(e.message)}}
 async function promoteCandidate(id){try{await deskRequest(settings,`/evaluation/candidates/${id}/promote`,'POST',{document:expectedDocument.value,section:expectedSection.value});showToast('已加入回归集')}catch(e){showToast(e.message)}}

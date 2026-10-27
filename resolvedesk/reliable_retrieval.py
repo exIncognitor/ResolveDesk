@@ -8,7 +8,7 @@ import os
 import re
 import time
 
-from resolvedesk.retrieval import rrf
+from resolvedesk.retrieval import rrf,evidence_sufficient
 from resolvedesk.store import Principal,encode
 from tooling.tool_manager import Tool
 
@@ -75,7 +75,7 @@ class ReliableRetrieval:
         started=time.monotonic()
         version=await asyncio.to_thread(self.knowledge.scope_version,p)
         context={'tenant':p.tenant,'user_id':p.user,'role':p.role,'executing_role':role or p.role,'knowledge_version':version}
-        scope=['rag-v4',self.optimization_policy,context,query,top_k,mode,optimize]
+        scope=['rag-v5-publications',self.optimization_policy,context,query,top_k,mode,optimize]
         key=encode(scope)
         cached=None;layer=None
         if self.coordination:
@@ -131,8 +131,11 @@ class ReliableRetrieval:
             'queries':queries,'reranked':reranked,'optimization_plan':plan,'optimization_policy':self.optimization_policy,'degraded':degraded,'errors':errors,'candidate_count':max((r['candidate_count'] for r in usable),default=0),
             'cached':all(r.cached for r in results),'cache_layer':'native' if all(r.cached for r in results) else None,
             'latency_ms':round((time.monotonic()-started)*1000,3)}
+        # Rewrites may retrieve useful candidates but cannot invent support for
+        # the original question. Recheck original lexical anchors and scores.
+        result['evidence_sufficient']=evidence_sufficient(query,result['items'])
         if not await asyncio.to_thread(self._fresh,p,result):
-            result.update(items=[],degraded=True,errors=errors+['sources_changed'])
+            result.update(items=[],evidence_sufficient=False,degraded=True,errors=errors+['sources_changed'])
         # A concurrent import/ACL change cannot refill the new revision's cache.
         current=await asyncio.to_thread(self.knowledge.scope_version,p)
         if current==version and not result['degraded'] and not errors:
