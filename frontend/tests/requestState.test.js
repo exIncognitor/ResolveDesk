@@ -63,7 +63,7 @@ test('stale eval response does not clear a new operation busy state', async () =
   const settings=state(), requests=createRequestState(settings)
   let resolve
   const context=vm.createContext({settings, requestState:requests, busy:{value:false},evalData:{value:'new'},
-    evaluationKind:{value:'quality'},
+    evaluationKind:{value:'quality'},evaluationDataset:{value:''},evaluationTimeout:{value:540},
     statusText:{value:''}, showToast:()=>assert.fail('stale toast'), requestEvaluation:()=>new Promise(a=>{resolve=a})})
   loadFunction('runEvaluation',context)
   const task=context.runEvaluation()
@@ -72,6 +72,20 @@ test('stale eval response does not clear a new operation busy state', async () =
   await task
   assert.equal(context.evalData.value,'new')
   assert.equal(context.busy.value,true)
+})
+
+test('quality form preserves custom per-turn references and explicit time budget', async () => {
+  const settings=state(), requests=createRequestState(settings)
+  let submitted
+  const dataset={dialog_cases:[{turns:[{message:'你好',reference:'介绍服务',required_tools:['search_knowledge_base']}]}],intent_cases:[],assets:[]}
+  const context=vm.createContext({settings,requestState:requests,busy:{value:false},evalData:{value:null},statusText:{value:''},
+    evaluationKind:{value:'quality'},evaluationDataset:{value:JSON.stringify(dataset)},evaluationTimeout:{value:123},showToast:()=>{},
+    requestEvaluation:async (backend,config,options)=>{submitted=JSON.parse(JSON.stringify(options));return {status:'complete'}}})
+  loadFunction('runEvaluation',context)
+  await context.runEvaluation()
+  assert.equal(submitted.timeout_s,123)
+  assert.equal(submitted.limit,1)
+  assert.deepEqual(submitted.dialog_cases,dataset.dialog_cases)
 })
 
 for(const name of ['loadOperations','loadCandidates']){

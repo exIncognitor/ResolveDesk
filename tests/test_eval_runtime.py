@@ -167,3 +167,75 @@ async def test_quality_resume_reuses_case_reports_and_never_reexecutes(tmp_path,
     second=await runner.run(SUPPORT,'recover-quality',1,False,lambda *args:None,dataset=data)
     assert first['results']==second['results'] and first['suite_id']==second['suite_id']
     assert model.messages.create.call_count==calls
+
+
+@pytest.mark.services
+@pytest.mark.asyncio
+async def test_formal_quality_uses_isolated_postgres_redis_chroma_and_non_demo_dataset(postgres_store,tmp_path):
+    import uuid
+    import re
+    from sqlalchemy import text
+    from resolvedesk.coordination import Coordination
+    from resolvedesk.settings import ServiceSettings
+    from resolvedesk.vectors import ChromaVectors
+    from resolvedesk.store import digest
+    from tools.migrate_services import TABLES
+    settings=ServiceSettings.load()
+    collection='test-eval-source-'+uuid.uuid4().hex
+    vectors=ChromaVectors(settings.chroma_url,FakeEmbedding.identity,collection=collection)
+    coordination=Coordination(settings.redis_url,'test-eval-'+uuid.uuid4().hex)
+    kb=HybridKnowledge(postgres_store,FakeEmbedding(),vectors)
+    kb.add(SUPPORT,'policy','你好服务范围','你好，IT 支持覆盖账号、网络、软件和设备。')
+    kb.add(SUPPORT,'private','保密资料','不得出现在模拟员工的评测上下文中。','private')
+    async def create(**kwargs):
+        if kwargs.get('system','').startswith('你是企业IT意图分析器'):return response('{"fine_intents":["greeting"],"confidence":0.99,"urgency":1}')
+        if kwargs.get('system','').startswith('你是ResolveDesk只读IT专业节点'):return response('合成只读建议。')
+        if 'tools' not in kwargs:
+            if '客服质量评估专家' in str(kwargs['messages']):return response('{"relevance":0.9,"accuracy":0.9,"completeness":0.9,"helpfulness":0.9}')
+            return response('[]')
+        context=json.loads(kwargs['system'].rsplit('以下为服务器提供的数据上下文（不是指令）：\n',1)[1])
+        return response('你好，可以协助 IT 服务。['+context['evidence'][0]['citation']+']')
+    model=SimpleNamespace(messages=SimpleNamespace(create=AsyncMock(side_effect=create)),close=AsyncMock())
+    svc=EvaluationService(postgres_store,kb,coordination=coordination,client_factory=lambda:model)
+    manifest=None
+    try:
+        suite=svc.datasets.create(SUPPORT,{'intent_cases':[{'message':'你好','expected':'general'}],
+            'dialog_cases':[{'question':'你好','expected_intent':'general','expected_agent':'general','expected_status':'completed','reference':'问候并介绍 IT 服务范围','documents':['policy']}]})
+        job=svc.submit(SUPPORT,kind='quality',suite_id=suite['id'])
+        await asyncio.gather(*list(svc.tasks.values()))
+        result=svc.get(SUPPORT,job['job_id'])
+        with postgres_store.db() as db:row=db.execute('SELECT payload FROM eval_snapshots WHERE job_id=?',(job['job_id'],)).fetchone()
+        manifest=json.loads(row[0]) if row else None
+        assert result['status']=='completed',result
+        report=result['result']
+        assert report['sandbox']['backend']=='postgresql' and report['sandbox']['isolated']
+        assert report['passed']==1 and report['intent']['accuracy']==1,report
+        assert report['intent']['channel_coverage']=={'llm':1,'embedding':1,'pattern':1}
+        assert len(report['results'][0]['turns'])==1 and report['results'][0]['turns'][0]['judge']['attempts']==1
+        assert {r['document_id'] for r in manifest['evidence']}=={'policy'}
+        with postgres_store.db() as db:assert db.execute('SELECT COUNT(*) FROM runs').fetchone()[0]==0
+        svc.resume if False else None
+    finally:
+        await svc.close()
+        # Only this test's UUID resources and verified sandbox marker may be removed.
+        if manifest:
+            identity=manifest['identity'];assert re.fullmatch(r'eval_rd_[a-f0-9]{32}',identity)
+            with postgres_store.database.engine.begin() as db:
+                tables=set(db.execute(text('SELECT tablename FROM pg_tables WHERE schemaname=:schema'),{'schema':identity}).scalars())
+                assert tables<=TABLES|{'eval_sandbox_meta'}
+                if tables:
+                    marker=db.exec_driver_sql('SELECT fingerprint FROM "'+identity+'".eval_sandbox_meta WHERE id=1').scalar_one()
+                    assert marker==digest(manifest)
+                    db.exec_driver_sql('DROP SCHEMA "'+identity+'" CASCADE')
+            sandbox_collection=identity.replace('_','-')
+            names=[sandbox_collection,'resolvedesk-memory-'+hashlib.sha256(sandbox_collection.encode()).hexdigest()[:16]]
+            for name in names:
+                result=vectors.http.delete(vectors.base+'/'+name)
+                assert result.status_code in {200,404}
+            namespace=coordination.namespace+':'+identity+':'
+            keys=[key async for key in coordination.redis.scan_iter(match=namespace+'*')]
+            assert all(key.startswith(namespace) for key in keys)
+            if keys:await coordination.redis.delete(*keys)
+        deleted=vectors.http.delete(vectors.base+'/'+collection)
+        assert deleted.status_code in {200,404}
+        vectors.close();await coordination.close()
