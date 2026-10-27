@@ -137,6 +137,8 @@ class DeskServices:
         self.mcp = StandardMCPClient(self.manager,configs,on_change=self._wire_role_tools)
         self._wire_role_tools()
         self.maintenance_task = None
+        self.routing_health={}
+        self.probe_cooldown=30.
 
     async def start(self):
         await self.mcp.start()
@@ -179,16 +181,24 @@ class DeskServices:
         penalties = self.monitor.refresh(p.tenant)["routing_penalties"]
         primary = roles[0]
         degraded = [r.value for r in roles if penalties.get(r.value)]
+        health=self.routing_health.setdefault((p.tenant,primary.value),{"retry_at":0.,"probe":False,"recovered":False})
+        now=time.monotonic()
+        probe=False
         if result.urgency.name=="CRITICAL":primary=AgentType.ESCALATION
         elif penalties.get(primary.value):
-            primary = AgentType.GENERAL if primary != AgentType.GENERAL else AgentType.ESCALATION
+            if not health["retry_at"] and not health["recovered"]:health["retry_at"]=now+self.probe_cooldown
+            if health["recovered"]:pass
+            elif now>=health["retry_at"] and not health["probe"]:
+                health["probe"]=True;probe=True
+            else:primary=AgentType.GENERAL if primary!=AgentType.GENERAL else AgentType.ESCALATION
+        else:health.update(retry_at=0.,probe=False,recovered=False)
         supporting = [r for r in roles if r != primary and not penalties.get(r.value)]
         if result.needs_clarification:primary,supporting=AgentType.GENERAL,[]
         profile=self.roles._pool[primary][0].profile
         return {"intent":result.domain,"fine_intent":result.fine_intent,"domains":result.domains,"intent_method":result.method,
             "primary":primary.value,"supporting":[r.value for r in supporting],"confidence":result.confidence,
             "source_scores":result.source_scores,"embedding_source":result.embedding_source,"urgency":result.urgency.name,
-            "needs_clarification":result.needs_clarification,"entities":state["entities"],"entity_state":state,
+            "needs_clarification":result.needs_clarification,"recovery_probe":probe,"entities":state["entities"],"entity_state":state,
             "reason":result.reasoning+("；异常节点降权："+",".join(degraded) if degraded else ""),"mission":profile.mission,"workflow":list(profile.workflow)}
 
     async def consult(self,p,run_id,message,history,context,routing,cached=None,on_result=None):
@@ -219,13 +229,17 @@ class DeskServices:
                 result={"requested_role":role,"role":role,"status":"failed","success":False,"answer":"专业节点暂不可用。",
                     "fallback":False,"escalate":False,"tools_used":[],"tool_traces":[],"latency_ms":round((time.monotonic()-started)*1000,3),"error_code":type(exc).__name__}
             self.store.event(p,run_id,"specialist_result",redact({k:v for k,v in result.items() if k!="answer"}))
-            if on_result:await on_result(role,result)
+            health=self.routing_health.get((p.tenant,role))
+            if health:
+                healthy=result["success"] and result["role"]==role and not result["fallback"]
+                health.update(probe=False,recovered=healthy,retry_at=0. if healthy else time.monotonic()+self.probe_cooldown)
+            if on_result:await on_result(role,result,dict(sources))
             return result
         roles=[routing["primary"]]+routing.get("supporting",[])
         opinions=await asyncio.gather(*(execute(role) for role in roles))
         status="failed" if all(r["status"]=="failed" for r in opinions) else "partial" if any(r["status"]!="success" or r["fallback"] for r in opinions) else "success"
         return {"status":status,"specialist_opinions":opinions,"sources":sources,
-            "actual_roles":list(dict.fromkeys(r["role"] for r in opinions)),"escalated":routing.get("urgency")=="CRITICAL" or any(r["escalate"] for r in opinions)}
+            "actual_roles":list(dict.fromkeys(r["role"] for r in opinions)),"escalated":routing.get("urgency")=="CRITICAL" or routing["intent"]=="escalation" or any(r["escalate"] for r in opinions)}
 
     async def search(self,p,query,top_k=5,optimize=True):
         queries,errors = [query],[]

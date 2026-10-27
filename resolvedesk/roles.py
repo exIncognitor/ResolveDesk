@@ -34,6 +34,8 @@ class ITRoleAgent(BaseAgent):
         started=time.monotonic()
         scoped=replace(req,executing_role=self.agent_type.value)
         response=await super().handle(scoped)
+        if not response.success and self.agent_type in {AgentType.TECHNICAL,AgentType.BILLING}:
+            self.stats.retry_at=time.monotonic()+30
         if req.on_agent_execution:
             await req.on_agent_execution({"instance":self.instance_id,"role":self.agent_type.value,"status":response.status,
                 "success":response.success and response.status=="success","seconds":time.monotonic()-started,

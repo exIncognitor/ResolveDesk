@@ -141,8 +141,13 @@ class ITIntentRecognizer:
         cached=self.cache.get(key)
         if cached and cached[0]>time.monotonic():return cached[1]
         started=time.monotonic()
-        llm,vector=await asyncio.gather(self.llm(message,history,context),self.vectors(message))
-        channels={"llm":llm,"embedding":vector,"pattern":self.patterns(message)}
+        pattern=self.patterns(message)
+        elliptical="unknown" in pattern["scores"] and entities_from(message) and context.get("domain") in DOMAIN_FINE and context["domain"] not in {"general","escalation"} and not re.search(r"换个|新的|另一个|取消之前",message)
+        if elliptical:
+            pattern={"scores":{DOMAIN_FINE[context["domain"]]:.88},"available":True,"inherited_context":True}
+        vector_message=message+"\n当前任务："+encode(context) if elliptical else message
+        llm,vector=await asyncio.gather(self.llm(message,history,context),self.vectors(vector_message))
+        channels={"llm":llm,"embedding":vector,"pattern":pattern}
         base={"llm":.7,"embedding":.2,"pattern":.1}
         denominator=sum(base[k] for k,v in channels.items() if v["available"])
         scores={fine:0. for fine in CATALOG}

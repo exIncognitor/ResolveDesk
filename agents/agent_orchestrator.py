@@ -1204,7 +1204,8 @@ class AgentOrchestrator:
         if not agents:
             return None
         eligible = [a for a in agents if agent_type not in (AgentType.TECHNICAL, AgentType.BILLING) or a.stats.available()]
-        return max(eligible, key=lambda a: a.stats.routing_score()) if eligible else None
+        probes=[a for a in eligible if a.stats.retry_at and time.monotonic()>=a.stats.retry_at]
+        return probes[0] if probes else max(eligible,key=lambda a:a.stats.routing_score()) if eligible else None
 
     def _monitor_degraded(self, agent_type: AgentType) -> bool:
         """专业 Agent 降权过高时由路由层回退，确保单实例部署也能生效。"""
@@ -1218,6 +1219,7 @@ class AgentOrchestrator:
     async def _execute(self, req: Request, agent_type: AgentType) -> AgentResponse:
         """执行 Agent，失败时降级到 GeneralAgent。"""
         agent = self._best_agent(agent_type)
+        unavailable=agent is None
         if agent is None:
             agent = self._best_agent(AgentType.GENERAL)
         if agent is None:
@@ -1230,6 +1232,8 @@ class AgentOrchestrator:
             )
 
         response = await agent.handle(req)
+        if unavailable and agent.agent_type!=agent_type:
+            response.tool_traces.insert(0,{"event":"agent_fallback","from_agent":agent_type.value,"to_agent":agent.agent_type.value,"reason":"unavailable","success":response.success})
 
         # 已尝试副作用操作后，不让兜底 Agent 再次执行可能相同的业务动作。
         if not response.success and any(not attempt.get("retry_safe", False) for attempt in req.tool_attempts):

@@ -50,6 +50,8 @@ async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_pa
     def fake_client():
         async def create(**kwargs):
             if "tools" not in kwargs: return response('{"relevance":0.9,"accuracy":0.9,"completeness":0.9,"helpfulness":0.9}')
+            if kwargs.get("system","").startswith("你是ResolveDesk只读IT专业节点"):
+                return response("合成专业节点只读建议。")
             message = kwargs["messages"][-1]["content"]
             if "先询问" in message: return response(tool="ask_clarification", args={"question": "请提供资源级别、有效期或资产ID。"})
             if "请准备权限申请" in message: return response(tool="prepare_ticket", args=ACCESS | ({"duration_days":14} if wrong_fields else {}))

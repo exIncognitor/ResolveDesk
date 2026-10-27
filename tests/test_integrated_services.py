@@ -105,15 +105,26 @@ async def test_rewrite_fusion_rerank_and_failure_fallback(store):
 
 @pytest.mark.asyncio
 async def test_original_routing_and_parallel_specialists_are_used(store):
-    from core.intent_recognizer import IntentCategory,UrgencyLevel
-    svc=DeskServices(store,HybridKnowledge(store),client_with(),mcp_configs=[])
-    svc.roles._intent_recognizer.recognize=AsyncMock(return_value=SimpleNamespace(intent=IntentCategory.TECHNICAL_LOGIN,intent_group='technical',urgency=UrgencyLevel.MEDIUM,confidence=.9,entities={}))
-    svc.roles._execute=AsyncMock(return_value=SimpleNamespace(success=True,content='专业只读建议'))
+    kb=HybridKnowledge(store)
+    kb.add(SUPPORT,'vpn','VPN','# VPN\n\nVPN连接故障查询网络。')
+    kb.add(SUPPORT,'license','IDEA授权','# IDEA授权\n\n软件许可证按审批分配。')
+    async def create(**kwargs):
+        if 'tools' not in kwargs:return response('{"fine_intents":["vpn_failure","license_request"],"confidence":0.95,"urgency":1}')
+        if kwargs['messages'][-1]['role']=='user' and isinstance(kwargs['messages'][-1]['content'],list):return response('专业只读建议。')
+        query='IDEA许可证' if any(t['name']=='check_license_request' for t in kwargs['tools']) else 'VPN连接故障'
+        return response(tool='search_knowledge_base',args={'query':query})
+    model=SimpleNamespace(messages=SimpleNamespace(create=AsyncMock(side_effect=create)),close=AsyncMock())
+    svc=DeskServices(store,kb,model,mcp_configs=[])
+    run,_=store.create_run(USER,'VPN连不上，同时IDEA许可证过期','actual-routing')
+    store.claim(USER,run['id'])
     try:
-        packet=await svc.route(USER,'run','登录报错 401，同时订阅被重复扣款',[],{})
+        packet=await svc.route(USER,run['id'],run['message'],[],{})
         assert packet['primary']=='technical' and 'billing' in packet['supporting']
-        assert svc.roles._execute.call_count==2
-        assert len(packet['specialist_opinions'])==2
+        result=await svc.consult(USER,run['id'],run['message'],[],{'evidence':[]},packet)
+        assert result['status']=='success' and len(result['specialist_opinions'])==2
+        assert all('search_knowledge_base' in r['tools_used'] for r in result['specialist_opinions'])
+        assert len(result['sources'])==2
+        assert all(e['payload']['seconds']>=0 for e in store.events(USER,run['id']) if e['kind']=='agent_execution')
         assert svc.skills.prompt_for('登录报错 401','technical')
     finally:await svc.close()
 

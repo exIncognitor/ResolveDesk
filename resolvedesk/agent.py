@@ -329,10 +329,12 @@ class DeskAgent:
         skill_prompt=""
         if self.services:
             state.setdefault("consultations",{})
+            context["evidence"]=list(state["sources"].values())
             checkpoint_lock=asyncio.Lock()
-            async def save(role,result):
+            async def save(role,result,sources):
                 async with checkpoint_lock:
                     state["consultations"][role]=result
+                    state["sources"].update(sources)
                     self.store.checkpoint(p,run_id,state)
             result=await self.services.consult(p,run_id,latest,history,context,context["routing"],state["consultations"],save)
             state["sources"].update(result["sources"])
