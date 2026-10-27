@@ -1,0 +1,225 @@
+{
+  "status": "fail",
+  "checks": {
+    "same_quality_contract": true,
+    "same_dialog_suite": true,
+    "complete_intent_coverage": true,
+    "intent_accuracy_non_regression": true,
+    "intent_macro_f1_non_regression": false,
+    "dialog_execution_complete": true,
+    "no_new_deterministic_dialog_failures": false,
+    "auxiliary_judge_pass_rate_non_regression": false,
+    "same_fault_triggered": true,
+    "same_retrieval_contract": true,
+    "same_all_300_document_rankings": true,
+    "current_citations_and_spans_valid": true,
+    "same_performance_contract": true,
+    "all_performance_profiles_present": true,
+    "all_component_p95_and_errors_non_regression": true
+  },
+  "policies": {
+    "retrieval": "adaptive",
+    "execution": "adaptive"
+  },
+  "baseline_quality": {
+    "accuracy": 0.9732142857142857,
+    "macro_f1": 0.9674448384554768,
+    "dialogs": 11
+  },
+  "candidate_quality": {
+    "accuracy": 0.9732142857142857,
+    "macro_f1": 0.9628917344239415,
+    "dialogs": 10
+  },
+  "lost_deterministic_dialogs": [
+    "network-correction"
+  ],
+  "costs": {
+    "baseline": {
+      "conservative_cny": "1.222752",
+      "calls": 296,
+      "input_tokens": 520680,
+      "output_tokens": 22674,
+      "elapsed_s": 257.42872762680054
+    },
+    "candidate": {
+      "conservative_cny": "1.168932",
+      "calls": 248,
+      "input_tokens": 499538,
+      "output_tokens": 21232,
+      "elapsed_s": 214.15720391273499
+    }
+  },
+  "performance": [
+    {
+      "chunks": 1000,
+      "concurrency": 1,
+      "phase": "cold",
+      "baseline_p50_ms": 88.6233499913942,
+      "candidate_p50_ms": 38.80115001811646,
+      "baseline_p95_ms": 98.48039998905733,
+      "candidate_p95_ms": 42.25860000588,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.5708932943958842,
+      "baseline_cpu_s": 1.65625,
+      "candidate_cpu_s": 0.515625
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 1,
+      "phase": "warm",
+      "baseline_p50_ms": 14.438050013268366,
+      "candidate_p50_ms": 8.301599998958409,
+      "baseline_p95_ms": 16.006499994546175,
+      "candidate_p95_ms": 9.994999971240759,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.3755661778248641,
+      "baseline_cpu_s": 0.28125,
+      "candidate_cpu_s": 0.09375
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 5,
+      "phase": "cold",
+      "baseline_p50_ms": 211.93935003248043,
+      "candidate_p50_ms": 73.16845000605099,
+      "baseline_p95_ms": 247.6174999610521,
+      "candidate_p95_ms": 153.31179997883737,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.3808523226227877,
+      "baseline_cpu_s": 1.765625,
+      "candidate_cpu_s": 0.5
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 5,
+      "phase": "warm",
+      "baseline_p50_ms": 41.247300017857924,
+      "candidate_p50_ms": 11.288249981589615,
+      "baseline_p95_ms": 55.60299998614937,
+      "candidate_p95_ms": 13.51949997479096,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.7568566448184694,
+      "baseline_cpu_s": 0.296875,
+      "candidate_cpu_s": 0.125
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 10,
+      "phase": "cold",
+      "baseline_p50_ms": 548.8278999982867,
+      "candidate_p50_ms": 146.88275000662543,
+      "baseline_p95_ms": 656.2676999601535,
+      "candidate_p95_ms": 235.47150002559647,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.6411959631109476,
+      "baseline_cpu_s": 1.9375,
+      "candidate_cpu_s": 0.46875
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 10,
+      "phase": "warm",
+      "baseline_p50_ms": 64.17025002883747,
+      "candidate_p50_ms": 20.869450003374368,
+      "baseline_p95_ms": 95.84830002859235,
+      "candidate_p95_ms": 50.13180000241846,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.47696724941951263,
+      "baseline_cpu_s": 0.359375,
+      "candidate_cpu_s": 0.1875
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 1,
+      "phase": "cold",
+      "baseline_p50_ms": 523.8364499818999,
+      "candidate_p50_ms": 83.88985000783578,
+      "baseline_p95_ms": 592.3477999749593,
+      "candidate_p95_ms": 96.00949997548014,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.837917014329185,
+      "baseline_cpu_s": 12.359375,
+      "candidate_cpu_s": 1.4375
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 1,
+      "phase": "warm",
+      "baseline_p50_ms": 62.81799997668713,
+      "candidate_p50_ms": 9.702750016003847,
+      "baseline_p95_ms": 69.34230000479147,
+      "candidate_p95_ms": 12.10759999230504,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.8253937352601742,
+      "baseline_cpu_s": 1.5,
+      "candidate_cpu_s": 0.09375
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 5,
+      "phase": "cold",
+      "baseline_p50_ms": 1737.0031000173185,
+      "candidate_p50_ms": 219.69030002946965,
+      "baseline_p95_ms": 2090.263399994001,
+      "candidate_p95_ms": 1096.899800002575,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.4752336954253119,
+      "baseline_cpu_s": 12.96875,
+      "candidate_cpu_s": 1.703125
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 5,
+      "phase": "warm",
+      "baseline_p50_ms": 207.82969999709167,
+      "candidate_p50_ms": 17.930550005985424,
+      "baseline_p95_ms": 278.0329000088386,
+      "candidate_p95_ms": 22.891699976753443,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.9176654993850522,
+      "baseline_cpu_s": 1.546875,
+      "candidate_cpu_s": 0.25
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 10,
+      "phase": "cold",
+      "baseline_p50_ms": 3488.7316999956965,
+      "candidate_p50_ms": 348.9405000000261,
+      "baseline_p95_ms": 5465.600900002755,
+      "candidate_p95_ms": 1246.5937999659218,
+      "baseline_error_rate": 0.075,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.7719200829381279,
+      "baseline_cpu_s": 14.078125,
+      "candidate_cpu_s": 1.453125
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 10,
+      "phase": "warm",
+      "baseline_p50_ms": 366.58589998842217,
+      "candidate_p50_ms": 24.34839998022653,
+      "baseline_p95_ms": 1599.629600008484,
+      "candidate_p95_ms": 47.01420001219958,
+      "baseline_error_rate": 0.0,
+      "candidate_error_rate": 0.0,
+      "p95_improvement_fraction": 0.9706093210503542,
+      "baseline_cpu_s": 2.40625,
+      "candidate_cpu_s": 0.1875
+    }
+  ],
+  "limitations": "Single stochastic Flash run per revision; same-model Judge correlated. Synthetic quality set and synthetic-vector component load are separate. Cold phase does not flush SQL/Chroma OS caches. Time and provider drift are not causal estimates.",
+  "decision": "Adaptive policies may become default only if this comparison passes; do not tune on holdout failures. Failed candidates and raw reports must remain retained."
+}

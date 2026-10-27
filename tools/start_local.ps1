@@ -3,6 +3,7 @@ $ErrorActionPreference='Stop'
 $taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location -LiteralPath $taskRoot
 $taskPython=if($PythonExecutable){$PythonExecutable}else{Join-Path $taskRoot '.codex-runtime\python\Scripts\python.exe'}
+if($PythonExecutable -and -not(Test-Path -LiteralPath $taskPython)){throw 'The explicit PythonExecutable does not exist'}
 if(-not(Test-Path -LiteralPath $taskPython)){$taskPython=Join-Path $taskRoot '.venv\Scripts\python.exe'}
 if(-not(Test-Path -LiteralPath $taskPython)){throw 'Create the Python 3.12 runtime first; see README_ResolveDesk.txt'}
 if(-not(Test-Path -LiteralPath (Join-Path $taskRoot 'data\auth.json'))){throw 'Run .venv\Scripts\python.exe -X utf8 tools\setup_local.py --download-model first'}
