@@ -81,6 +81,9 @@ def copy_to_postgres(source,target):
         actual={r[0] for r in db.execute("SELECT tablename FROM pg_tables WHERE schemaname=?",(db.schema,))}
         if not actual<=TABLES: raise ValueError("Unexpected target tables; refusing migration")
         for table in sorted(actual):
+            if table=="memory_queue_guard":
+                if [tuple(row) for row in db.execute('SELECT * FROM memory_queue_guard')]!=[(1,)]:raise ValueError("Unexpected memory guard seed")
+                continue
             if db.execute('SELECT COUNT(*) FROM "'+table+'"').fetchone()[0]: raise ValueError("Target is not empty; refusing migration")
         verified={}
         for table,expected in manifest.items():
@@ -88,6 +91,9 @@ def copy_to_postgres(source,target):
             if any(not re.fullmatch(r"[a-z_][a-z0-9_]*",column) for column in columns): raise ValueError("Unexpected column")
             selection=",".join('"'+column+'"' for column in columns)
             for row in src.execute('SELECT '+selection+' FROM "'+table+'"'):
+                if table=="memory_queue_guard":
+                    if tuple(row)!=(1,):raise ValueError("Unexpected legacy memory guard")
+                    continue
                 db.execute('INSERT INTO "'+table+'"('+selection+') VALUES('+",".join("?" for _ in columns)+")",row)
             received=row_digest([dict(r) for r in db.execute('SELECT '+selection+' FROM "'+table+'"')])
             if received!={k:expected[k] for k in ("count","sha256")}: raise RuntimeError("Migration content mismatch in "+table)
