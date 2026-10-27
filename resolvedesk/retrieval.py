@@ -369,6 +369,10 @@ class HybridKnowledge:
             count=db.execute("SELECT COUNT(*) FROM chunks c WHERE tenant=? AND (visibility='tenant' OR owner=?) AND "+readable(db),(p.tenant,p.user)).fetchone()[0]
         return {'total_chunks':count}
 
+    def has_managed(self,p):
+        with self.store.db() as db:
+            return bool(db.execute("SELECT 1 FROM knowledge_publications k JOIN knowledge_documents d ON d.tenant=k.tenant AND d.document_id=k.document_id WHERE d.tenant=? AND (d.visibility='tenant' OR d.owner=?) LIMIT 1",(p.tenant,p.user)).fetchone())
+
     def status(self):
         with self.store.db() as db:
             count = db.execute("SELECT COUNT(*) FROM chunks").fetchone()[0]
