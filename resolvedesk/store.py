@@ -327,11 +327,13 @@ class Store:
             self._receipt(db,row)
             return self._snapshot(db,row),True
 
-    def prepare(self, p, run_id, fields, missing):
+    def prepare(self, p, run_id, fields, missing,provenance=None):
         with self.db(True) as db:
             row = self._run(db, p, run_id)
             if row["status"] != "running":
                 raise Conflict("Run is no longer running")
+            if provenance is not None:
+                self._event(db,run_id,'draft_provenance',{'fields':provenance,'confirmed':False})
             version = row["version"] + 1
             approval = digest([run_id, version, fields]) if not missing else None
             status = "awaiting_input" if missing else "awaiting_confirmation"

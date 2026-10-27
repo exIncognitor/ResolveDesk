@@ -299,7 +299,7 @@ class DeskAgent:
                         missing = fields.missing() + self.business.validate_draft(p, payload)
                         if fields.workflow == "generic":
                             payload = {key: payload[key] for key in ("summary", "description", "category", "priority")}
-                        self.store.prepare(p, run_id, payload, missing)
+                        provenance=None
                         if self.services:
                             literal=entity_state.get('sources',{})
                             provenance={key:literal[key] for key in payload if key in literal}
@@ -307,7 +307,7 @@ class DeskAgent:
                                 provenance['product']={'source':'catalog_mapping','literal_software':literal['software']}
                             for key in payload:
                                 if key not in provenance:provenance[key]={'source':'derived_summary_or_classification','supporting_turn_seq':entity_state.get('turn_seq'),'user_text':history[-1]['content'][:4000]}
-                            self.store.event(p,run_id,'draft_provenance',{'fields':provenance,'confirmed':False})
+                        self.store.prepare(p,run_id,payload,missing,provenance=provenance)
                         data={'draft':payload,'missing':missing,'submitted':False};tool_success=True
                         tool_seconds=observe_tool(name,True,tool_started)
                         return
