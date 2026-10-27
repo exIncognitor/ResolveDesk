@@ -47,3 +47,28 @@ def test_cleared_values_are_not_kept_and_negative_switch_is_not_a_reset(tmp_path
         assert not same['reset'] and same['entities']==second['entities']
         with pytest.raises(KeyError):states.get(OTHER,run['id'])
     finally:store.close()
+
+
+@pytest.mark.asyncio
+async def test_production_prepare_cannot_invent_unknown_days(tmp_path):
+    from resolvedesk.agent import DeskAgent
+    from resolvedesk.retrieval import HybridKnowledge
+    from resolvedesk.services import DeskServices
+    from test_it_execution import model_for
+    from test_it_workflows import ACCESS
+    from test_resolvedesk import SUPPORT,response
+    store=Store(tmp_path/'no-inferred-duration.sqlite3');kb=HybridKnowledge(store)
+    kb.add(SUPPORT,'permissions','权限制度','# 权限\n申请需要资源、级别、用途和明确期限，模型不得自行选择。')
+    model=model_for(fine=('access_request',));original=model.messages.create.side_effect
+    async def create(**kwargs):
+        if kwargs.get('system','').startswith('你是 ResolveDesk'):
+            return response(tool='prepare_ticket',args=ACCESS|{'resource_id':'docs-internal','duration_days':14})
+        return await original(**kwargs)
+    model.messages.create.side_effect=create
+    service=DeskServices(store,kb,model,mcp_configs=[]);agent=DeskAgent(store,kb,model,service)
+    try:
+        run,_=store.create_run(USER,'请准备docs-internal read访问申请，用途是学习接口，使用天数尚未决定。','no-inferred-days')
+        await agent.execute(USER,run['id']);current=store.get_run(USER,run['id'])
+        assert current['status']=='awaiting_input' and current['draft']['duration_days']==0
+        assert '有效天数' in current['answer'] and not current['approval'] and not store.list_tickets(USER)
+    finally:await agent.close();store.close()
