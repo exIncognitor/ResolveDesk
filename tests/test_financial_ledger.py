@@ -1,6 +1,7 @@
 """Real PostgreSQL finance tests use a unique schema and synthetic source only."""
 from concurrent.futures import ThreadPoolExecutor
 import os
+import json
 import uuid
 
 import pytest
@@ -40,6 +41,7 @@ def test_exact_import_preserves_paid_and_uncertain_amounts_and_refuses_reset(fin
     imported=ledger.import_snapshot(source.path)
     assert {k:imported[k] for k in ('count','sha256')}==manifest(rows)
     assert ledger.summary()==expected
+    assert json.loads(json.dumps(ledger.summary()))==expected
     with pytest.raises(PaidCallBlocked):ledger.import_snapshot(source.path)
     assert ledger.summary()==expected
 

@@ -1,0 +1,22 @@
+{
+  "status": "verified",
+  "imported": {
+    "count": 339,
+    "sha256": "811b8ddbe806ff757258c588aa9d0aa3e9e6ddf34b0decff4d099ee2d7fd193d"
+  },
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.59982",
+    "available_cny": "16.40018",
+    "calls": {
+      "settled": 339
+    },
+    "usage_input_tokens": 653982,
+    "usage_output_tokens": 36482,
+    "unresolved_reservation_cny": "0"
+  },
+  "source_preserved": true,
+  "snapshot": ".codex-runtime\\checkpoints\\finance-20261027T070151919319Z-05fa8b58",
+  "note": "Import committed successfully; initial report serialization failed on PostgreSQL Decimal token sums. Revalidated complete snapshot manifest without reimporting or resetting."
+}

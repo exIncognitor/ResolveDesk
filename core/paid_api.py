@@ -152,8 +152,8 @@ class CostLedger:
             "conservative_commitment_cny": str(Decimal(committed) / 1_000_000),
             "available_cny": str(Decimal(max(0, self.policy.operational_units - committed)) / 1_000_000),
             "calls": counts,
-            "usage_input_tokens": usage[0],
-            "usage_output_tokens": usage[1],
+            "usage_input_tokens": int(usage[0]),
+            "usage_output_tokens": int(usage[1]),
             "unresolved_reservation_cny": str(Decimal(usage[2]) / 1_000_000),
         }
 
