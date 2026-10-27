@@ -47,8 +47,7 @@ class MCPServerConfig:
         if not isinstance(self.args,list) or any(not isinstance(arg,str) for arg in self.args):raise ValueError("MCP args must be strings")
         if not isinstance(self.headers_env,dict) or any(not re.fullmatch(r"[A-Za-z0-9-]+",key) or not isinstance(value,str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*",value) for key,value in self.headers_env.items()):raise ValueError("MCP headers_env requires header-to-variable names")
         if not isinstance(self.env_vars,list) or any(not isinstance(value,str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*",value) for value in self.env_vars):raise ValueError("MCP env_vars requires variable names")
-        if set(self.headers_env.values())|set(self.env_vars) & {"ANTHROPIC_API_KEY","DEEPSEEK_API_KEY","SILICONFLOW_API_KEY"}:
-            if (set(self.headers_env.values())|set(self.env_vars)) & {"ANTHROPIC_API_KEY","DEEPSEEK_API_KEY","SILICONFLOW_API_KEY"}:raise ValueError("Model credentials must not be forwarded to MCP")
+        if (set(self.headers_env.values())|set(self.env_vars)) & {"ANTHROPIC_API_KEY","DEEPSEEK_API_KEY","SILICONFLOW_API_KEY"}:raise ValueError("Model credentials must not be forwarded to MCP")
         if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,24}", self.name):
             raise ValueError("MCP 服务名必须是 1–25 位字母、数字、下划线或连字符")
         if self.transport not in {"streamable_http", "stdio"}:
@@ -347,7 +346,7 @@ class StandardMCPClient:
                     if secret:value=value.replace(secret,"[REDACTED]")
                 return value
             if isinstance(value,list):return [scrub(item,depth+1) for item in value]
-            if isinstance(value,dict):return {key:scrub(item,depth+1) for key,item in value.items()}
+            if isinstance(value,dict):return {scrub(key,depth+1):scrub(item,depth+1) for key,item in value.items()}
             return value
         return bounded_result(scrub({"structured": structured, "content": content}), server, name,
                               connection.config.max_result_chars)

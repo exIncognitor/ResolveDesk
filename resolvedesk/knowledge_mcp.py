@@ -16,10 +16,19 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.exceptions import ToolError
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
-from pydantic import Field
+from pydantic import BaseModel,Field
 from starlette.responses import JSONResponse
 
 from resolvedesk.store import Principal
+
+
+class KnowledgeResult(BaseModel):
+    results:list[dict]
+    source:str='resolvedesk_knowledge'
+    mode:str
+    effective_mode:str
+    degraded:bool
+    errors:list[str]
 
 
 def create_knowledge_mcp(api):
@@ -38,14 +47,14 @@ def create_knowledge_mcp(api):
     @server.tool(annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True))
     async def search_local_knowledge(query:Annotated[str,Field(min_length=1,max_length=2000)],
                                      top_k:Annotated[int,Field(ge=1,le=20,strict=True)]=5,
-                                     mode:Literal['hybrid','bm25','vector']='hybrid')->dict:
+                                     mode:Literal['hybrid','bm25','vector']='hybrid')->KnowledgeResult:
         """按当前令牌身份检索IT知识库。只读，不调用模型，不接受租户或用户覆盖。"""
         p=principal()
         try:
             services=api.state.agent.services
             data=await services.search(p,query,top_k,optimize=False,mode=mode) if services else await asyncio.to_thread(api.state.knowledge.search,p,query,top_k,mode)
-            return {'results':data['items'],'source':'resolvedesk_knowledge','mode':data['mode'],
-                    'effective_mode':data.get('effective_mode',data['mode']),'degraded':data['degraded'],'errors':data.get('errors',[])}
+            return KnowledgeResult(results=data['items'],mode=data['mode'],effective_mode=data.get('effective_mode',data['mode']),
+                degraded=data['degraded'],errors=data.get('errors',[]))
         except asyncio.CancelledError:raise
         except Exception:raise ToolError("Knowledge search unavailable or invalid request") from None
 
