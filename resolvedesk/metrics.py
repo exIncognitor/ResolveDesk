@@ -21,7 +21,7 @@ def initialize(db):
     db.executescript('''
         CREATE INDEX IF NOT EXISTS telemetry_window ON telemetry(tenant,created);
         CREATE TABLE IF NOT EXISTS metric_totals(tenant TEXT,kind TEXT,name TEXT,instance TEXT,status TEXT,
-            total INTEGER,measured INTEGER,seconds REAL,buckets TEXT,PRIMARY KEY(tenant,kind,name,instance,status));
+            total BIGINT,measured BIGINT,seconds REAL,buckets TEXT,PRIMARY KEY(tenant,kind,name,instance,status));
         CREATE TABLE IF NOT EXISTS execution_attempts(run_id TEXT,epoch INTEGER,tenant TEXT,owner TEXT,turn_key TEXT,
             turn_seq INTEGER,instance TEXT,started REAL,lease_until REAL,finished REAL,status TEXT,error TEXT,
             PRIMARY KEY(run_id,epoch));

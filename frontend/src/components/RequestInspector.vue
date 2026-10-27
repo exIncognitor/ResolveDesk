@@ -120,7 +120,7 @@ const props = defineProps({
 defineEmits(['refresh'])
 const activeAlerts = computed(() => props.monitorData.active_alerts || [])
 const agentCount = computed(() => Object.keys(props.monitorData.agent_stats || {}).length)
-const totalRequests = computed(() => Object.values(props.monitorData.agent_stats || {}).reduce((sum, item) => sum + Number(item.total || 0), 0))
+const totalRequests = computed(() => Number(props.monitorData.total_requests || 0))
 function formatPercent(value) {
   const number = Number(value || 0)
   return `${(number <= 1 ? number * 100 : number).toFixed(1)}%`

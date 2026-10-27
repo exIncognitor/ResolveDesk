@@ -19,9 +19,10 @@
         <details><summary>审计记录</summary><p v-for="(entry, index) in item.audit" :key="index">{{ entry.actor }} · {{ entry.action }} · {{ entry.to_status }} · {{ entry.note }}</p></details>
       </article>
     </section>
-    <section v-if="monitor.window_seconds" class="workspace-card"><h2>监控与告警</h2><p>最近 {{ monitor.window_seconds }} 秒窗口，至少 {{ monitor.min_samples }} 个样本；请求 {{ monitor.total_requests }} 次。</p>
+    <section v-if="monitor.window_seconds" class="workspace-card"><h2>监控与告警</h2><p>统计窗口 {{ monitor.window_seconds }} 秒，至少 {{ monitor.min_samples }} 个样本；累计主执行 {{ monitor.total_requests }} 次、会话 {{ monitor.total_conversations ?? '—' }} 个。角色和工具分别统计。</p>
       <p v-for="alert in monitor.active_alerts" :key="alert.id">{{ alert.payload.name }}：{{ alert.payload.message }}</p>
       <p v-if="!monitor.active_alerts?.length">当前没有活跃告警。</p>
+      <article v-for="(suggestion,index) in monitor.suggestions || []" :key="index"><strong>{{ suggestion.title }}</strong><p>{{ suggestion.action }}</p></article>
       <p>{{ monitor.webhook_configured ? '已配置 Webhook；下方显示投递结果。' : '未配置外部 Webhook，告警事件保存在本地。' }}</p>
       <details><summary>工具、角色指标与通知记录</summary><pre>{{ JSON.stringify(monitor, null, 2) }}</pre></details>
     </section>

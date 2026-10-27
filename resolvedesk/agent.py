@@ -124,31 +124,26 @@ class DeskAgent:
 
     async def execute(self, p, run_id):
         async with self.slots:
-            started = time.monotonic()
             token = None
-            try:
-                if self.coordination:
-                    from resolvedesk.coordination import LeaseBusy, LeaseLost
-                    try:
-                        async with self.coordination.lease([p.tenant,p.user,run_id]) as lease:
-                            token = await asyncio.to_thread(self.store.claim_execution,p,run_id,lease.owner,60,instance='desk-'+self.worker_id)
-                            if token is None: return False
-                            async def renew():
-                                if await asyncio.to_thread(self.store.renew_execution,p,token,60): return True
-                                # Completion stops SQL renewals; Redis still protects cleanup.
-                                current = await asyncio.to_thread(self.store.get_run,p,run_id)
-                                return current["status"] not in {"running","queued"}
-                            lease.on_renew = renew
-                            with self.store.execution(token): await self._execute_owned(p,run_id)
-                    except LeaseBusy: return False
-                    except LeaseLost:
-                        if token: await asyncio.to_thread(self.store.lose_execution,p,token)
-                else:
-                    token = self.store.claim_execution(p,run_id,self.worker_id,instance='desk-'+self.worker_id)
-                    if token is None: return False
-                    with self.store.execution(token): await self._execute_owned(p,run_id)
-            finally:
-                pass  # Terminal outcome/duration is committed with its exact epoch receipt.
+            if self.coordination:
+                from resolvedesk.coordination import LeaseBusy, LeaseLost
+                try:
+                    async with self.coordination.lease([p.tenant,p.user,run_id]) as lease:
+                        token=await asyncio.to_thread(self.store.claim_execution,p,run_id,lease.owner,60,instance='desk-'+self.worker_id)
+                        if token is None:return False
+                        async def renew():
+                            if await asyncio.to_thread(self.store.renew_execution,p,token,60):return True
+                            current=await asyncio.to_thread(self.store.get_run,p,run_id)
+                            return current['status'] not in {'running','queued'}
+                        lease.on_renew=renew
+                        with self.store.execution(token):await self._execute_owned(p,run_id)
+                except LeaseBusy:return False
+                except LeaseLost:
+                    if token:await asyncio.to_thread(self.store.lose_execution,p,token)
+            else:
+                token=self.store.claim_execution(p,run_id,self.worker_id,instance='desk-'+self.worker_id)
+                if token is None:return False
+                with self.store.execution(token):await self._execute_owned(p,run_id)
             return token is not None
 
     async def _execute_owned(self,p,run_id):
@@ -178,6 +173,9 @@ class DeskAgent:
 
     async def _loop(self, p, run_id):
         run = self.store.get_run(p, run_id)
+        def observe_tool(name,success,started):
+            self.monitor.safe_record(p.tenant,'tool',name,success,time.monotonic()-started,owner=p.user,run_id=run_id,
+                turn_key=run.get('turn_key'),instance='desk-'+self.worker_id,detail={'layer':'main'})
         history = self.store.history(p, run_id)
         state = self.store.load_checkpoint(p,run_id)
         if state:
@@ -261,8 +259,8 @@ class DeskAgent:
                         if not question:
                             raise ValueError("Empty clarification")
                         self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"local"})
-                        self.monitor.record(p.tenant,"tool",name,True,time.monotonic()-tool_started)
                         self.store.finish(p, run_id, "awaiting_input", question)
+                        observe_tool(name,True,tool_started)
                         return
                     if name == "prepare_ticket":
                         current=self.store.get_run(p,run_id)
@@ -278,8 +276,8 @@ class DeskAgent:
                         if fields.workflow == "generic":
                             payload = {key: payload[key] for key in ("summary", "description", "category", "priority")}
                         self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"local"})
-                        self.monitor.record(p.tenant,"tool",name,True,time.monotonic()-tool_started)
                         self.store.prepare(p, run_id, payload, missing)
+                        observe_tool(name,True,tool_started)
                         return
                     if name == "knowledge_search":
                         data = await self.services.search(p,args["query"],5,role=role) if self.services else await asyncio.to_thread(self.knowledge.search,p,args["query"],5)
@@ -296,11 +294,11 @@ class DeskAgent:
                     else:
                         raise ValueError("Tool is not allowed")
                     self.store.event(p,run_id,"tool_result",{"name":name,"success":True,"source":"mcp" if name in external else "local"})
-                    self.monitor.record(p.tenant,"tool",name,True,time.monotonic()-tool_started)
+                    observe_tool(name,True,tool_started)
                     outputs.append({"type": "tool_result", "tool_use_id": call["id"], "content": encode(data)})
                 except (KeyError, ValueError, StopIteration, ValidationError, PermissionError, RuntimeError) as exc:
                     self.store.event(p,run_id,"tool_result",{"name":name,"success":False,"error":type(exc).__name__})
-                    self.monitor.record(p.tenant,"tool",name,False,time.monotonic()-tool_started)
+                    observe_tool(name,False,tool_started)
                     outputs.append({"type": "tool_result", "tool_use_id": call["id"], "is_error": True,
                                     "content": encode({"error": type(exc).__name__, "detail": str(exc)[:160] if isinstance(exc, ValueError) else "工具未执行成功"})})
             messages.append({"role": "user", "content": outputs})

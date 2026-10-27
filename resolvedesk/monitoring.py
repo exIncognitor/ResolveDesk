@@ -109,7 +109,7 @@ class Monitor:
                     threshold=self.policy['tool_avg_ms'] if kind=='tool' else self.policy['agent_avg_ms']
                     if kind in {'agent','tool'} and stats['avg_ms'] and stats['avg_ms']>threshold:rules.append(('latency','latency',f'窗口平均耗时超过 {threshold}ms'))
                     if kind in {'run','retrieval'} and stats['p95_ms'] and stats['p95_ms']>self.policy['run_p95_ms']:rules.append(('latency','latency','窗口 P95 超过30秒'))
-                    for anomaly in stats['anomalies']:rules.append(('z_'+anomaly['metric'],'z_score',anomaly))
+                    for anomaly in stats['anomalies']:rules.append(('z_'+anomaly['metric'],'z_score',f'{anomaly["metric"]} 的 Z-score={anomaly["z_score"]:.2f}，超过 {self.policy["z_sensitivity"]}'))
                     for suffix,rule,message in rules:
                         triggered[f'{kind}:{name}:{suffix}']={'kind':kind,'name':name,'rule':rule,'message':message,'stats':stats}
             existing={r['rule_key']:r for r in db.execute('SELECT * FROM desk_alerts WHERE tenant=?',(tenant,))}
