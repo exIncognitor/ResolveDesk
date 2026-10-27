@@ -1,0 +1,15 @@
+{
+  "kind": "component_equivalence_not_live_quality",
+  "passed": true,
+  "checks": {
+    "same_336_trace_predictions": true,
+    "all_observed_predictions_reproduced": true,
+    "resolvedesk/intent.py_unchanged": true,
+    "core/paid_api.py_unchanged": true,
+    "resolvedesk/eval_metrics.py_unchanged": true,
+    "LocalEmbedding_AST_unchanged": true
+  },
+  "samples": 336,
+  "paid_calls": 0,
+  "limits": "All three observed LLM channels replayed through actual parser/rules/real E5 on both versions. Establishes unchanged implementation given identical Flash responses. Fresh end-to-end full comparison remains failed for intent metrics and is not overwritten; current live accuracy is 108/112. Adaptive remains disabled."
+}
