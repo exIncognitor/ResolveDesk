@@ -129,6 +129,12 @@ async def test_task_switch_clears_old_draft_and_permission_fields(environment):
         await agent.execute(p,run["id"])
         old=store.get_run(p,run["id"])
         assert old["status"]=="awaiting_confirmation"
+        store.reply(p,run["id"],"有效期改成14天，其余不变，请更新权限申请草稿","correct-days-key")
+        await agent.execute(p,run["id"])
+        # The fixture model still emits ACCESS.duration_days=7; explicit user
+        # provenance is authoritative and must override that stale tool field.
+        old=store.get_run(p,run["id"])
+        assert old["draft"]["duration_days"]==14
         store.reply(p,run["id"],"换个问题，请准备LT-1001维修，键盘失灵","new-task-key")
         await agent.execute(p,run["id"])
         new=store.get_run(p,run["id"])

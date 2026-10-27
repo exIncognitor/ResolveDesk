@@ -1,0 +1,1004 @@
+{
+  "kind": "current_asgi_real_it_migration",
+  "simulation": true,
+  "schema": "verify_it_a7014b52aab743a48c6f33444c50bf6f",
+  "collection": "verify-it-a7014b52aab743a48c6f33444c50bf6f",
+  "passed": 8,
+  "total": 8,
+  "results": [
+    {
+      "case": "network",
+      "passed": true,
+      "checks": {
+        "domain": true,
+        "method": true,
+        "real_sources": true,
+        "status": true,
+        "no_business_write": true,
+        "citation": true,
+        "actual_roles": true
+      },
+      "status": "completed",
+      "error": null,
+      "route": {
+        "confidence": 0.7944388855840075,
+        "domains": [
+          "network_endpoint"
+        ],
+        "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+        "entities": {
+          "error_code": [
+            "691"
+          ],
+          "os": [
+            "Windows 11"
+          ]
+        },
+        "entity_state": {
+          "domain": "network_endpoint",
+          "entities": {
+            "error_code": [
+              "691"
+            ],
+            "os": [
+              "Windows 11"
+            ]
+          },
+          "reset": false,
+          "sources": {
+            "error_code": {
+              "source": "explicit_user_text",
+              "turn_seq": 1,
+              "values": [
+                "691"
+              ]
+            },
+            "os": {
+              "source": "explicit_user_text",
+              "turn_seq": 1,
+              "values": [
+                "Windows 11"
+              ]
+            }
+          },
+          "task_epoch": 0,
+          "turn_seq": 1
+        },
+        "fine_intent": "vpn_failure",
+        "intent": "network_endpoint",
+        "intent_method": "it_three_way_fusion_v1",
+        "mission": "基于知识和本人资产给出低风险、可验证的排查。",
+        "needs_clarification": false,
+        "primary": "technical",
+        "reason": "明确询问Windows 11 VPN错误691的排查步骤，属于VPN连接故障；普通网页正常，无高危或紧急迹象。",
+        "recovery_probe": false,
+        "source_scores": {
+          "embedding": {
+            "available": true,
+            "scores": {
+              "access_request": 0.07673951253342948,
+              "account_unlock": 0.07345920084989745,
+              "device_hazard": 0.07148062389069801,
+              "device_repair": 0.07239449447609989,
+              "dns_failure": 0.08675664587766384,
+              "endpoint_failure": 0.06556667690714323,
+              "greeting": 0.07631032131710389,
+              "human_handoff": 0.0754677390681384,
+              "license_request": 0.055772009698954905,
+              "software_activation": 0.06971637486360534,
+              "ticket_status": 0.07140083359798041,
+              "unknown": 0.06774113899924711,
+              "vpn_failure": 0.13719442792003808
+            },
+            "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+            "weight": 0.2
+          },
+          "llm": {
+            "available": true,
+            "reason": "明确询问Windows 11 VPN错误691的排查步骤，属于VPN连接故障；普通网页正常，无高危或紧急迹象。",
+            "scores": {
+              "vpn_failure": 0.97
+            },
+            "urgency": 2,
+            "weight": 0.7
+          },
+          "pattern": {
+            "available": true,
+            "scores": {
+              "vpn_failure": 0.88
+            },
+            "weight": 0.1
+          }
+        },
+        "supporting": [],
+        "urgency": "MEDIUM",
+        "workflow": [
+          "确认范围",
+          "查询知识/资产",
+          "给出排查",
+          "必要时维修升级"
+        ]
+      },
+      "outcome": {
+        "actual_roles": [
+          "technical"
+        ],
+        "escalated": false,
+        "status": "success"
+      },
+      "answer": "## VPN 错误 691 排查步骤（身份验证失败）\n\n普通网页正常，说明基础外网连通性没问题，问题集中在 VPN 认证环节。\n\n1. **核对账号与密码输入**\n   - 确认企业账号拼写正确，注意 Caps Lock 和输入法状态。\n   - 确认密码是否过期；过期请走企业规定的自助改密渠道。不要在对话或工单中提供密码、验证码。[C-697cb4726763b438238a6cbb]\n\n2. **核对验证码环节**\n   - 若启用动态验证码，检查 Windows 11「设置 → 时间和语言 → 日期和时间」是否自动同步，避免时间偏差导致验证码失效。\n   - 同样不要向任何人提供验证码。[C-697cb4726763b438238a6cbb]\n\n3. **判断是否账号锁定**\n   - 多次失败后仍报 691，可能是账号被锁定。通过企业规定的自助解锁渠道处理；自助渠道不可用时，记录错误提示和发生时间，申请人工协助。[C-697cb4726763b438238a6cbb] [C-7574cda90546eed96a62ae6c]\n\n4. **记录现场信息**\n   - 报错时间、VPN 客户端版本、错误码 691、已尝试的步骤，便于后续人工核验。[C-dc1a15ac6ad9e853b7ec98bd]\n\n**安全边界**：不要关闭系统防火墙，不要安装来源不明的证书来绕过认证 [C-dc1a15ac6ad9e853b7ec98bd]；不要自行切换公共 DNS 访问内部域名 [C-fa349443e61994260faef2f1]。\n\n按你的要求，本次不创建工单。若上述核对后仍报 691，或确认账号锁定且自助解锁不可用，属于需人工核验的账号事项，建议由你本人通过正式渠道提交 access 类申请。\n\n如需进一步定位，可补充：VPN 客户端名称与版本、是否启用双因素、账号近期是否改过密码、是否只有你一人出现该错误。",
+      "draft": null,
+      "simulation": true
+    },
+    {
+      "case": "licensing",
+      "passed": true,
+      "checks": {
+        "domain": true,
+        "method": true,
+        "real_sources": true,
+        "status": true,
+        "no_business_write": true,
+        "citation": true,
+        "actual_roles": true
+      },
+      "status": "completed",
+      "error": null,
+      "route": {
+        "confidence": 0.7723288863331579,
+        "domains": [
+          "software_license"
+        ],
+        "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+        "entities": {
+          "software": [
+            "IntelliJ IDEA Ultimate"
+          ]
+        },
+        "entity_state": {
+          "domain": "software_license",
+          "entities": {
+            "software": [
+              "IntelliJ IDEA Ultimate"
+            ]
+          },
+          "reset": false,
+          "sources": {
+            "software": {
+              "source": "explicit_user_text",
+              "turn_seq": 3,
+              "values": [
+                "IntelliJ IDEA Ultimate"
+              ]
+            }
+          },
+          "task_epoch": 0,
+          "turn_seq": 3
+        },
+        "fine_intent": "license_request",
+        "intent": "software_license",
+        "intent_method": "it_three_way_fusion_v1",
+        "mission": "核验软件白名单、模拟席位和授权申请要求。",
+        "needs_clarification": false,
+        "primary": "billing",
+        "reason": "询问商业席位申请与到期回收制度，属软件许可证政策咨询，明确不提交申请",
+        "recovery_probe": false,
+        "source_scores": {
+          "embedding": {
+            "available": true,
+            "scores": {
+              "access_request": 0.11748110794328451,
+              "account_unlock": 0.07410307235143641,
+              "device_hazard": 0.054945394935612825,
+              "device_repair": 0.07093795157546612,
+              "dns_failure": 0.050498459612805115,
+              "endpoint_failure": 0.04738238678554194,
+              "greeting": 0.0678406727763582,
+              "human_handoff": 0.07780601649126508,
+              "license_request": 0.16664443166578932,
+              "software_activation": 0.08482152893129045,
+              "ticket_status": 0.07590120790826987,
+              "unknown": 0.06298537484410384,
+              "vpn_failure": 0.04865239417877634
+            },
+            "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+            "weight": 0.2
+          },
+          "llm": {
+            "available": true,
+            "reason": "询问商业席位申请与到期回收制度，属软件许可证政策咨询，明确不提交申请",
+            "scores": {
+              "license_request": 0.93
+            },
+            "urgency": 1,
+            "weight": 0.7
+          },
+          "pattern": {
+            "available": true,
+            "scores": {
+              "license_request": 0.88
+            },
+            "weight": 0.1
+          }
+        },
+        "supporting": [],
+        "urgency": "LOW",
+        "workflow": [
+          "确认产品用途",
+          "查询授权目录",
+          "核对席位规则",
+          "说明申请边界"
+        ]
+      },
+      "outcome": {
+        "actual_roles": [
+          "billing"
+        ],
+        "escalated": false,
+        "status": "success"
+      },
+      "answer": "# IntelliJ IDEA Ultimate 商业席位：申请与回收制度\n\n## 一、授权模式\n- IntelliJ IDEA Ultimate 使用**企业命名用户席位**，模拟目录当前有 **2 个可用席位**。[C-69a4d871530d295318e3438c]\n- 命名用户许可证**不得共享**，个人账号与企业账号也不能互借。[C-fd6b6746044817fd3d1ae345]\n- 目录中的席位数量是**演示库存**；本系统只能查询和记录申请，**不会直接向厂商购买或分配真实许可证**。[C-69a4d871530d295318e3438c]\n\n## 二、申请要求\n申请需提供：[C-69a4d871530d295318e3438c]\n1. 产品与版本（IntelliJ IDEA Ultimate）\n2. 业务用途\n3. 使用期限\n4. **主管审批**\n\n审批路径：**主管审批后由 IT 分配**。[C-69a4d871530d295318e3438c]\n\n## 三、没有可用席位时\n进入**采购审核**流程，**不能承诺立刻开通**，也不承诺具体开通时间。[C-69a4d871530d295318e3438c]\n\n## 四、到期与回收\n- 提示授权到期时，先核对**企业账号、产品版本与到期日期**；**不要粘贴授权码**。[C-cb11e78911031e8c88a1b0c2]\n- 离职、转岗或不再需要使用时，由 **IT 管理员回收席位并记录审计**。[C-cb11e78911031e8c88a1b0c2]\n- 个人先行购买**不自动获得报销资格**，费用按审批结果处理。[C-cb11e78911031e8c88a1b0c2]\n\n## 五、边界说明\n本次仅解释制度，**未提交工单、未申请审批、未分配或回收任何席位**；席位与目录均为模拟数据。实际分配、回收与到期账号核验需由主管和 IT 管理员按正式流程人工办理。请勿在对话或工单中提供密码、验证码或完整授权密钥。\n\n如需后续走正式申请，还需补充：具体版本、业务用途、使用期限、主管审批结果。",
+      "draft": null,
+      "simulation": true
+    },
+    {
+      "case": "composite",
+      "passed": true,
+      "checks": {
+        "domain": true,
+        "method": true,
+        "real_sources": true,
+        "status": true,
+        "no_business_write": true,
+        "citation": true,
+        "actual_roles": true
+      },
+      "status": "completed",
+      "error": "specialist_partial",
+      "route": {
+        "confidence": 0.7886821990030557,
+        "domains": [
+          "network_endpoint",
+          "software_license"
+        ],
+        "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+        "entities": {
+          "access_level": [
+            "read"
+          ],
+          "software": [
+            "IDEA Ultimate"
+          ]
+        },
+        "entity_state": {
+          "domain": "network_endpoint",
+          "entities": {
+            "access_level": [
+              "read"
+            ],
+            "software": [
+              "IDEA Ultimate"
+            ]
+          },
+          "reset": false,
+          "sources": {
+            "access_level": {
+              "source": "explicit_user_text",
+              "turn_seq": 5,
+              "values": [
+                "read"
+              ]
+            },
+            "software": {
+              "source": "explicit_user_text",
+              "turn_seq": 5,
+              "values": [
+                "IDEA Ultimate"
+              ]
+            }
+          },
+          "task_epoch": 0,
+          "turn_seq": 5
+        },
+        "fine_intent": "vpn_failure",
+        "intent": "network_endpoint",
+        "intent_method": "it_three_way_fusion_v1",
+        "mission": "基于知识和本人资产给出低风险、可验证的排查。",
+        "needs_clarification": false,
+        "primary": "technical",
+        "reason": "用户明确报告VPN连接超时（普通网络正常）并询问IDEA Ultimate许可证到期后的授权申请制度，要求只读解释不建单；两项分别对应网络端点故障与软件许可申请，无高危紧急信号。",
+        "recovery_probe": false,
+        "source_scores": {
+          "embedding": {
+            "available": true,
+            "scores": {
+              "access_request": 0.11178514053351443,
+              "account_unlock": 0.07488218528172289,
+              "device_hazard": 0.058399688042197986,
+              "device_repair": 0.0660138109614357,
+              "dns_failure": 0.07049674334578852,
+              "endpoint_failure": 0.056382916981166674,
+              "greeting": 0.07984578484823476,
+              "human_handoff": 0.07587600863514302,
+              "license_request": 0.08402674577617184,
+              "software_activation": 0.07723397706039888,
+              "ticket_status": 0.06580004732794163,
+              "unknown": 0.07084595619100477,
+              "vpn_failure": 0.10841099501527893
+            },
+            "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+            "weight": 0.2
+          },
+          "llm": {
+            "available": true,
+            "reason": "用户明确报告VPN连接超时（普通网络正常）并询问IDEA Ultimate许可证到期后的授权申请制度，要求只读解释不建单；两项分别对应网络端点故障与软件许可申请，无高危紧急信号。",
+            "scores": {
+              "license_request": 0.873,
+              "vpn_failure": 0.97
+            },
+            "urgency": 2,
+            "weight": 0.7
+          },
+          "pattern": {
+            "available": true,
+            "scores": {
+              "dns_failure": 0.88,
+              "license_request": 0.88,
+              "vpn_failure": 0.88
+            },
+            "weight": 0.1
+          }
+        },
+        "supporting": [
+          "billing"
+        ],
+        "urgency": "MEDIUM",
+        "workflow": [
+          "确认范围",
+          "查询知识/资产",
+          "给出排查",
+          "必要时维修升级"
+        ]
+      },
+      "outcome": {
+        "actual_roles": [
+          "technical",
+          "billing"
+        ],
+        "escalated": false,
+        "status": "partial"
+      },
+      "answer": "# 一、VPN 持续连接超时（普通网页正常）\n\n普通网页可访问，说明基础外网连通性正常，问题集中在 VPN 隧道建立环节。按低风险顺序自查：\n\n1. **切换网络后重连**：换到另一网络（如手机热点）再连 VPN，判断是否与本地网络/出口有关。[C-dc1a15ac6ad9e853b7ec98bd]\n2. **记录现场信息**：报错时间、VPN 客户端名称与版本、错误码、已尝试步骤，便于后续人工核验。[C-dc1a15ac6ad9e853b7ec98bd]\n3. **区分认证类错误**：若错误码为 691，属身份验证失败，核对账号拼写、Caps Lock、密码是否过期；账号锁定走企业自助解锁渠道。[C-697cb4726763b438238a6cbb]\n4. **区分内网域名解析问题**：若 VPN 能连上但内网域名打不开，核对 VPN 状态与企业 DNS 策略，不要自行切换公共 DNS 访问内部域名。[C-fa349443e61994260faef2f1]\n\n**安全边界**：不要关闭系统防火墙，不要安装来源不明的证书；不要在对话或工单中提供密码、验证码。[C-dc1a15ac6ad9e853b7ec98bd] [C-697cb4726763b438238a6cbb]\n\n**升级路径**：持续超时可提交 network 类工单，附故障描述与已尝试步骤。[C-dc1a15ac6ad9e853b7ec98bd] 按你的要求本次未建单。\n\n# 二、IDEA Ultimate 许可证到期后的授权申请制度\n\n- **授权模式**：企业命名用户席位，模拟目录当前显示 2 个可用席位（演示库存）；本系统只能查询和记录申请，不会向厂商购买或分配真实许可证。[C-69a4d871530d295318e3438c]\n- **到期先核验**：核对**企业账号、产品版本与到期日期**；**不要粘贴授权码**。[C-cb11e78911031e8c88a1b0c2]\n- **申请需提供**：产品与版本、业务用途、使用期限、**主管审批**；审批路径为主管审批后由 IT 分配。[C-69a4d871530d295318e3438c]\n- **无席位时**：进入采购审核，不能承诺立刻开通或给出具体开通时间。[C-69a4d871530d295318e3438c]\n- **费用与回收**：个人先行购买不自动获得报销资格，费用按审批结果处理；离职、转岗或不再使用时由 IT 管理员回收席位并记录审计。[C-cb11e78911031e8c88a1b0c2]\n\n# 三、状态说明\n\n本次为只读解释：**未提交工单、未提交授权申请、未分配或回收任何席位**；目录与席位均为模拟数据。实际分配、回收与到期账号核验需由主管和 IT 管理员按正式流程人工办理。\n\n如需继续推进，请补充：VPN 客户端名称与版本、错误码、是否仅你一人出现；IDEA 具体版本、业务用途、期望使用期限、主管审批结果。",
+      "draft": null,
+      "simulation": true
+    },
+    {
+      "case": "critical",
+      "passed": true,
+      "checks": {
+        "domain": true,
+        "method": true,
+        "real_sources": true,
+        "status": true,
+        "no_business_write": true,
+        "critical": true
+      },
+      "status": "awaiting_input",
+      "error": null,
+      "route": {
+        "confidence": 0.7913935911025863,
+        "domains": [
+          "escalation",
+          "device_service"
+        ],
+        "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+        "entities": {
+          "asset_id": [
+            "LT-1001"
+          ]
+        },
+        "entity_state": {
+          "domain": "device_service",
+          "entities": {
+            "asset_id": [
+              "LT-1001"
+            ]
+          },
+          "reset": false,
+          "sources": {
+            "asset_id": {
+              "source": "explicit_user_text",
+              "turn_seq": 7,
+              "values": [
+                "LT-1001"
+              ]
+            }
+          },
+          "task_epoch": 0,
+          "turn_seq": 7
+        },
+        "fine_intent": "device_hazard",
+        "intent": "device_service",
+        "intent_method": "it_three_way_fusion_v1",
+        "mission": "识别高风险并整理有来源的交接材料，不声称已接通人工。",
+        "needs_clarification": false,
+        "primary": "escalation",
+        "reason": "电池鼓包属设备安全隐患，且用户要求说明人工处理边界，涉及升级人工",
+        "recovery_probe": false,
+        "source_scores": {
+          "embedding": {
+            "available": true,
+            "scores": {
+              "access_request": 0.07054546254064377,
+              "account_unlock": 0.07662634628967523,
+              "device_hazard": 0.12196795551293242,
+              "device_repair": 0.10331334051300792,
+              "dns_failure": 0.064271343697358,
+              "endpoint_failure": 0.06566791429319307,
+              "greeting": 0.0779022542796331,
+              "human_handoff": 0.07836861581387292,
+              "license_request": 0.06313756161762415,
+              "software_activation": 0.06408174191601887,
+              "ticket_status": 0.07045333390675713,
+              "unknown": 0.07865275368157788,
+              "vpn_failure": 0.06501137593770556
+            },
+            "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+            "weight": 0.2
+          },
+          "llm": {
+            "available": true,
+            "reason": "电池鼓包属设备安全隐患，且用户要求说明人工处理边界，涉及升级人工",
+            "scores": {
+              "device_hazard": 0.97,
+              "human_handoff": 0.873
+            },
+            "urgency": 4,
+            "weight": 0.7
+          },
+          "pattern": {
+            "available": true,
+            "scores": {
+              "device_hazard": 0.88,
+              "device_repair": 0.88
+            },
+            "weight": 0.1
+          }
+        },
+        "supporting": [
+          "technical"
+        ],
+        "urgency": "CRITICAL",
+        "workflow": [
+          "识别风险",
+          "查询安全制度",
+          "整理已知信息",
+          "说明人工渠道"
+        ]
+      },
+      "outcome": {
+        "actual_roles": [
+          "escalation",
+          "technical"
+        ],
+        "escalated": true,
+        "status": "partial"
+      },
+      "answer": "为整理 LT-1001 电池鼓包的维修申请草稿（仅草稿，不提交），请补充：1）首次发现鼓包的时间；2）是否伴随冒烟、异味或明显过热；3）设备当前是否已断电、存放位置是否安全；4）是否有重要未备份数据。若暂不需要草稿，也可直接告知。",
+      "draft": null,
+      "simulation": true
+    },
+    {
+      "case": "unknown",
+      "passed": true,
+      "checks": {
+        "domain": true,
+        "method": true,
+        "real_sources": true,
+        "status": true,
+        "no_business_write": true
+      },
+      "status": "awaiting_input",
+      "error": null,
+      "route": {
+        "confidence": 0.7752630109161232,
+        "domains": [
+          "general"
+        ],
+        "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+        "entities": {},
+        "entity_state": {
+          "domain": "general",
+          "entities": {},
+          "reset": false,
+          "sources": {},
+          "task_epoch": 0,
+          "turn_seq": 9
+        },
+        "fine_intent": "unknown",
+        "intent": "general",
+        "intent_method": "it_three_way_fusion_v1",
+        "mission": "核对账号/权限诉求，解释申请及审批边界。",
+        "needs_clarification": true,
+        "primary": "general",
+        "reason": "用户尚未说明具体问题，无法归类到任何已知意图",
+        "recovery_probe": false,
+        "source_scores": {
+          "embedding": {
+            "available": true,
+            "scores": {
+              "access_request": 0.0662810779114195,
+              "account_unlock": 0.0701918572690687,
+              "device_hazard": 0.07103564783119884,
+              "device_repair": 0.07160409866968404,
+              "dns_failure": 0.0717986871279087,
+              "endpoint_failure": 0.0664671605508678,
+              "greeting": 0.0795474122767443,
+              "human_handoff": 0.07240236085656276,
+              "license_request": 0.06972968742951248,
+              "software_activation": 0.055088004060151866,
+              "ticket_status": 0.08813498010940674,
+              "unknown": 0.15131505458061617,
+              "vpn_failure": 0.0664039713268581
+            },
+            "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+            "weight": 0.2
+          },
+          "llm": {
+            "available": true,
+            "reason": "用户尚未说明具体问题，无法归类到任何已知意图",
+            "scores": {
+              "unknown": 0.95
+            },
+            "urgency": 1,
+            "weight": 0.7
+          },
+          "pattern": {
+            "available": true,
+            "scores": {
+              "unknown": 0.8
+            },
+            "weight": 0.1
+          }
+        },
+        "supporting": [],
+        "urgency": "LOW",
+        "workflow": [
+          "确认诉求",
+          "查询制度",
+          "核对必要字段",
+          "说明下一步"
+        ]
+      },
+      "outcome": null,
+      "answer": "请补充你要处理的是账号权限、网络终端、软件授权还是设备维修，以及具体问题。",
+      "draft": null,
+      "simulation": true
+    },
+    {
+      "case": "permission-draft",
+      "passed": true,
+      "checks": {
+        "domain": true,
+        "method": true,
+        "real_sources": true,
+        "status": true,
+        "no_business_write": true,
+        "draft_days": true
+      },
+      "status": "awaiting_confirmation",
+      "error": null,
+      "route": {
+        "confidence": 0.7999319180122736,
+        "domains": [
+          "account_access"
+        ],
+        "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+        "entities": {
+          "access_level": [
+            "read"
+          ],
+          "resource_id": [
+            "repo-resolvedesk"
+          ]
+        },
+        "entity_state": {
+          "domain": "account_access",
+          "entities": {
+            "access_level": [
+              "read"
+            ],
+            "resource_id": [
+              "repo-resolvedesk"
+            ]
+          },
+          "reset": false,
+          "sources": {
+            "access_level": {
+              "source": "explicit_user_text",
+              "turn_seq": 11,
+              "values": [
+                "read"
+              ]
+            },
+            "resource_id": {
+              "source": "explicit_user_text",
+              "turn_seq": 11,
+              "values": [
+                "repo-resolvedesk"
+              ]
+            }
+          },
+          "task_epoch": 0,
+          "turn_seq": 11
+        },
+        "fine_intent": "access_request",
+        "intent": "account_access",
+        "intent_method": "it_three_way_fusion_v1",
+        "mission": "核对账号/权限诉求，解释申请及审批边界。",
+        "needs_clarification": false,
+        "primary": "general",
+        "reason": "用户明确要求准备权限申请草稿，workflow为access_request，仅准备不提交，属账户访问申请。",
+        "recovery_probe": false,
+        "source_scores": {
+          "embedding": {
+            "available": true,
+            "scores": {
+              "access_request": 0.12965959006136843,
+              "account_unlock": 0.07425465395553911,
+              "device_hazard": 0.0577947131432113,
+              "device_repair": 0.06725880899039043,
+              "dns_failure": 0.06517242102157765,
+              "endpoint_failure": 0.056362818852743274,
+              "greeting": 0.07858378777979742,
+              "human_handoff": 0.0804609797154603,
+              "license_request": 0.08331684900487187,
+              "software_activation": 0.08357972898014773,
+              "ticket_status": 0.08477151991520293,
+              "unknown": 0.07280052832123987,
+              "vpn_failure": 0.06598360025844964
+            },
+            "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+            "weight": 0.2
+          },
+          "llm": {
+            "available": true,
+            "reason": "用户明确要求准备权限申请草稿，workflow为access_request，仅准备不提交，属账户访问申请。",
+            "scores": {
+              "access_request": 0.98
+            },
+            "urgency": 1,
+            "weight": 0.7
+          },
+          "pattern": {
+            "available": true,
+            "scores": {
+              "access_request": 0.88
+            },
+            "weight": 0.1
+          }
+        },
+        "supporting": [],
+        "urgency": "LOW",
+        "workflow": [
+          "确认诉求",
+          "查询制度",
+          "核对必要字段",
+          "说明下一步"
+        ]
+      },
+      "outcome": {
+        "actual_roles": [
+          "general"
+        ],
+        "escalated": false,
+        "status": "success"
+      },
+      "answer": "权限申请草稿已准备：仓库阅读申请。\n资源：repo-resolvedesk；权限：read；有效期：7 天。\n用途与说明：阅读项目源码完成学习\n请核对后点击确认提交。确认后进入待审批，须由其他 IT 客服审核；批准后仍需执行模拟开通。有效期从模拟开通时起算，所有操作保留审计记录。目前尚未提交申请或开通权限；本流程只更改本地模拟系统。",
+      "draft": {
+        "access_level": "read",
+        "asset_id": "",
+        "category": "access",
+        "description": "阅读项目源码完成学习",
+        "duration_days": 7,
+        "priority": "normal",
+        "resource_id": "repo-resolvedesk",
+        "summary": "仓库阅读申请",
+        "workflow": "access_request"
+      },
+      "simulation": true
+    },
+    {
+      "case": "permission-correction",
+      "passed": true,
+      "checks": {
+        "domain": true,
+        "method": true,
+        "real_sources": true,
+        "status": true,
+        "no_business_write": true,
+        "draft_days": true
+      },
+      "status": "awaiting_confirmation",
+      "error": null,
+      "route": {
+        "confidence": 0.7948411428799119,
+        "domains": [
+          "account_access"
+        ],
+        "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+        "entities": {
+          "access_level": [
+            "read"
+          ],
+          "duration_days": [
+            "14"
+          ],
+          "resource_id": [
+            "repo-resolvedesk"
+          ]
+        },
+        "entity_state": {
+          "domain": "account_access",
+          "entities": {
+            "access_level": [
+              "read"
+            ],
+            "duration_days": [
+              "14"
+            ],
+            "resource_id": [
+              "repo-resolvedesk"
+            ]
+          },
+          "reset": false,
+          "sources": {
+            "access_level": {
+              "source": "explicit_user_text",
+              "turn_seq": 13,
+              "values": [
+                "read"
+              ]
+            },
+            "duration_days": {
+              "source": "explicit_user_text",
+              "turn_seq": 13,
+              "values": [
+                "14"
+              ]
+            },
+            "resource_id": {
+              "source": "explicit_user_text",
+              "turn_seq": 11,
+              "values": [
+                "repo-resolvedesk"
+              ]
+            }
+          },
+          "task_epoch": 0,
+          "turn_seq": 13
+        },
+        "fine_intent": "access_request",
+        "intent": "account_access",
+        "intent_method": "it_three_way_fusion_v1",
+        "mission": "核对账号/权限诉求，解释申请及审批边界。",
+        "needs_clarification": false,
+        "primary": "general",
+        "reason": "用户要求更新当前权限申请草稿的有效期，仍属账户访问权限申请范畴，无紧急风险。",
+        "recovery_probe": false,
+        "source_scores": {
+          "embedding": {
+            "available": true,
+            "scores": {
+              "access_request": 0.1392057143995601,
+              "account_unlock": 0.07843182540971697,
+              "device_hazard": 0.057822411368271105,
+              "device_repair": 0.06720406086197218,
+              "dns_failure": 0.057360103093589944,
+              "endpoint_failure": 0.05729155714507886,
+              "greeting": 0.07726780822427613,
+              "human_handoff": 0.08631752610555425,
+              "license_request": 0.08622466262660293,
+              "software_activation": 0.08222007750664695,
+              "ticket_status": 0.08330071516441985,
+              "unknown": 0.06551170908834558,
+              "vpn_failure": 0.06184182900596511
+            },
+            "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+            "weight": 0.2
+          },
+          "llm": {
+            "available": true,
+            "reason": "用户要求更新当前权限申请草稿的有效期，仍属账户访问权限申请范畴，无紧急风险。",
+            "scores": {
+              "access_request": 0.97
+            },
+            "urgency": 1,
+            "weight": 0.7
+          },
+          "pattern": {
+            "available": true,
+            "scores": {
+              "access_request": 0.88
+            },
+            "weight": 0.1
+          }
+        },
+        "supporting": [],
+        "urgency": "LOW",
+        "workflow": [
+          "确认诉求",
+          "查询制度",
+          "核对必要字段",
+          "说明下一步"
+        ]
+      },
+      "outcome": {
+        "actual_roles": [
+          "general"
+        ],
+        "escalated": false,
+        "status": "success"
+      },
+      "answer": "权限申请草稿已准备：仓库阅读申请。\n资源：repo-resolvedesk；权限：read；有效期：14 天。\n用途与说明：阅读项目源码完成学习\n请核对后点击确认提交。确认后进入待审批，须由其他 IT 客服审核；批准后仍需执行模拟开通。有效期从模拟开通时起算，所有操作保留审计记录。目前尚未提交申请或开通权限；本流程只更改本地模拟系统。",
+      "draft": {
+        "access_level": "read",
+        "asset_id": "",
+        "category": "access",
+        "description": "阅读项目源码完成学习",
+        "duration_days": 14,
+        "priority": "normal",
+        "resource_id": "repo-resolvedesk",
+        "summary": "仓库阅读申请",
+        "workflow": "access_request"
+      },
+      "simulation": true
+    },
+    {
+      "case": "device-switch",
+      "passed": true,
+      "checks": {
+        "domain": true,
+        "method": true,
+        "real_sources": true,
+        "status": true,
+        "no_business_write": true,
+        "device_reset": true
+      },
+      "status": "awaiting_confirmation",
+      "error": null,
+      "route": {
+        "confidence": 0.7885378998490146,
+        "domains": [
+          "device_service"
+        ],
+        "embedding_source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+        "entities": {
+          "asset_id": [
+            "LT-1001"
+          ]
+        },
+        "entity_state": {
+          "domain": "device_service",
+          "entities": {
+            "asset_id": [
+              "LT-1001"
+            ]
+          },
+          "reset": true,
+          "sources": {
+            "asset_id": {
+              "source": "explicit_user_text",
+              "turn_seq": 15,
+              "values": [
+                "LT-1001"
+              ]
+            }
+          },
+          "task_epoch": 1,
+          "turn_seq": 15
+        },
+        "fine_intent": "device_repair",
+        "intent": "device_service",
+        "intent_method": "it_three_way_fusion_v1",
+        "mission": "基于知识和本人资产给出低风险、可验证的排查。",
+        "needs_clarification": false,
+        "primary": "technical",
+        "reason": "用户明确切换任务，要求准备设备维修草稿，含键盘故障与资产编号，属于设备维修意图；非冒烟/鼓包等紧急危害。",
+        "recovery_probe": false,
+        "source_scores": {
+          "embedding": {
+            "available": true,
+            "scores": {
+              "access_request": 0.08728450542741789,
+              "account_unlock": 0.06646978912083651,
+              "device_hazard": 0.07364747727290191,
+              "device_repair": 0.10768949924507354,
+              "dns_failure": 0.07369419337049396,
+              "endpoint_failure": 0.07077933795417805,
+              "greeting": 0.07876973566492906,
+              "human_handoff": 0.08866340066812264,
+              "license_request": 0.0708883788759932,
+              "software_activation": 0.07444121693729275,
+              "ticket_status": 0.07308054534378984,
+              "unknown": 0.06992657215439209,
+              "vpn_failure": 0.06466534796457857
+            },
+            "source": "Xenova/multilingual-e5-small@761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+            "weight": 0.2
+          },
+          "llm": {
+            "available": true,
+            "reason": "用户明确切换任务，要求准备设备维修草稿，含键盘故障与资产编号，属于设备维修意图；非冒烟/鼓包等紧急危害。",
+            "scores": {
+              "device_repair": 0.97
+            },
+            "urgency": 2,
+            "weight": 0.7
+          },
+          "pattern": {
+            "available": true,
+            "scores": {
+              "access_request": 0.88,
+              "device_repair": 0.88
+            },
+            "weight": 0.1
+          }
+        },
+        "supporting": [],
+        "urgency": "MEDIUM",
+        "workflow": [
+          "确认范围",
+          "查询知识/资产",
+          "给出排查",
+          "必要时维修升级"
+        ]
+      },
+      "outcome": {
+        "actual_roles": [
+          "technical"
+        ],
+        "escalated": false,
+        "status": "success"
+      },
+      "answer": "设备维修草稿已准备：键盘维修。\n资产：LT-1001；故障：键盘失灵，外接键盘正常\n请核对后点击确认提交。提交后由 IT 分诊、派单并记录维修处理结果，再由你验收关闭；未解决可退回返工。尚未创建维修工单或完成维修，不承诺维修时效与费用；本流程使用本地模拟资产和维修记录。",
+      "draft": {
+        "access_level": "",
+        "asset_id": "LT-1001",
+        "category": "hardware",
+        "description": "键盘失灵，外接键盘正常",
+        "duration_days": 0,
+        "priority": "normal",
+        "resource_id": "",
+        "summary": "键盘维修",
+        "workflow": "device_repair"
+      },
+      "simulation": true
+    }
+  ],
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "0.945046",
+    "available_cny": "17.054954",
+    "calls": {
+      "settled": 242
+    },
+    "usage_input_tokens": 392683,
+    "usage_output_tokens": 19960,
+    "unresolved_reservation_cny": "0"
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.27318",
+    "available_cny": "16.72682",
+    "calls": {
+      "settled": 286
+    },
+    "usage_input_tokens": 518066,
+    "usage_output_tokens": 29631,
+    "unresolved_reservation_cny": "0"
+  },
+  "dependencies": "real PostgreSQL Redis Chroma pinned local E5 stdio MCP; only Flash uses paid API"
+}

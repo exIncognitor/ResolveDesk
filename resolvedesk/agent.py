@@ -259,7 +259,8 @@ class DeskAgent:
                         for key in ("resource_id","asset_id","access_level","duration_days"):
                             values=state.get("entities",{}).get(key)
                             if values:inherited[key]=int(values[-1]) if key=="duration_days" else values[-1]
-                        fields = TicketFields.model_validate((current["draft"] or {}) | inherited | args)
+                        # Literal user corrections outrank model-generated tool arguments.
+                        fields = TicketFields.model_validate((current["draft"] or {}) | args | inherited)
                         payload = fields.model_dump()
                         missing = fields.missing() + self.business.validate_draft(p, payload)
                         if fields.workflow == "generic":
