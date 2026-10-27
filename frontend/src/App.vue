@@ -291,7 +291,7 @@
                   <input :disabled="busy" type="file" accept=".txt,.md,.json" @change="performAction('upload', handleUpload, $event)" />
                 </label>
               </div>
-              <p class="form-hint">客服角色可导入 TXT、Markdown、JSON，最大 300 KB，每篇不超过 10 万字符。</p>
+              <p class="form-hint">客服角色可导入 UTF-8 TXT、Markdown、JSON，文件最大 10 MiB，JSON 最多 100 篇；整批校验后导入。</p>
             </form>
           </section>
         </div>
@@ -847,7 +847,7 @@ async function handleUpload(event) {
   const file = event.target.files?.[0]
   event.target.value = ''
   if (!file || busy.value) return
-  if (file.size > 300000) { showToast('文件不能超过 300 KB'); return }
+  if (file.size > 10*1024*1024) { showToast('文件不能超过 10 MiB'); return }
   const request = requestState.begin('action')
   busy.value = true
   try {

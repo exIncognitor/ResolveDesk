@@ -51,7 +51,7 @@ class Search(Input):
 class Document(Input):
     document_id: str = Field(min_length=1, max_length=100)
     title: str = Field(min_length=1, max_length=200)
-    content: str = Field(min_length=1, max_length=100000)
+    content: str = Field(min_length=1, max_length=10*1024*1024)
     visibility: Literal["tenant", "private"] = "tenant"
 
 
@@ -337,6 +337,32 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
             raise PermissionError()
         return await asyncio.to_thread(request.app.state.knowledge.add, p, data.document_id, data.title, data.content, data.visibility)
 
+    async def import_documents(request,p,upload):
+        if p.role!='support':raise PermissionError()
+        from resolvedesk.imports import read_batch,read_upload
+        # Keep CPU/embedding work bounded across HTTP requests in this worker.
+        if not hasattr(request.app.state,'import_slots'):request.app.state.import_slots=asyncio.Semaphore(2)
+        slots=request.app.state.import_slots
+        if slots.locked():raise HTTPException(429,'Knowledge imports are busy; retry after the current request finishes')
+        await slots.acquire()
+        try:
+            docs=await (read_upload(request,p) if upload else read_batch(request,p))
+            task=asyncio.create_task(asyncio.to_thread(request.app.state.knowledge.add_many,p,docs))
+        except BaseException:slots.release();raise
+        task.add_done_callback(lambda done:slots.release())
+        # Cancellation cannot stop an SQL/embedding thread; keep its slot until
+        # actual completion and never claim that disconnected imports rolled back.
+        return await asyncio.shield(task)
+
+    @app.post('/knowledge/add')
+    @app.post('/knowledge/batch')
+    async def batch_knowledge(request:Request,p=Depends(principal)):
+        return await import_documents(request,p,False)
+
+    @app.post('/knowledge/upload')
+    async def upload_knowledge(request:Request,p=Depends(principal)):
+        return await import_documents(request,p,True)
+
     @app.get("/knowledge/stats")
     def knowledge_stats(request:Request,p=Depends(principal)):
         with request.app.state.store.db() as db:
@@ -380,6 +406,7 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         except PermissionError:raise
         except Exception:raise HTTPException(502,"Read-only MCP call failed") from None
 
+    @app.get("/integrations/embedding")
     @app.get("/integrations/intent-embedding")
     def intent_embedding(request:Request,p=Depends(principal)):
         if p.role!='support':raise PermissionError()

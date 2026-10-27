@@ -31,13 +31,14 @@ export async function requestToolTrace(_,s,id,turnKey){
   }
   throw Error('轨迹超过单次读取上限，请按页查询')
 }
-export async function addKnowledge(_,s,documents){const results=[];for(const d of documents)results.push(await deskRequest(s,'/knowledge/documents','POST',{...d,document_id:d.document_id||crypto.randomUUID()}));return {results}}
+export async function addKnowledge(_,s,documents){return deskRequest(s,'/knowledge/add','POST',{documents})}
 export async function uploadKnowledge(_,s,file){
-  if(file.size>300000)throw Error('单次上传不超过 300 KB')
-  const text=await file.text()
-  const docs=file.name.endsWith('.json')?JSON.parse(text):[{title:file.name,content:text}]
-  if(!Array.isArray(docs)||docs.length>10)throw Error('JSON 应为不超过 10 篇文档的数组')
-  return addKnowledge(_,s,docs)
+  if(file.size>10*1024*1024)throw Error('单次上传不超过 10 MiB')
+  const body=new FormData();body.append('file',file,file.name)
+  const response=await fetch(backendMeta('python',s).baseUrl+'/knowledge/upload',{method:'POST',headers:{Authorization:`Bearer ${s.pythonToken}`},body,signal:AbortSignal.timeout(180000)})
+  const data=await response.json()
+  if(!response.ok){const error=Error(typeof data.detail==='string'?data.detail:'文件导入失败');error.status=response.status;throw error}
+  return data
 }
 export const runEvaluation=async(_,s,body,options={})=>{const job=await deskRequest(s,'/eval/run','POST',body||{kind:'retrieval'});const report=await pollEvaluation(job,id=>deskRequest(s,`/eval/jobs/${id}`),options);return report?{...report,job_id:job.job_id}:null}
 

@@ -157,34 +157,43 @@ class HybridKnowledge:
             db.execute("INSERT INTO knowledge_documents SELECT tenant,document_id,MIN(owner),MIN(visibility),MIN(version),1,? FROM chunks GROUP BY tenant,document_id ON CONFLICT(tenant,document_id) DO NOTHING",(time.time(),))
 
     def add(self, p, document_id, title, content, visibility="tenant"):
+        return self.add_many(p,[{'document_id':document_id,'title':title,'content':content,'visibility':visibility}])['results'][0]
+
+    def add_many(self,p,documents):
+        from resolvedesk.imports import MAX_IMPORT_BYTES,MAX_IMPORT_DOCUMENTS
         if p.role != "support":
             raise PermissionError("Support role required to import documents")
-        if visibility not in {"tenant", "private"} or not all(isinstance(v, str) and v.strip() for v in (document_id, title, content)):
-            raise ValueError("Invalid document")
-        if len(content) > 100_000:
-            raise ValueError("Document exceeds 100000 characters")
-        chunks = markdown_chunks(content)
-        version = hashlib.sha256(encode([title,content]).encode()).hexdigest()[:16]
-        vectors = self.embedding.embed([title+"\n"+c["section"]+"\n"+c["content"] for c in chunks]) if self.embedding else [None]*len(chunks)
+        if not isinstance(documents,list) or not 1<=len(documents)<=MAX_IMPORT_DOCUMENTS:raise ValueError('Expected 1-100 documents')
+        if len({d.get('document_id') for d in documents})!=len(documents):raise ValueError('Duplicate document id')
+        if sum(len(str(d.get('content','')).encode()) for d in documents)>MAX_IMPORT_BYTES:raise ValueError('Import exceeds 10 MiB of document content')
+        prepared=[]
+        for doc in documents:
+            document_id,title,content,visibility=(doc.get(k) for k in ('document_id','title','content','visibility'))
+            if visibility not in {'tenant','private'} or not all(isinstance(v,str) and v.strip() for v in (document_id,title,content)) or len(document_id)>100 or len(title)>200:raise ValueError('Invalid document')
+            chunks=markdown_chunks(content)
+            version=hashlib.sha256(encode([title,content]).encode()).hexdigest()[:16]
+            vectors=self.embedding.embed([title+'\n'+c['section']+'\n'+c['content'] for c in chunks]) if self.embedding else [None]*len(chunks)
+            if len(vectors)!=len(chunks):raise ValueError('Embedding count mismatch')
+            prepared.append((document_id,title,visibility,version,chunks,vectors))
+        results={}
         with self.store.db(True) as db:
-            db.execute("INSERT INTO knowledge_documents VALUES(?,?,?,?,?,0,?) ON CONFLICT(tenant,document_id) DO NOTHING",(p.tenant,document_id,p.user,visibility,version,time.time()))
-            existing = db.execute(db.locked("SELECT * FROM knowledge_documents WHERE tenant=? AND document_id=?"),(p.tenant,document_id)).fetchone()
-            if existing and existing["visibility"] == "private" and existing["owner"] != p.user:
-                raise PermissionError("A private document can only be replaced by its owner")
-            generation = existing["generation"]+1
-            db.execute("UPDATE knowledge_documents SET owner=?,visibility=?,version=?,generation=?,updated=? WHERE tenant=? AND document_id=?",(p.user,visibility,version,generation,time.time(),p.tenant,document_id))
-            db.execute("DELETE FROM chunks WHERE tenant=? AND document_id=?", (p.tenant, document_id))
-            for chunk, vector in zip(chunks, vectors, strict=True):
-                cid = hashlib.sha256(encode([p.tenant, document_id, version, chunk["start"]]).encode()).hexdigest()[:24]
-                db.execute("INSERT INTO chunks VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                           (cid, p.tenant, p.user, visibility, document_id, title, version,
-                            chunk["section"], chunk["start"], chunk["end"], chunk["content"],
-                            encode(vector) if vector is not None else None,
-                            self.embedding.identity if vector is not None else None))
-            if self.vector_index:
-                db.execute("INSERT INTO index_outbox VALUES(?,?,?,?,'pending',0,?,NULL,?)",(uuid.uuid4().hex,p.tenant,document_id,generation,time.time(),time.time()))
-        projection = self.drain_index(1,tenant=p.tenant,document_id=document_id) if self.vector_index else {"failed":0,"pending":0}
-        return {"document_id":document_id,"version":version,"chunks":len(chunks),"index_pending":bool(projection["failed"] or projection["pending"])}
+            # Same ordering in concurrent batches avoids document lock inversion.
+            for document_id,title,visibility,version,chunks,vectors in sorted(prepared,key=lambda item:item[0]):
+                db.execute("INSERT INTO knowledge_documents VALUES(?,?,?,?,?,0,?) ON CONFLICT(tenant,document_id) DO NOTHING",(p.tenant,document_id,p.user,visibility,version,time.time()))
+                existing=db.execute(db.locked('SELECT * FROM knowledge_documents WHERE tenant=? AND document_id=?'),(p.tenant,document_id)).fetchone()
+                if existing['visibility']=='private' and existing['owner']!=p.user:raise PermissionError('A private document can only be replaced by its owner')
+                generation=existing['generation']+1
+                db.execute('UPDATE knowledge_documents SET owner=?,visibility=?,version=?,generation=?,updated=? WHERE tenant=? AND document_id=?',(p.user,visibility,version,generation,time.time(),p.tenant,document_id))
+                db.execute('DELETE FROM chunks WHERE tenant=? AND document_id=?',(p.tenant,document_id))
+                for chunk,vector in zip(chunks,vectors,strict=True):
+                    cid=hashlib.sha256(encode([p.tenant,document_id,version,chunk['start']]).encode()).hexdigest()[:24]
+                    db.execute('INSERT INTO chunks VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',(cid,p.tenant,p.user,visibility,document_id,title,version,chunk['section'],chunk['start'],chunk['end'],chunk['content'],encode(vector) if vector is not None else None,self.embedding.identity if vector is not None else None))
+                if self.vector_index:db.execute("INSERT INTO index_outbox VALUES(?,?,?,?,'pending',0,?,NULL,?)",(uuid.uuid4().hex,p.tenant,document_id,generation,time.time(),time.time()))
+                results[document_id]={'document_id':document_id,'version':version,'chunks':len(chunks),'index_pending':bool(self.vector_index)}
+        for document_id in results:
+            projection=self.drain_index(1,tenant=p.tenant,document_id=document_id) if self.vector_index else {'failed':0,'pending':0}
+            results[document_id]['index_pending']=bool(projection['failed'] or projection['pending'])
+        return {'results':[results[d['document_id']] for d in documents],'documents':len(results),'added_chunks':sum(r['chunks'] for r in results.values()),'atomic_sql':True}
 
     def drain_index(self,limit=10,*,tenant=None,document_id=None):
         """Project latest SQL state, serialized per document. Retries never use stale payloads."""
