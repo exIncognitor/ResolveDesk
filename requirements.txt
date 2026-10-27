@@ -4,10 +4,11 @@
 anthropic==0.116.0         # 与预算网关的离线 SDK 集成测试版本一致
 
 # ── Web 框架 ──────────────────────────────────────────────────────────────────
-fastapi==0.115.5
+fastapi==0.162.0
+starlette==1.10.0          # Explicit compatible parser/static-file security baseline
 uvicorn[standard]==0.32.1
 pydantic==2.12.5
-python-multipart==0.0.12    # FastAPI 文件上传支持
+python-multipart==0.0.32    # Upload parser fixes through the 2026 advisories
 
 # ── 数据存储 ──────────────────────────────────────────────────────────────────
 redis==5.2.1

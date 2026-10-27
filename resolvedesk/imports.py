@@ -6,9 +6,29 @@ from pathlib import PureWindowsPath
 from fastapi import HTTPException
 from pydantic import BaseModel,ConfigDict,Field,ValidationError
 from starlette.datastructures import UploadFile
+from starlette.formparsers import MultiPartException,MultiPartParser
 
 MAX_IMPORT_BYTES=10*1024*1024
 MAX_IMPORT_DOCUMENTS=100
+
+
+class CompleteMultipartParser(MultiPartParser):
+    """Require a completed message, including when a final part was truncated."""
+    completed=False
+
+    def on_end(self):
+        self.completed=True
+        super().on_end()
+
+    async def parse(self):
+        form=await super().parse()
+        if not self.completed:
+            # Starlette 1.10 owns exception/cancellation cleanup. Its parser
+            # finalizer does not reject truncation, which may leave a spool
+            # outside FormData.items. Close that pinned ownership list as well.
+            for spool in self._files_to_close_on_error:spool.close()
+            raise MultiPartException('Incomplete multipart body')
+        return form
 
 
 class ImportDocument(BaseModel):
@@ -59,11 +79,16 @@ async def read_batch(request,p):
 
 
 async def read_upload(request,p):
+    if request.headers.get('content-type','').split(';')[0].strip().lower()!='multipart/form-data':
+        raise HTTPException(415,'Use multipart/form-data')
     # Bound the whole multipart body before the framework can spool files.
     # The extra allowance is for MIME headers, never extra document bytes.
     raw=await bounded_body(request,MAX_IMPORT_BYTES+65536)
-    request._body=raw
-    async with request.form(max_files=1,max_fields=0) as form:
+    async def chunks():
+        for offset in range(0,len(raw),65536):yield raw[offset:offset+65536]
+    form=None
+    try:
+        form=await CompleteMultipartParser(request.headers,chunks(),max_files=1,max_fields=0).parse()
         if set(form.keys())!={'file'} or not isinstance(form['file'],UploadFile):raise HTTPException(422,'Upload exactly one file field')
         upload=form['file'];filename=PureWindowsPath(upload.filename or '').name
         extension=PureWindowsPath(filename).suffix.lower()
@@ -75,4 +100,8 @@ async def read_upload(request,p):
             try:text=data.decode('utf-8-sig')
             except UnicodeError:raise HTTPException(422,'Text files must be valid UTF-8') from None
             value={'documents':[{'title':PureWindowsPath(filename).stem,'content':text}]}
-    return documents(value,p)
+        return documents(value,p)
+    except MultiPartException:
+        raise HTTPException(400,'Invalid or incomplete multipart upload') from None
+    finally:
+        if form is not None:await form.close()
