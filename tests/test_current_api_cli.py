@@ -18,6 +18,8 @@ from resolvedesk.retrieval import HybridKnowledge
 from resolvedesk.store import Principal,Store
 from test_resolvedesk import USER,SUPPORT,OTHER,client_with,response
 from test_database_backends import postgres_store
+from test_chroma_projection import vectors
+from test_redis_coordination import cache
 
 
 @pytest.fixture
@@ -194,3 +196,30 @@ def test_cli_rejects_insecure_remote_or_credential_urls():
     for value in ('http://example.com','https://user:secret@example.com','https://example.com?token=x'):
         with pytest.raises(ValueError):base_url(value)
     assert base_url('http://127.0.0.1:18080/')=='http://127.0.0.1:18080'
+
+
+@pytest.mark.services
+@pytest.mark.asyncio
+async def test_current_batch_api_projects_real_chroma_and_invalidates_real_redis(postgres_store,vectors,cache):
+    from resolvedesk.services import DeskServices
+    from test_resolvedesk import FakeEmbedding
+    kb=HybridKnowledge(postgres_store,FakeEmbedding(),vectors);model=client_with()
+    services=DeskServices(postgres_store,kb,model,mcp_configs=[],coordination=cache)
+    agent=DeskAgent(postgres_store,kb,model,services,cache)
+    accounts={hashlib.sha256(name.encode()).hexdigest():vars(p) for name,p in (('support-token',SUPPORT),('user-token',USER))}
+    app=create_app(postgres_store,kb,agent,accounts)
+    async with app.router.lifespan_context(app),httpx.AsyncClient(transport=httpx.ASGITransport(app),base_url='http://localhost',headers={'Authorization':'Bearer support-token'}) as http:
+        docs=[{'document_id':'public','title':'VPN policy','content':'# VPN\n\nVPN original checks'},{'document_id':'private','title':'VPN private','content':'# VPN\n\nVPN private checks','visibility':'private'}]
+        added=await http.post('/knowledge/add',json={'documents':docs});assert added.status_code==200
+        assert all(not d['index_pending'] for d in added.json()['results']) and vectors.count()==2
+        async def search():
+            result=await http.post('/knowledge/search',json={'query':'VPN','mode':'hybrid'},headers={'Authorization':'Bearer user-token'})
+            result.raise_for_status();return result.json()
+        first=await search();assert {d['document_id'] for d in first['items']}=={'public'}
+        assert (await search())['cached']
+        docs[0]['content']='# VPN\n\nVPN updated advice'
+        changed=await http.post('/knowledge/batch',json={'documents':docs});assert changed.status_code==200
+        newest=await search();assert not newest['cached'] and 'updated advice' in newest['items'][0]['content']
+        assert newest['items'][0]['version']!=first['items'][0]['version']
+        assert model.messages.create.await_count==0
+    await cache.close()

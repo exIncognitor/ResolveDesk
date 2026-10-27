@@ -191,9 +191,10 @@ class HybridKnowledge:
                 if self.vector_index:db.execute("INSERT INTO index_outbox VALUES(?,?,?,?,'pending',0,?,NULL,?)",(uuid.uuid4().hex,p.tenant,document_id,generation,time.time(),time.time()))
                 results[document_id]={'document_id':document_id,'version':version,'chunks':len(chunks),'index_pending':bool(self.vector_index)}
         for document_id in results:
-            projection=self.drain_index(1,tenant=p.tenant,document_id=document_id) if self.vector_index else {'failed':0,'pending':0}
-            results[document_id]['index_pending']=bool(projection['failed'] or projection['pending'])
+            if self.vector_index:self.drain_index(1,tenant=p.tenant,document_id=document_id)
         with self.store.db() as db:
+            for document_id in results:
+                results[document_id]['index_pending']=bool(self.vector_index and db.execute("SELECT 1 FROM index_outbox WHERE tenant=? AND document_id=? AND state='pending' LIMIT 1",(p.tenant,document_id)).fetchone())
             total=db.execute("SELECT COUNT(*) FROM chunks WHERE tenant=? AND (visibility='tenant' OR owner=?)",(p.tenant,p.user)).fetchone()[0]
         return {'results':[results[d['document_id']] for d in documents],'documents':len(results),'added_chunks':sum(r['chunks'] for r in results.values()),'total_chunks':total,'atomic_sql':True}
 
