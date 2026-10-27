@@ -72,6 +72,18 @@ def test_backup_hash_and_coverage_are_verified_and_legacy_resources_not_guessed(
     with pytest.raises(ValueError):resource_plan({'identity':'public','backend':'postgresql'})
 
 
+def test_explicit_retirement_releases_capacity_without_deleting_authored_data(tmp_path):
+    store=Store(tmp_path/'capacity.sqlite3');service=EvaluationService(store,None)
+    authored=service.datasets.create(SUPPORT,{'intent_cases':[{'message':'你好','expected':'general'}]})
+    for index in range(50):seed_job(store,str(index))
+    with store.db(True) as db:
+        with pytest.raises(Conflict,match='capacity'):service._admission(db,SUPPORT,new=True)
+    plan=service.retention.preview(SUPPORT,job_id='0')['plans'][0]
+    service.retention.apply(SUPPORT,'0',plan['confirmation'],None,DisposableArchive())
+    with store.db(True) as db:service._admission(db,SUPPORT,new=True)
+    assert service.datasets.get(SUPPORT,authored['id'])['fingerprint']==authored['fingerprint']
+
+
 @pytest.mark.services
 @pytest.mark.asyncio
 async def test_real_services_retire_exact_sandbox_and_recover_after_remote_failure(postgres_store,tmp_path,monkeypatch):

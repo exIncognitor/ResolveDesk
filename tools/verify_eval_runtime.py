@@ -15,12 +15,15 @@ sys.path.insert(0,str(ROOT))
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--live',action='store_true')
+    parser.add_argument('--full',action='store_true',help='Evaluate all six default dialogs')
+    parser.add_argument('--boundaries',action='store_true',help='Also evaluate the fixed 24-case business-boundary regression set')
     parser.add_argument('--base',choices=['http://127.0.0.1:8080','http://127.0.0.1:18080'],default='http://127.0.0.1:18080')
     args=parser.parse_args()
     if not args.live:parser.error('Use --live for the authorized budgeted Flash probe')
     access=json.loads((ROOT/'.codex-runtime/access.json').read_text(encoding='utf-8'))
     from resolvedesk.quality import default_dataset
     dataset=default_dataset()
+    full_dialogs=dataset['dialog_cases']
     dataset['title']='G08 当前入口真实评测验收'
     dataset['dialog_cases']=[{
         'id':'access-live','turns':[
@@ -38,6 +41,14 @@ def main():
         'expected_agent':'escalation','expected_status':'completed','documents':['devices'],
         'reference_answer':'立即停止使用，断开充电，不挤压或拆卸，联系 IT 升级处理。维修申请需要本人资产ID和故障资料，不承诺真实维修结果。'
     }]
+    if args.full:dataset['dialog_cases']=full_dialogs
+    if args.boundaries:
+        boundary=json.loads((ROOT/'evaluation/it_intent_boundary_cases.json').read_text(encoding='utf-8'))
+        dataset['intent_cases']+=boundary['intent_cases']
+        dataset['provenance']+='；追加'+boundary['provenance']
+    expected_intents=len(dataset['intent_cases'])
+    expected_dialogs=len(dataset['dialog_cases'])
+    expected_turns=sum(len(c.get('turns') or [c.get('question')]) for c in dataset['dialog_cases'])
     checks=[];report={'base':args.base,'checks':checks,'provenance':'合成开发数据；真实 Flash 与真实服务；不是生产效果证明。'}
     with httpx.Client(base_url=args.base,timeout=30,trust_env=False) as http:
         def request(method,path,body=None,actor='support'):
@@ -50,7 +61,7 @@ def main():
             report['dataset_id']=suite['id']
             fetched=request('GET','/eval/datasets/'+suite['id'])
             checks.append({'name':'saved_dataset_roundtrip','passed':fetched['fingerprint']==suite['fingerprint']})
-            job=request('POST','/eval/run',{'kind':'quality','suite_id':suite['id'],'limit':2,'timeout_s':540})
+            job=request('POST','/eval/run',{'kind':'quality','suite_id':suite['id'],'limit':expected_dialogs,'timeout_s':540})
             report['job_id']=job['job_id']
             deadline=time.monotonic()+600
             while job['status'] in {'queued','running'} and time.monotonic()<deadline:
@@ -61,10 +72,16 @@ def main():
             checks.extend([
                 {'name':'completed_without_evaluation_errors','passed':job['status']=='completed' and result.get('evaluation_errors')==0},
                 {'name':'same_formal_technologies','passed':result.get('sandbox',{}).get('backend')=='postgresql' and result.get('sandbox',{}).get('isolated') is True},
-                {'name':'actual_28_intents_all_channels','passed':result.get('intent',{}).get('samples')==28 and result.get('intent',{}).get('implementation')=='ITIntentRecognizer.recognize' and result.get('intent',{}).get('channel_coverage')=={'llm':28,'embedding':28,'pattern':28}},
-                {'name':'judge_every_requested_turn','passed':sum(len(d.get('turns',[])) for d in result.get('results',[]))==3 and all(t.get('judge',{}).get('attempts')==1 for d in result.get('results',[]) for t in d.get('turns',[]))},
-                {'name':'all_dialog_business_and_quality_checks','passed':result.get('passed')==2 and result.get('total')==2},
+                {'name':'actual_intents_all_channels','passed':result.get('intent',{}).get('samples')==expected_intents and result.get('intent',{}).get('implementation')=='ITIntentRecognizer.recognize' and result.get('intent',{}).get('channel_coverage')=={'llm':expected_intents,'embedding':expected_intents,'pattern':expected_intents}},
+                {'name':'judge_every_requested_turn','passed':sum(len(d.get('turns',[])) for d in result.get('results',[]))==expected_turns and all(t.get('judge',{}).get('attempts')==1 for d in result.get('results',[]) for t in d.get('turns',[]))},
+                {'name':'all_dialog_business_and_quality_checks','passed':result.get('passed')==expected_dialogs and result.get('total')==expected_dialogs},
             ])
+            previous=json.loads((ROOT/'reports/eval-runtime-20261027T090148388488Z.json').read_text(encoding='utf-8'))['job']['result']['intent']['results']
+            current={r['id']:r for r in result.get('intent',{}).get('results',[])}
+            matched=[r for r in previous if r['id'] in current and r['expected']==current[r['id']]['expected']]
+            report['same_label_comparison']={'samples':len(matched),'previous_correct':sum(r['passed'] for r in matched),'current_correct':sum(current[r['id']]['passed'] for r in matched),
+                'excluded_label_changes':[r['id'] for r in previous if r['id'] in current and r['expected']!=current[r['id']]['expected']],
+                'note':'仅比较标签未变的同题；这是已知开发集，不是独立盲测。'}
         except Exception as exc:
             report['error']=type(exc).__name__
             checks.append({'name':'probe_execution','passed':False})

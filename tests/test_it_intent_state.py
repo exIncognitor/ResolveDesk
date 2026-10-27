@@ -40,6 +40,21 @@ async def test_multi_domain_results_preserve_multiple_experts():
 
 
 @pytest.mark.asyncio
+async def test_scope_definitions_reach_actual_model_and_asset_query_is_not_repair():
+    import json
+    from resolvedesk.intent import CATALOG,DOMAIN_SCOPE
+    client=client_with(response('{"fine_intents":["asset_lookup"],"confidence":0.95,"urgency":1}'))
+    result=await ITIntentRecognizer(client).recognize('查询我的资产 LT-1001')
+    assert result.fine_intent=='asset_lookup' and result.domain=='device_service'
+    prompt=json.loads(client.messages.create.call_args.kwargs['messages'][0]['content'])
+    assert prompt['domains']==DOMAIN_SCOPE
+    assert prompt['labels']['software_install']['domain']=='network_endpoint'
+    assert prompt['labels']['device_policy']['examples']==CATALOG['device_policy'][1]
+    fallback=await ITIntentRecognizer(client_with()).recognize('pip安装包失败')
+    assert fallback.fine_intent=='software_install' and fallback.domain=='network_endpoint'
+
+
+@pytest.mark.asyncio
 async def test_explicit_elliptical_correction_uses_current_task_when_model_unavailable():
     result=await ITIntentRecognizer(client_with()).recognize("改成 write，14天",context={"domain":"account_access","entities":{"resource_id":["repo-resolvedesk"]}})
     assert result.domain=="account_access" and not result.needs_clarification
