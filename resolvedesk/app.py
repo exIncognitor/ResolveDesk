@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Literal
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
@@ -398,13 +398,15 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         from fastapi import Response
         return Response(request.app.state.agent.monitor.prometheus(p),media_type="text/plain; version=0.0.4")
 
+    @app.get('/trace/tools')
+    def recent_trace_list(request:Request,before:int|None=Query(default=None,ge=1),limit:int=Query(default=20,ge=1,le=100),p=Depends(principal)):
+        from resolvedesk.trace_queries import recent_traces
+        return recent_traces(request.app.state.store,p,before=before,limit=limit)
+
     @app.get("/trace/tool/{run_id}")
-    def trace(run_id:str,request:Request,turn_key:str|None=None,p=Depends(principal)):
-        current=request.app.state.store.get_turn(p,run_id,turn_key) if turn_key else request.app.state.store.get_run(p,run_id)
-        events = request.app.state.store.events(p,run_id,current['event_cursor'])
-        if current["status"]in TERMINAL:events=[event for event in events if event["seq"]<=current["event_end"]]
-        calls = [dict(e["payload"],tool_name=e["payload"].get("name"),input={}) for e in events if e["kind"]=="tool_result"]
-        return {"request_id":run_id,"found":True,"trace":{"tool_calls":calls,"tools_used":[c["tool_name"] for c in calls],"events":events}}
+    def trace(run_id:str,request:Request,turn_key:str|None=None,after:int=Query(default=0,ge=0),limit:int=Query(default=200,ge=1,le=500),through:int|None=Query(default=None,ge=0),p=Depends(principal)):
+        from resolvedesk.trace_queries import trace_page
+        return trace_page(request.app.state.store,p,run_id,turn_key,after=after,limit=limit,through=through)
 
     @app.post("/eval/run",status_code=202)
     async def evaluation(request:Request,data:EvaluationOptions|None=None,p=Depends(principal)):

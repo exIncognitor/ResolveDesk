@@ -142,7 +142,12 @@ class Store:
         result["event_cursor"] = db.execute("SELECT COALESCE(MAX(seq),0) FROM events WHERE run_id=? AND kind='queued'",(row["id"],)).fetchone()[0]
         result["event_end"] = db.execute("SELECT COALESCE(MAX(seq),0) FROM events WHERE run_id=?",(row["id"],)).fetchone()[0]
         receipt = db.execute("SELECT request_key,user_seq FROM turn_receipts WHERE run_id=? ORDER BY user_seq DESC LIMIT 1",(row["id"],)).fetchone()
-        if receipt: result.update(turn_key=receipt["request_key"],turn_seq=receipt["user_seq"])
+        if receipt:
+            result.update(turn_key=receipt["request_key"],turn_seq=receipt["user_seq"])
+            attempt=db.execute('SELECT epoch,status,started,finished FROM execution_attempts WHERE run_id=? AND turn_key=? ORDER BY epoch DESC LIMIT 1',(row['id'],receipt['request_key'])).fetchone()
+            result['latency_ms']=round(max(0,attempt['finished']-attempt['started'])*1000,3) if attempt and attempt['finished'] is not None and attempt['status']!='interrupted' else None
+            result['timing_epoch']=attempt['epoch'] if attempt else None
+            result['timing_source']='latest_execution_epoch'
         return result
 
     @staticmethod
@@ -205,6 +210,20 @@ class Store:
             if row["status"] != "running":
                 raise Conflict("Run is no longer running")
             self._event(db, run_id, kind, payload)
+
+    def trace_tool(self,p,run_id,turn_key,payload):
+        """Allow a just-finished/cancelled tool to finish its own epoch's trace."""
+        from resolvedesk.tracing import redact
+        with self.db(True) as db:
+            if db.backend=='postgresql':db.execute("SET LOCAL lock_timeout='100ms'")
+            row=self._run(db,p,run_id)
+            token=_execution.get()
+            if token is None or token.run_id!=run_id or row['execution_owner']!=token.owner or row['execution_epoch']!=token.epoch:
+                raise FencedExecution('Tool trace belongs to an obsolete execution')
+            latest=db.execute('SELECT request_key FROM turn_receipts WHERE run_id=? ORDER BY user_seq DESC LIMIT 1',(run_id,)).fetchone()
+            if latest is None or latest['request_key']!=turn_key:raise FencedExecution('Tool trace belongs to an obsolete turn')
+            self._event(db,run_id,'tool_result',redact(payload))
+            if row['status'] not in {'running','queued'}:self._receipt(db,row)
 
     def claim(self, p, run_id):
         return self.claim_execution(p,run_id,uuid.uuid4().hex) is not None
