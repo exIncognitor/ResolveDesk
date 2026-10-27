@@ -10,7 +10,7 @@ import uuid
 
 import httpx
 
-from resolvedesk.metrics import BUCKETS,initialize,write_sample
+from resolvedesk.metrics import BUCKETS,initialize,write_sample,project_attempts
 from resolvedesk.store import encode
 
 
@@ -97,6 +97,7 @@ class Monitor:
     def refresh(self,tenant):
         with self.store.db(True) as db:
             if db.backend=='postgresql':db.execute('SELECT pg_advisory_xact_lock(hashtextextended(?,0))',('resolvedesk-monitor:'+tenant,))
+            project_attempts(db,tenant)
             now=db.now()
             rows=db.execute('SELECT * FROM telemetry WHERE tenant=? AND created>=? ORDER BY seq DESC LIMIT 10000',(tenant,now-self.window)).fetchall()
             groups,instances=self._groups(rows);triggered={}
@@ -139,7 +140,8 @@ class Monitor:
         return {'agent_stats':groups['agent'],'tool_stats':groups['tool'],'run_stats':groups['run'],'retrieval_stats':groups['retrieval'],
             'instance_stats':instances,'runtime_tools':runtime,'active_alerts':alerts,'routing_penalties':penalties,'instance_penalties':instance_penalties,
             'suggestions':suggestions,'total_requests':count,'total_conversations':conversations,'window_seconds':self.window,'min_samples':self.min_samples,
-            'policy':self.policy,'notifications':outbox,'webhook_configured':bool(os.getenv('RESOLVEDESK_ALERT_WEBHOOK'))}
+            'policy':self.policy,'window_sample_limit':10000,'window_sample_cap_reached':len(rows)==10000,
+            'notifications':outbox,'webhook_configured':bool(os.getenv('RESOLVEDESK_ALERT_WEBHOOK'))}
 
     def publish_tools(self,tenant,worker,tools):
         with self.store.db(True) as db:
@@ -173,7 +175,7 @@ class Monitor:
     async def _loop(self):
         while True:
             try:
-                with self.store.db() as db:tenants=[r[0] for r in db.execute("SELECT DISTINCT tenant FROM telemetry UNION SELECT DISTINCT tenant FROM desk_alerts WHERE state='active'")]
+                with self.store.db() as db:tenants=[r[0] for r in db.execute("SELECT DISTINCT tenant FROM telemetry UNION SELECT DISTINCT tenant FROM desk_alerts WHERE state='active' UNION SELECT DISTINCT tenant FROM execution_attempts WHERE finished IS NOT NULL AND projected=0")]
                 for tenant in tenants:self.refresh(tenant)
                 await self.deliver()
             except asyncio.CancelledError:raise

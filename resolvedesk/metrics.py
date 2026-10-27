@@ -28,6 +28,7 @@ def initialize(db):
         CREATE TABLE IF NOT EXISTS monitor_tool_health(tenant TEXT,worker TEXT,name TEXT,payload TEXT,seen REAL,
             PRIMARY KEY(tenant,worker,name));
     ''')
+    if not db.has_column('execution_attempts','projected'):db.execute('ALTER TABLE execution_attempts ADD COLUMN projected INTEGER NOT NULL DEFAULT 0')
     # One-time raw-sample projection; no invented old turn/instance attribution.
     if not db.has_column('telemetry','projected'):
         db.execute('ALTER TABLE telemetry ADD COLUMN projected INTEGER NOT NULL DEFAULT 0')
@@ -36,6 +37,7 @@ def initialize(db):
         values=dict(row);values['status']=values['status'] or ('success' if values['success'] else 'failure')
         _accumulate(db,values)
         db.execute('UPDATE telemetry SET status=?,projected=1 WHERE seq=?',(values['status'],values['seq']))
+    project_attempts(db)
 
 
 def _accumulate(db,sample):
@@ -77,7 +79,28 @@ def finish_attempt(db,row):
     now=db.now();seconds=None if interrupted else max(0,now-attempt['started'])
     db.execute('UPDATE execution_attempts SET finished=?,status=?,error=? WHERE run_id=? AND epoch=?',
         (now,outcome,row['error'],row['id'],row['execution_epoch']))
-    write_sample(db,row['tenant'],'run','desk',status in {'completed','awaiting_input','awaiting_confirmation'} and not row['error'],seconds,
-        owner=row['owner'],instance=attempt['instance'],status=outcome,event_key=f'run:{row["id"]}:{row["execution_epoch"]}',run_id=row['id'],turn_key=attempt['turn_key'],
-        detail={'epoch':row['execution_epoch'],'turn_seq':attempt['turn_seq'],'error_code':row['error'],'duration_source':'database_terminal_transaction' if seconds is not None else 'unknown_after_interruption'})
+    # The durable execution fact survives an outage of the derived counters.
+    db.execute('SAVEPOINT main_metric_projection')
+    try:
+        current=db.execute('SELECT * FROM execution_attempts WHERE run_id=? AND epoch=?',(row['id'],row['execution_epoch'])).fetchone()
+        _project_attempt(db,current)
+    except Exception as exc:
+        db.execute('ROLLBACK TO SAVEPOINT main_metric_projection')
+        db.execute("INSERT INTO events(run_id,kind,payload,created) VALUES(?,'monitor_error',?,?)",(row['id'],encoded({'type':type(exc).__name__,'pending_projection':True}),now))
+    finally:db.execute('RELEASE SAVEPOINT main_metric_projection')
     db.execute("INSERT INTO events(run_id,kind,payload,created) VALUES(?,'duration',?,?)",(row['id'],encoded({'seconds':seconds,'epoch':row['execution_epoch'],'turn_key':attempt['turn_key'],'status':outcome}),now))
+
+
+def _project_attempt(db,attempt):
+    seconds=None if attempt['status']=='interrupted' else max(0,attempt['finished']-attempt['started'])
+    write_sample(db,attempt['tenant'],'run','desk',attempt['status'] in {'completed','awaiting_input','awaiting_confirmation'} and not attempt['error'],seconds,
+        owner=attempt['owner'],instance=attempt['instance'],status=attempt['status'],event_key=f'run:{attempt["run_id"]}:{attempt["epoch"]}',run_id=attempt['run_id'],turn_key=attempt['turn_key'],
+        detail={'epoch':attempt['epoch'],'turn_seq':attempt['turn_seq'],'error_code':attempt['error'],'duration_source':'database_terminal_transaction' if seconds is not None else 'unknown_after_interruption'})
+    db.execute('UPDATE execution_attempts SET projected=1 WHERE run_id=? AND epoch=?',(attempt['run_id'],attempt['epoch']))
+
+
+def project_attempts(db,tenant=None,limit=500):
+    scope,params=(' AND tenant=?',[tenant]) if tenant is not None else ('',[])
+    sql='SELECT * FROM execution_attempts WHERE finished IS NOT NULL AND projected=0'+scope+' ORDER BY finished LIMIT ?'
+    if db.backend=='postgresql':sql+=' FOR UPDATE SKIP LOCKED'
+    for attempt in db.execute(sql,[*params,limit]).fetchall():_project_attempt(db,attempt)

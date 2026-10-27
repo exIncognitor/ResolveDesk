@@ -217,7 +217,7 @@ class Store:
             epoch = row["execution_epoch"]+1
             now=db.now()
             turn=db.execute('SELECT request_key,user_seq FROM turn_receipts WHERE run_id=? ORDER BY user_seq DESC LIMIT 1',(run_id,)).fetchone()
-            db.execute('INSERT INTO execution_attempts VALUES(?,?,?,?,?,?,?,?,?,NULL,\'running\',NULL)',
+            db.execute('INSERT INTO execution_attempts(run_id,epoch,tenant,owner,turn_key,turn_seq,instance,started,lease_until,finished,status,error) VALUES(?,?,?,?,?,?,?,?,?,NULL,\'running\',NULL)',
                 (run_id,epoch,p.tenant,p.user,turn['request_key'] if turn else '',turn['user_seq'] if turn else 0,instance,now,now+lease_seconds))
             db.execute("UPDATE runs SET status='running',execution_owner=?,execution_epoch=?,lease_until=?,updated=? WHERE id=?", (owner,epoch,now+lease_seconds,now,run_id))
             self._event(db, run_id, "running", {"epoch":epoch})
