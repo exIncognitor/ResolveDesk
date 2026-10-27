@@ -85,6 +85,10 @@ async def test_real_mcp_subprocess_is_integrated_and_read_only(store):
         assert set(tools)=={'mcp_support_support_checklist'}
         result=await svc.call_external(USER,'mcp_support_support_checklist',{'category':'network'},'technical')
         assert result['structured']['category']=='network'
+        cached=await svc.call_external(USER,'mcp_support_support_checklist',{'category':'network'},'technical')
+        assert cached['cached'] and cached['source']=='external_mcp'
+        other=await svc.call_external(OTHER,'mcp_support_support_checklist',{'category':'network'},'technical')
+        assert not other['cached']
         assert not store.list_tickets(USER)
         with pytest.raises(PermissionError):await svc.call_external(USER,'create_ticket',{},'technical')
     finally:await svc.close()
