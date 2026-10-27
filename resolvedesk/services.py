@@ -120,9 +120,15 @@ class DeskServices:
         from resolvedesk.intent import ITIntentRecognizer
         from resolvedesk.roles import IT_AGENTS
         self.entities=EntityState(store)
-        self.roles = AgentOrchestrator(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash",skill_manager=self.skills,agent_classes=IT_AGENTS)
+        self.remote_embedding=None
+        provider=os.getenv("RESOLVEDESK_INTENT_VECTOR_PROVIDER","local_e5")
+        if provider not in {"local_e5","self_hosted_http"}:raise ValueError("Unknown IT intent vector provider")
+        if provider=="self_hosted_http":
+            from resolvedesk.remote_embedding import HTTPEmbedding
+            self.remote_embedding=HTTPEmbedding(os.getenv("RESOLVEDESK_INTENT_VECTOR_URL",""),os.getenv("RESOLVEDESK_EMBEDDING_TOKEN",""))
+        recognizer=ITIntentRecognizer(client,self.remote_embedding or knowledge.embedding)
+        self.roles = AgentOrchestrator(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash",skill_manager=self.skills,agent_classes=IT_AGENTS,intent_recognizer=recognizer)
         # All integrated agents use the same guarded client and fixed Flash model.
-        self.roles._intent_recognizer=ITIntentRecognizer(client,knowledge.embedding)
         self.roles._composer._client = client
         for pool in self.roles._pool.values():
             for agent in pool:
@@ -159,6 +165,7 @@ class DeskServices:
             await asyncio.gather(self.maintenance_task,return_exceptions=True)
         await self.mcp.close()
         await self.manager._client.close()
+        if self.remote_embedding:self.remote_embedding.close()
 
     def _wire_role_tools(self):
         from resolvedesk.roles import build_it_tools

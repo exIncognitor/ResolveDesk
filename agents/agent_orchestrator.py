@@ -766,13 +766,14 @@ class AgentOrchestrator:
         skill_manager: Optional[Any] = None,
         rag_tool_manager: Optional[Any] = None,
         agent_classes: Optional[Dict[AgentType,type[BaseAgent]]] = None,
+        intent_recognizer: Optional[Any] = None,
     ):
         kwargs: Dict[str, Any] = {"api_key": api_key}
         if base_url:
             kwargs["base_url"] = base_url
         client = AsyncAnthropic(**kwargs)
 
-        self._intent_recognizer = IntentRecognizer(api_key=api_key, base_url=base_url, model=model)
+        self._intent_recognizer = intent_recognizer or IntentRecognizer(api_key=api_key, base_url=base_url, model=model)
         self._skill_manager = skill_manager
         self._composer = ResponseComposer(client, model, skill_manager)
         self._shared_tools: Dict[str, AgentToolSpec] = {}
