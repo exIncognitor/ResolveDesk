@@ -42,7 +42,7 @@
 | A04 | 专业节点调用失败立即 General 回退、保留原失败轨迹 | 部分 | 复合节点继承 `_execute` 回退；普通请求主循环异常后直接 failed，可显式恢复，但没有等价的本轮专业失败回退 | O agents/agent_orchestrator.py:1213；R resolvedesk/agent.py:121 | G03 |
 | A05 | 结构化人工升级状态与交接摘要 | 部分 | Escalation 类保留；单角色请求只注入角色职责，未完整执行原升级节点，也没有等价的 `escalated` 等响应契约；真实人工队列原版也没有 | O agents/agent_orchestrator.py:616、856；R resolvedesk/services.py:156、agent.py:152 | G03 |
 | A06 | 合成器保留 partial/failed、实际执行角色及专业节点轨迹 | 部分 | 由新主 Agent 合成可视为替代，但专业意见包只保留请求角色、success 和文本，丢失 actual agent_type、status、escalate、tool_traces 等信息 | O agents/agent_orchestrator.py:933；R resolvedesk/services.py:183 | G03、G10 |
-| A07 | 各专业节点均能自主调用共享 RAG 与获准 MCP 工具 | 未接入 | 新服务没有原 `_refresh_agent_tools/set_shared_tools` 接线；专业节点收到预检索上下文，但不能各自自主检索或调用已注册 MCP。主 DeskAgent 可以调用这些工具 | O api/main.py:219；R resolvedesk/services.py:107、183、227 | G04 |
+| A07 | 各专业节点均能自主调用共享 RAG 与获准 MCP 工具 | 未接入 | 新服务未传 rag_tool_manager，编排器构造时虽然注册默认共享RAG工具，但其handler会返回“RAG工具未初始化”；也未接入当前MCP工具。专业节点能读预检索上下文，主DeskAgent能正常调用知识/MCP，不能据此推断各节点均已接通 | O api/main.py:219；R agents/agent_orchestrator.py:757、agents/tools.py:179、resolvedesk/services.py:107 | G04 |
 | A08 | 角色内置工具与领域职责一致 | 部分 | 复合节点仍有旧 `general_tools/technical_tools/billing_tools`；Billing 的订单/金额核验工具未改成软件席位/授权核验；主 DeskAgent 也没有直接暴露整套原角色工具 | O/R agents/tools.py；R resolvedesk/agent.py 的 TOOLS、services.py:107 | G04 |
 
 ### 多轮状态与分层记忆
@@ -77,7 +77,7 @@
 | C01 | 标准 SDK stdio 客户端、发现与调用 | 已接入 | 当前真实连接本地 support_checklist，只读；有集成证据 | R resolvedesk/services.py:139、mcp_support.py；tests/test_integrated_services.py | — |
 | C02 | Streamable HTTP、外部身份头、配置化多服务 | 部分 | SDK 仍支持，构造函数也能程序传参；正常启动不加载 MCP_SERVERS_CONFIG，只硬编码本地 stdio；外部 HTTP 生产接线未验收 | O tooling/mcp_client.py:28、62、149、api/main.py:170；R resolvedesk/services.py:139 | G07 |
 | C03 | 工具列表变化刷新、掉线重连 | 已接入 | StandardMCPClient 引擎机制保留；当前默认仅本地 stdio，远端服务及专业节点接线不包含在该完成结论中 | O/R tooling/mcp_client.py:149；R resolvedesk/services.py:149 | G07 |
-| C04 | 自身作为 HTTP MCP 服务端暴露知识工具和 Resource | 未接入 | tooling/mcp_server.py 只在旧 api.main 挂载；当前 GET /mcp 是状态 JSON，不是 MCP 协议服务 | O tooling/mcp_server.py、api/main.py:762；R resolvedesk/app.py:303 | G07 |
+| C04 | 自身作为 HTTP MCP 服务端暴露知识工具和 Resource | 未接入 | tooling/mcp_server.py 只在旧 api.main 挂载；当前 GET /mcp 是状态 JSON，不是 MCP 协议服务 | O tooling/mcp_server.py、api/main.py:759；R resolvedesk/app.py:303 | G07 |
 | C05 | 不调用模型的受控 MCP 调试接口、意图向量连接状态接口 | 未接入 | 当前仅 MCP 状态和检索 embedding 状态；没有原 MCP call 调试及意图 embedding 的 provider/cooldown 状态契约 | O api/main.py:732、747；R resolvedesk/app.py:184、303 | G07、G11 |
 | C06 | 非只读 MCP 的未知结果防重放保护 | 范围选择 | 当前明确禁止非只读 MCP，业务写入只走本地确认事务。原泛化写工具及 before_unsafe_tool 路径未迁移；不应为凑功能直接取消确认限制 | O api/main.py:410；R resolvedesk/services.py:144、business.py、store.py:227 | G07（可明确排除） |
 
@@ -90,6 +90,7 @@
 | L03 | 本轮业务写入一致性 | 替代 | 当前运行状态、确认建单、业务状态、审计在 SQLite 事务内提交；支持旧草稿失效、版本检查和重复确认复用 | O memory/conversation_memory.py:155；R resolvedesk/store.py:205、227、business.py:167 | — |
 | L04 | Redis 工作记忆、Chroma 情景/画像/知识服务 | 保留未验 | 原路径仍在旧入口；新入口用 SQLite + 本地 E5 精确向量检索，属于替代，不代表接入了原服务化存储或证明了大规模性能 | O memory/conversation_memory.py、tooling/knowledge_base.py；R resolvedesk/store.py、retrieval.py | G12（架构决策） |
 | L05 | 跨进程会话租约、续租、失租取消写入 | 保留未验 | 当前 FileLock 限单进程，SQLite claim 防同 run 重复执行；不允许多个服务 worker，未实现等价分布式会话租约 | O core/concurrency.py:37；R resolvedesk/app.py:85、store.py:143 | G12（架构决策） |
+| L06 | 近期记忆/回执24小时TTL、轨迹7天TTL和最近200条索引 | 替代 | 当前消息、事件、回执相关状态持久保留，无等价自动过期策略；应明确新保留/归档与容量策略，而非默认恢复原TTL或擅自删除已有数据 | O memory/conversation_memory.py:155、182；R resolvedesk/store.py、monitoring.py | G12（保留策略） |
 
 ### 质量评测
 
@@ -103,6 +104,7 @@
 | E06 | 任意期望意图/工具/实体的通用确定性断言 | 部分 | 当前有角色、引用、prepare_ticket、专用业务字段与最终状态断言，但未迁移原泛化 expected_intent/required_tools/expected_entities 配置机制 | O evaluation/evaluator.py:505；R resolvedesk/quality.py:105 | G08 |
 | E07 | 同 suite 基线回归 | 替代 | 当前人工选择有效基线，相同语料、知识、Judge 配置才比较，相对下降5%检测；不需要复制原自动基线文件行为 | O evaluation/evaluator.py:379、609；R resolvedesk/evaluations.py:62、72 | — |
 | E08 | 评测与线上状态隔离 | 替代 | 当前经隔离 HTTP 应用和数据库，业务状态不写主库；原是独立路由/工具状态，知识和外部连接部分共享，隔离方式不同 | O api/main.py:187；R resolvedesk/quality.py:42 | — |
+| E09 | 有界队列、串行执行、任务级超时与结果保留上限 | 部分 | 当前有最多2个活动任务与持久状态，但没有原任务级deadline和原保留上限；改为隔离任务并发是实现选择，需明确总时限/容量/保留规则，不必为了迁移机械恢复串行 | O evaluation/jobs.py:9；R resolvedesk/evaluations.py:34、95 | G08、G12 |
 
 ### 监控与轨迹
 
@@ -122,7 +124,7 @@
 | --- | --- | --- | --- | --- | --- |
 | F01 | Vue 聊天、知识、监控、Skills、评测页面 | 替代 | 原 Vue 已接当前 API，并新增业务服务台、任务恢复等；相关数据仍受上方接口/统计缺口影响 | O 配套 EchoMindFrontend；R frontend/src/App.vue | — |
 | F02 | Java/Python 双后端切换 | 范围选择 | 当前只开放 Python；Java 适配旧代码存在不代表 Java 服务已迁移 | O EchoMindFrontend/README.md；R frontend/src/App.vue、lib/resolvedesk.js | 明确不计 Python 欠账 |
-| F03 | 交互式 CLI 使用同一记忆、角色、RAG、MCP | 未接入 | 原 `_cli` 留在旧 api/main.py；新主入口没有功能等价 CLI，smoke 脚本不是 CLI | O api/main.py:766；R tools/ | G11 |
+| F03 | 交互式 CLI 使用同一记忆、角色、RAG、MCP | 未接入 | 原 `_cli` 留在旧 api/main.py；新主入口没有功能等价 CLI，smoke 脚本不是 CLI | O api/main.py:763；R tools/ | G11 |
 | F04 | 部署配置与实际启动路径一致 | 部分 | 新入口固定本地路径/部分参数；.env.example 的 ALERT_WEBHOOK_URL、MCP_EXTERNAL_ENABLED、部分旧存储配置不驱动当前对应链路。新告警实际读取 RESOLVEDESK_ALERT_WEBHOOK | O .env.example、api/main.py:170；R .env.example、resolvedesk/app.py:85、monitoring.py:80 | G13 |
 | F05 | Docker/Compose、Nginx网关、Prometheus抓取及数据挂载 | 保留未验 | 当前 Dockerfile 和 compose.yaml 仅单 app + data 挂载，未等价迁移原 Redis/Chroma/Prometheus/Nginx 服务编排；新机器镜像的前端构建、鉴权文件初始化及抓取需验收。Docker 按用户要求跳过 | O docker-compose.yml、docker-compose.web.yml、config/；R Dockerfile、compose.yaml、.dockerignore | G13 |
 
@@ -139,11 +141,11 @@
 | G05 完整记忆维护 | 丰富画像、后台有界队列/合并互斥、分段情景、摘要合并及失败隔离 | 长对话和跨任务召回覆盖原能力；维护失败不使原本可完成的聊天失败；数据按租户/用户隔离 |
 | G06 工具可靠性 | 原生检索纳入统一缓存/失效、超时、熔断与恢复、运行时知识故障回退；明确本地工具适用策略 | 真实当前入口验证缓存命中/重导入失效、超时、打开/半开/恢复及降级；不只测保留的类 |
 | G07 MCP全链路 | 配置化外部 HTTP/stdio、身份头、专业节点接线、对外知识 MCP 服务端、受控调试；泛化写工具明确保留限制或另设确认契约 | 经正常启动配置完成外部只读服务的发现/调用/刷新/重连；其他标准客户端能按权限读取当前知识库，不能误把状态接口当协议端点 |
-| G08 评测对齐 | 真正测当前三路识别器、逐轮 Judge、自定义用例/参考资料、通用意图/工具/实体断言、更多租户的合法数据入口 | 用同一套定义执行完整任务；早期坏回复可被发现；识别器错误不能被规则分类的28/28掩盖；失败和评分分母真实 |
+| G08 评测对齐 | 真正测当前三路识别器、逐轮 Judge、自定义用例/参考资料、通用意图/工具/实体断言、更多租户的合法数据入口、任务总时限/容量 | 用同一套定义执行完整任务；早期坏回复可被发现；识别器错误不能被规则分类的28/28掩盖；失败和评分分母真实；任务超时状态可恢复且不自动重复付费 |
 | G09 监控对齐 | 主请求/专业执行/实际回退角色分账、单节点真实耗时、partial识别、Z-score、Histogram、工具熔断状态、延迟与失败反馈 | 注入已知延迟/失败后，指标数量、角色归因、直方图、告警和实际降级全部能对上；固定阈值差异明确记录 |
 | G10 完整轨迹 | 本地与专业节点/MCP统一轨迹、脱敏参数/结果摘要、单工具耗时/错误/缓存/回退、分页/最近轨迹、前端耗时 | 从真实请求可还原完整调用链；原始敏感值不落轨迹；界面指标不出现 undefined 或固定伪置信度 |
 | G11 API与运维入口 | 原接口映射/明确破坏性变更说明、服务端批量/文件导入、集成状态/调试、当前存储对应的交互CLI | 17个原HTTP接口及 MCP/CLI 每项都有可验证替代或明确退役；导入与权限/限制一致，调试不绕过写入审批 |
-| G12 请求回执及存储并发 | 续聊逐轮幂等回执必须补齐；Redis/Chroma及多worker租约作为明确架构范围决策 | 对同一续聊请求重试返回同一结果且不重复调用模型/业务操作；若选择多worker，再验收跨进程互斥/失租保护，单进程版本不冒称分布式 |
+| G12 请求回执及存储并发 | 续聊逐轮幂等回执必须补齐；Redis/Chroma及多worker租约作为明确架构范围决策；明确持久数据和评测结果的保留/容量策略 | 对同一续聊请求重试返回同一结果且不重复调用模型/业务操作；若选择多worker，再验收跨进程互斥/失租保护，单进程版本不冒称分布式；保留策略不得擅自丢弃用户资料 |
 | G13 配置与部署 | 清理或适配不生效的配置名、统一文档；外部Webhook接入；Docker镜像/Compose/网关/抓取/初始化按范围补验 | 新环境按文档一次部署可用；配置修改有明确效果；未做Docker和真实外部通知时持续标为延期/未接入 |
 
 建议执行顺序：G01/G02/G03/G04 → G05/G06/G07 → G08/G09/G10/G11 → G12续聊回执与G13配置。服务化多worker、Docker和真实外部通知依既有约束另行验收，不因无法使用Docker而阻塞前面本机行为对齐。
