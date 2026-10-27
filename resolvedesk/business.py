@@ -59,7 +59,7 @@ class BusinessService:
                 ("LT-1001", "learner", "演示开发笔记本", "in_warranty"),
                 ("LT-1002", "support", "演示运维笔记本", "expired"),
             ):
-                db.execute("INSERT OR IGNORE INTO desk_assets VALUES('demo',?,?,?,?, 'available')",
+                db.execute("INSERT INTO desk_assets VALUES('demo',?,?,?,?, 'available') ON CONFLICT(tenant,id) DO NOTHING",
                            (asset_id, owner, model, warranty))
 
     def context(self, p):
@@ -96,7 +96,7 @@ class BusinessService:
             asset_id = fields.get("asset_id", "")
             if not asset_id: missing.append("设备资产 ID")
             else:
-                asset = db.execute("SELECT * FROM desk_assets WHERE tenant=? AND id=? AND owner=?", (p.tenant, asset_id, p.user)).fetchone()
+                asset = db.execute(db.locked("SELECT * FROM desk_assets WHERE tenant=? AND id=? AND owner=?"), (p.tenant, asset_id, p.user)).fetchone()
                 if asset is None: raise ValueError("设备不属于申请人或资产不存在")
                 if asset["status"] != "available": raise Conflict("设备已有未完成的维修流程")
         else:
@@ -129,7 +129,7 @@ class BusinessService:
     def _get(db, p, ticket_id):
         scope = "" if p.role == "support" else " AND owner=?"
         params = [ticket_id, p.tenant] + ([] if p.role == "support" else [p.user])
-        row = db.execute("SELECT * FROM service_cases WHERE ticket_id=? AND tenant=?" + scope, params).fetchone()
+        row = db.execute(db.locked("SELECT * FROM service_cases WHERE ticket_id=? AND tenant=?" + scope), params).fetchone()
         if row is None: raise KeyError("Service case not found")
         return row
 

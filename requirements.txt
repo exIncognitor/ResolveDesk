@@ -11,6 +11,8 @@ python-multipart==0.0.12    # FastAPI 文件上传支持
 
 # ── 数据存储 ──────────────────────────────────────────────────────────────────
 redis==5.2.1
+SQLAlchemy==2.1.6         # pooled PostgreSQL repository connections
+psycopg[binary,pool]==3.3.6
 chromadb==1.5.9            # Windows 官方二进制包，独立新库，不迁移原包数据
 
 # ── 监控 ──────────────────────────────────────────────────────────────────────

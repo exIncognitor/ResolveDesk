@@ -31,13 +31,12 @@ def digest(value):
 
 
 class Store:
-    def __init__(self, path):
-        self.path = Path(path)
-        for ancestor in (self.path, *self.path.parents):
-            if ancestor.is_symlink() or ancestor.is_junction():
-                raise ValueError("Database paths must not follow links")
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.db() as db:
+    def __init__(self, path, *, schema="public"):
+        from resolvedesk.database import Database
+        self.database = Database(path, schema)
+        self.path = self.database.path
+        self.backend = self.database.backend
+        with self.database.schema_transaction() as db:
             db.executescript("""
             CREATE TABLE IF NOT EXISTS runs(
                 id TEXT PRIMARY KEY, tenant TEXT NOT NULL, owner TEXT NOT NULL,
@@ -68,21 +67,14 @@ class Store:
 
     @contextmanager
     def db(self, write=False):
-        db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
-        db.row_factory = sqlite3.Row
-        db.execute("PRAGMA busy_timeout=10000")
-        try:
-            if write:
-                db.execute("BEGIN IMMEDIATE")
+        with self.database.connect(write) as db:
             yield db
-            if db.in_transaction:
-                db.commit()
-        except BaseException:
-            if db.in_transaction:
-                db.rollback()
-            raise
-        finally:
-            db.close()
+
+    def has_column(self, table, column):
+        return self.database.has_column(table, column)
+
+    def close(self):
+        self.database.close()
 
     @staticmethod
     def _event(db, run_id, kind, payload):
@@ -92,7 +84,7 @@ class Store:
     @staticmethod
     def _run(db, principal, run_id):
         # Runs and confirmations always belong to the requester, even for support staff.
-        row = db.execute("SELECT * FROM runs WHERE id=? AND tenant=? AND owner=?",
+        row = db.execute(db.locked("SELECT * FROM runs WHERE id=? AND tenant=? AND owner=?"),
                          (run_id, principal.tenant, principal.user)).fetchone()
         if row is None:
             raise KeyError("Run not found")
@@ -108,15 +100,15 @@ class Store:
 
     def create_run(self, p, message, request_key):
         with self.db(True) as db:
-            row = db.execute("SELECT * FROM runs WHERE tenant=? AND owner=? AND request_key=?",
+            run_id, now = uuid.uuid4().hex, time.time()
+            inserted = db.execute("INSERT INTO runs(id,tenant,owner,request_key,message,status,created,updated) VALUES(?,?,?,?,?,'queued',?,?) ON CONFLICT(tenant,owner,request_key) DO NOTHING",
+                       (run_id, p.tenant, p.user, request_key, message, now, now))
+            if not inserted.rowcount:
+                row = db.execute("SELECT * FROM runs WHERE tenant=? AND owner=? AND request_key=?",
                              (p.tenant, p.user, request_key)).fetchone()
-            if row:
                 if row["message"] != message:
                     raise Conflict("Idempotency key already used with a different message")
                 return self._public(row), False
-            run_id, now = uuid.uuid4().hex, time.time()
-            db.execute("INSERT INTO runs(id,tenant,owner,request_key,message,status,created,updated) VALUES(?,?,?,?,?,'queued',?,?)",
-                       (run_id, p.tenant, p.user, request_key, message, now, now))
             db.execute("INSERT INTO messages(run_id,role,content) VALUES(?,'user',?)", (run_id, message))
             self._event(db, run_id, "queued", {})
             return self._public(self._run(db, p, run_id)), True
