@@ -1,0 +1,241 @@
+{
+  "contract": {
+    "schema": "iteration-components-v1",
+    "chunks": [
+      1000,
+      10000
+    ],
+    "concurrency": [
+      1,
+      5,
+      10
+    ],
+    "samples_per_phase": 40,
+    "top_k": 5,
+    "mode": "hybrid",
+    "optimize": false,
+    "embedding": "benchmark-sha256-normalized-64-v1",
+    "corpus": "100 synthetic 64-dimensional chunks per document; explicit vectors; 220-character safety-policy filler and unique case codes.",
+    "phases": "cold = new process knowledge/query caches and unique requests; warm = repeat those queries using Redis/process cache. SQL/Chroma page caches are not flushed. No paid model calls."
+  },
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "engine_root": "C:\\Users\\12137\\AppData\\Local\\Temp\\codex-security-artifacts-cd635a7e037a7ec1d7a73f76834e79e0c1c6a4bf9154bdef08921c30eea0a17f\\baseline",
+  "retrieval_source_sha256": "b4ad0ed1e2e4c2e0f75bf28384f3b807fc0769f1218f9d9910506cf92dec457b",
+  "profiles": [
+    {
+      "chunks": 1000,
+      "concurrency": 1,
+      "phase": "cold",
+      "requests": 40,
+      "p50_ms": 88.6233499913942,
+      "p95_ms": 98.48039998905733,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 0,
+      "elapsed_s": 3.6451605999609455,
+      "process_cpu_s": 1.65625,
+      "event_loop_lag_p95_ms": 11.906100038904697,
+      "rss_bytes": 88387584,
+      "process_lifetime_peak_rss_bytes": 90984448
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 1,
+      "phase": "warm",
+      "requests": 40,
+      "p50_ms": 14.438050013268366,
+      "p95_ms": 16.006499994546175,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 40,
+      "elapsed_s": 0.5837251999764703,
+      "process_cpu_s": 0.28125,
+      "event_loop_lag_p95_ms": 0.2760999579913912,
+      "rss_bytes": 87674880,
+      "process_lifetime_peak_rss_bytes": 90984448
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 5,
+      "phase": "cold",
+      "requests": 40,
+      "p50_ms": 211.93935003248043,
+      "p95_ms": 247.6174999610521,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 0,
+      "elapsed_s": 1.7609515000367537,
+      "process_cpu_s": 1.765625,
+      "event_loop_lag_p95_ms": 8.31110002240166,
+      "rss_bytes": 96698368,
+      "process_lifetime_peak_rss_bytes": 104534016
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 5,
+      "phase": "warm",
+      "requests": 40,
+      "p50_ms": 41.247300017857924,
+      "p95_ms": 55.60299998614937,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 40,
+      "elapsed_s": 0.35132830002112314,
+      "process_cpu_s": 0.296875,
+      "event_loop_lag_p95_ms": 5.61459997901693,
+      "rss_bytes": 97218560,
+      "process_lifetime_peak_rss_bytes": 104534016
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 10,
+      "phase": "cold",
+      "requests": 40,
+      "p50_ms": 548.8278999982867,
+      "p95_ms": 656.2676999601535,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 0,
+      "elapsed_s": 2.2780981000396423,
+      "process_cpu_s": 1.9375,
+      "event_loop_lag_p95_ms": 11.315400023013353,
+      "rss_bytes": 97079296,
+      "process_lifetime_peak_rss_bytes": 106921984
+    },
+    {
+      "chunks": 1000,
+      "concurrency": 10,
+      "phase": "warm",
+      "requests": 40,
+      "p50_ms": 64.17025002883747,
+      "p95_ms": 95.84830002859235,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 40,
+      "elapsed_s": 0.27647959999740124,
+      "process_cpu_s": 0.359375,
+      "event_loop_lag_p95_ms": 0.5583000113256273,
+      "rss_bytes": 97878016,
+      "process_lifetime_peak_rss_bytes": 106921984
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 1,
+      "phase": "cold",
+      "requests": 40,
+      "p50_ms": 523.8364499818999,
+      "p95_ms": 592.3477999749593,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 0,
+      "elapsed_s": 21.32273090002127,
+      "process_cpu_s": 12.359375,
+      "event_loop_lag_p95_ms": 21.51299996534362,
+      "rss_bytes": 176771072,
+      "process_lifetime_peak_rss_bytes": 213012480
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 1,
+      "phase": "warm",
+      "requests": 40,
+      "p50_ms": 62.81799997668713,
+      "p95_ms": 69.34230000479147,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 40,
+      "elapsed_s": 2.535693200014066,
+      "process_cpu_s": 1.5,
+      "event_loop_lag_p95_ms": 20.64040001481771,
+      "rss_bytes": 177704960,
+      "process_lifetime_peak_rss_bytes": 213012480
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 5,
+      "phase": "cold",
+      "requests": 40,
+      "p50_ms": 1737.0031000173185,
+      "p95_ms": 2090.263399994001,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 0,
+      "elapsed_s": 14.381726299994625,
+      "process_cpu_s": 12.96875,
+      "event_loop_lag_p95_ms": 35.96060002222657,
+      "rss_bytes": 213221376,
+      "process_lifetime_peak_rss_bytes": 305856512
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 5,
+      "phase": "warm",
+      "requests": 40,
+      "p50_ms": 207.82969999709167,
+      "p95_ms": 278.0329000088386,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 40,
+      "elapsed_s": 1.6779472000198439,
+      "process_cpu_s": 1.546875,
+      "event_loop_lag_p95_ms": 20.85089998785406,
+      "rss_bytes": 215617536,
+      "process_lifetime_peak_rss_bytes": 305856512
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 10,
+      "phase": "cold",
+      "requests": 40,
+      "p50_ms": 3488.7316999956965,
+      "p95_ms": 5465.600900002755,
+      "errors": [
+        {
+          "request": 21,
+          "errors": [
+            "it_rag_执行超时"
+          ],
+          "degraded": true
+        },
+        {
+          "request": 25,
+          "errors": [
+            "it_rag_执行超时"
+          ],
+          "degraded": true
+        },
+        {
+          "request": 29,
+          "errors": [
+            "it_rag_执行超时"
+          ],
+          "degraded": true
+        }
+      ],
+      "error_rate": 0.075,
+      "cache_hits": 0,
+      "elapsed_s": 15.488671600003727,
+      "process_cpu_s": 14.078125,
+      "event_loop_lag_p95_ms": 32.233899992424995,
+      "rss_bytes": 226844672,
+      "process_lifetime_peak_rss_bytes": 312606720
+    },
+    {
+      "chunks": 10000,
+      "concurrency": 10,
+      "phase": "warm",
+      "requests": 40,
+      "p50_ms": 366.58589998842217,
+      "p95_ms": 1599.629600008484,
+      "errors": [],
+      "error_rate": 0.0,
+      "cache_hits": 37,
+      "elapsed_s": 2.491459399985615,
+      "process_cpu_s": 2.40625,
+      "event_loop_lag_p95_ms": 23.788500004447993,
+      "rss_bytes": 261623808,
+      "process_lifetime_peak_rss_bytes": 312606720
+    }
+  ]
+}
