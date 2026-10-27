@@ -84,6 +84,9 @@ class Connection:
         return sql+" FOR UPDATE" if self.backend == "postgresql" and self.write else sql
 
     def execute(self, sql, values=()):
+        if self.backend=="postgresql" and re.match(r"^\s*CREATE TABLE IF NOT EXISTS\b",sql,re.I):
+            sql=sql.replace("INTEGER PRIMARY KEY AUTOINCREMENT","BIGSERIAL PRIMARY KEY")
+            sql=re.sub(r"\bREAL\b","DOUBLE PRECISION",sql)
         statement, parameters = bindings(sql, values)
         return Cursor(self.connection.execute(text(statement), parameters))
 

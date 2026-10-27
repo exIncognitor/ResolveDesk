@@ -97,3 +97,9 @@ def test_postgres_concurrent_schema_initialization_and_time_precision(postgres_s
         db.execute("INSERT INTO memory_episode VALUES(?,?,?,?,?,?,?)",("precision","demo","u","test","[]","test",precise))
     with store.db() as db:
         assert abs(db.execute("SELECT updated FROM memory_episode").fetchone()[0]-precise)<.00001
+    from resolvedesk.evaluations import EvaluationService
+    EvaluationService(store,None)
+    with store.db(True) as db:
+        db.execute("INSERT INTO quality_baselines VALUES('test','precision','test','{}',?)",(precise,))
+    with store.db() as db:
+        assert abs(db.execute("SELECT created FROM quality_baselines").fetchone()[0]-precise)<.00001

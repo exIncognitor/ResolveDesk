@@ -18,6 +18,8 @@ class EvaluationService:
             if not db.has_column("eval_jobs","options"):
                 db.execute("ALTER TABLE eval_jobs ADD COLUMN options TEXT NOT NULL DEFAULT '{}'")
             db.execute("CREATE TABLE IF NOT EXISTS quality_baselines(tenant TEXT,suite_id TEXT,job_id TEXT,report TEXT,created REAL,PRIMARY KEY(tenant,suite_id))")
+            if db.backend=="postgresql":
+                db.execute("ALTER TABLE quality_baselines ALTER COLUMN created TYPE DOUBLE PRECISION")
             for column,declaration in (("execution_owner","TEXT"),("lease_until","DOUBLE PRECISION NOT NULL DEFAULT 0")):
                 if not db.has_column("eval_jobs",column): db.execute("ALTER TABLE eval_jobs ADD COLUMN "+column+" "+declaration)
             # A second service worker must never interrupt a live paid evaluation.
