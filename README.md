@@ -50,6 +50,14 @@ docker compose --env-file .codex-runtime/services.env -f compose.yaml up -d --bu
 
 网关默认 `http://127.0.0.1:18080`，Prometheus 默认 `http://127.0.0.1:19090`。模型、身份和原费用账本通过 `data/` 挂载保留；镜像不包含密钥。`/health` 报告技术路径，`/ready` 检查依赖。
 
+当前服务也有交互CLI，和网页共用身份、会话、记忆、知识、专业节点及MCP：
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -B -m resolvedesk.cli --base-url http://127.0.0.1:18080 --actor learner
+```
+
+输入`:help`查看命令。CLI读取本地`.codex-runtime/access.json`中的API令牌，不需要把模型Key放进终端。网络结果不确定时用`:retry`复用原请求；草稿以`:confirm VERSION`核对后提交模拟工单。接口映射、批量上传与CLI契约见 [API与CLI迁移](docs/API_CLI_MIGRATION_2026-10-27.md)。
+
 ## 实际请求链路
 
 Vue 工作台 → 带身份与逐轮请求键的 API → Redis 租约及 SQL 认领代次 → IT三路意图融合与多轮字段状态 → 记忆/查询改写/混合检索 → 普通或复合只读专业节点 → 有界协调工具循环 → 回答/追问/草稿 → 用户确认 → PostgreSQL 事务建单。低置信直接追问；高风险交接直接呈现当前授权安全制度，不转成未经请求的工单收集。
@@ -66,8 +74,9 @@ Vue 工作台 → 带身份与逐轮请求键的 API → Redis 租约及 SQL 认
 - **权限**：令牌绑定租户/用户/角色；知识在召回前过滤；普通用户只读自己的任务、工单和记忆。
 - **流式**：真实 SDK 文本增量经持久化 SSE 事件送到 Vue。生成中的文字标为待校验；最终回答经过来源检查。事件连接支持 Last-Event-ID 和当前轮次游标。
 - **恢复与并发**：每次模型结果及工具轮次保存检查点。Redis 持续续租、SQL owner/epoch/有效期阻止旧执行者提交；启动仅暂停过期执行，不中断其他工作进程。每轮回执持久化，同键不同输入拒绝；重试读取原轮次答案及事件范围。显式恢复可复用已保存结果，未完成的模型调用仍可能重发并收费。
-- **评测**：免费检索回归与完整付费质量评测分开。质量评测经隔离的当前 HTTP 入口执行真实对话和业务事务，检查路由、引用、工具、申请字段、业务结果，用四维 Flash Judge 评分；失败独立报告，人工选择同套件基线做回归。支持任务记录和显式重新执行。
-- **监控**：真实角色、工具、主执行和检索指标持久化，提供鉴权 Prometheus 指标、告警触发/恢复、持久化通知 outbox 和路由降权。Webhook 地址未配置时仅本地留存事件。
+- **评测**：免费检索回归与付费质量评测分开；测当前三路IT识别器，经隔离的PG/Redis/Chroma和当前HTTP入口执行多轮对话及业务事务，逐轮四维Judge与通用断言。自定义数据/最多50轮、持久总时限、未知付费步骤不重调、跨版本有效基线和受保护的保留/回收均已验。开发意图集51/52，保留401场景误判；详见`docs/EVALUATION_MIGRATION_2026-10-27.md`。
+- **监控**：主执行epoch、实际专家角色/实例、工具与检索分开统计，持久Counter/Histogram在原始遥测清理后保留；Z-score、固定阈值、依赖熔断、结构化建议及失败/延迟共同降权、唯一恢复探测。观察超时不替换工具结果，未知中断耗时保持null。详见`docs/MONITORING_MIGRATION_2026-10-27.md`。Webhook未配置，仅本地outbox；用户选择暂不验收真实外部通知。
+- **轨迹与导入**：主/预检索/专业/MCP调用统一脱敏参数、结果摘要、缓存/回退、错误和实际耗时，按原轮次稳定分页及最近列表。知识支持整批SQL原子导入及服务端10 MiB multipart，最多100篇；Chroma由同事务outbox投影，不把跨存储投影称为SQL原子提交。
 
 ## 测试与证据
 
@@ -92,7 +101,7 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 
 `smoke_integrated.py` 的长对话测试会明确标记并注入合成上下文样本，再通过真实服务验证摘要、记忆、专业节点和 MCP。它不是实际用户使用记录。报告保存在 `reports/`。
 
-`accept_it_service.py --quality` 的旧28条意图指标仅测规则，完整替换为当前融合识别器评测仍归G08；不要把28/28当作新识别器准确率。G01–G04已有隔离真实依赖与Flash的8场景验证，以及两个专业节点自主RAG/MCP验证，见 `docs/IT_ENGINE_MIGRATION_2026-10-27.md`。固定检索集20条，另加审核回归。`--live-workflows`会在主库新增模拟业务记录。不存在随包的500条生产测试数据，小样本不能证明泛化效果。
+`accept_it_service.py --quality`保留旧规则评测，28/28不能当作当前三路识别器准确率。当前融合识别、逐轮完整对话及业务评测由`/eval/run`执行，G08真实开发集为51/52，含一例401归属误判，见`docs/EVALUATION_MIGRATION_2026-10-27.md`。固定检索集20条，另加审核回归。`--live-workflows`会在主库新增模拟业务记录。不存在随包的500条生产测试数据，小样本不能证明泛化效果。
 
 ## 关键目录
 
@@ -121,8 +130,10 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 - `/runs/{id}/state`：当前请求所属用户的多轮字段、来源与任务代次；`/system`的support视图报告实际识别器、向量提供方、专业类及工具白名单。
 - `/tickets`、`/tickets/{id}`：按权限查询工单。
 - `/service-catalog`、`/service-cases`、`/service-cases/{id}`、`/service-cases/{id}/actions`：模拟业务目录、状态、鉴权操作与审计。
-- `/knowledge/search`、`/knowledge/documents`、`/knowledge/stats`、`/knowledge/citations/{id}`。
+- `/knowledge/search`、`/knowledge/documents`、`/knowledge/add`（或`/batch`）、`/knowledge/upload`、`/knowledge/stats`、`/knowledge/citations/{id}`；导入需support，上传UTF-8 .txt/.md/.json，文件10 MiB、JSON最多100篇。
 - `/skills`、`/skills/reload`、`/memory`、`/mcp`、`/monitor`、`/system`。
+- `/integrations/mcp`、`/integrations/mcp/call`（support只读调试）、`/integrations/embedding`（意图向量状态，与`/intent-embedding`同处理器）；标准协议为`/mcp/knowledge/`。
+- `/trace/tool/{id}?turn_key=...&after=...&through=...`：next_after分页，固定首个snapshot_end；`/trace/tools?before=...`：本人最近轮次。
 - `/metrics`：support 鉴权的 Prometheus 指标。
 - `/eval/run`、`/eval/jobs`、`/eval/jobs/{id}`、`/eval/jobs/{id}/resume`、`/eval/jobs/{id}/baseline`。
 - `/runs/{id}/feedback`、`/evaluation/candidates`、`/evaluation/candidates/{id}/promote`。
