@@ -15,6 +15,9 @@ def test_alert_trigger_dedup_recovery_is_persistent_and_scoped(tmp_path):
     assert len(monitor.snapshot(p)["notifications"]) == 1
     assert not monitor.snapshot(Principal("other", "support", "support"))["active_alerts"]
     for _ in range(4): monitor.record("demo", "agent", "technical", True, .1)
+    improved=monitor.snapshot(p)
+    assert 0<improved['routing_penalties']['technical']<.5
+    for _ in range(23):monitor.record('demo','agent','technical',True,.1)
     recovered = Monitor(Store(store.path)).snapshot(p)
     assert not recovered["active_alerts"] and not recovered["routing_penalties"]
     assert len(recovered["notifications"]) == 2

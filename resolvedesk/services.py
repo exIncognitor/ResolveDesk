@@ -194,12 +194,12 @@ class DeskServices:
 
     async def search(self,p,query,top_k=5,optimize=True,mode="hybrid",role=None):
         result=await self.retrieval.search(p,query,top_k,optimize,mode,role)
-        self.monitor.record(p.tenant,"retrieval",mode,bool(result["items"]) and not result["errors"] and not result["degraded"],result["latency_ms"]/1000,owner=p.user,instance=self.monitor.worker_id,detail={'cached':result['cached'],'degraded':result['degraded']})
+        self.monitor.safe_record(p.tenant,"retrieval",mode,bool(result["items"]) and not result["errors"] and not result["degraded"],result["latency_ms"]/1000,owner=p.user,instance=self.monitor.worker_id,detail={'cached':result['cached'],'degraded':result['degraded']})
         return result
 
     def publish_tool_health(self,tenant):
         health={}
-        for name,tool in self.manager._tools.items():
+        for name,tool in list(self.manager._tools.items()):
             breaker=tool.breaker
             health[name]={'circuit_state':breaker.state.value,'retry_after_s':max(0,breaker.recovery_s-(time.monotonic()-breaker.opened_at)) if breaker.opened_at else 0,
                 'failure_threshold':breaker.threshold,'timeout_s':tool.timeout_s,'cache_ttl':tool.cache_ttl,'scope':'shared_worker_dependency_state'}

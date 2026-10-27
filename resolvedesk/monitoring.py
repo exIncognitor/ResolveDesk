@@ -34,6 +34,10 @@ class Monitor:
     def record(self,tenant,kind,name,success,seconds=0,**scope):
         with self.store.db(True) as db:return write_sample(db,tenant,kind,name,success,seconds,**scope)
 
+    def safe_record(self,*args,**kwargs):
+        try:return self.record(*args,**kwargs)
+        except Exception:return False
+
     def _stats(self,samples):
         times=sorted(r['seconds'] for r in samples if r['measured'])
         n=len(samples);success=sum(r['success'] for r in samples)

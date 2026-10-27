@@ -162,7 +162,7 @@ class MCPToolManager:
         other = object.__new__(type(self))
         other._client, other._model = self._client, self._model
         other._cache, other._cache_versions = {}, {}
-        other.observer = self.observer
+        other.observer = getattr(self,'observer',None)
         other._tools = {name: replace(tool) for name, tool in self._tools.items()}
         return other
 
@@ -189,7 +189,7 @@ class MCPToolManager:
             error_code=type(exc).__name__
             raise
         finally:
-            if self.observer:
+            if getattr(self,'observer',None):
                 try:
                     event=self.observer(name,result,(time.monotonic()-started),context or {},error_code)
                     if inspect.isawaitable(event):await event

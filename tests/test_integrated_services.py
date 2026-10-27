@@ -178,6 +178,7 @@ def test_integrated_http_surfaces_enforce_roles_and_persist_feedback_cases(store
     uh={'Authorization':'Bearer alice'};sh={'Authorization':'Bearer support'};bh={'Authorization':'Bearer bob'}
     run,_=store.create_run(USER,'VPN 网络排查','http-surfaces')
     store.claim(USER,run['id']);store.event(USER,run['id'],'routing',{'primary':'technical'});store.finish(USER,run['id'],'completed','请检查网络')
+    agent.monitor.record(USER.tenant,'agent','technical',True,.1,owner=USER.user,instance='synthetic-observed-node')
     with TestClient(create_app(store,kb,agent,accounts)) as c:
         assert c.get('/skills',headers=uh).json()['count']==3
         assert c.post('/skills/reload',headers=uh).status_code==403

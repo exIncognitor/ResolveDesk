@@ -102,6 +102,8 @@ def copy_to_postgres(source,target):
             maximum=db.execute('SELECT MAX("'+column+'") FROM "'+table+'"').fetchone()[0]
             db.execute("SELECT setval(?, ?, ?)",(sequence,maximum or 1,maximum is not None))
         # New bookkeeping is derived only after every legacy column is verified.
+        from resolvedesk.metrics import initialize as initialize_metrics
+        initialize_metrics(db)
         db.execute("INSERT INTO knowledge_documents SELECT tenant,document_id,MIN(owner),MIN(visibility),MIN(version),1,? FROM chunks GROUP BY tenant,document_id ON CONFLICT(tenant,document_id) DO NOTHING",(time.time(),))
         for row in db.execute("SELECT * FROM knowledge_documents").fetchall():
             db.execute("INSERT INTO index_outbox VALUES(?,?,?,?,'pending',0,?,NULL,?)",(uuid.uuid4().hex,row["tenant"],row["document_id"],row["generation"],time.time(),time.time()))

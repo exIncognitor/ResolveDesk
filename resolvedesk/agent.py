@@ -94,13 +94,15 @@ class DeskAgent:
     def schedule(self, p, run_id):
         # claim() also prevents duplicate execution when two HTTP requests race.
         if run_id not in self.tasks and not self.closing:
+            scheduled_cursor=self.store.get_run(p,run_id)['event_cursor']
             task = asyncio.create_task(self.execute(p, run_id))
             self.tasks[run_id] = task
             def finished(done):
                 self.tasks.pop(run_id, None)
                 owned = not done.cancelled() and done.exception() is None and done.result() is True
-                if owned and not self.closing and self.store.get_run(p, run_id)["status"] == "queued":
-                    self.schedule(p, run_id)
+                if not self.closing:
+                    current=self.store.get_run(p,run_id)
+                    if current['status']=='queued' and (owned or current['event_cursor']!=scheduled_cursor):self.schedule(p,run_id)
             task.add_done_callback(finished)
 
     async def pause(self, p, run_id):
@@ -171,7 +173,8 @@ class DeskAgent:
                     if self.store.get_run(p,run_id)["status"] not in {"running","queued"}:
                         await self.services.memory.remember(p,run_id)
                 except Exception as exc:
-                    self.store.event(p,run_id,"memory_error",{"phase":"enqueue","type":type(exc).__name__})
+                    try:self.store.event(p,run_id,"memory_error",{"phase":"enqueue","type":type(exc).__name__})
+                    except Conflict:pass
 
     async def _loop(self, p, run_id):
         run = self.store.get_run(p, run_id)
