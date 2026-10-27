@@ -1,0 +1,1061 @@
+{
+  "created_utc": "2026-10-27T02:33:11.839290+00:00",
+  "model": "deepseek-flash",
+  "synthetic_business_data": true,
+  "all_passed": true,
+  "checks": [
+    {
+      "case": "active_service_quality",
+      "passed": true,
+      "job_id": "7aaa5508cdf049a9889bba9a2807c47a",
+      "result": {
+        "avg_scores": {
+          "accuracy": 1.0,
+          "business_check_rate": 1.0,
+          "completeness": 0.95,
+          "helpfulness": 0.9833333333333334,
+          "intent_accuracy": 1.0,
+          "intent_macro_f1": 1.0,
+          "relevance": 1.0
+        },
+        "corpus_version": "it-service-v1",
+        "evaluation_errors": 0,
+        "intent": {
+          "accuracy": 1.0,
+          "macro_f1": 1.0,
+          "per_class": {
+            "account_access": {
+              "f1": 1.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "device_service": {
+              "f1": 1.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "escalation": {
+              "f1": 1.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "general": {
+              "f1": 1.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "network_endpoint": {
+              "f1": 1.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "software_license": {
+              "f1": 1.0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          },
+          "results": [
+            {
+              "expected": "account_access",
+              "id": "access-1",
+              "message": "账号连续输错密码被锁定",
+              "prediction": "account_access"
+            },
+            {
+              "expected": "account_access",
+              "id": "access-2",
+              "message": "申请开发仓库的只读权限",
+              "prediction": "account_access"
+            },
+            {
+              "expected": "account_access",
+              "id": "access-3",
+              "message": "密码重置网页打不开",
+              "prediction": "account_access"
+            },
+            {
+              "expected": "account_access",
+              "id": "access-4",
+              "message": "MFA 设备丢失无法登录",
+              "prediction": "account_access"
+            },
+            {
+              "expected": "account_access",
+              "id": "access-5",
+              "message": "权限有效期最多几天",
+              "prediction": "account_access"
+            },
+            {
+              "expected": "account_access",
+              "id": "access-6",
+              "message": "内部账户怎么解锁",
+              "prediction": "account_access"
+            },
+            {
+              "expected": "network_endpoint",
+              "id": "network-1",
+              "message": "VPN 提示错误 691",
+              "prediction": "network_endpoint"
+            },
+            {
+              "expected": "network_endpoint",
+              "id": "network-2",
+              "message": "DNS 域名解析失败",
+              "prediction": "network_endpoint"
+            },
+            {
+              "expected": "network_endpoint",
+              "id": "network-3",
+              "message": "公司网络大部分网页连接超时",
+              "prediction": "network_endpoint"
+            },
+            {
+              "expected": "network_endpoint",
+              "id": "network-4",
+              "message": "终端蓝屏有停止码",
+              "prediction": "network_endpoint"
+            },
+            {
+              "expected": "network_endpoint",
+              "id": "network-5",
+              "message": "WiFi 断网怎么办",
+              "prediction": "network_endpoint"
+            },
+            {
+              "expected": "network_endpoint",
+              "id": "network-6",
+              "message": "登录接口 401",
+              "prediction": "network_endpoint"
+            },
+            {
+              "expected": "software_license",
+              "id": "software-1",
+              "message": "IDEA 商业许可证到期",
+              "prediction": "software_license"
+            },
+            {
+              "expected": "software_license",
+              "id": "software-2",
+              "message": "软件白名单怎么申请",
+              "prediction": "software_license"
+            },
+            {
+              "expected": "software_license",
+              "id": "software-3",
+              "message": "IntelliJ license 无法激活",
+              "prediction": "software_license"
+            },
+            {
+              "expected": "software_license",
+              "id": "software-4",
+              "message": "还有可用的商业席位吗",
+              "prediction": "software_license"
+            },
+            {
+              "expected": "software_license",
+              "id": "software-5",
+              "message": "pip 安装包失败",
+              "prediction": "software_license"
+            },
+            {
+              "expected": "software_license",
+              "id": "software-6",
+              "message": "IDE 启动崩溃",
+              "prediction": "software_license"
+            },
+            {
+              "expected": "device_service",
+              "id": "device-1",
+              "message": "笔记本电池鼓包",
+              "prediction": "device_service"
+            },
+            {
+              "expected": "device_service",
+              "id": "device-2",
+              "message": "设备过保可以报修吗",
+              "prediction": "device_service"
+            },
+            {
+              "expected": "device_service",
+              "id": "device-3",
+              "message": "查询我的资产 LT-1001",
+              "prediction": "device_service"
+            },
+            {
+              "expected": "device_service",
+              "id": "device-4",
+              "message": "维修后还是无法开机",
+              "prediction": "device_service"
+            },
+            {
+              "expected": "device_service",
+              "id": "device-5",
+              "message": "外设坏了申请更换",
+              "prediction": "device_service"
+            },
+            {
+              "expected": "device_service",
+              "id": "device-6",
+              "message": "设备借用和归还的规则",
+              "prediction": "device_service"
+            },
+            {
+              "expected": "escalation",
+              "id": "escalation-1",
+              "message": "公司大面积断网需要升级",
+              "prediction": "escalation"
+            },
+            {
+              "expected": "escalation",
+              "id": "escalation-2",
+              "message": "怀疑密钥泄露请联系人工",
+              "prediction": "escalation"
+            },
+            {
+              "expected": "general",
+              "id": "general-1",
+              "message": "你好，有什么服务",
+              "prediction": "general"
+            },
+            {
+              "expected": "general",
+              "id": "general-2",
+              "message": "谢谢",
+              "prediction": "general"
+            }
+          ],
+          "samples": 28
+        },
+        "judge_enabled": true,
+        "kind": "active_service_quality",
+        "pass_rate": 1.0,
+        "passed": 6,
+        "provenance": "人工编写的合成开发评测集；不是生产数据，不声称独立盲测或500条标注数据。",
+        "recommendations": [
+          "合成开发集不能证明生产效果；同一 Flash 同时生成和评分存在评判偏差。",
+          "业务状态变化来自隔离数据库中的真实事务；审批步骤由评测脚本模拟 IT 操作员。"
+        ],
+        "regression_note": "需人工选定相同用例、知识版本与评分配置的有效基线。",
+        "regressions": [],
+        "results": [
+          {
+            "answer": "**repo-resolvedesk 的 read 权限政策（仅解释，未提交申请）**\n\n**可申请范围**\n- repo-resolvedesk 允许 read、write 两种级别；docs-internal 仅允许 read [C-df4b79ac4222f49ae31e27a5]\n- 不能申请 admin、永久权限或目录以外的资源，也不能由他人代为选择更高权限 [C-df4b79ac4222f49ae31e27a5]\n\n**期限**\n- 有效期为 1 至 30 天，必须由申请人自己提供资源 ID、用途、权限级别和有效天数 [C-df4b79ac4222f49ae31e27a5]\n- 授权有效期从 provision（开通）时开始计算，到期后权限不再出现在有效权限查询中 [C-a1a980aeecb4b9afe04e1e37]\n\n**审批与开通流程**\n1. 申请人核对草稿并确认后，申请进入 pending_approval（待审批）[C-eefc2cccca255b6d7afb79bb] [C-e4bff9169967c359718d6392]\n2. 申请人不能审批自己的申请；其他 support 操作员可以 approve 或 reject，并填写说明 [C-e4bff9169967c359718d6392]\n3. approve 后状态为 approved，还须执行 provision 才进入 fulfilled 并写入模拟权限表；批准不等于已开通 [C-e4bff9169967c359718d6392]\n4. 被拒绝后状态为 rejected；申请人在待审批阶段可以取消，状态变为 cancelled [C-e4bff9169967c359718d6392]\n5. 每一步都会记录操作者、时间、前后状态和处理说明；不同租户、不同申请人的记录按身份隔离 [C-a1a980aeecb4b9afe04e1e37]\n\n**注意**：以上均为模拟企业制度，授权只修改本地模拟权限表，不会访问 GitHub 或真实企业账号 [C-31d96133afc0348e20863709]。\n\n如需实际提交，请告诉我用途和期望天数（1–30 天），我会先准备草稿供你核对，再由你通过确认接口提交。",
+            "checks": {
+              "cited_answer": true,
+              "no_unconfirmed_write": true,
+              "retrieved_evidence": true,
+              "role": true,
+              "run_status": true
+            },
+            "judge": {
+              "accuracy": 1.0,
+              "attempts": 1,
+              "completeness": 1.0,
+              "error": null,
+              "error_type": null,
+              "helpfulness": 1.0,
+              "judge_failed": false,
+              "relevance": 1.0,
+              "stop_reason": "end_turn"
+            },
+            "lifecycle": null,
+            "metadata": {
+              "judge_failed": false
+            },
+            "passed": true,
+            "routing": [
+              {
+                "confidence": 0.9,
+                "domains": [
+                  "account_access"
+                ],
+                "intent": "account_access",
+                "intent_method": "versioned_it_rules_v1",
+                "mission": "依据企业规则解释账号、权限申请及服务流程；不擅自批准或开通权限。",
+                "primary": "general",
+                "reason": "IT 场景规则路由",
+                "supporting": [],
+                "workflow": [
+                  "核对诉求",
+                  "检索规则",
+                  "收集必要字段",
+                  "说明确认与审批路径"
+                ]
+              }
+            ],
+            "run_id": "a076436d60664f8ebcb4043b88504fb1",
+            "scores": {
+              "accuracy": 1.0,
+              "completeness": 1.0,
+              "helpfulness": 1.0,
+              "relevance": 1.0
+            },
+            "test_id": "account-policy",
+            "turn_states": [
+              "completed"
+            ]
+          },
+          {
+            "answer": "**内网 DNS 解析失败（外网正常）排查建议**（仅建议，未创建工单）\n\n1. **确认影响范围**：先判断是单一内网域名失败还是全部内网域名失败，记录发生时间、网络环境（办公网/家庭/VPN）和脱敏后的错误提示 [C-3befcc0639e3005be47f046f]\n2. **只读诊断**：用系统自带的只读诊断查看本机 DNS 配置与解析结果，与企业下发的配置核对是否一致 [C-3befcc0639e3005be47f046f]\n3. **不要自行切换公共 DNS**：公共 DNS 通常解析不了内部域名，擅自切换会掩盖问题 [C-3befcc0639e3005be47f046f]\n4. **核对 VPN 状态**：外网正常而内网域名失败时，重点核对 VPN 连接状态和企业 DNS 策略是否生效 [C-3befcc0639e3005be47f046f]\n5. **VPN 侧辅助判断**：若同时存在 VPN 连接超时，先确认普通网页可访问，再切换网络重连 VPN，并记录报错时间、客户端版本和错误码；不要关闭系统防火墙或安装来源不明的证书 [C-428c41317e890086604273d7]\n\n如果按上述步骤排查后仍持续失败，或影响多人，建议准备 network 类工单，附故障描述和已尝试步骤 [C-428c41317e890086604273d7]。需要我准备草稿的话，请告诉我故障时间、影响范围（单机/多人）、网络环境和 VPN 客户端版本。",
+            "checks": {
+              "cited_answer": true,
+              "no_unconfirmed_write": true,
+              "retrieved_evidence": true,
+              "role": true,
+              "run_status": true
+            },
+            "judge": {
+              "accuracy": 1.0,
+              "attempts": 1,
+              "completeness": 1.0,
+              "error": null,
+              "error_type": null,
+              "helpfulness": 1.0,
+              "judge_failed": false,
+              "relevance": 1.0,
+              "stop_reason": "end_turn"
+            },
+            "lifecycle": null,
+            "metadata": {
+              "judge_failed": false
+            },
+            "passed": true,
+            "routing": [
+              {
+                "confidence": 0.9,
+                "domains": [
+                  "network_endpoint"
+                ],
+                "intent": "network_endpoint",
+                "intent_method": "versioned_it_rules_v1",
+                "mission": "依据知识库给出低风险排查，识别维修或安全升级条件。",
+                "primary": "technical",
+                "reason": "IT 场景规则路由",
+                "supporting": [],
+                "workflow": [
+                  "确认影响范围",
+                  "查询知识与资产",
+                  "给出可验证排查",
+                  "必要时维修或升级"
+                ]
+              }
+            ],
+            "run_id": "982f6ce6f8e54be1a8497476ee4f624f",
+            "scores": {
+              "accuracy": 1.0,
+              "completeness": 1.0,
+              "helpfulness": 1.0,
+              "relevance": 1.0
+            },
+            "test_id": "network-dns",
+            "turn_states": [
+              "completed"
+            ]
+          },
+          {
+            "answer": "**IntelliJ IDEA Ultimate 企业席位申请规则（仅解释，未提交工单）**\n\n**授权方式**\n- 使用企业命名用户席位，禁止共享命名用户许可证 [C-575ae46b973ba786036f8ad2]\n- 模拟目录当前显示 2 个可用席位；该数量为演示库存，系统只查询和记录申请，不会向厂商购买或分配真实许可证 [C-575ae46b973ba786036f8ad2]\n\n**申请需提供**\n- 产品、工作用途、使用期限、主管审批 [C-575ae46b973ba786036f8ad2]\n- 目录标注的审批路径为“主管审批后由 IT 分配”\n\n**到期处理**\n- 先核对企业账号、产品版本与到期日期，**不要粘贴授权码** [C-c22be39cf16fdde7b042f1d1]\n- 若提示无法激活：记录脱敏错误提示、产品版本、账号所属组织和发生时间，核对网络与官方激活服务可达性；不要关闭防火墙或分享激活密钥，仍无法解决时提交 software 工单人工核验 [C-e9313f1d537ce5b80a789530]\n\n**边界**\n- 没有可用席位时进入采购审核，不能承诺立刻开通 [C-575ae46b973ba786036f8ad2]\n- 个人先行购买不自动获得报销资格 [C-c22be39cf16fdde7b042f1d1]\n- 以上均为模拟企业制度，不承诺真实库存或采购时效 [C-1261a10fb9a7a12b285eb25a]\n\n如需实际申请，请告诉我工作用途和期望使用期限，我会先准备草稿供你核对，再由你通过确认接口提交。",
+            "checks": {
+              "cited_answer": true,
+              "no_unconfirmed_write": true,
+              "retrieved_evidence": true,
+              "role": true,
+              "run_status": true
+            },
+            "judge": {
+              "accuracy": 1.0,
+              "attempts": 1,
+              "completeness": 0.9,
+              "error": null,
+              "error_type": null,
+              "helpfulness": 0.9,
+              "judge_failed": false,
+              "relevance": 1.0,
+              "stop_reason": "end_turn"
+            },
+            "lifecycle": null,
+            "metadata": {
+              "judge_failed": false
+            },
+            "passed": true,
+            "routing": [
+              {
+                "confidence": 0.9,
+                "domains": [
+                  "software_license"
+                ],
+                "intent": "software_license",
+                "intent_method": "versioned_it_rules_v1",
+                "mission": "核验软件白名单、授权方式和可用席位，说明采购审批边界。",
+                "primary": "billing",
+                "reason": "IT 场景规则路由",
+                "supporting": [],
+                "workflow": [
+                  "确认软件与用途",
+                  "查授权目录",
+                  "核对席位与审批规则",
+                  "给出申请路径"
+                ]
+              }
+            ],
+            "run_id": "f9e46f9603d34b9aa0a3a13900a7de81",
+            "scores": {
+              "accuracy": 1.0,
+              "completeness": 0.9,
+              "helpfulness": 0.9,
+              "relevance": 1.0
+            },
+            "test_id": "software-license",
+            "turn_states": [
+              "completed"
+            ]
+          },
+          {
+            "answer": "**电池鼓包的安全处理（仅解释，未建单）**\n\n**立即要做**\n1. **停止使用并断开充电**，在确保人身安全的前提下联系 IT 处理 [C-2028e18663f1d024b05bbf0e]\n2. **不要挤压、穿刺或自行拆卸电池** [C-2028e18663f1d024b05bbf0e]\n3. **不要重新通电复现**：危险故障不需要用户复现，IT 也不会要求你这样做 [C-2028e18663f1d024b05bbf0e]\n4. 若出现冒烟、明显过热或异味，请远离并优先保障人身安全，再联系 IT [C-2028e18663f1d024b05bbf0e]\n\n**维修规则**\n- 维修需记录**资产编号、故障现象和发生时间** [C-2028e18663f1d024b05bbf0e]\n- 维修申请必须使用**本人名下资产**，资产归属由登录身份决定，聊天文字不能改变归属 [C-3f487f134f86497b9c96d16e]\n- 流程：submitted（已提交）→ triaged（已分诊）→ assigned（已派单）→ in_progress（处理中）→ resolved（待验收）→ closed（已关闭）；IT 分诊并记录处理结果，**申请人负责验收**，验收不通过可 reopen 回处理中；已提交且尚未分诊时可取消 [C-c461e64130cd16b35bde5409]\n- 同一资产同一时间只能有一条未完成维修流程，待验收也算未完成，不能重复建单 [C-7dc456410fc177330f59dca5]\n- 保修状态来自资产目录；过保不代表可直接收费，需人工核价与审批，不自动付款 [C-7dc456410fc177330f59dca5]\n- 以上为模拟企业制度，不连接真实供应商或维修服务 [C-0a7c0f15c5c807c04733dd3e]\n\n**说明**：建单只是提交申请，不等于维修完成；分诊、派单、处理由 IT 执行，最终需你验收关闭 [C-c461e64130cd16b35bde5409]。\n\n如需我准备维修草稿，请告诉我：故障现象（鼓包/过热/冒烟）、发生时间，以及是否使用你名下的 LT-1001。",
+            "checks": {
+              "cited_answer": true,
+              "no_unconfirmed_write": true,
+              "retrieved_evidence": true,
+              "role": true,
+              "run_status": true
+            },
+            "judge": {
+              "accuracy": 1.0,
+              "attempts": 1,
+              "completeness": 1.0,
+              "error": null,
+              "error_type": null,
+              "helpfulness": 1.0,
+              "judge_failed": false,
+              "relevance": 1.0,
+              "stop_reason": "end_turn"
+            },
+            "lifecycle": null,
+            "metadata": {
+              "judge_failed": false
+            },
+            "passed": true,
+            "routing": [
+              {
+                "confidence": 0.9,
+                "domains": [
+                  "device_service"
+                ],
+                "intent": "device_service",
+                "intent_method": "versioned_it_rules_v1",
+                "mission": "依据知识库给出低风险排查，识别维修或安全升级条件。",
+                "primary": "technical",
+                "reason": "IT 场景规则路由",
+                "supporting": [],
+                "workflow": [
+                  "确认影响范围",
+                  "查询知识与资产",
+                  "给出可验证排查",
+                  "必要时维修或升级"
+                ]
+              }
+            ],
+            "run_id": "f9a02f01b3ab4b6cbc677bbbda90d5ca",
+            "scores": {
+              "accuracy": 1.0,
+              "completeness": 1.0,
+              "helpfulness": 1.0,
+              "relevance": 1.0
+            },
+            "test_id": "device-safety",
+            "turn_states": [
+              "completed"
+            ]
+          },
+          {
+            "answer": "权限申请草稿已准备：开发仓库只读权限申请。\n资源：repo-resolvedesk；权限：read；有效期：7 天。\n用途与说明：申请 repo-resolvedesk（ResolveDesk 开发仓库）read 权限，有效期 7 天，用途：阅读项目代码进行学习。\n请核对后点击确认提交。确认后进入待审批，须由其他 IT 客服审核；批准后仍需执行模拟开通。有效期从模拟开通时起算，所有操作保留审计记录。目前尚未提交申请或开通权限；本流程只更改本地模拟系统。",
+            "checks": {
+              "business_final_state": true,
+              "clarified_first": true,
+              "idempotent_confirmation": true,
+              "no_unconfirmed_write": true,
+              "persisted_business_effect": true,
+              "prepare_tool": true,
+              "retrieved_evidence": true,
+              "role": true,
+              "run_status": true,
+              "workflow": true
+            },
+            "judge": {
+              "accuracy": 1.0,
+              "attempts": 1,
+              "completeness": 0.9,
+              "error": null,
+              "error_type": null,
+              "helpfulness": 1.0,
+              "judge_failed": false,
+              "relevance": 1.0,
+              "stop_reason": "end_turn"
+            },
+            "lifecycle": {
+              "allowed_actions": [],
+              "assignee": null,
+              "audit": [
+                {
+                  "action": "submit",
+                  "actor": "learner",
+                  "created": 1793068373.3044121,
+                  "from_status": null,
+                  "note": "申请人已核对草稿并确认；模拟业务",
+                  "to_status": "pending_approval"
+                },
+                {
+                  "action": "approve",
+                  "actor": "support",
+                  "created": 1793068373.379976,
+                  "from_status": "pending_approval",
+                  "note": "合成评测操作：approve",
+                  "to_status": "approved"
+                },
+                {
+                  "action": "provision",
+                  "actor": "support",
+                  "created": 1793068373.393035,
+                  "from_status": "approved",
+                  "note": "合成评测操作：provision",
+                  "to_status": "fulfilled"
+                }
+              ],
+              "fields": {
+                "access_level": "read",
+                "asset_id": "",
+                "category": "access",
+                "description": "申请 repo-resolvedesk（ResolveDesk 开发仓库）read 权限，有效期 7 天，用途：阅读项目代码进行学习。",
+                "duration_days": 7,
+                "priority": "normal",
+                "resource_id": "repo-resolvedesk",
+                "summary": "开发仓库只读权限申请",
+                "workflow": "access_request"
+              },
+              "kind": "access_request",
+              "owner": "learner",
+              "simulation": true,
+              "status": "fulfilled",
+              "tenant": "demo",
+              "ticket_id": "RD-B03355F4629E",
+              "updated": 1793068373.393035,
+              "version": 3
+            },
+            "metadata": {
+              "judge_failed": false
+            },
+            "passed": true,
+            "routing": [
+              {
+                "confidence": 0.9,
+                "domains": [
+                  "account_access"
+                ],
+                "intent": "account_access",
+                "intent_method": "versioned_it_rules_v1",
+                "mission": "依据企业规则解释账号、权限申请及服务流程；不擅自批准或开通权限。",
+                "primary": "general",
+                "reason": "IT 场景规则路由",
+                "supporting": [],
+                "workflow": [
+                  "核对诉求",
+                  "检索规则",
+                  "收集必要字段",
+                  "说明确认与审批路径"
+                ]
+              },
+              {
+                "confidence": 0.9,
+                "domains": [
+                  "account_access"
+                ],
+                "intent": "account_access",
+                "intent_method": "versioned_it_rules_v1",
+                "mission": "依据企业规则解释账号、权限申请及服务流程；不擅自批准或开通权限。",
+                "primary": "general",
+                "reason": "IT 场景规则路由",
+                "supporting": [],
+                "workflow": [
+                  "核对诉求",
+                  "检索规则",
+                  "收集必要字段",
+                  "说明确认与审批路径"
+                ]
+              }
+            ],
+            "run_id": "1e571e0d7ad54353846053163244cb8a",
+            "scores": {
+              "accuracy": 1.0,
+              "completeness": 0.9,
+              "helpfulness": 1.0,
+              "relevance": 1.0
+            },
+            "test_id": "access-lifecycle",
+            "turn_states": [
+              "awaiting_input",
+              "awaiting_confirmation"
+            ]
+          },
+          {
+            "answer": "设备维修草稿已准备：笔记本键盘维修。\n资产：LT-1001；故障：本人资产 LT-1001（演示开发笔记本）笔记本键盘失灵，自今天上午开始出现；已尝试重新插拔外接键盘仍不能恢复。\n请核对后点击确认提交。提交后由 IT 分诊、派单并记录维修处理结果，再由你验收关闭；未解决可退回返工。尚未创建维修工单或完成维修，不承诺维修时效与费用；本流程使用本地模拟资产和维修记录。",
+            "checks": {
+              "business_final_state": true,
+              "clarified_first": true,
+              "idempotent_confirmation": true,
+              "no_unconfirmed_write": true,
+              "persisted_business_effect": true,
+              "prepare_tool": true,
+              "retrieved_evidence": true,
+              "role": true,
+              "run_status": true,
+              "workflow": true
+            },
+            "judge": {
+              "accuracy": 1.0,
+              "attempts": 1,
+              "completeness": 0.9,
+              "error": null,
+              "error_type": null,
+              "helpfulness": 1.0,
+              "judge_failed": false,
+              "relevance": 1.0,
+              "stop_reason": "end_turn"
+            },
+            "lifecycle": {
+              "allowed_actions": [],
+              "assignee": "support",
+              "audit": [
+                {
+                  "action": "submit",
+                  "actor": "learner",
+                  "created": 1793068386.0624738,
+                  "from_status": null,
+                  "note": "申请人已核对草稿并确认；模拟业务",
+                  "to_status": "submitted"
+                },
+                {
+                  "action": "triage",
+                  "actor": "support",
+                  "created": 1793068386.147517,
+                  "from_status": "submitted",
+                  "note": "合成评测操作：triage",
+                  "to_status": "triaged"
+                },
+                {
+                  "action": "assign",
+                  "actor": "support",
+                  "created": 1793068386.1600683,
+                  "from_status": "triaged",
+                  "note": "合成评测操作：assign",
+                  "to_status": "assigned"
+                },
+                {
+                  "action": "start",
+                  "actor": "support",
+                  "created": 1793068386.176438,
+                  "from_status": "assigned",
+                  "note": "合成评测操作：start",
+                  "to_status": "in_progress"
+                },
+                {
+                  "action": "resolve",
+                  "actor": "support",
+                  "created": 1793068386.1897357,
+                  "from_status": "in_progress",
+                  "note": "合成评测操作：resolve",
+                  "to_status": "resolved"
+                },
+                {
+                  "action": "reopen",
+                  "actor": "learner",
+                  "created": 1793068386.2050276,
+                  "from_status": "resolved",
+                  "note": "合成评测操作：reopen",
+                  "to_status": "in_progress"
+                },
+                {
+                  "action": "resolve",
+                  "actor": "support",
+                  "created": 1793068386.2222457,
+                  "from_status": "in_progress",
+                  "note": "合成评测操作：resolve",
+                  "to_status": "resolved"
+                },
+                {
+                  "action": "accept",
+                  "actor": "learner",
+                  "created": 1793068386.2391977,
+                  "from_status": "resolved",
+                  "note": "合成评测操作：accept",
+                  "to_status": "closed"
+                }
+              ],
+              "fields": {
+                "access_level": "",
+                "asset_id": "LT-1001",
+                "category": "hardware",
+                "description": "本人资产 LT-1001（演示开发笔记本）笔记本键盘失灵，自今天上午开始出现；已尝试重新插拔外接键盘仍不能恢复。",
+                "duration_days": 0,
+                "priority": "normal",
+                "resource_id": "",
+                "summary": "笔记本键盘维修",
+                "workflow": "device_repair"
+              },
+              "kind": "device_repair",
+              "owner": "learner",
+              "simulation": true,
+              "status": "closed",
+              "tenant": "demo",
+              "ticket_id": "RD-5CB953A8B3D7",
+              "updated": 1793068386.2381957,
+              "version": 8
+            },
+            "metadata": {
+              "judge_failed": false
+            },
+            "passed": true,
+            "routing": [
+              {
+                "confidence": 0.9,
+                "domains": [
+                  "device_service"
+                ],
+                "intent": "device_service",
+                "intent_method": "versioned_it_rules_v1",
+                "mission": "依据知识库给出低风险排查，识别维修或安全升级条件。",
+                "primary": "technical",
+                "reason": "IT 场景规则路由",
+                "supporting": [],
+                "workflow": [
+                  "确认影响范围",
+                  "查询知识与资产",
+                  "给出可验证排查",
+                  "必要时维修或升级"
+                ]
+              },
+              {
+                "confidence": 0.9,
+                "domains": [
+                  "device_service"
+                ],
+                "intent": "device_service",
+                "intent_method": "versioned_it_rules_v1",
+                "mission": "依据知识库给出低风险排查，识别维修或安全升级条件。",
+                "primary": "technical",
+                "reason": "IT 场景规则路由",
+                "supporting": [],
+                "workflow": [
+                  "确认影响范围",
+                  "查询知识与资产",
+                  "给出可验证排查",
+                  "必要时维修或升级"
+                ]
+              }
+            ],
+            "run_id": "2eca584a0b5a4cbeb1314c6581e8a961",
+            "scores": {
+              "accuracy": 1.0,
+              "completeness": 0.9,
+              "helpfulness": 1.0,
+              "relevance": 1.0
+            },
+            "test_id": "repair-lifecycle",
+            "turn_states": [
+              "awaiting_input",
+              "awaiting_confirmation"
+            ]
+          }
+        ],
+        "sandbox": ".codex-runtime\\quality-7aaa5508cdf049a9889bba9a2807c47a-15729d93",
+        "status": "complete",
+        "suite_id": "a1338596578064a6c01e1008a8b4684866c63331cb86bae378e9c0bdd3b3ee6c",
+        "total": 6,
+        "valid_total": 6
+      }
+    },
+    {
+      "case": "retrieval",
+      "passed": true,
+      "job_id": "8ad2887b763f4326a73e135261edce38",
+      "result": {
+        "avg_scores": {
+          "hit_at_1": 0.9047619047619048,
+          "mrr_at_5": 0.9523809523809523,
+          "recall_at_5": 1.0
+        },
+        "evaluation_errors": 0,
+        "kind": "retrieval_and_reviewed_regression",
+        "pass_rate": 1.0,
+        "passed": 21,
+        "recommendations": [
+          "小样本不能证明生产效果。",
+          "负反馈需人工指定期望文档和章节后才进入回归集。"
+        ],
+        "regression_note": "固定示例题与人工审核的负反馈案例；不包含 LLM Judge 或生产质量评分。",
+        "regressions": [],
+        "results": [
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "VPN 提示错误 691 怎么办",
+            "rank": 1,
+            "test_id": "vpn691"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "VPN 一直连不上，连接超时如何诊断",
+            "rank": 1,
+            "test_id": "vpn-timeout"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "多次输错密码账号锁定了",
+            "rank": 1,
+            "test_id": "account-lock"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "申请 Git 仓库访问权限需要提供什么",
+            "rank": 1,
+            "test_id": "repo-access"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "官方密码重置页面不可用",
+            "rank": 1,
+            "test_id": "reset"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "Python pip 安装依赖失败如何排查",
+            "rank": 1,
+            "test_id": "python-pip"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "IDE 启动崩溃要收集哪些信息",
+            "rank": 1,
+            "test_id": "ide"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "创建工单需要哪些字段，提交前要确认吗",
+            "rank": 1,
+            "test_id": "ticket-fields"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "repo-resolvedesk 可以申请 admin 永久权限吗",
+            "rank": 1,
+            "test_id": "least-privilege"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "权限申请批准后就是开通了吗",
+            "rank": 1,
+            "test_id": "access-approval"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "权限什么时候到期，审批有审计记录吗",
+            "rank": 1,
+            "test_id": "access-expiry"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "内网 DNS 域名解析失败，外网正常",
+            "rank": 1,
+            "test_id": "dns"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "WiFi 频繁断连要收集什么信息",
+            "rank": 1,
+            "test_id": "wifi"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "磁盘异响并且终端蓝屏应该如何处理",
+            "rank": 1,
+            "test_id": "disk"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "IntelliJ IDEA Ultimate 商业席位如何申请",
+            "rank": 1,
+            "test_id": "idea-license"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "离职后软件许可证席位如何回收",
+            "rank": 1,
+            "test_id": "license-return"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "软件无法激活要提供授权码吗",
+            "rank": 1,
+            "test_id": "activation"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "笔记本电池鼓包，应该拆开看吗",
+            "rank": 1,
+            "test_id": "battery"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "设备维修处理完成后谁来验收关闭，能返工吗",
+            "rank": 2,
+            "test_id": "repair-process"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "同一资产可以重复申请维修吗，过保怎么处理",
+            "rank": 1,
+            "test_id": "asset-lock"
+          },
+          {
+            "degraded": false,
+            "metadata": {},
+            "passed": true,
+            "question": "这是本地页面验收。请准备工单草稿：标题 IDE 启动崩溃；描述 Windows 11 的 IntelliJ IDEA 2025.3 启动后崩溃，已尝试安全模式仍失败；类别 software；优先级 normal。先给草稿让我确认，不要直接提交。",
+            "rank": 2,
+            "test_id": "492c5ec58d9d490eb571c1b839c343e5"
+          }
+        ],
+        "status": "complete",
+        "total": 21,
+        "valid_total": 21
+      }
+    },
+    {
+      "case": "local_webhook_alert_recovery",
+      "synthetic_failure_injection": true,
+      "real_local_http_delivery": true,
+      "received_states": [
+        "active",
+        "resolved"
+      ],
+      "passed": true
+    }
+  ],
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "0.74107",
+    "available_cny": "17.25893",
+    "calls": {
+      "settled": 187
+    },
+    "usage_input_tokens": 306715,
+    "usage_output_tokens": 15955,
+    "unresolved_reservation_cny": "0"
+  },
+  "monitor": {
+    "agent_stats": {
+      "technical": {
+        "total": 1,
+        "success": 1,
+        "success_rate": 1.0,
+        "avg_ms": 6062.999999965541,
+        "p95_ms": 6062.999999965541
+      },
+      "general": {
+        "total": 1,
+        "success": 1,
+        "success_rate": 1.0,
+        "avg_ms": 3891.0000000032596,
+        "p95_ms": 3891.0000000032596
+      }
+    },
+    "tool_stats": {
+      "prepare_ticket": {
+        "total": 2,
+        "success": 2,
+        "success_rate": 1.0,
+        "avg_ms": 16.00000000325963,
+        "p95_ms": 16.00000000325963
+      },
+      "knowledge_search": {
+        "total": 1,
+        "success": 1,
+        "success_rate": 1.0,
+        "avg_ms": 1750.0,
+        "p95_ms": 1750.0
+      },
+      "business_context": {
+        "total": 1,
+        "success": 1,
+        "success_rate": 1.0,
+        "avg_ms": 16.00000000325963,
+        "p95_ms": 16.00000000325963
+      }
+    },
+    "run_stats": {
+      "desk": {
+        "total": 2,
+        "success": 2,
+        "success_rate": 1.0,
+        "avg_ms": 4960.999999981141,
+        "p95_ms": 6046.999999962281
+      }
+    },
+    "retrieval_stats": {
+      "hybrid": {
+        "total": 3,
+        "success": 3,
+        "success_rate": 1.0,
+        "avg_ms": 0.0,
+        "p95_ms": 0.0
+      }
+    },
+    "active_alerts": [],
+    "routing_penalties": {},
+    "suggestions": [],
+    "total_requests": 15,
+    "window_seconds": 300,
+    "min_samples": 3,
+    "notifications": [],
+    "webhook_configured": false
+  }
+}

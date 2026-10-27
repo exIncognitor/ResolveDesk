@@ -27,9 +27,13 @@ def test_versioned_synthetic_intent_corpus_has_per_case_predictions():
 
 
 @pytest.mark.asyncio
-async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_path, monkeypatch):
+@pytest.mark.parametrize("judge_ok", [True, False])
+async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_path, monkeypatch, judge_ok):
     import resolvedesk.quality as quality
     monkeypatch.setattr(quality, "ROOT", tmp_path)
+    if not judge_ok:
+        from evaluation.evaluator import QualityScores
+        monkeypatch.setattr(quality.LLMJudge,"judge",AsyncMock(return_value=QualityScores(None,None,None,None,judge_failed=True,error="synthetic_judge_failure")))
     store = Store(tmp_path/"main.sqlite3")
     kb = HybridKnowledge(store)
     from pathlib import Path
@@ -56,7 +60,11 @@ async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_pa
     runner = QualityRunner(store, kb, fake_client)
     progress = []
     report = await runner.run(SUPPORT, "offline-integration", 6, True, lambda a,b:progress.append((a,b)))
-    assert report["status"] == "complete" and report["passed"] == 6, report["results"]
+    if judge_ok:
+        assert report["status"] == "complete" and report["passed"] == 6, report["results"]
+    else:
+        assert report["status"] == "partial" and report["valid_total"] == 0 and report["evaluation_errors"] == 6
+        assert report["passed"] == 0 and "accuracy" not in report["avg_scores"]
     assert report["results"][-1]["lifecycle"]["status"] == "closed"
     assert report["results"][-2]["lifecycle"]["status"] == "fulfilled"
     assert not store.list_tickets(Principal("demo", "learner"))

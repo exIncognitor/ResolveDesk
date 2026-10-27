@@ -52,3 +52,27 @@ def test_latency_alert_and_prometheus(tmp_path):
     p = Principal("demo", "support", "support")
     assert monitor.snapshot(p)["active_alerts"][0]["payload"]["rule"] == "latency"
     assert 'resolvedesk_window_p95_ms{kind="run",name="desk"} 31000' in monitor.prometheus(p)
+
+
+@pytest.mark.asyncio
+async def test_monitor_failure_feedback_changes_actual_route_and_recovers(tmp_path):
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+    from core.intent_recognizer import IntentCategory, UrgencyLevel
+    from resolvedesk.services import DeskServices
+    from resolvedesk.retrieval import HybridKnowledge
+    from test_resolvedesk import client_with
+    store = Store(tmp_path/"routing.sqlite3")
+    services = DeskServices(store, HybridKnowledge(store), client_with(), mcp_configs=[])
+    services.roles._intent_recognizer.recognize = AsyncMock(return_value=SimpleNamespace(intent=IntentCategory.TECHNICAL_LOGIN,intent_group="technical",urgency=UrgencyLevel.MEDIUM,confidence=.9,entities={}))
+    p = Principal("demo", "learner")
+    try:
+        for _ in range(3): services.monitor.record("demo", "agent", "technical", False)
+        degraded = await services.route(p, "probe", "VPN 连接超时", [], {})
+        assert degraded["primary"] == "general" and "降权" in degraded["reason"]
+        unaffected = await services.route(Principal("other", "learner"), "probe", "VPN 连接超时", [], {})
+        assert unaffected["primary"] == "technical"
+        for _ in range(4): services.monitor.record("demo", "agent", "technical", True)
+        recovered = await services.route(p, "probe", "VPN 连接超时", [], {})
+        assert recovered["primary"] == "technical"
+    finally: await services.close()
