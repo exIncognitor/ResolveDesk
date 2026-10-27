@@ -58,9 +58,13 @@ class ReliableRetrieval:
                      'fallback':'it_bm25','errors':[error]+([] if result.success else ['bm25_unavailable'])}
 
     def _fresh(self,p,data):
-        items=data.get('items',[])
-        current=self.knowledge.validate_citations(p,[i['citation'] for i in items])
-        return len(current)==len(items) and all(current[i['citation']]=={k:i[k] for k in current[i['citation']]} for i in items)
+        if not isinstance(data,dict) or not {'items','mode','degraded','candidate_count','queries','reranked','errors','effective_mode'}<=data.keys():return False
+        if not isinstance(data['items'],list) or not isinstance(data['errors'],list) or type(data['degraded'])is not bool:return False
+        items=data['items']
+        try:
+            current=self.knowledge.validate_citations(p,[i['citation'] for i in items])
+            return len(current)==len(items) and all(current[i['citation']]=={k:i[k] for k in current[i['citation']]} for i in items)
+        except (KeyError,TypeError,ValueError):return False
 
     async def search(self,p,query,top_k=5,optimize=True,mode='hybrid',role=None):
         if not isinstance(query,str) or not query.strip() or len(query)>2000 or type(top_k)is not int or not 1<=top_k<=20 or mode not in {'hybrid','bm25','vector'}:
@@ -79,7 +83,7 @@ class ReliableRetrieval:
             data,expires=self.cache[key]
             if expires>time.monotonic():cached=copy.deepcopy(data);layer='process'
             else:self.cache.pop(key,None)
-        if cached is not None and await asyncio.to_thread(self._fresh,p,cached):
+        if cached is not None and await asyncio.to_thread(self._fresh,p,cached) and not cached['degraded'] and not cached['errors']:
             return cached|{'cached':True,'cache_layer':layer,'latency_ms':round((time.monotonic()-started)*1000,3)}
         queries,errors=[query],[]
         if optimize and mode=='hybrid':

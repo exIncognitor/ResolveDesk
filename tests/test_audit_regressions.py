@@ -91,7 +91,8 @@ def test_failed_rag_is_not_successful_evidence_and_fork_is_isolated():
         manager.register(Tool('search','search',fail,{'type':'object'}, fallback=lambda p,c,e:[{'fallback':True,'content':'unavailable'}]))
         clone = manager.fork()
         result = await manager.search_with_rewrite('search','q')
-        assert not result.success and 'storage down' in result.error
+        assert not result.success and 'RuntimeError' in result.error
+        assert 'storage down' not in result.error  # Provider exception text is not an API contract.
         assert clone._tools['search'].stats.total == 0
         assert clone._tools['search'].breaker.fail_count == 0
         await manager._client.close()

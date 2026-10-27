@@ -52,6 +52,19 @@ async def test_full_pipeline_cache_precedes_paid_stages_and_returns_copies(envir
 
 
 @pytest.mark.asyncio
+async def test_malformed_cache_is_ignored_and_unknown_model_fields_never_enter_sources(environment):
+    store,kb,model,services=environment
+    class BrokenCache:
+        async def get_json(self,scope):return {'items':[]}
+        async def set_json(self,*args,**kwargs):pass
+    services.retrieval.coordination=BrokenCache()
+    try:
+        result=await services.search(USER,'VPN',optimize=False)
+        assert result['items'] and not result['cached'] and not result['degraded']
+    finally:await services.close()
+
+
+@pytest.mark.asyncio
 async def test_api_free_modes_share_manager_and_native_cache_expiry(environment,monkeypatch):
     import resolvedesk.reliable_retrieval as pipeline
     import tooling.tool_manager as manager_module

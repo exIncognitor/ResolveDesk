@@ -189,4 +189,4 @@ class DeskServices:
         if name not in self.external_tools(role):raise PermissionError("Tool is not available for this role")
         result = await self.manager.call(name,args,context={"tenant":p.tenant,"user_id":p.user,"role":role},use_cache=True)
         if not result.success:raise RuntimeError("MCP tool failed")
-        return result.data
+        return {**result.data,"cached":result.cached,"source":"external_mcp"}
