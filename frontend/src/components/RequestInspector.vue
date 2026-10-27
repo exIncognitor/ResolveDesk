@@ -25,7 +25,7 @@
           </span>
           <div>
             <strong>知识检索</strong>
-            <p>{{ lastResponse ? lastResponse.knowledgeUsed ? '已使用知识库' : '未使用知识库' : '查找相关业务知识' }}</p>
+            <p>{{ lastResponse ? lastResponse.knowledgeUsed == null ? '检索信息暂不可用' : lastResponse.knowledgeUsed ? '已使用知识库' : '未使用知识库' : '查找相关业务知识' }}</p>
           </div>
         </li>
         <li>
@@ -57,7 +57,7 @@
         </div>
         <div>
           <span>路由置信度</span>
-          <strong>{{ lastResponse ? formatPercent(lastResponse.routingConfidence) : '—' }}</strong>
+          <strong>{{ lastResponse?.routingConfidence != null ? formatPercent(lastResponse.routingConfidence) : '—' }}</strong>
         </div>
       </div>
       <p v-if="lastResponse?.routingReason" class="routing-note">{{ lastResponse.routingReason }}</p>

@@ -763,7 +763,7 @@ async function sendMessage() {
     lastResponse.value = response
     activeRun.value = response.raw
     lastTrace.value = trace
-    const meta = [response.intent, response.primaryAgent || response.agentType, response.knowledgeUsed ? 'RAG' : '', response.escalated ? '转人工' : ''].filter(Boolean).join(' · ')
+    const meta = [response.intent, response.primaryAgent || response.agentType, response.knowledgeUsed ? 'RAG' : '', response.escalated ? '需人工核验' : ''].filter(Boolean).join(' · ')
     messages.value.push({ id: createMessageId(), role: 'assistant', content: response.response, meta, trace: lastTrace.value?.trace || null })
     await loadMonitor()
   } catch (error) {

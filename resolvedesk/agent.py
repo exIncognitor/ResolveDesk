@@ -258,6 +258,7 @@ class DeskAgent:
                         inherited={}
                         for key in ("resource_id","asset_id","access_level","duration_days"):
                             values=state.get("entities",{}).get(key)
+                            if values and len(values)>1:raise ValueError(key+"存在多个明确候选值，请先让用户选择一个，不能由模型代选。")
                             if values:inherited[key]=int(values[-1]) if key=="duration_days" else values[-1]
                         # Literal user corrections outrank model-generated tool arguments.
                         fields = TicketFields.model_validate((current["draft"] or {}) | args | inherited)

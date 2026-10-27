@@ -277,3 +277,25 @@ async def test_critical_handoff_returns_source_guidance_before_any_ticket_intake
         assert "coordinator"not in calls and not store.list_tickets(USER)
         assert any(e["kind"]=="handoff_prepared" for e in store.events(USER,run["id"]))
     finally:await agent.close()
+
+
+@pytest.mark.asyncio
+async def test_model_cannot_pick_one_of_two_explicit_assets_when_preparing_draft(environment):
+    store,kb=environment;p=Principal("demo","learner")
+    async def create(**kwargs):
+        system=kwargs.get("system","")
+        if system.startswith("你是企业IT意图分析器"):return response('{"fine_intents":["device_repair"],"confidence":0.97,"urgency":1}')
+        if "tools"not in kwargs:return response("[]")
+        if system.startswith("你是ResolveDesk只读IT专业节点"):return response("需要确认要维修的设备。")
+        if isinstance(kwargs["messages"][-1]["content"],list):return response(tool="ask_clarification",args={"question":"请明确本次要维修LT-1001还是LT-1002；一次准备一台设备的草稿。"})
+        return response(tool="prepare_ticket",args=REPAIR)
+    model=SimpleNamespace(messages=SimpleNamespace(create=AsyncMock(side_effect=create)),close=AsyncMock())
+    services=DeskServices(store,kb,model,mcp_configs=[]);agent=DeskAgent(store,kb,model,services)
+    run,_=store.create_run(p,"请准备LT-1001和LT-1002的设备维修草稿","two-assets-key")
+    try:
+        await agent.execute(p,run["id"])
+        final=store.get_run(p,run["id"])
+        assert final["status"]=="awaiting_input" and final["draft"]is None
+        assert not store.list_tickets(p)
+        assert any(e["kind"]=="tool_result" and not e["payload"]["success"] for e in store.events(p,run["id"]))
+    finally:await agent.close()

@@ -49,13 +49,15 @@ docker compose --env-file .codex-runtime/services.env -f compose.yaml up -d --bu
 
 ## 实际请求链路
 
-Vue 工作台 → 带身份与逐轮请求键的 API → Redis 租约及 SQL 认领代次 → 持久化检查点 → 查询改写、混合检索、Flash 重排 → 记忆与意图路由 → Skills 与受限工具循环 → 回答/追问/草稿 → 用户确认 → PostgreSQL 事务建单。
+Vue 工作台 → 带身份与逐轮请求键的 API → Redis 租约及 SQL 认领代次 → IT三路意图融合与多轮字段状态 → 记忆/查询改写/混合检索 → 普通或复合只读专业节点 → 有界协调工具循环 → 回答/追问/草稿 → 用户确认 → PostgreSQL 事务建单。低置信直接追问；高风险交接直接呈现当前授权安全制度，不转成未经请求的工单收集。
 
 - **检索**：Markdown 标题与原文跨度分块，中文 BM25、多语言 E5 本地 ONNX 向量、Chroma HNSW、RRF；Chroma 召回前过滤权限，再向 SQL 校验当前授权和版本。文档更新与索引 outbox 同事务，失败后投影最新状态。查询改写及重排使用 Flash，失败记录原因并回退。
-- **路由与协作**：IT 场景规则负责当前领域分类，原意图识别器提供实体与紧急度。复用专业节点执行器，角色职责已改为账号分诊、网络设备、软件授权与安全升级；复合问题实际并行调用专业节点。监控失败反馈可以降权异常节点。
+- **路由与协作**：Flash语义、本地固定E5、IT规则三路融合驱动实际路由，记录来源、有效权重和融合分数（不冒称校准概率）。普通与复合问题均调用显式IT专业节点；真实失败会回退，保留实际角色及partial/failed。节点冷却后有界探测，分节点检查点避免恢复时重复已完成的只读调用。
+- **实体与专业工具**：独立entity_state保留用户明确给出的资源/资产/权限/期限/环境及turn_seq来源，纠错优先于模型旧参数，换任务清除旧草稿。各专业节点自主使用按当前身份过滤的RAG、引用、业务目录、本人资产或许可核验工具，保留原确定性技术诊断；不再使用订单核验字段处理软件授权。多资产/资源未明确选择时禁止模型代选。
 - **记忆**：PostgreSQL 保存会话摘要、用户明确提及的系统/IDE 信息和语义历史；完整 Redis 工作记忆、分段 Chroma 情景记忆仍在 G05 实施范围内。历史不是知识库政策依据。
 - **Skills**：加载 `skills/` 中当前版本的业务说明，按角色和关键词注入，忽略 history，客服可热加载。
 - **MCP**：官方 SDK 的标准 stdio 客户端实际连接 `resolvedesk/mcp_support.py`。仅开放白名单只读诊断清单，不把模型密钥传给子进程。
+- **向量选项**：意图默认复用本地E5；`RESOLVEDESK_INTENT_VECTOR_PROVIDER=self_hosted_http`可连接独立鉴权的自托管同版本E5。实际HTTP向量一致性和配置到路由链路已测试，不会自动使用旧第三方Key。配置及验证见 `docs/IT_ENGINE_MIGRATION_2026-10-27.md`。
 - **工单**：只允许模型准备草稿；标题、描述、类别缺失时追问。确认绑定精确草稿版本且有有效期。确认与创建在同一事务内，重复确认返回同一工单。
 - **业务闭环**：权限申请确认后待审批，其他 IT 操作员批准后再模拟开通，实际写入有期限的本地权限表。设备维修校验本人资产，经过分诊、派单、处理、本人验收或返工。每步有版本检查、幂等与事务审计。
 - **权限**：令牌绑定租户/用户/角色；知识在召回前过滤；普通用户只读自己的任务、工单和记忆。
@@ -87,7 +89,7 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 
 `smoke_integrated.py` 的长对话测试会明确标记并注入合成上下文样本，再通过真实服务验证摘要、记忆、专业节点和 MCP。它不是实际用户使用记录。报告保存在 `reports/`。
 
-`accept_it_service.py --quality` 在隔离数据库内执行 28 条意图和 6 组对话，并验证本地告警 HTTP 投递。固定检索集 20 条，另加审核回归。加上 `--live-workflows` 会在主库新增模拟权限申请与维修记录。不存在随包的 500 条生产测试数据；这些开发用例不能证明生产泛化效果。
+`accept_it_service.py --quality` 的旧28条意图指标仅测规则，完整替换为当前融合识别器评测仍归G08；不要把28/28当作新识别器准确率。G01–G04已有隔离真实依赖与Flash的8场景验证，以及两个专业节点自主RAG/MCP验证，见 `docs/IT_ENGINE_MIGRATION_2026-10-27.md`。固定检索集20条，另加审核回归。`--live-workflows`会在主库新增模拟业务记录。不存在随包的500条生产测试数据，小样本不能证明泛化效果。
 
 ## 关键目录
 
@@ -113,6 +115,7 @@ pytest 默认关闭付费调用，网关测试使用受控 SDK/HTTP。集成测�
 业务接口要求 `Authorization: Bearer <本地令牌>`。
 
 - `/runs`：创建/列出任务；`/runs/{id}` 查询；`/reply` 补充（必须有 request_key）；`/turns/{request_key}` 读取该轮回执；`/confirm` 确认建单；`/pause`、`/resume`；`/events?turn_key=...`；`/messages`。
+- `/runs/{id}/state`：当前请求所属用户的多轮字段、来源与任务代次；`/system`的support视图报告实际识别器、向量提供方、专业类及工具白名单。
 - `/tickets`、`/tickets/{id}`：按权限查询工单。
 - `/service-catalog`、`/service-cases`、`/service-cases/{id}`、`/service-cases/{id}/actions`：模拟业务目录、状态、鉴权操作与审计。
 - `/knowledge/search`、`/knowledge/documents`、`/knowledge/stats`、`/knowledge/citations/{id}`。

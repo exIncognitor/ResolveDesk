@@ -114,3 +114,20 @@ test('inspector uses actual fallback role and retains planned role and partial s
  assert.equal(result.executionStatus,'partial');assert.equal(result.routingConfidence,.79)
  assert.equal(result.latencyMs,null)
 })
+
+test('a trace outage does not discard an already completed paid answer or invent role metadata',async t=>{
+ const original=globalThis.fetch;t.after(()=>globalThis.fetch=original)
+ const s={pythonToken:'trace-outage-token',conversationId:'answered-run',endpoints:{python:''}}
+ let posts=0
+ globalThis.fetch=async(url,options)=>{
+  const run={id:'answered-run',status:'completed',answer:'durably saved answer',event_cursor:1,event_end:4}
+  if(options.method==='POST'){posts++;return Response.json({...run,status:'queued'})}
+  if(url.includes('/events?'))return new Response('id: 4\nevent: completed\ndata: {}\n\n')
+  if(url.includes('/trace/tool/'))return Response.json({detail:'temporary trace outage'},{status:503})
+  return Response.json(run)
+ }
+ const result=await requestChat('python',s,'network question')
+ assert.equal(result.response,'durably saved answer');assert.equal(posts,1)
+ assert.equal(result.traceAvailable,false);assert.equal(result.primaryAgent,null)
+ assert.equal(result.knowledgeUsed,null);assert.equal(result.routingConfidence,null)
+})

@@ -106,7 +106,8 @@ def build_it_tools(services):
         scope(req)
         entities=req.entities or {}
         required={"access_request":["resource_id","access_level","duration_days"],"device_repair":["asset_id"]}[args["workflow"]]
-        return {"workflow":args["workflow"],"known":{k:entities.get(k,[]) for k in required},"missing":[k for k in required if not entities.get(k)],"submitted":False}
+        return {"workflow":args["workflow"],"known":{k:entities.get(k,[]) for k in required},"missing":[k for k in required if not entities.get(k)],
+            "ambiguous":[k for k in required if len(entities.get(k,[]))>1],"submitted":False}
 
     def handoff(req,args):
         scope(req)

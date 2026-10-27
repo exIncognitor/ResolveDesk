@@ -66,3 +66,11 @@ def test_entities_corrections_task_switch_and_literal_provenance(tmp_path):
     with pytest.raises(KeyError):state.get(OTHER,run["id"])
     assert "password" not in entities_from("密码是123456，apikey=not-a-real-key")
     store.close()
+
+
+def test_multi_value_entities_are_not_silently_chosen_and_corrections_keep_new_target():
+    assert entities_from("LT-1001和LT-1002都需要看看")["asset_id"]==["LT-1001","LT-1002"]
+    assert entities_from("用LT-1002替换LT-1001")["asset_id"]==["LT-1002"]
+    assert entities_from("不是LT-1001是LT-1002")["asset_id"]==["LT-1002"]
+    assert entities_from("改成LT-1002")["asset_id"]==["LT-1002"]
+    assert entities_from("14天而非7天")["duration_days"]==["14"]
