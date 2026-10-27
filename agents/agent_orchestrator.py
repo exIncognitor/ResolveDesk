@@ -196,6 +196,10 @@ class Request:
     before_unsafe_tool: Any = field(default=None, repr=False)
     unsafe_tool_calls: set = field(default_factory=set, repr=False)
     conversation_state: Optional[Dict[str, Any]] = None
+    principal: Any = field(default=None,repr=False)
+    authorized_sources: Dict[str, Any] = field(default_factory=dict,repr=False)
+    on_agent_execution: Any = field(default=None,repr=False)
+    executing_role: Optional[str] = None
 
 
 @dataclass
@@ -302,7 +306,7 @@ class BaseAgent:
             ms = (time.monotonic() - t0) * 1000
             self.stats.record(False, ms, req.request_id)
             self.stats.total_ms += ms
-            logger.error(f"{self.agent_type.value} 处理失败: {ex}")
+            logger.error("%s 处理失败: %s",self.agent_type.value,type(ex).__name__)
             tools_used = ex.tools_used if isinstance(ex, AgentCallError) else []
             tool_traces = ex.tool_traces if isinstance(ex, AgentCallError) else []
             return AgentResponse(
@@ -405,7 +409,7 @@ class BaseAgent:
                                 result_success = bool(result.get("success"))
                         except Exception as ex:
                             call_success = False
-                            logger.warning("Agent 工具 %s 执行失败: %s", name, ex)
+                            logger.warning("Agent 工具 %s 执行失败: %s",name,type(ex).__name__)
                             error_text = str(ex)
                             result = {"success": False, "error": error_text}
                     tool_latency_ms = (time.monotonic() - tool_t0) * 1000
@@ -761,6 +765,7 @@ class AgentOrchestrator:
         model:    str = "claude-3-5-sonnet-20241022",
         skill_manager: Optional[Any] = None,
         rag_tool_manager: Optional[Any] = None,
+        agent_classes: Optional[Dict[AgentType,type[BaseAgent]]] = None,
     ):
         kwargs: Dict[str, Any] = {"api_key": api_key}
         if base_url:
@@ -774,12 +779,12 @@ class AgentOrchestrator:
         self._recent_tool_traces = deque(maxlen=_env_int("RESOLVEDESK_TOOL_TRACE_MAX", 200))
 
         # Agent 池：每种类型可有多个实例（水平扩展）
-        self._pool: Dict[AgentType, List[BaseAgent]] = {
-            AgentType.GENERAL: [self._make_agent(GeneralAgent, client, model, skill_manager)],
-            AgentType.TECHNICAL: [self._make_agent(TechnicalAgent, client, model, skill_manager)],
-            AgentType.BILLING: [self._make_agent(BillingAgent, client, model, skill_manager)],
-            AgentType.ESCALATION: [self._make_agent(EscalationAgent, client, model, skill_manager)],
-        }
+        classes={AgentType.GENERAL:GeneralAgent,AgentType.TECHNICAL:TechnicalAgent,AgentType.BILLING:BillingAgent,AgentType.ESCALATION:EscalationAgent}
+        if agent_classes:
+            if not set(agent_classes)<=set(classes) or any(not issubclass(c,BaseAgent) or c.agent_type!=role for role,c in agent_classes.items()):
+                raise ValueError("Invalid role Agent extension")
+            classes.update(agent_classes)
+        self._pool={role:[self._make_agent(agent_cls,client,model,skill_manager)] for role,agent_cls in classes.items()}
         self.set_shared_tools(build_shared_rag_tools(rag_tool_manager))
 
     @staticmethod

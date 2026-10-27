@@ -41,13 +41,13 @@ DOMAIN_FINE={domain:next(k for k,v in CATALOG.items() if v[0]==domain) for domai
 
 def entities_from(message):
     """Only literal user-provided values; never passwords/tokens or inferred identities."""
-    patterns={"resource_id":r"\b(?:repo-[a-z0-9_-]+|docs-[a-z0-9_-]+)\b",
-        "asset_id":r"\bLT-\d{3,8}\b","ticket_id":r"\bRD-[A-F0-9]{12}\b",
-        "access_level":r"\b(?:read|write|admin)\b|只读|读写|只写",
+    patterns={"resource_id":r"(?<![a-z0-9_])(?:repo-[a-z0-9_-]+|docs-[a-z0-9_-]+)(?![a-z0-9_])",
+        "asset_id":r"(?<![a-z0-9_])LT-\d{3,8}(?![a-z0-9_])","ticket_id":r"(?<![a-z0-9_])RD-[A-F0-9]{12}(?![a-z0-9_])",
+        "access_level":r"(?<![a-z0-9_])(?:read|write|admin)(?![a-z0-9_])|只读|读写|只写",
         "duration_days":r"(?<!\d)(\d{1,3})\s*天",
-        "error_code":r"\b(?:401|403|404|500|691|800|809)\b",
-        "os":r"\b(?:Windows\s*(?:10|11)|Ubuntu\s*[\d.]*|macOS\s*[\w.]*)",
-        "software":r"\b(?:IntelliJ(?:\s+IDEA)?(?:\s+Ultimate)?|IDEA(?:\s+Ultimate)?|VS\s*Code|PyCharm|Python|Docker)\b"}
+        "error_code":r"(?<![a-z0-9_])(?:401|403|404|500|691|800|809)(?![a-z0-9_])",
+        "os":r"(?<![a-z0-9_])(?:Windows\s*(?:10|11)|Ubuntu\s*[\d.]*|macOS\s*[a-z0-9.]*)",
+        "software":r"(?<![a-z0-9_])(?:IntelliJ(?:\s+IDEA)?(?:\s+Ultimate)?|IDEA(?:\s+Ultimate)?|VS\s*Code|PyCharm|Python|Docker)(?![a-z0-9_])"}
     values={}
     for key,pattern in patterns.items():
         found=re.findall(pattern,message,re.I)

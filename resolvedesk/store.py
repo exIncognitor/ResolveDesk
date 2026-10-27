@@ -315,6 +315,13 @@ class Store:
             self._event(db, run_id, status, {"draft": fields, "missing": missing, "version": version})
             self._receipt(db,self._run(db,p,run_id))
 
+    def clear_draft(self,p,run_id):
+        with self.db(True) as db:
+            row=self._run(db,p,run_id)
+            if row["status"]!="running":raise Conflict("Run is no longer running")
+            db.execute("UPDATE runs SET draft=NULL,approval=NULL,expires=NULL,version=version+1 WHERE id=?",(run_id,))
+            self._event(db,run_id,"task_switch",{"draft_reset":True})
+
     def confirm(self, p, run_id, approval):
         with self.db(True) as db:
             row = self._run(db, p, run_id)

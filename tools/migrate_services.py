@@ -21,7 +21,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from resolvedesk.store import Store,Principal,encode,digest
 
-TABLES={"runs","events","messages","tickets","feedback","checkpoints","turn_receipts","desk_assets","service_cases","service_audit","service_actions","desk_grants",
+TABLES={"runs","events","messages","tickets","feedback","checkpoints","turn_receipts","entity_state","desk_assets","service_cases","service_audit","service_actions","desk_grants",
     "chunks","knowledge_documents","index_outbox","memory_summary","memory_episode","memory_profile","eval_jobs","regression_cases","quality_baselines","telemetry","desk_alerts","alert_outbox"}
 
 

@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import sys
 import time
+import uuid
 
 from agents.agent_orchestrator import AgentOrchestrator, AgentType, Request
 from core.skill_loader import SkillManager
@@ -115,30 +116,17 @@ class DeskServices:
         self.skills = SkillManager(ROOT/"skills",max_prompt_chars=3500)
         self.skills.load()
         self.memory = ScopedMemory(store,knowledge.embedding,client)
-        self.roles = AgentOrchestrator(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash",skill_manager=self.skills)
+        from resolvedesk.entity_state import EntityState
+        from resolvedesk.intent import ITIntentRecognizer
+        from resolvedesk.roles import IT_AGENTS
+        self.entities=EntityState(store)
+        self.roles = AgentOrchestrator(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash",skill_manager=self.skills,agent_classes=IT_AGENTS)
         # All integrated agents use the same guarded client and fixed Flash model.
-        self.roles._intent_recognizer.client = client
+        self.roles._intent_recognizer=ITIntentRecognizer(client,knowledge.embedding)
         self.roles._composer._client = client
         for pool in self.roles._pool.values():
             for agent in pool:
                 agent._client = client
-                agent.profile = replace(agent.profile,model="deepseek-flash",max_tokens=640)
-                profiles = {
-                    "general": ("账号权限与服务分诊", "依据企业规则解释账号、权限申请及服务流程；不擅自批准或开通权限。", ("核对诉求", "检索规则", "收集必要字段", "说明确认与审批路径")),
-                    "technical": ("网络终端与设备诊断", "依据知识库给出低风险排查，识别维修或安全升级条件。", ("确认影响范围", "查询知识与资产", "给出可验证排查", "必要时维修或升级")),
-                    "billing": ("软件授权与席位核验", "核验软件白名单、授权方式和可用席位，说明采购审批边界。", ("确认软件与用途", "查授权目录", "核对席位与审批规则", "给出申请路径")),
-                    "escalation": ("IT 安全与人工升级", "汇总影响范围与已尝试操作，移交 IT 人员，不承诺已处理。", ("识别风险", "整理证据", "建议人工升级")),
-                }
-                label, mission, workflow = profiles[agent.agent_type.value]
-                agent.profile = replace(agent.profile,role=label,mission=mission,workflow=workflow,
-                    input_contract=("用户已提供的信息", "可引用知识片段", "服务器提供的模拟资源与业务状态"),
-                    output_contract=("有依据的建议", "缺失字段", "下一步与审批边界"),
-                    handoff_conditions=("需要审批、维修或安全人工核验",))
-                agent.system_prompt = f"你是 ResolveDesk {label}。{mission}所有模拟企业状态以服务器上下文为准。"
-                # Avoid inherited ecommerce-only fields in specialist input packets.
-                from agents.agent_orchestrator import BaseAgent
-                from types import MethodType
-                agent._build_role_packet = MethodType(BaseAgent._build_role_packet, agent)
         self.manager = MCPToolManager(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash")
         configs = mcp_configs if mcp_configs is not None else [MCPServerConfig(name="support",transport="stdio",
             command=sys.executable,args=[str(ROOT/"resolvedesk"/"mcp_support.py")],allowed_tools=["support_checklist"],
@@ -146,7 +134,8 @@ class DeskServices:
         # Writing tools may not bypass the confirmed-ticket transaction.
         if any(not c.read_only for c in configs):
             raise ValueError("Only read-only MCP servers are enabled")
-        self.mcp = StandardMCPClient(self.manager,configs)
+        self.mcp = StandardMCPClient(self.manager,configs,on_change=self._wire_role_tools)
+        self._wire_role_tools()
         self.maintenance_task = None
 
     async def start(self):
@@ -169,41 +158,74 @@ class DeskServices:
         await self.mcp.close()
         await self.manager._client.close()
 
+    def _wire_role_tools(self):
+        from resolvedesk.roles import build_it_tools
+        tools=build_it_tools(self)
+        for name,spec in self.mcp.agent_tools().items():
+            async def call(req,args,name=name):
+                if req.principal is None or req.executing_role is None:raise PermissionError("Server scope required")
+                return await self.call_external(req.principal,name,args,req.executing_role)
+            tools[name]=replace(spec,handler=call)
+        self.roles.set_shared_tools(tools)
+
     async def route(self,p,run_id,message,history,context):
-        result = await self.roles._intent_recognizer.recognize(message,history[-3:])
-        req = Request(message=message,user_id=hashlib.sha256(encode([p.tenant,p.user]).encode()).hexdigest(),
-                      conv_id=run_id,context=encode(context),history=history,intent=result.intent,
-                      intent_group=result.intent_group,urgency=result.urgency,intent_confidence=result.confidence,entities=result.entities)
-        from resolvedesk.business import classify
-        from agents.agent_orchestrator import RoutingDecision
-        intent = classify(message)
+        previous=self.entities.get(p,run_id)
+        result=await self.roles._intent_recognizer.recognize(message,history[-4:],context={"domain":previous["domain"],"entities":previous["entities"]})
+        state=self.entities.merge(p,run_id,message,result.domain)
         mapping = {"account_access": AgentType.GENERAL, "network_endpoint": AgentType.TECHNICAL,
                    "software_license": AgentType.BILLING, "device_service": AgentType.TECHNICAL,
                    "escalation": AgentType.ESCALATION, "general": AgentType.GENERAL}
-        roles = list(dict.fromkeys(mapping[d] for d in intent["domains"]))
+        roles=list(dict.fromkeys(mapping[d] for d in result.domains))
         penalties = self.monitor.refresh(p.tenant)["routing_penalties"]
-        self.roles.update_routing_penalties({name+"_0": penalty for name,penalty in penalties.items()})
         primary = roles[0]
         degraded = [r.value for r in roles if penalties.get(r.value)]
-        if penalties.get(primary.value):
+        if result.urgency.name=="CRITICAL":primary=AgentType.ESCALATION
+        elif penalties.get(primary.value):
             primary = AgentType.GENERAL if primary != AgentType.GENERAL else AgentType.ESCALATION
         supporting = [r for r in roles if r != primary and not penalties.get(r.value)]
-        # Build a domain decision; inherited executor still owns real specialist execution.
-        decision = RoutingDecision(primary_agent=primary,supporting_agents=supporting,confidence=.9,
-                                   reason="IT 场景规则路由" + ("；异常节点降权："+",".join(degraded) if degraded else ""))
-        profile = self.roles._pool[decision.primary_agent][0].profile
-        packet = {"intent":intent["intent"],"domains":intent["domains"],"intent_method":intent["method"],"primary":decision.primary_agent.value,
-                  "supporting":[r.value for r in decision.supporting_agents],"confidence":decision.confidence,
-                  "reason":decision.reason,"mission":profile.mission,"workflow":list(profile.workflow)}
-        # Composite requests really execute independent read-only specialist agents.
-        if decision.supporting_agents:
-            started = time.monotonic()
-            results = await asyncio.gather(*(self.roles._execute(req,role) for role in decision.agent_types),return_exceptions=True)
-            packet["specialist_opinions"] = [{"role":role.value,"success":not isinstance(r,BaseException) and r.success,
-                "answer":r.content[:1800] if not isinstance(r,BaseException) else "专业节点暂不可用"} for role,r in zip(decision.agent_types,results)]
-            for opinion in packet["specialist_opinions"]:
-                self.monitor.record(p.tenant,"agent",opinion["role"],opinion["success"],time.monotonic()-started)
-        return packet
+        if result.needs_clarification:primary,supporting=AgentType.GENERAL,[]
+        profile=self.roles._pool[primary][0].profile
+        return {"intent":result.domain,"fine_intent":result.fine_intent,"domains":result.domains,"intent_method":result.method,
+            "primary":primary.value,"supporting":[r.value for r in supporting],"confidence":result.confidence,
+            "source_scores":result.source_scores,"embedding_source":result.embedding_source,"urgency":result.urgency.name,
+            "needs_clarification":result.needs_clarification,"entities":state["entities"],"entity_state":state,
+            "reason":result.reasoning+("；异常节点降权："+",".join(degraded) if degraded else ""),"mission":profile.mission,"workflow":list(profile.workflow)}
+
+    async def consult(self,p,run_id,message,history,context,routing,cached=None,on_result=None):
+        from core.intent_recognizer import UrgencyLevel
+        from resolvedesk.intent import DOMAIN_CATEGORY
+        from resolvedesk.tracing import redact
+        cached=cached or {}
+        sources={item["citation"]:item for item in context.get("evidence",[])}
+        async def record(event):
+            self.store.event(p,run_id,"agent_execution",event)
+            self.monitor.record(p.tenant,"agent",event["role"],event["success"],event["seconds"])
+        async def execute(role):
+            if role in cached and cached[role]["status"]!="failed":return cached[role]
+            req=Request(message=message,user_id=hashlib.sha256(encode([p.tenant,p.user]).encode()).hexdigest(),conv_id=run_id,
+                context=encode(context),history=history,entities=routing.get("entities",{}),intent=DOMAIN_CATEGORY[routing["intent"]],
+                intent_group=routing["intent"],urgency=UrgencyLevel[routing.get("urgency","LOW")],intent_confidence=routing.get("confidence",0),
+                request_id=uuid.uuid4().hex,principal=p,authorized_sources=sources,on_agent_execution=record)
+            started=time.monotonic()
+            try:
+                response=await self.roles._execute(req,AgentType(role))
+                fallback=any(t.get("event")=="agent_fallback" for t in response.tool_traces)
+                result={"requested_role":role,"role":response.agent_type.value,"status":response.status if response.success else "failed",
+                    "success":response.success and response.status=="success","answer":response.content[:1800],"fallback":fallback,
+                    "escalate":response.escalate,"tools_used":response.tools_used,"tool_traces":redact(response.tool_traces),
+                    "latency_ms":round((time.monotonic()-started)*1000,3),"error_code":response.error_code}
+            except asyncio.CancelledError:raise
+            except Exception as exc:
+                result={"requested_role":role,"role":role,"status":"failed","success":False,"answer":"专业节点暂不可用。",
+                    "fallback":False,"escalate":False,"tools_used":[],"tool_traces":[],"latency_ms":round((time.monotonic()-started)*1000,3),"error_code":type(exc).__name__}
+            self.store.event(p,run_id,"specialist_result",redact({k:v for k,v in result.items() if k!="answer"}))
+            if on_result:await on_result(role,result)
+            return result
+        roles=[routing["primary"]]+routing.get("supporting",[])
+        opinions=await asyncio.gather(*(execute(role) for role in roles))
+        status="failed" if all(r["status"]=="failed" for r in opinions) else "partial" if any(r["status"]!="success" or r["fallback"] for r in opinions) else "success"
+        return {"status":status,"specialist_opinions":opinions,"sources":sources,
+            "actual_roles":list(dict.fromkeys(r["role"] for r in opinions)),"escalated":routing.get("urgency")=="CRITICAL" or any(r["escalate"] for r in opinions)}
 
     async def search(self,p,query,top_k=5,optimize=True):
         queries,errors = [query],[]
