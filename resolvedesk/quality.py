@@ -49,6 +49,7 @@ class QualityRunner:
             dataset=default_dataset()
         dataset=EvalDataset.model_validate(dataset).model_dump()
         state=state or EvalState(self.store,job_id)
+        state.embedding_identity=getattr(self.knowledge.embedding,'identity',None)
         manifest=freeze(state,p,dataset,ROOT)
         dataset=manifest['dataset']
         cases=dataset['dialog_cases'][:limit]
@@ -107,6 +108,12 @@ class QualityRunner:
                     actor=case['user_id']
                     group=(actor,case.get('conv_id') or case['id'])
                     run_id=conversations.get(group)
+                    cached=state.result('dialog:'+case['id']+':result')
+                    if cached:
+                        details.append(cached)
+                        if cached.get('run_id'):conversations[group]=cached['run_id']
+                        progress(len(intents)+index+1,total)
+                        continue
                     detail={'test_id':case['id'],'passed':False,'metadata':{},'scores':{},'turns':[]}
                     try:
                         for turn_index,turn in enumerate(case['turns']):
@@ -185,6 +192,7 @@ class QualityRunner:
                     except asyncio.CancelledError:raise
                     except Exception as exc:detail['metadata']['execution_error']=type(exc).__name__
                     detail['turn_states']=[t['status'] for t in detail['turns']]
+                    state.result('dialog:'+case['id']+':result',detail)
                     details.append(detail)
                     progress(len(intents)+index+1,total)
         finally:
@@ -197,10 +205,12 @@ class QualityRunner:
         average.update(intent_accuracy=intent['accuracy'],intent_macro_f1=intent['macro_f1'],business_check_rate=sum(all(d.get('checks',{'missing':False}).values()) for d in details)/len(details) if details else None)
         passed=sum(d['passed'] for d in details)
         errors=len(details)-len(valid)+intent['evaluation_errors']
+        requested_total=len(intents)+len(details)
         return {'kind':'active_service_quality','suite_id':suite_id,'corpus_version':dataset['version'],'provenance':dataset['provenance'],
             'status':'partial' if errors else 'complete','total':len(details),'valid_total':len(valid),'passed':passed,
             'pass_rate':passed/len(details) if details else 0,'valid_pass_rate':passed/len(valid) if valid else 0,
             'evaluation_errors':errors,'avg_scores':average,'intent':intent,'results':details,'regressions':[],
+            'requested_total':requested_total,'overall_pass_rate':(passed+sum(r['passed'] for r in intents))/requested_total if requested_total else 0,
             'regression_note':'需人工选定相同数据、引擎、知识版本与评分配置的有效基线。','judge_enabled':use_judge,
             'recommendations':['合成开发集不能证明生产效果；同一 Flash 生成和评分存在评判偏差。','逐轮独立 Judge，任一轮不通过即整段不通过。中断后的不确定付费单元禁止自动重放。'],
             'sandbox':{'backend':manifest['backend'],'identity':manifest['identity'],'isolated':True},'requested_intents':len(intents),'requested_turns':sum(len(c['turns']) for c in cases)}

@@ -23,6 +23,17 @@ class EvalState:
     def check(self,db):
         if self.fence:self.fence(db)
 
+    def result(self,key,value=None):
+        """Memoize a pure report snapshot without starting a new execution unit."""
+        with self.store.db(True) as db:
+            self.check(db)
+            if value is not None:
+                raw=encode(value)
+                if len(raw.encode())>2_000_000:raise ValueError('Evaluation result exceeds 2MB')
+                db.execute("INSERT INTO eval_units VALUES(?,?,'done',?,NULL,?) ON CONFLICT(job_id,unit_key) DO NOTHING",(self.job_id,key,raw,db.now()))
+            row=db.execute("SELECT payload FROM eval_units WHERE job_id=? AND unit_key=? AND state='done'",(self.job_id,key)).fetchone()
+            return json.loads(row[0]) if row else None
+
     def snapshot(self,prepare):
         with self.store.db(True) as db:
             self.check(db)

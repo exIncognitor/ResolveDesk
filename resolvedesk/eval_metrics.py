@@ -33,7 +33,8 @@ async def measure_intent(recognizer,case):
 def assertions(expected,run,events,entity_state):
     routes=[e['payload'] for e in events if e['kind']=='routing']
     route=routes[-1] if routes else {}
-    checks={'execution_status':run['status']not in {'failed','paused','queued','running'}}
+    checks={'execution_status':run['status']not in {'failed','paused','queued','running'} or expected.get('expected_status')==run['status']}
+    if not expected.get('expected_status')=='failed':checks['execution_complete']=not run.get('error')
     if expected.get('expected_status')is not None:checks['status']=run['status']==expected['expected_status']
     if expected.get('expected_agent')is not None:checks['agent']=route.get('primary')==expected['expected_agent']
     label=expected.get('expected_intent')

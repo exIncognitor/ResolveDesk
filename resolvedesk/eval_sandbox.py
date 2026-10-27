@@ -6,16 +6,19 @@ from resolvedesk.store import Store,digest,encode
 
 
 def freeze(state,p,dataset,root):
+    sources={}
+    for folder in ('resolvedesk','agents','core','tooling'):
+        for path in sorted((root/folder).glob('*.py')):
+            sources[str(path.relative_to(root))]=hashlib.sha256(path.read_bytes()).hexdigest()
+    embedding=getattr(state,'embedding_identity',None)
     def prepare(db):
         rows=[dict(r) for r in db.execute("SELECT * FROM chunks WHERE tenant=? AND visibility='tenant' ORDER BY id",(p.tenant,))]
         identity='eval_rd_'+uuid.uuid4().hex
-        sources={}
-        for folder in ('resolvedesk','agents','core','tooling'):
-            for path in sorted((root/folder).glob('*.py')):
-                sources[str(path.relative_to(root))]=hashlib.sha256(path.read_bytes()).hexdigest()
         return {'dataset':dataset,'evidence':rows,'identity':identity,'backend':state.store.backend,
-                'engine_sources':sources,'source_identity':digest([str(state.store.database.engine.url),state.store.database.schema])}
-    return state.snapshot(prepare)
+                'engine_sources':sources,'embedding_identity':embedding,'source_identity':digest([str(state.store.database.engine.url),state.store.database.schema])}
+    frozen=state.snapshot(prepare)
+    if frozen['engine_sources']!=sources or frozen.get('embedding_identity')!=embedding:raise ValueError('Engine or embedding changed; use a new evaluation job')
+    return frozen
 
 
 class EvalSandbox:
