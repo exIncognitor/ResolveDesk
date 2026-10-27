@@ -302,9 +302,12 @@ async def test_http_timing_includes_memory_commit_and_metrics_work_without_extra
     monitor = PerformanceMonitor(orch, SimpleNamespace(), registry=registry)
     monkeypatch.setattr(api, "_monitor", monitor)
     original_commit = memory.commit_turn
+    # Assert the boundary independently of Windows timer granularity and load.
+    clock=SimpleNamespace(now=1000.)
+    monkeypatch.setattr(api,"time",SimpleNamespace(monotonic=lambda:clock.now))
 
     async def delayed_commit(*args, **kwargs):
-        await asyncio.sleep(.025)
+        clock.now+=.025
         return await original_commit(*args, **kwargs)
 
     monkeypatch.setattr(memory, "commit_turn", delayed_commit)
