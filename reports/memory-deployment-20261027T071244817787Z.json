@@ -1,0 +1,44 @@
+{
+  "revision": "5e5bd446070999867a011b60179a76c936989ec3",
+  "running_container_revision": "5e5bd446070999867a011b60179a76c936989ec3",
+  "source_hashes_equal": true,
+  "source_sha256": {
+    "resolvedesk/memory.py": "f5b04e79ae7c03fd87ea2d34979c4110d7f850ce16df8017989d47a36b87bda9",
+    "resolvedesk/services.py": "cc433d3e6d93cb44a68b88deb2cebf8c1dcd4aecc6d833bc0930cdf5ea0def3a",
+    "resolvedesk/vectors.py": "3a1a368c09fa136afc448cf77934ccf10fe035eaddfbd12f295940e9574a15c6",
+    "resolvedesk/tracing.py": "4d6e76f7fa3079133c90431cd5eeb9e3847e115b7f7db1130e107b72239f9603",
+    "resolvedesk/app.py": "9a1e7e809c49bff221e18bbd83d5c3d2511dbb497b69df17598cb881b10b63ca",
+    "resolvedesk/agent.py": "ad75f86602d80b0c972a0335a2cb79d711e37acb5a1dc020c73bd82fb33168e8",
+    "core/paid_api.py": "26b43fd402c68acb8247c479e64abca007a8bde44574bb5dd16fa0ff7d20048c",
+    "core/financial_ledger.py": "41d93fa759838d9e4d7e865bd86a6b739814b3d63db14a8d2e2baf245d276661"
+  },
+  "python_tests": {
+    "passed": 259,
+    "subtests": 14
+  },
+  "live_memory": {
+    "passed": 14,
+    "total": 14,
+    "evidence": "reports/memory-runtime-20261027T070338442792Z.json"
+  },
+  "shared_finance": "reports/financial-runtime-20261027T070342146002Z.json",
+  "retrieval": [
+    "reports/services-runtime-20261027T071222917723Z.json",
+    "reports/services-runtime-20261027T071224504383Z.json"
+  ],
+  "budget": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.675506",
+    "available_cny": "16.324494",
+    "calls": {
+      "settled": 364
+    },
+    "usage_input_tokens": 674681,
+    "usage_output_tokens": 40768,
+    "unresolved_reservation_cny": "0"
+  },
+  "host_workers": 2,
+  "memory_workers_per_process": 2,
+  "paid_calls_made_by_this_check": 0
+}
