@@ -8,9 +8,10 @@ RUN npm run build
 FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 ANONYMIZED_TELEMETRY=False
 WORKDIR /app
+ARG RESOLVEDESK_PIP_INDEX_URL=https://pypi.org/simple
 COPY requirements.txt ./
-RUN python -m pip install --no-cache-dir --upgrade pip==26.2.2
-RUN python -m pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir --index-url "$RESOLVEDESK_PIP_INDEX_URL" --timeout 60 --retries 3 --upgrade pip==26.2.2
+RUN python -m pip install --no-cache-dir --index-url "$RESOLVEDESK_PIP_INDEX_URL" --timeout 60 --retries 3 -r requirements.txt
 COPY . .
 COPY --from=frontend /web/dist ./frontend/dist
 RUN useradd --create-home --uid 10001 resolvedesk
