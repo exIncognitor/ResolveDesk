@@ -6,6 +6,8 @@ COPY frontend/ ./
 RUN npm run build
 
 FROM python:3.12-slim
+ARG RESOLVEDESK_REVISION=unversioned
+LABEL org.opencontainers.image.revision=$RESOLVEDESK_REVISION
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 ANONYMIZED_TELEMETRY=False
 WORKDIR /app
 COPY requirements.txt ./

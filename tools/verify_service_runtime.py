@@ -19,6 +19,8 @@ def main():
             result=client.request(method,path,json=body,headers={"Authorization":"Bearer "+access[actor]["token"]})
             result.raise_for_status();return result.json()
         health=request("GET","/health")
+        readiness=request("GET","/ready")
+        assert readiness["ready"] and set(readiness["components"])=={"database","redis","chroma"}
         assert health["database"]=="postgresql" and health["coordination"]=="redis" and health["vector_backend"]=="chroma"
         before=request("GET","/system")["budget"]
         corpus=json.loads((ROOT/"evaluation/retrieval_cases.json").read_text(encoding="utf-8"))
@@ -30,7 +32,7 @@ def main():
                 results.append({"id":case["id"],"mode":mode,"passed":passed,"degraded":result["degraded"]})
         after=request("GET","/system")["budget"]
         assert before==after,"Verification must not spend model budget"
-        report={"health":health,"paid_budget_changed":False,"budget":after,"retrieval":results,
+        report={"health":health,"readiness":readiness,"base":base,"paid_budget_changed":False,"budget":after,"retrieval":results,
             "passed":sum(r["passed"] and not r["degraded"] for r in results),"total":len(results),"mcp":request("GET","/mcp")}
         path=ROOT/"reports"/("services-runtime-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")+".json")
         with path.open("x",encoding="utf-8") as dest: json.dump(report,dest,ensure_ascii=False,indent=2)
