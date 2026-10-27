@@ -151,6 +151,8 @@ def test_config_macros_strict_flags_missing_headers_and_no_model_key_forwarding(
     for changes in [{'read_only':'false'},{'url':'https://example.com/mcp?token=not-allowed'},
         {'headers_env':{'Authorization':'ANTHROPIC_API_KEY'}},{'env_vars':['DEEPSEEK_API_KEY']},{'headers_env':{'Authorization':'a value rather than a variable'}}]:
         with pytest.raises(ValueError):MCPServerConfig(**(base|changes))
+    for changes in [{'allowed_tools':'read'},{'headers_env':{'Authorization':'anthropic_api_key'}},{'timeout_s':True},{'max_result_chars':300.5}]:
+        with pytest.raises(ValueError):MCPServerConfig(**(base|changes))
 
 
 @pytest.mark.asyncio

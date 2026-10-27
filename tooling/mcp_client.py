@@ -45,16 +45,16 @@ class MCPServerConfig:
     def __post_init__(self):
         if type(self.read_only)is not bool:raise ValueError("MCP read_only must be a boolean")
         if not isinstance(self.args,list) or any(not isinstance(arg,str) for arg in self.args):raise ValueError("MCP args must be strings")
-        if not isinstance(self.headers_env,dict) or any(not re.fullmatch(r"[A-Za-z0-9-]+",key) or not isinstance(value,str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*",value) for key,value in self.headers_env.items()):raise ValueError("MCP headers_env requires header-to-variable names")
+        if not isinstance(self.headers_env,dict) or any(not isinstance(key,str) or not re.fullmatch(r"[A-Za-z0-9-]+",key) or not isinstance(value,str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*",value) for key,value in self.headers_env.items()):raise ValueError("MCP headers_env requires header-to-variable names")
         if not isinstance(self.env_vars,list) or any(not isinstance(value,str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*",value) for value in self.env_vars):raise ValueError("MCP env_vars requires variable names")
-        if (set(self.headers_env.values())|set(self.env_vars)) & {"ANTHROPIC_API_KEY","DEEPSEEK_API_KEY","SILICONFLOW_API_KEY"}:raise ValueError("Model credentials must not be forwarded to MCP")
-        if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,24}", self.name):
+        if {name.upper() for name in set(self.headers_env.values())|set(self.env_vars)} & {"ANTHROPIC_API_KEY","DEEPSEEK_API_KEY","SILICONFLOW_API_KEY"}:raise ValueError("Model credentials must not be forwarded to MCP")
+        if not isinstance(self.name,str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,24}", self.name):
             raise ValueError("MCP 服务名必须是 1–25 位字母、数字、下划线或连字符")
         if self.transport not in {"streamable_http", "stdio"}:
             raise ValueError("MCP 仅支持 streamable_http 或 stdio")
-        if not self.allowed_tools or not all(isinstance(n, str) and n for n in self.allowed_tools):
+        if not isinstance(self.allowed_tools,list) or not 1<=len(self.allowed_tools)<=256 or not all(isinstance(n, str) and n for n in self.allowed_tools):
             raise ValueError("必须显式配置 MCP allowed_tools 白名单")
-        if not self.agents or not set(self.agents) <= {"general", "technical", "billing", "escalation"}:
+        if not isinstance(self.agents,list) or not self.agents or any(not isinstance(n,str) for n in self.agents) or not set(self.agents) <= {"general", "technical", "billing", "escalation"}:
             raise ValueError("MCP agents 必须是有效 Agent 类型")
         if self.transport == "streamable_http":
             url = urlsplit(self.url)
@@ -62,7 +62,7 @@ class MCPServerConfig:
                 raise ValueError("MCP URL 必须是无内嵌凭据的 HTTP(S) 地址")
         elif not self.command:
             raise ValueError("stdio MCP 必须配置 command")
-        if not 1 <= self.timeout_s <= 120 or not 0 <= self.cache_ttl <= 3600 or not 256 <= self.max_result_chars <= 50000:
+        if type(self.timeout_s)not in {int,float} or type(self.cache_ttl)not in {int,float} or type(self.max_result_chars)is not int or not 1 <= self.timeout_s <= 120 or not 0 <= self.cache_ttl <= 3600 or not 256 <= self.max_result_chars <= 50000:
             raise ValueError("MCP 超时、缓存或输出上限超出允许范围")
         if type(self.ping_interval_s)not in {int,float} or not .2<=self.ping_interval_s<=300:raise ValueError("Invalid MCP ping interval")
 
