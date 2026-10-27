@@ -192,12 +192,15 @@ class HybridKnowledge:
         done,failed = 0,0
         for _ in range(limit):
             with self.store.db(True) as db:
-                scope,params = (" AND tenant=? AND document_id=?",[tenant,document_id]) if tenant is not None else ("",[])
-                statement = "SELECT * FROM index_outbox WHERE state='pending' AND next_attempt<=?"+scope+" ORDER BY created LIMIT 1"
+                scope,params = (" AND d.tenant=? AND d.document_id=?",[tenant,document_id]) if tenant is not None else ("",[])
+                # All writers lock document first. Locking a job before its
+                # document lets another projector hold a later job while waiting
+                # on us, then deadlock when we acknowledge coalesced jobs.
+                statement = "SELECT d.* FROM knowledge_documents d WHERE EXISTS (SELECT 1 FROM index_outbox o WHERE o.tenant=d.tenant AND o.document_id=d.document_id AND o.state='pending' AND o.next_attempt<=?)"+scope+" ORDER BY d.updated LIMIT 1"
                 if db.backend=="postgresql": statement += " FOR UPDATE SKIP LOCKED"
-                job = db.execute(statement,[time.time()]+params).fetchone()
-                if job is None: break
-                document = db.execute(db.locked("SELECT * FROM knowledge_documents WHERE tenant=? AND document_id=?"),(job["tenant"],job["document_id"])).fetchone()
+                document = db.execute(statement,[time.time()]+params).fetchone()
+                if document is None: break
+                job = db.execute("SELECT * FROM index_outbox WHERE tenant=? AND document_id=? AND state='pending' AND next_attempt<=? ORDER BY created LIMIT 1",(document["tenant"],document["document_id"],time.time())).fetchone()
                 rows = [dict(r) for r in db.execute("SELECT * FROM chunks WHERE tenant=? AND document_id=?",(job["tenant"],job["document_id"]))]
                 try:
                     for row in rows:
