@@ -1,0 +1,64 @@
+{
+  "kind": "current_asgi_real_mcp",
+  "simulation": true,
+  "checks": {
+    "normal_config_two_transports": true,
+    "readonly_role_whitelist": true,
+    "standard_current_protocol": true,
+    "real_knowledge_acl": true,
+    "scoped_stats_resource": true,
+    "citation_resource": true,
+    "protocol_requires_login": true,
+    "debug_support_only": true,
+    "debug_redacts_credentials": true,
+    "intent_status_current_provider": true,
+    "http_catalog_refresh": true,
+    "http_passive_reconnect": true,
+    "free_protocol_and_debug_no_spend": true,
+    "flash_professional_calls_configured_http": true,
+    "current_agent_completed": true,
+    "no_business_write": true,
+    "transport_credential_not_persisted": true
+  },
+  "details": {
+    "final_status": "completed",
+    "http_connections": 2,
+    "professional_tools": [
+      {
+        "tool_name": "mcp_remote_external_check",
+        "source": "external_mcp",
+        "mcp_server": "remote",
+        "mcp_tool": "external_check",
+        "success": true,
+        "cached": false
+      }
+    ]
+  },
+  "passed": 17,
+  "total": 17,
+  "budget_before": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.724282",
+    "available_cny": "16.275718",
+    "calls": {
+      "settled": 381
+    },
+    "usage_input_tokens": 693605,
+    "usage_output_tokens": 42134,
+    "unresolved_reservation_cny": "0"
+  },
+  "budget_after": {
+    "budget_cny": "20",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "1.759536",
+    "available_cny": "16.240464",
+    "calls": {
+      "settled": 388
+    },
+    "usage_input_tokens": 707632,
+    "usage_output_tokens": 43034,
+    "unresolved_reservation_cny": "0"
+  },
+  "source_revision": "54de4cb97573f10a495d0d7caa0657547e3f10f2"
+}

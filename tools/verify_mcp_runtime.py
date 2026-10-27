@@ -8,6 +8,7 @@ import asyncio
 from datetime import datetime,timezone
 import hashlib
 import json
+import logging
 import os
 from pathlib import Path
 import secrets
@@ -22,6 +23,7 @@ sys.path.insert(0,str(ROOT))
 async def main():
     parser=argparse.ArgumentParser();parser.add_argument('--live',action='store_true')
     if not parser.parse_args().live:parser.error('Use --live for the authorized real Flash Agent verification')
+    logging.disable(logging.INFO)
     from dotenv import load_dotenv
     import httpx
     from sqlalchemy import text
