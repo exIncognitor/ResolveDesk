@@ -1,0 +1,25 @@
+{
+  "ready": {
+    "ready": true,
+    "components": {
+      "database": true,
+      "redis": true,
+      "chroma": true
+    }
+  },
+  "frontend_assets": [
+    "/assets/index-BcTsAZQ8.js",
+    "/assets/index-BjemALXS.css"
+  ],
+  "prometheus_up": 1,
+  "revision": "3917fcdc5c99ce4b43ab6e937d36055d4d0fe9a5",
+  "paid_calls": 0,
+  "services": [
+    "app",
+    "gateway",
+    "prometheus",
+    "postgres",
+    "redis",
+    "chroma"
+  ]
+}
