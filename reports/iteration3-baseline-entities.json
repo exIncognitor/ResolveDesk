@@ -1,0 +1,1818 @@
+{
+  "contract": "419d001f8edbe700961d7ac8f493d0d373e1867652b93f118c82ba82e7aeafb2",
+  "engine_root": ".codex-tmp\\iteration3\\baseline",
+  "paid_calls": 0,
+  "split": "frozen_acceptance",
+  "entities": [
+    {
+      "id": "verify-number-1",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-number-2",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-number-3",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-number-4",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-number-5",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-number-6",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-number-7",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-number-8",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-number-9",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-number-10",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-1",
+      "values": {
+        "duration_days": [
+          "２１"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-2",
+      "values": {
+        "duration_days": [
+          "２２"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-3",
+      "values": {
+        "duration_days": [
+          "２３"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-4",
+      "values": {
+        "duration_days": [
+          "２４"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-5",
+      "values": {
+        "duration_days": [
+          "２５"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-6",
+      "values": {
+        "duration_days": [
+          "２６"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-7",
+      "values": {
+        "duration_days": [
+          "２７"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-8",
+      "values": {
+        "duration_days": [
+          "２８"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-9",
+      "values": {
+        "duration_days": [
+          "２９"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-fullwidth-10",
+      "values": {
+        "duration_days": [
+          "３０"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-1",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-2",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-3",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-4",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-5",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-6",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-7",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-8",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-9",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-arabic-10",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-correct-01",
+      "values": {
+        "access_level": [
+          "read"
+        ]
+      },
+      "checks": {
+        "access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-02",
+      "values": {
+        "access_level": [
+          "read"
+        ]
+      },
+      "checks": {
+        "access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-03",
+      "values": {
+        "resource_id": [
+          "docs-bravo"
+        ]
+      },
+      "checks": {
+        "resource_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-04",
+      "values": {
+        "asset_id": [
+          "LT-3102"
+        ]
+      },
+      "checks": {
+        "asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-05",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-correct-06",
+      "values": {
+        "access_level": [
+          "read"
+        ]
+      },
+      "checks": {
+        "duration_days": false,
+        "access_level": true
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-correct-07",
+      "values": {
+        "access_level": [
+          "write"
+        ]
+      },
+      "checks": {
+        "access_level": true,
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-correct-08",
+      "values": {
+        "resource_id": [
+          "docs-zeta"
+        ],
+        "access_level": [
+          "read"
+        ]
+      },
+      "checks": {
+        "resource_id": true,
+        "access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-09",
+      "values": {
+        "asset_id": [
+          "LT-4004"
+        ]
+      },
+      "checks": {
+        "asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-10",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-correct-11",
+      "values": {
+        "asset_id": [
+          "LT-5012"
+        ]
+      },
+      "checks": {
+        "asset_id": true,
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-correct-12",
+      "values": {
+        "access_level": [
+          "read"
+        ]
+      },
+      "checks": {
+        "access_level": true,
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-correct-13",
+      "values": {
+        "ticket_id": [
+          "RD-FEDCBA543210"
+        ]
+      },
+      "checks": {
+        "ticket_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-14",
+      "values": {
+        "duration_days": [
+          "２９"
+        ]
+      },
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-correct-15",
+      "values": {
+        "asset_id": [
+          "LT-6002"
+        ],
+        "access_level": [
+          "read"
+        ]
+      },
+      "checks": {
+        "asset_id": true,
+        "access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-16",
+      "values": {
+        "access_level": [
+          "read",
+          "write"
+        ]
+      },
+      "checks": {
+        "access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-17",
+      "values": {
+        "asset_id": [
+          "LT-7101",
+          "LT-7102"
+        ]
+      },
+      "checks": {
+        "asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-18",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-correct-19",
+      "values": {
+        "resource_id": [
+          "repo-gamma",
+          "docs-theta"
+        ]
+      },
+      "checks": {
+        "resource_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-correct-20",
+      "values": {
+        "access_level": [
+          "read",
+          "admin",
+          "write"
+        ]
+      },
+      "checks": {
+        "access_level": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-boundary-01",
+      "values": {},
+      "checks": {
+        "absent:access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-boundary-02",
+      "values": {},
+      "checks": {
+        "absent:asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-boundary-03",
+      "values": {},
+      "checks": {
+        "absent:asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-boundary-04",
+      "values": {
+        "error_code": [
+          "691"
+        ]
+      },
+      "checks": {
+        "absent:error_code": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-boundary-05",
+      "values": {},
+      "checks": {
+        "absent:duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-boundary-06",
+      "values": {},
+      "checks": {
+        "absent:duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-boundary-07",
+      "values": {
+        "duration_days": [
+          "5"
+        ]
+      },
+      "checks": {
+        "absent:duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-boundary-08",
+      "values": {},
+      "checks": {
+        "absent:duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-boundary-09",
+      "values": {},
+      "checks": {
+        "absent:duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-boundary-10",
+      "values": {},
+      "checks": {
+        "absent:password": true,
+        "absent:token": true,
+        "absent:api_key": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-boundary-11",
+      "values": {
+        "resource_id": [
+          "repo-xylophone"
+        ]
+      },
+      "checks": {
+        "resource_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-boundary-12",
+      "values": {},
+      "checks": {
+        "access_level": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-boundary-13",
+      "values": {},
+      "checks": {
+        "asset_id": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-boundary-14",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-boundary-15",
+      "values": {},
+      "checks": {
+        "absent:duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-empty-01",
+      "values": {},
+      "checks": {
+        "absent:duration_days": true,
+        "absent:asset_id": true,
+        "absent:resource_id": true,
+        "absent:access_level": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-empty-02",
+      "values": {},
+      "checks": {
+        "absent:duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-empty-03",
+      "values": {},
+      "checks": {
+        "absent:asset_id": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-empty-04",
+      "values": {},
+      "checks": {
+        "absent:duration_days": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-empty-05",
+      "values": {
+        "access_level": [
+          "read"
+        ]
+      },
+      "checks": {
+        "absent:access_level": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-empty-06",
+      "values": {
+        "asset_id": [
+          "LT-9001"
+        ]
+      },
+      "checks": {
+        "absent:asset_id": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-empty-07",
+      "values": {
+        "resource_id": [
+          "repo-retired"
+        ]
+      },
+      "checks": {
+        "absent:resource_id": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-empty-08",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-empty-09",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-empty-10",
+      "values": {},
+      "checks": {
+        "duration_days": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-empty-11",
+      "values": {
+        "os": [
+          "Windows 11"
+        ]
+      },
+      "checks": {
+        "os": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-empty-12",
+      "values": {},
+      "checks": {
+        "error_code": false
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-empty-13",
+      "values": {
+        "software": [
+          "IDEA Ultimate"
+        ]
+      },
+      "checks": {
+        "software": true
+      },
+      "passed": true
+    },
+    {
+      "id": "verify-empty-14",
+      "values": {
+        "asset_id": [
+          "LT-7070"
+        ]
+      },
+      "checks": {
+        "duration_days": false,
+        "asset_id": true
+      },
+      "passed": false
+    },
+    {
+      "id": "verify-empty-15",
+      "values": {
+        "access_level": [
+          "read"
+        ]
+      },
+      "checks": {
+        "duration_days": false,
+        "access_level": true
+      },
+      "passed": false
+    }
+  ],
+  "sequences": [
+    {
+      "id": "state-resource-replace",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "repo-resolvedesk"
+              ],
+              "access_level": [
+                "read"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 1,
+                "source": "explicit_user_text",
+                "values": [
+                  "repo-resolvedesk"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 1,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 1
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "docs-internal"
+              ],
+              "access_level": [
+                "read"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 3,
+                "source": "explicit_user_text",
+                "values": [
+                  "docs-internal"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 3,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              }
+            },
+            "task_epoch": 1,
+            "reset": true,
+            "turn_seq": 3
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "state-field-correct",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "repo-resolvedesk"
+              ],
+              "access_level": [
+                "write"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 5,
+                "source": "explicit_user_text",
+                "values": [
+                  "repo-resolvedesk"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 5,
+                "source": "explicit_user_text",
+                "values": [
+                  "write"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 5
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "access_level": [
+                "read"
+              ],
+              "resource_id": [
+                "repo-resolvedesk"
+              ]
+            },
+            "sources": {
+              "access_level": {
+                "turn_seq": 7,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              },
+              "resource_id": {
+                "source": "explicit_user_text",
+                "turn_seq": 5,
+                "values": [
+                  "repo-resolvedesk"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 7
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "state-clear-level",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "docs-internal"
+              ],
+              "access_level": [
+                "read"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 9,
+                "source": "explicit_user_text",
+                "values": [
+                  "docs-internal"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 9,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 9
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "access_level": [
+                "read"
+              ],
+              "resource_id": [
+                "docs-internal"
+              ]
+            },
+            "sources": {
+              "access_level": {
+                "turn_seq": 11,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              },
+              "resource_id": {
+                "source": "explicit_user_text",
+                "turn_seq": 9,
+                "values": [
+                  "docs-internal"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 11
+          },
+          "checks": {
+            "resource_id": true,
+            "duration_days": false,
+            "absent:access_level": false,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "state-cancel",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "repo-resolvedesk"
+              ],
+              "access_level": [
+                "read"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 13,
+                "source": "explicit_user_text",
+                "values": [
+                  "repo-resolvedesk"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 13,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 13
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "general",
+            "entities": {},
+            "sources": {},
+            "task_epoch": 1,
+            "reset": true,
+            "turn_seq": 15
+          },
+          "checks": {
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "state": {
+            "domain": "device_service",
+            "entities": {
+              "asset_id": [
+                "LT-1001"
+              ]
+            },
+            "sources": {
+              "asset_id": {
+                "turn_seq": 17,
+                "source": "explicit_user_text",
+                "values": [
+                  "LT-1001"
+                ]
+              }
+            },
+            "task_epoch": 2,
+            "reset": true,
+            "turn_seq": 17
+          },
+          "checks": {
+            "asset_id": true,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": true
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "state-asset-replace",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "device_service",
+            "entities": {
+              "asset_id": [
+                "LT-3001"
+              ]
+            },
+            "sources": {
+              "asset_id": {
+                "turn_seq": 19,
+                "source": "explicit_user_text",
+                "values": [
+                  "LT-3001"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 19
+          },
+          "checks": {
+            "asset_id": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "device_service",
+            "entities": {
+              "asset_id": [
+                "LT-1001"
+              ]
+            },
+            "sources": {
+              "asset_id": {
+                "turn_seq": 21,
+                "source": "explicit_user_text",
+                "values": [
+                  "LT-1001"
+                ]
+              }
+            },
+            "task_epoch": 1,
+            "reset": true,
+            "turn_seq": 21
+          },
+          "checks": {
+            "asset_id": true,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "state-domain-switch",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "docs-internal"
+              ],
+              "access_level": [
+                "read"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 23,
+                "source": "explicit_user_text",
+                "values": [
+                  "docs-internal"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 23,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 23
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "software_license",
+            "entities": {
+              "software": [
+                "IDEA Ultimate"
+              ]
+            },
+            "sources": {
+              "software": {
+                "turn_seq": 25,
+                "source": "explicit_user_text",
+                "values": [
+                  "IDEA Ultimate"
+                ]
+              }
+            },
+            "task_epoch": 1,
+            "reset": true,
+            "turn_seq": 25
+          },
+          "checks": {
+            "software": true,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": true
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "state-ambiguous-level",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "repo-resolvedesk"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 27,
+                "source": "explicit_user_text",
+                "values": [
+                  "repo-resolvedesk"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 27
+          },
+          "checks": {
+            "resource_id": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "repo-resolvedesk"
+              ],
+              "access_level": [
+                "read",
+                "write"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "source": "explicit_user_text",
+                "turn_seq": 27,
+                "values": [
+                  "repo-resolvedesk"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 29,
+                "source": "explicit_user_text",
+                "values": [
+                  "read",
+                  "write"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 29
+          },
+          "checks": {
+            "resource_id": true,
+            "duration_days": false,
+            "access_level": true,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "state-duration-correct",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "docs-internal"
+              ],
+              "access_level": [
+                "read"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 31,
+                "source": "explicit_user_text",
+                "values": [
+                  "docs-internal"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 31,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 31
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "access_level": [
+                "read"
+              ],
+              "resource_id": [
+                "docs-internal"
+              ]
+            },
+            "sources": {
+              "access_level": {
+                "source": "explicit_user_text",
+                "turn_seq": 31,
+                "values": [
+                  "read"
+                ]
+              },
+              "resource_id": {
+                "source": "explicit_user_text",
+                "turn_seq": 31,
+                "values": [
+                  "docs-internal"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 33
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "state-greeting-retain",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "device_service",
+            "entities": {
+              "asset_id": [
+                "LT-1001"
+              ]
+            },
+            "sources": {
+              "asset_id": {
+                "turn_seq": 35,
+                "source": "explicit_user_text",
+                "values": [
+                  "LT-1001"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 35
+          },
+          "checks": {
+            "asset_id": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "device_service",
+            "entities": {
+              "asset_id": [
+                "LT-1001"
+              ]
+            },
+            "sources": {
+              "asset_id": {
+                "source": "explicit_user_text",
+                "turn_seq": 35,
+                "values": [
+                  "LT-1001"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 37
+          },
+          "checks": {
+            "asset_id": true,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "state-license-fields",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "software_license",
+            "entities": {
+              "software": [
+                "IDEA Ultimate"
+              ]
+            },
+            "sources": {
+              "software": {
+                "turn_seq": 39,
+                "source": "explicit_user_text",
+                "values": [
+                  "IDEA Ultimate"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 39
+          },
+          "checks": {
+            "software": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "software_license",
+            "entities": {
+              "software": [
+                "IDEA Ultimate"
+              ],
+              "duration_days": [
+                "２２"
+              ]
+            },
+            "sources": {
+              "software": {
+                "source": "explicit_user_text",
+                "turn_seq": 39,
+                "values": [
+                  "IDEA Ultimate"
+                ]
+              },
+              "duration_days": {
+                "turn_seq": 41,
+                "source": "explicit_user_text",
+                "values": [
+                  "２２"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 41
+          },
+          "checks": {
+            "software": true,
+            "duration_days": false,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "state-negated-old-duration",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "repo-resolvedesk"
+              ],
+              "access_level": [
+                "read"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 43,
+                "source": "explicit_user_text",
+                "values": [
+                  "repo-resolvedesk"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 43,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 43
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "access_level": [
+                "read"
+              ],
+              "resource_id": [
+                "repo-resolvedesk"
+              ]
+            },
+            "sources": {
+              "access_level": {
+                "source": "explicit_user_text",
+                "turn_seq": 43,
+                "values": [
+                  "read"
+                ]
+              },
+              "resource_id": {
+                "source": "explicit_user_text",
+                "turn_seq": 43,
+                "values": [
+                  "repo-resolvedesk"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 45
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "absent:duration_days": true,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": true
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "state-same-resource-retain",
+      "turns": [
+        {
+          "turn": 1,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "resource_id": [
+                "docs-internal"
+              ],
+              "access_level": [
+                "read"
+              ]
+            },
+            "sources": {
+              "resource_id": {
+                "turn_seq": 47,
+                "source": "explicit_user_text",
+                "values": [
+                  "docs-internal"
+                ]
+              },
+              "access_level": {
+                "turn_seq": 47,
+                "source": "explicit_user_text",
+                "values": [
+                  "read"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 47
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "state": {
+            "domain": "account_access",
+            "entities": {
+              "access_level": [
+                "read"
+              ],
+              "resource_id": [
+                "docs-internal"
+              ]
+            },
+            "sources": {
+              "access_level": {
+                "source": "explicit_user_text",
+                "turn_seq": 47,
+                "values": [
+                  "read"
+                ]
+              },
+              "resource_id": {
+                "turn_seq": 49,
+                "source": "explicit_user_text",
+                "values": [
+                  "docs-internal"
+                ]
+              }
+            },
+            "task_epoch": 0,
+            "reset": false,
+            "turn_seq": 49
+          },
+          "checks": {
+            "resource_id": true,
+            "access_level": true,
+            "duration_days": false,
+            "task_reset": true,
+            "source_values_current": true,
+            "same_turn_idempotent": true
+          },
+          "passed": false
+        }
+      ],
+      "passed": false
+    }
+  ],
+  "entity_passed": 27,
+  "entity_total": 80,
+  "sequence_passed": 2,
+  "sequence_total": 12
+}
