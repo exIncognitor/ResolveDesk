@@ -1,4 +1,5 @@
 """Exercise the supported 50-turn limit through current ASGI with explicit fake LLM."""
+from knowledge_fixtures import publish_fixture
 import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
@@ -18,7 +19,7 @@ async def test_fifty_actual_turns_each_scored_and_early_failure_not_hidden(tmp_p
     monkeypatch.setattr(module,'ROOT',tmp_path)
     p=Principal('long-eval','operator','support')
     store=Store(tmp_path/'source.sqlite3');kb=HybridKnowledge(store)
-    kb.add(p,'policy','服务介绍','你好，服务范围包括账号、网络和设备支持。')
+    publish_fixture(kb,p,'policy','服务介绍','你好，服务范围包括账号、网络和设备支持。')
     calls={'judge':0,'main':0}
     async def create(**kwargs):
         if kwargs.get('system','').startswith('你是企业IT意图分析器'):return response('{"fine_intents":["greeting"],"confidence":0.99,"urgency":1}')

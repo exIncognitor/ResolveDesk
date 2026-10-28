@@ -1,4 +1,5 @@
 """Efficiency must preserve scope and leave low-confidence/write paths intact."""
+from knowledge_fixtures import publish_fixture
 from concurrent.futures import ThreadPoolExecutor
 import math
 
@@ -39,8 +40,8 @@ def test_lexical_snapshot_refreshes_for_same_content_acl_change_and_cross_worker
 def test_concurrent_queries_share_only_current_authorized_content(tmp_path):
     store=Store(tmp_path/'parallel.sqlite3');kb=HybridKnowledge(store)
     try:
-        kb.add(SUPPORT,'shared','共享制度','VPN网络诊断')
-        kb.add(SUPPORT,'private','支持人员私有制度','VPN_SECRET_MARKER',visibility='private')
+        publish_fixture(kb,SUPPORT,'shared','共享制度','VPN网络诊断')
+        publish_fixture(kb,SUPPORT,'private','支持人员私有制度','VPN_SECRET_MARKER',visibility='private')
         def query(index):return kb.search(USER if index%2 else OTHER,'VPN',mode='bm25')['items']
         with ThreadPoolExecutor(max_workers=8) as pool:results=list(pool.map(query,range(40)))
         assert all(rows and all(row['document_id']=='shared' and 'SECRET' not in row['content'] for row in rows) for rows in results)

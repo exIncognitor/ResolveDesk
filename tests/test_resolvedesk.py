@@ -1,4 +1,5 @@
 """Behavior-level regressions. Fake model/embeddings are explicit and offline."""
+from knowledge_fixtures import publish_fixture
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
@@ -125,9 +126,9 @@ def test_chunk_source_spans_preserve_headings_code_and_tail():
 
 def test_hybrid_filters_before_both_branches_and_citations_are_versioned(store):
     kb = HybridKnowledge(store, FakeEmbedding())
-    kb.add(SUPPORT, "vpn", "VPN 超时", "# VPN 超时\n\n先检查网络，然后提交 network 工单。")
-    kb.add(SUPPORT, "private", "VPN 私密", "私密的 VPN 管理密码", "private")
-    kb.add(FOREIGN, "foreign", "VPN 他人租户", "VPN 外部机密")
+    publish_fixture(kb,SUPPORT, "vpn", "VPN 超时", "# VPN 超时\n\n先检查网络，然后提交 network 工单。")
+    publish_fixture(kb,SUPPORT, "private", "VPN 私密", "私密的 VPN 管理密码", "private")
+    publish_fixture(kb,FOREIGN, "foreign", "VPN 他人租户", "VPN 外部机密")
     result = kb.search(USER, "VPN 超时", 5)
     assert not result["degraded"]
     assert result["candidate_count"] == 1
@@ -136,19 +137,19 @@ def test_hybrid_filters_before_both_branches_and_citations_are_versioned(store):
     assert kb.citation(USER, old)["content"].startswith("# VPN")
     with pytest.raises(KeyError):
         kb.citation(FOREIGN, old)
-    kb.add(SUPPORT, "vpn", "VPN 超时", "更新的 VPN 网络排查步骤")
+    publish_fixture(kb,SUPPORT, "vpn", "VPN 超时", "更新的 VPN 网络排查步骤")
     with pytest.raises(KeyError):
         kb.citation(USER, old)
     assert kb.search(USER, "VPN")["candidate_count"] == 1
     with pytest.raises(PermissionError):
-        kb.add(USER, "bad", "标题", "内容")
+        publish_fixture(kb,USER, "bad", "标题", "内容")
     with pytest.raises(PermissionError):
-        kb.add(Principal("demo", "another-support", "support"), "private", "覆盖", "覆盖私有内容")
+        publish_fixture(kb,Principal("demo", "another-support", "support"), "private", "覆盖", "覆盖私有内容")
 
 
 def test_lexical_degradation_is_explicit_and_rrf_is_rank_based(store):
     kb = HybridKnowledge(store)
-    kb.add(SUPPORT, "691", "身份验证错误 691", "账号密码错误 691，先核对账号。")
+    publish_fixture(kb,SUPPORT, "691", "身份验证错误 691", "账号密码错误 691，先核对账号。")
     result = kb.search(USER, "691")
     assert result["degraded"] and result["items"][0]["bm25"] > 0
     assert not kb.search(USER, "691", mode="bm25")["degraded"]
@@ -196,7 +197,7 @@ async def test_clarification_tool_and_completed_answer_accept_followup(store):
 @pytest.mark.asyncio
 async def test_agent_rejects_fabricated_citation_and_false_success(store):
     kb = HybridKnowledge(store)
-    kb.add(SUPPORT, "vpn", "VPN", "VPN 超时应先检查网络。")
+    publish_fixture(kb,SUPPORT, "vpn", "VPN", "VPN 超时应先检查网络。")
     fake = response("工单已经创建成功。[C-"+"f"*24+"]")
     agent = DeskAgent(store, kb, client_with(fake))
     run, _ = store.create_run(USER, "VPN 超时", "bad-citation")

@@ -1,3 +1,4 @@
+from knowledge_fixtures import publish_fixture
 import asyncio
 import json
 from types import SimpleNamespace
@@ -97,7 +98,7 @@ async def test_real_mcp_subprocess_is_integrated_and_read_only(store):
 @pytest.mark.asyncio
 async def test_rewrite_fusion_rerank_and_failure_fallback(store):
     kb=HybridKnowledge(store,FakeEmbedding())
-    for i in range(8):kb.add(SUPPORT,f'vpn{i}',f'VPN {i}',f'VPN 连接超时 排查网络 {i}')
+    for i in range(8):publish_fixture(kb,SUPPORT,f'vpn{i}',f'VPN {i}',f'VPN 连接超时 排查网络 {i}')
     model=client_with(response('["VPN 连接超时", "VPN 网络排查"]'),response('[5, 0, 0]'))
     svc=DeskServices(store,kb,model,mcp_configs=[])
     try:
@@ -118,8 +119,8 @@ async def test_rewrite_fusion_rerank_and_failure_fallback(store):
 @pytest.mark.asyncio
 async def test_original_routing_and_parallel_specialists_are_used(store):
     kb=HybridKnowledge(store)
-    kb.add(SUPPORT,'vpn','VPN','# VPN\n\nVPN连接故障查询网络。')
-    kb.add(SUPPORT,'license','IDEA授权','# IDEA授权\n\n软件许可证按审批分配。')
+    publish_fixture(kb,SUPPORT,'vpn','VPN','# VPN\n\nVPN连接故障查询网络。')
+    publish_fixture(kb,SUPPORT,'license','IDEA授权','# IDEA授权\n\n软件许可证按审批分配。')
     async def create(**kwargs):
         if 'tools' not in kwargs:return response('{"fine_intents":["vpn_failure","license_request"],"confidence":0.95,"urgency":1}')
         if kwargs['messages'][-1]['role']=='user' and isinstance(kwargs['messages'][-1]['content'],list):return response('专业只读建议。')
@@ -144,7 +145,7 @@ async def test_original_routing_and_parallel_specialists_are_used(store):
 @pytest.mark.asyncio
 async def test_reviewed_feedback_runs_as_persistent_scoped_regression(store):
     kb=HybridKnowledge(store,FakeEmbedding())
-    kb.add(SUPPORT,'vpn','VPN','# VPN\n\n网络排查')
+    publish_fixture(kb,SUPPORT,'vpn','VPN','# VPN\n\n网络排查')
     run,_=store.create_run(USER,'VPN 网络排查','feedback-source')
     store.feedback(USER,run['id'],'bad','召回不准')
     service=EvaluationService(store,kb)
@@ -169,7 +170,7 @@ def test_integrated_http_surfaces_enforce_roles_and_persist_feedback_cases(store
     from fastapi.testclient import TestClient
     from resolvedesk.app import create_app
     kb=HybridKnowledge(store,FakeEmbedding())
-    kb.add(SUPPORT,'vpn','VPN','# VPN\n\n网络排查')
+    publish_fixture(kb,SUPPORT,'vpn','VPN','# VPN\n\n网络排查')
     model=client_with()
     svc=DeskServices(store,kb,model,mcp_configs=[])
     agent=DeskAgent(store,kb,model,svc)

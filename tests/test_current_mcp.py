@@ -1,4 +1,5 @@
 """G07 current auth, standard Resources, configured transports and reconnect."""
+from knowledge_fixtures import publish_fixture
 import asyncio
 import hashlib
 import json
@@ -25,10 +26,10 @@ from mcp_http_fixture import HTTPFixture
 @pytest.fixture
 def environment(tmp_path):
     store=Store(tmp_path/'mcp.sqlite3');kb=HybridKnowledge(store,FakeEmbedding());model=client_with()
-    kb.add(SUPPORT,'shared','VPN公开','VPN 公开排查')
-    kb.add(Principal('demo','alice','support'),'alice-private','VPN Alice','VPN Alice 私有',visibility='private')
-    kb.add(Principal('demo','bob','support'),'bob-private','VPN Bob','VPN Bob 私有',visibility='private')
-    kb.add(FOREIGN,'foreign','VPN他租户','VPN 他租户')
+    publish_fixture(kb,SUPPORT,'shared','VPN公开','VPN 公开排查')
+    publish_fixture(kb,Principal('demo','alice','support'),'alice-private','VPN Alice','VPN Alice 私有',visibility='private')
+    publish_fixture(kb,Principal('demo','bob','support'),'bob-private','VPN Bob','VPN Bob 私有',visibility='private')
+    publish_fixture(kb,FOREIGN,'foreign','VPN他租户','VPN 他租户')
     services=DeskServices(store,kb,model,mcp_configs=[]);agent=DeskAgent(store,kb,model,services)
     accounts={hashlib.sha256(token.encode()).hexdigest():vars(p) for token,p in [('alice',USER),('bob',OTHER),('foreign',FOREIGN),('support',SUPPORT)]}
     app=create_app(store,kb,agent,accounts)
@@ -60,7 +61,7 @@ async def test_current_protocol_auth_resources_acl_token_switch_and_no_paid_call
                     private=next(i for i in result.structuredContent['results'] if i['document_id']=='alice-private')
                     content=await session.read_resource('resolvedesk://knowledge/citations/'+private['citation'])
                     assert json.loads(content.contents[0].text)['document_id']=='alice-private'
-                    kb.add(Principal('demo','alice','support'),'alice-private','新版','VPN Alice 新版',visibility='private')
+                    publish_fixture(kb,Principal('demo','alice','support'),'alice-private','新版','VPN Alice 新版',visibility='private')
                     with pytest.raises(McpError):await session.read_resource('resolvedesk://knowledge/citations/'+private['citation'])
                     http.headers['Authorization']='Bearer bob'
                     switched=await session.call_tool('search_local_knowledge',{'query':'VPN','tenant':'other','user':'alice'})

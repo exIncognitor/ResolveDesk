@@ -1,4 +1,5 @@
 """Retirement only touches explicitly authored synthetic evaluations and resources."""
+from knowledge_fixtures import publish_fixture
 import hashlib
 import json
 from pathlib import Path
@@ -97,7 +98,7 @@ async def test_real_services_retire_exact_sandbox_and_recover_after_remote_failu
     source_vectors=ChromaVectors(settings.chroma_url,FakeEmbedding.identity,collection=source_name)
     coordination=Coordination(settings.redis_url,'test-retention-'+uuid.uuid4().hex)
     kb=HybridKnowledge(store,FakeEmbedding(),source_vectors)
-    kb.add(SUPPORT,'policy','VPN','VPN 合成制度，原始证据必须保留。')
+    publish_fixture(kb,SUPPORT,'policy','VPN','VPN 合成制度，原始证据必须保留。')
     identity=uuid.uuid4().hex;seed_job(store,identity)
     state=EvalState(store,identity);state.embedding_identity=FakeEmbedding.identity;state.redis_namespace=coordination.namespace
     manifest=freeze(state,SUPPORT,EvalDataset(intent_cases=[{'message':'你好','expected':'general'}]).model_dump(),Path(__file__).resolve().parents[1])

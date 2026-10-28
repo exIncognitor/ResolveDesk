@@ -1,4 +1,5 @@
 """G06 actual service/API cache, fault, circuit and output authorization contracts."""
+from knowledge_fixtures import publish_fixture
 import asyncio
 from contextlib import asynccontextmanager
 import hashlib
@@ -25,7 +26,7 @@ from test_redis_coordination import cache
 @pytest.fixture
 def environment(tmp_path):
     store=Store(tmp_path/'reliable.sqlite3');kb=HybridKnowledge(store,FakeEmbedding())
-    for index in range(8):kb.add(SUPPORT,'vpn'+str(index),'VPN '+str(index),'# VPN\n\nVPN 连接超时 网络排查 '+str(index))
+    for index in range(8):publish_fixture(kb,SUPPORT,'vpn'+str(index),'VPN '+str(index),'# VPN\n\nVPN 连接超时 网络排查 '+str(index))
     async def create(**kwargs):
         return response('["VPN 网络故障"]' if '检索查询' in kwargs.get('system','') else '[0,1]')
     model=SimpleNamespace(messages=SimpleNamespace(create=AsyncMock(side_effect=create)),close=AsyncMock())
@@ -199,7 +200,7 @@ async def test_acl_or_content_change_during_generation_blocks_stale_final_and_ne
     class Stream:
         async def deltas(self):
             yield '当前授权时允许发送的第一批文字。'*5
-            kb.add(SUPPORT,source['document_id'],'私有替换','新版私有资料',visibility='private')
+            publish_fixture(kb,SUPPORT,source['document_id'],'私有替换','新版私有资料',visibility='private')
             yield 'REVOKED_MUST_NOT_BE_SENT'*5
         @property
         def text_stream(self):return self.deltas()
@@ -221,7 +222,7 @@ async def test_acl_or_content_change_during_generation_blocks_stale_final_and_ne
 @pytest.mark.asyncio
 async def test_real_cross_worker_redis_cache_reimport_acl_and_chroma_failure(postgres_store,vectors,cache,monkeypatch):
     kb=HybridKnowledge(postgres_store,FakeEmbedding(),vectors)
-    kb.add(SUPPORT,'vpn','VPN','VPN 连接排查')
+    publish_fixture(kb,SUPPORT,'vpn','VPN','VPN 连接排查')
     first=DeskServices(postgres_store,kb,client_with(),mcp_configs=[],coordination=cache)
     second=DeskServices(postgres_store,kb,client_with(),mcp_configs=[],coordination=cache)
     try:
@@ -230,11 +231,11 @@ async def test_real_cross_worker_redis_cache_reimport_acl_and_chroma_failure(pos
         copied=await second.search(USER,'VPN',optimize=False)
         assert copied['cached'] and copied['cache_layer']=='redis' and second.manager._tools['it_rag'].stats.total==0
         old=result['items'][0]['citation']
-        kb.add(SUPPORT,'vpn','VPN','VPN 连接排查',visibility='private')
+        publish_fixture(kb,SUPPORT,'vpn','VPN','VPN 连接排查',visibility='private')
         revoked=await second.search(USER,'VPN',optimize=False)
         assert revoked['items']==[] and not revoked['cached']
         assert kb.validate_citations(USER,[old])=={} and kb.validate_citations(SUPPORT,[old])
-        kb.add(SUPPORT,'vpn','VPN new','VPN 新版故障排查',visibility='tenant')
+        publish_fixture(kb,SUPPORT,'vpn','VPN new','VPN 新版故障排查',visibility='tenant')
         updated=await second.search(USER,'VPN',optimize=False)
         assert not updated['cached'] and updated['items'][0]['citation']!=old
         assert (await first.search(FOREIGN,'VPN',optimize=False))['items']==[]

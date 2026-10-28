@@ -1,4 +1,5 @@
 """Offline evaluator integration. Fake answers and Judge scores are explicit fixtures."""
+from knowledge_fixtures import publish_fixture
 import json
 import re
 from types import SimpleNamespace
@@ -51,7 +52,7 @@ async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_pa
     from pathlib import Path
     root = Path(__file__).resolve().parents[1]
     for path in (root/"knowledge").glob("*.md"):
-        kb.add(SUPPORT, path.stem, path.stem, path.read_text(encoding="utf-8"))
+        publish_fixture(kb,SUPPORT, path.stem, path.stem, path.read_text(encoding="utf-8"))
     async def search(self, p, query, top_k=5, **kwargs): return self.knowledge.search(p, query, top_k)
     async def route(self, p, run_id, message, history, context):
         label = classify(message)["intent"]

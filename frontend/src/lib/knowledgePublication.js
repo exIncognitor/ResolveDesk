@@ -4,6 +4,7 @@ export function reviewBody(document, action, note) {
 }
 
 export function publicationLabel(document) {
+  if (document.state === 'legacy') return '存量兼容 · 待纳管'
   if (document.state === 'draft') return '草稿 · 待审核'
   if (document.state === 'withdrawn') return '已撤回'
   return document.readable ? '已发布 · 可检索' : '已发布 · 未生效或已到期'

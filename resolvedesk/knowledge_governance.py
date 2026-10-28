@@ -24,7 +24,8 @@ def metadata_complete(value):
 
 def publication_identity(publications):
     """Semantic inputs, excluding audit actor/time and review counters."""
-    return sorted(({key:r.get(key) for key in ('tenant','document_id','content_version','state','metadata')} for r in publications),
+    return sorted(({**{key:r.get(key) for key in ('tenant','document_id','content_version','state')},
+                    'metadata':json.loads(r['metadata']) if isinstance(r.get('metadata'),str) else r.get('metadata')} for r in publications),
                   key=lambda r:(r.get('tenant') or '',r['document_id']))
 
 
@@ -134,7 +135,7 @@ class KnowledgeGovernance:
     def change(self,p,document_id,action,version,revision,note,metadata=None):
         if action not in {'publish','withdraw','metadata'}:raise ValueError('Unknown publication action')
         if not isinstance(note,str) or not note.strip() or len(note)>2000:raise ValueError('Review note required')
-        if type(revision)is not int or revision<1:raise ValueError('Metadata revision required')
+        if type(revision)is not int or revision<(0 if action=='metadata' else 1):raise ValueError('Metadata revision required')
         value=KnowledgeMetadata.model_validate(metadata).model_dump() if action=='metadata' else None
         with self.store.db(True) as db:
             doc=self.owner(db,p,document_id)

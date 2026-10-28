@@ -1,4 +1,5 @@
 """Generic semantic and provenance properties, independent of frozen examples."""
+from knowledge_fixtures import publish_fixture
 import json
 from pathlib import Path
 
@@ -58,7 +59,7 @@ async def test_production_prepare_cannot_invent_unknown_days(tmp_path):
     from test_it_workflows import ACCESS
     from test_resolvedesk import SUPPORT,response
     store=Store(tmp_path/'no-inferred-duration.sqlite3');kb=HybridKnowledge(store)
-    kb.add(SUPPORT,'permissions','权限制度','# 权限\n申请需要资源、级别、用途和明确期限，模型不得自行选择。')
+    publish_fixture(kb,SUPPORT,'permissions','权限制度','# 权限\n申请需要资源、级别、用途和明确期限，模型不得自行选择。')
     model=model_for(fine=('access_request',));original=model.messages.create.side_effect
     async def create(**kwargs):
         if kwargs.get('system','').startswith('你是 ResolveDesk'):

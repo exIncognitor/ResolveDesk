@@ -1,3 +1,4 @@
+from knowledge_fixtures import publish_fixture
 from concurrent.futures import ThreadPoolExecutor
 import os
 import uuid
@@ -53,7 +54,7 @@ def test_postgres_real_business_and_all_current_repositories(postgres_store):
     store = postgres_store
     business = BusinessService(store);business.seed_demo()
     kb = HybridKnowledge(store)
-    kb.add(SUPPORT,"test-policy","测试制度","# 测试制度\n\n权限申请最长30天。")
+    publish_fixture(kb,SUPPORT,"test-policy","测试制度","# 测试制度\n\n权限申请最长30天。")
     assert kb.search(USER,"权限",mode="bm25")["items"]
     memory = ScopedMemory(store,None,None)
     evaluation = EvaluationService(store,kb)

@@ -202,6 +202,7 @@ class QualityRunner:
                         detail['scores']=average_scores(detail['turns'])
                         detail['metadata']['judge_failed']=any(t['judge'].get('judge_failed') for t in detail['turns'])
                         detail['passed']=all(t['passed'] for t in detail['turns']) and all(final_checks.values())
+                        detail['deterministic_passed']=all(t['deterministic_passed'] for t in detail['turns']) and all(final_checks.values())
                     except asyncio.CancelledError:raise
                     except Exception as exc:detail['metadata']['execution_error']=type(exc).__name__
                     detail['turn_states']=[t['status'] for t in detail['turns']]
@@ -220,10 +221,10 @@ class QualityRunner:
         errors=len(details)-len(valid)+intent['evaluation_errors']
         requested_total=len(intents)+len(details)
         return {'kind':'active_service_quality','suite_id':suite_id,'corpus_version':dataset['version'],'provenance':dataset['provenance'],
-            'suite_schema':'active-quality-v2','engine_identity':digest(manifest['engine_sources']),
+            'suite_schema':'active-quality-v3-publications','engine_identity':digest(manifest['engine_sources']),
             'status':'partial' if errors else 'complete','total':len(details),'valid_total':len(valid),'passed':passed,
             'pass_rate':passed/len(details) if details else 0,'valid_pass_rate':passed/len(valid) if valid else 0,
-            'evaluation_errors':errors,'avg_scores':average,'intent':intent,'results':details,'regressions':[],
+            'evaluation_errors':errors,'deterministic_passed':sum(d.get('deterministic_passed',False) for d in details),'avg_scores':average,'intent':intent,'results':details,'regressions':[],
             'requested_total':requested_total,'overall_pass_rate':(passed+sum(r['passed'] for r in intents))/requested_total if requested_total else 0,
             'regression_note':'需人工选定相同数据、引擎、知识版本与评分配置的有效基线。','judge_enabled':use_judge,
             'recommendations':['合成开发集不能证明生产效果；同一 Flash 生成和评分存在评判偏差。','逐轮独立 Judge，任一轮不通过即整段不通过。中断后的不确定付费单元禁止自动重放。'],

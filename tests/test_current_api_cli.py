@@ -1,4 +1,5 @@
 """G11 bounded import, atomic SQL, and interactive current-service API behavior."""
+from knowledge_fixtures import publish_fixture
 import asyncio
 import hashlib
 import json
@@ -112,8 +113,8 @@ async def test_cancelled_http_import_keeps_bounded_thread_slots_until_actual_com
 @pytest.mark.parametrize('backend',['sqlite','postgres'])
 def test_batch_rolls_back_all_documents_on_private_ownership_conflict(api,backend,request):
     store=api[0] if backend=='sqlite' else request.getfixturevalue('postgres_store');kb=HybridKnowledge(store)
-    kb.add(SUPPORT,'a-public','public','original')
-    kb.add(Principal('demo','private-owner','support'),'z-private','private','private-original','private')
+    publish_fixture(kb,SUPPORT,'a-public','public','original')
+    publish_fixture(kb,Principal('demo','private-owner','support'),'z-private','private','private-original','private')
     with pytest.raises(PermissionError):kb.add_many(SUPPORT,[{'document_id':'a-public','title':'changed','content':'changed','visibility':'tenant'},
         {'document_id':'z-private','title':'overwrite','content':'bad','visibility':'tenant'}])
     with store.db() as db:

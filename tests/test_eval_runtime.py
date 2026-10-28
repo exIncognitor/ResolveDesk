@@ -1,4 +1,5 @@
 """Failure/recovery contracts; fake model responses are explicit and never billed."""
+from knowledge_fixtures import publish_fixture
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
@@ -152,7 +153,7 @@ async def test_quality_resume_reuses_case_reports_and_never_reexecutes(tmp_path,
     from resolvedesk.services import DeskServices
     monkeypatch.setattr(module,'ROOT',tmp_path)
     store=Store(tmp_path/'source.sqlite3');kb=HybridKnowledge(store)
-    kb.add(SUPPORT,'policy','制度','你好，服务范围包括网络和设备。')
+    publish_fixture(kb,SUPPORT,'policy','制度','你好，服务范围包括网络和设备。')
     model=client_with(response('原始回答'))
     async def route(self,*args):return {'intent':'general','primary':'general','supporting':[]}
     async def consult(self,*args,**kwargs):return {'status':'success','specialist_opinions':[],'sources':{},'actual_roles':[]}
@@ -163,7 +164,7 @@ async def test_quality_resume_reuses_case_reports_and_never_reexecutes(tmp_path,
     data=EvalDataset(dialog_cases=[{'question':'你好','reference':'介绍服务'}]).model_dump()
     first=await runner.run(SUPPORT,'recover-quality',1,False,lambda *args:None,dataset=data)
     calls=model.messages.create.call_count
-    kb.add(SUPPORT,'policy','制度','新知识不能改变已经冻结的评测证据。')
+    publish_fixture(kb,SUPPORT,'policy','制度','新知识不能改变已经冻结的评测证据。')
     second=await runner.run(SUPPORT,'recover-quality',1,False,lambda *args:None,dataset=data)
     assert first['results']==second['results'] and first['suite_id']==second['suite_id']
     assert model.messages.create.call_count==calls
@@ -185,8 +186,8 @@ async def test_formal_quality_uses_isolated_postgres_redis_chroma_and_non_demo_d
     vectors=ChromaVectors(settings.chroma_url,FakeEmbedding.identity,collection=collection)
     coordination=Coordination(settings.redis_url,'test-eval-'+uuid.uuid4().hex)
     kb=HybridKnowledge(postgres_store,FakeEmbedding(),vectors)
-    kb.add(SUPPORT,'policy','你好服务范围','你好，IT 支持覆盖账号、网络、软件和设备。')
-    kb.add(SUPPORT,'private','保密资料','不得出现在模拟员工的评测上下文中。','private')
+    publish_fixture(kb,SUPPORT,'policy','你好服务范围','你好，IT 支持覆盖账号、网络、软件和设备。')
+    publish_fixture(kb,SUPPORT,'private','保密资料','不得出现在模拟员工的评测上下文中。','private')
     async def create(**kwargs):
         if kwargs.get('system','').startswith('你是企业IT意图分析器'):return response('{"fine_intents":["greeting"],"confidence":0.99,"urgency":1}')
         if kwargs.get('system','').startswith('你是ResolveDesk只读IT专业节点'):return response('合成只读建议。')

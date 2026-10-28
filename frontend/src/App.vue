@@ -291,7 +291,7 @@
                   <input :disabled="busy" type="file" accept=".txt,.md,.json" @change="performAction('upload', handleUpload, $event)" />
                 </label>
               </div>
-              <p class="form-hint">客服角色可导入 UTF-8 TXT、Markdown、JSON，文件最大 10 MiB，JSON 最多 100 篇；整批校验后导入。</p>
+              <p class="form-hint">客服角色可导入 UTF-8 TXT、Markdown、JSON，文件最大 10 MiB，JSON 最多 100 篇；新增材料保存为草稿，请在下方补齐元数据并审核发布。</p>
             </form>
           </section>
         </div>

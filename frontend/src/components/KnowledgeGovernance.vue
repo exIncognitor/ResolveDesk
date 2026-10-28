@@ -3,17 +3,18 @@
     <div class="card-heading"><div><span class="kicker">PUBLICATION</span><h2>知识审核与发布</h2></div><button @click="load" :disabled="busy">刷新</button></div>
     <p>客服角色可审核。技术参考不能替代企业制度；草稿、撤回和过期材料不会用于普通检索。修改内容或元数据后须重新发布。</p>
     <p role="status">{{ status }}</p>
-    <p v-if="!documents.length">暂无可管理的知识。可上传带 metadata 的 JSON 文档进入草稿；已有无元数据文档沿用原来的发布方式。</p>
+    <p v-if="!documents.length && !status">暂无可管理的知识。新增材料会进入草稿，补齐来源和适用范围后才能审核发布。</p>
     <article v-for="document in documents" :key="document.document_id">
       <h3>{{ document.title }} · {{ publicationLabel(document) }}</h3>
       <p>{{ document.document_id }} · 内容 {{ document.version }} · 元数据 {{ document.revision }}</p>
-      <p>{{ document.metadata.material_type === 'technical_reference' ? '技术参考' : '模拟制度' }} · {{ document.metadata.applicability.join('、') }} · 来源核对 {{ document.metadata.source_checked_on }}</p>
-      <p>生效 {{ date(document.effective_from) }} · 到期 {{ date(document.expires_at) }}</p>
+      <p>{{ document.metadata.material_type === 'technical_reference' ? '技术参考' : document.metadata.material_type === 'simulated_policy' ? '模拟制度' : '待补材料类型' }} · {{ document.metadata.applicability.join('、') || '待补适用范围' }} · 来源核对 {{ document.metadata.source_checked_on || '待补日期' }}</p>
+      <p v-if="document.metadata_complete">生效 {{ date(document.effective_from) }} · 到期 {{ date(document.expires_at) }}</p>
+      <p v-else>请先展开下方元数据编辑，填写材料类型、来源、适用范围和有效期。存量兼容材料保存后也将进入草稿。</p>
       <p v-for="url in document.metadata.source_urls" :key="url"><a :href="url" target="_blank" rel="noopener noreferrer">{{ url }}</a></p>
       <p>审核人 {{ document.reviewer || '待审核' }} · {{ document.note }}</p>
       <label>审核或变更说明<input v-model="notes[document.document_id]" maxlength="2000" placeholder="填写来源核对和适用范围，或撤回原因" /></label>
-      <button :disabled="busy || !notes[document.document_id]?.trim()" @click="review(document, 'publish')">审核发布</button>
-      <button :disabled="busy || !notes[document.document_id]?.trim()" @click="review(document, 'withdraw')">撤回</button>
+      <button :disabled="busy || !document.metadata_complete || !notes[document.document_id]?.trim()" @click="review(document, 'publish')">审核发布</button>
+      <button :disabled="busy || document.state === 'legacy' || !notes[document.document_id]?.trim()" @click="review(document, 'withdraw')">撤回</button>
       <details><summary>编辑来源与适用元数据</summary><label>元数据 JSON<textarea v-model="metadata[document.document_id]" rows="9" /></label><button :disabled="busy || !notes[document.document_id]?.trim()" @click="edit(document)">保存为草稿</button></details>
       <details><summary @click="audit(document)">审计记录</summary><p v-for="entry in audits[document.document_id] || []" :key="entry.id">{{ date(entry.created) }} · {{ entry.actor }} · {{ entry.action }} · r{{ entry.revision }} · {{ entry.note }}</p></details>
     </article>
@@ -39,7 +40,7 @@ async function load() {
     const data = await deskRequest(r.settings, '/knowledge/publications')
     if (!r.isCurrent()) return
     documents.value = data
-    for (const document of data) metadata[document.document_id] = JSON.stringify(document.metadata, null, 2)
+    for (const document of data) metadata[document.document_id] = JSON.stringify(document.metadata_complete ? document.metadata : { ...document.metadata, material_type: 'technical_reference', applicability: ['请填写产品及版本'], domains: ['network_endpoint'], source_checked_on: new Date().toISOString().slice(0, 10), effective_from: Math.floor(Date.now()/1000), expires_at: Math.floor(Date.now()/1000)+90*86400 }, null, 2)
     status.value = `${data.length} 篇受管理材料`
   } catch (error) { if (r.isCurrent()) { documents.value = []; status.value = error.message } }
   finally { if (r.isCurrent()) busy.value = false }

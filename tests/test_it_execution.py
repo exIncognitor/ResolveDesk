@@ -3,6 +3,7 @@
 Models are explicit offline protocol fixtures; the MCP test uses a real child
 process and the optional PostgreSQL fixture tests the same current services.
 """
+from knowledge_fixtures import publish_fixture
 import asyncio
 import json
 from types import SimpleNamespace
@@ -33,8 +34,8 @@ def environment(tmp_path):
     store=Store(tmp_path/"live-it.sqlite3")
     BusinessService(store).seed_demo()
     kb=HybridKnowledge(store)
-    kb.add(SUPPORT,"vpn","VPN","# VPN\n\nVPN连接超时先检查普通网络。")
-    kb.add(SUPPORT,"licensing","IDEA许可证","# IDEA许可证\n\nIDEA商业席位需要申请审批。")
+    publish_fixture(kb,SUPPORT,"vpn","VPN","# VPN\n\nVPN连接超时先检查普通网络。")
+    publish_fixture(kb,SUPPORT,"licensing","IDEA许可证","# IDEA许可证\n\nIDEA商业席位需要申请审批。")
     yield store,kb
     store.close()
 
@@ -217,7 +218,7 @@ async def test_native_tools_reject_identity_spoofing_and_cross_user_assets(envir
     from agents.agent_orchestrator import Request,AgentType
     from core.intent_recognizer import IntentCategory,UrgencyLevel
     store,kb=environment
-    kb.add(SUPPORT,"private-secret","私有记录","保密资产凭据不对Alice开放。",visibility="private")
+    publish_fixture(kb,SUPPORT,"private-secret","私有记录","保密资产凭据不对Alice开放。",visibility="private")
     services=DeskServices(store,kb,model_for(),mcp_configs=[])
     run,_=store.create_run(USER,"检查设备","tool-identity")
     req=Request(message="检查设备",user_id="opaque",conv_id=run["id"],principal=USER,intent=IntentCategory.TECHNICAL,urgency=UrgencyLevel.LOW)
@@ -265,7 +266,7 @@ async def test_monitor_recovery_probe_is_bounded_and_success_clears_cooldown(env
 @pytest.mark.asyncio
 async def test_critical_handoff_returns_source_guidance_before_any_ticket_intake(environment):
     store,kb=environment
-    kb.add(SUPPORT,"safety","电池安全","# 电池安全\n\n电池鼓包时停止使用并断开充电，不要拆卸。")
+    publish_fixture(kb,SUPPORT,"safety","电池安全","# 电池安全\n\n电池鼓包时停止使用并断开充电，不要拆卸。")
     calls=[];model=model_for(fine=("device_hazard",),calls=calls)
     services=DeskServices(store,kb,model,mcp_configs=[]);agent=DeskAgent(store,kb,model,services)
     run,_=store.create_run(USER,"LT-1001电池鼓包了，能继续开机吗？不要建单。","safety-key")
