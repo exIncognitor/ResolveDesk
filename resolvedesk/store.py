@@ -313,11 +313,11 @@ class Store:
             if previous:
                 if previous["input_hash"] != digest(["reply",message]): raise Conflict("Idempotency key already used with a different message")
                 return self._turn(db,p,run_id,request_key),False
-            if row["status"] not in {"awaiting_input", "awaiting_confirmation", "completed"} or row["ticket_id"]:
+            if row["status"] not in {"awaiting_input", "awaiting_confirmation", "completed"}:
                 raise Conflict("Run is not waiting for input")
             db.execute("INSERT INTO messages(run_id,role,content) VALUES(?,'user',?)", (run_id, message))
             # Any draft revision invalidates the old approval immediately.
-            db.execute("UPDATE runs SET status='queued',answer='',error=NULL,approval=NULL,expires=NULL,version=version+1,execution_owner=NULL,lease_until=0,updated=? WHERE id=?",
+            db.execute("UPDATE runs SET status='queued',answer='',error=NULL,approval=CASE WHEN ticket_id IS NULL THEN NULL ELSE approval END,expires=NULL,version=version+1,execution_owner=NULL,lease_until=0,updated=? WHERE id=?",
                        (time.time(), run_id))
             self._event(db, run_id, "queued", {"reason": "user_reply"})
             seq = db.execute("SELECT MAX(seq) FROM messages WHERE run_id=?",(run_id,)).fetchone()[0]
@@ -332,6 +332,7 @@ class Store:
             row = self._run(db, p, run_id)
             if row["status"] != "running":
                 raise Conflict("Run is no longer running")
+            if row['ticket_id']:raise Conflict('A submitted conversation cannot prepare another ticket; start a new conversation')
             if provenance is not None:
                 self._event(db,run_id,'draft_provenance',{'fields':provenance,'confirmed':False})
             version = row["version"] + 1
@@ -359,6 +360,7 @@ class Store:
         with self.db(True) as db:
             row=self._run(db,p,run_id)
             if row["status"]!="running":raise Conflict("Run is no longer running")
+            if row['ticket_id']:return  # Submitted fields and the original approval remain immutable.
             db.execute("UPDATE runs SET draft=NULL,approval=NULL,expires=NULL,version=version+1 WHERE id=?",(run_id,))
             self._event(db,run_id,"task_switch",{"draft_reset":True})
 

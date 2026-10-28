@@ -6,7 +6,7 @@
 
 当前已实现范围与尚未迁移的旧功能见 [功能核对表](docs/FEATURE_STATUS.md)。本项目不能表述为原项目全部功能的等价超集。
 
-四类场景、状态机、隔离质量评测与告警配置见 [IT 服务台设计与验收](docs/IT_SERVICE_DESIGN.md)。业务数据和企业制度均明确标注为合成模拟。
+当前执行链、技术取舍与文件/函数入口见 [当前架构](docs/CURRENT_ARCHITECTURE.md)，从零演示见 [三条业务闭环](docs/BUSINESS_DEMOS.md)。早期 [IT 服务台设计与验收](docs/IT_SERVICE_DESIGN.md) 已标为历史阶段。业务数据和企业制度均明确标注为合成模拟。
 
 后端只使用Python；原Java版本是另一套学习实现，不作为迁移欠项。第二轮固定目标见[目标提示词](docs/NEXT_ITERATION_GOAL.md)，实测性能、冻结留出集、软件席位与失败候选记录见[第二轮交付](docs/ITERATION2_ACCEPTANCE.md)。普通检索默认复用BM25索引和文档版本水位；节省模型调用的adaptive策略因留出集退化保持关闭，默认仍为完整专家编排。
 

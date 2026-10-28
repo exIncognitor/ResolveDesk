@@ -69,7 +69,7 @@ export async function requestChat(_,s,message,{onEvent=()=>{},isCurrent=()=>true
   if(!attempt){
     let path='/runs'
     if(s.conversationId){
-      try{const current=await deskRequest(s,`/runs/${s.conversationId}`);if(['awaiting_input','awaiting_confirmation','completed'].includes(current.status)&&!current.ticket_id)path=`/runs/${current.id}/reply`}catch(e){if(e.status!==404)throw e}
+      try{const current=await deskRequest(s,`/runs/${s.conversationId}`);if(['awaiting_input','awaiting_confirmation','completed'].includes(current.status))path=`/runs/${current.id}/reply`}catch(e){if(e.status!==404)throw e}
     }
     attempt={path,request_key:crypto.randomUUID()};attempts.set(key,attempt)
   }

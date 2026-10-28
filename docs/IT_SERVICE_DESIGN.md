@@ -1,5 +1,7 @@
 # ResolveDesk IT 服务台：实现与验收边界
 
+> 历史阶段文档：以下正文保留早期 SQLite、规则路由与尚未加入席位库存时的设计和验收记录，不代表当前架构。当前唯一架构入口为 [CURRENT_ARCHITECTURE.md](CURRENT_ARCHITECTURE.md)，业务演示见 [BUSINESS_DEMOS.md](BUSINESS_DEMOS.md)。
+
 更新：2026-10-27。主入口为 `resolvedesk.app:app`，业务数据均为明确标注的模拟企业数据。
 
 迁移完整性以 [技术迁移总审计](MIGRATION_AUDIT_2026-10-27.md) 为准。本说明描述本地已实现流程；“完整质量评测”等章节名称不代表原版所有评测、路由、监控子能力都已迁移。

@@ -47,4 +47,18 @@ async def test_submitted_case_cancellation_does_not_claim_or_perform_a_reversal(
         assert current['status']=='completed'
         assert '没有撤销工单' in current['answer']
         assert BusinessService(store).get(USER,ticket['id'])==before
+        assert store.confirm(USER,run['id'],draft['approval'])['id']==ticket['id']
+        assert len(store.list_tickets(USER))==1
     finally:await agent.close()
+
+
+def test_submitted_conversation_can_be_read_but_cannot_prepare_another_ticket(environment):
+    store,_=environment
+    run,_=store.create_run(USER,'申请','readonly-after-confirm')
+    store.claim(USER,run['id']);store.prepare(USER,run['id'],ACCESS,[])
+    draft=store.get_run(USER,run['id']);ticket=store.confirm(USER,run['id'],draft['approval'])
+    store.reply(USER,run['id'],'查询当前进度','read-progress');store.claim(USER,run['id'])
+    from resolvedesk.store import Conflict
+    with pytest.raises(Conflict,match='submitted conversation'):
+        store.prepare(USER,run['id'],ACCESS,[])
+    assert store.get_ticket(USER,ticket['id'])['fields']==ACCESS
