@@ -4,7 +4,7 @@
 
 当前主入口是 `resolvedesk/app.py`，Vue 界面位于 `frontend/`。主服务使用 PostgreSQL、Redis、Chroma；开发时可在宿主机运行 Python，依赖由 Docker 管理。SQLite 仅用于显式离线测试和保留旧数据。
 
-当前已实现范围与尚未迁移的旧功能见 [功能核对表](docs/FEATURE_STATUS.md)。本项目不能表述为原项目全部功能的等价超集。
+当前实现范围和验证边界见 [功能核对表](docs/FEATURE_STATUS.md)及[技术范围](docs/TECHNICAL_SCOPE.md)，来源与授权记录见 [SOURCES.md](SOURCES.md)。
 
 当前执行链、技术取舍与文件/函数入口见 [当前架构](docs/CURRENT_ARCHITECTURE.md)，从零演示见 [三条业务闭环](docs/BUSINESS_DEMOS.md)。早期 [IT 服务台设计与验收](docs/IT_SERVICE_DESIGN.md) 已标为历史阶段。业务数据和企业制度均明确标注为合成模拟。
 
