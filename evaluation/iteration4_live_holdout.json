@@ -1,0 +1,237 @@
+{
+  "title": "第四轮冻结集成验收",
+  "version": "iteration4-live-v1",
+  "provenance": "2026-10-28由助手在修改前编写并冻结的12组合成场景；非生产资料、非第三方盲标。原第二/三轮冻结集不变。",
+  "intent_cases": [],
+  "dialog_cases": [
+    {
+      "id": "v4-greeting",
+      "turns": [
+        {
+          "message": "您好！",
+          "expected_status": "completed"
+        }
+      ],
+      "reference": "友好说明IT支持范围，不要求补充产品或错误码。"
+    },
+    {
+      "id": "v4-owned-assets",
+      "turns": [
+        {
+          "message": "请查看分配到我名下的办公电脑资产和保修情况，不申请维修。",
+          "expected_status": "completed",
+          "answer_contains": [
+            "LT-1001"
+          ]
+        }
+      ],
+      "reference": "只查询本人资产，合成资产为LT-1001，不因知识不充分停止查询。"
+    },
+    {
+      "id": "v4-access-intake",
+      "turns": [
+        {
+          "message": "我要申请内部文档的访问权限，请先问我还需要提供哪些信息。",
+          "expected_status": "awaiting_input"
+        },
+        {
+          "message": "请准备权限申请：docs-internal，read，十三天，用途为阅读接口手册。",
+          "expected_status": "awaiting_confirmation",
+          "expected_entities": {
+            "resource_id": [
+              "docs-internal"
+            ],
+            "access_level": [
+              "read"
+            ],
+            "duration_days": [
+              "13"
+            ]
+          }
+        }
+      ],
+      "conv_id": "v4-access-thread",
+      "workflow": "access_request",
+      "expected_status": "awaiting_confirmation",
+      "expected_fields": {
+        "resource_id": "docs-internal",
+        "access_level": "read",
+        "duration_days": 13
+      },
+      "reference": "先收集必要信息，后准备明确期限的草稿；确认后审批并模拟开通。"
+    },
+    {
+      "id": "v4-existing-case",
+      "turns": [
+        {
+          "message": "查询我刚才那张权限申请工单现在处理到哪一步。",
+          "expected_status": "completed",
+          "required_tools": [
+            "get_service_case"
+          ]
+        }
+      ],
+      "conv_id": "v4-access-thread",
+      "reference": "查同会话已有的真实模拟工单，经过前一案例确认审批开通后，应读取fulfilled状态，不能创建新工单。"
+    },
+    {
+      "id": "v4-correct-fields",
+      "turns": [
+        {
+          "message": "帮我申请repo-resolvedesk权限，使用期限还没确定。",
+          "expected_status": "awaiting_input"
+        },
+        {
+          "message": "资源不变，read，期限改为六天，用途是核对后端接口。请准备申请草稿。",
+          "expected_status": "awaiting_confirmation",
+          "expected_entities": {
+            "resource_id": [
+              "repo-resolvedesk"
+            ],
+            "access_level": [
+              "read"
+            ],
+            "duration_days": [
+              "6"
+            ]
+          }
+        }
+      ],
+      "workflow": "access_request",
+      "expected_status": "awaiting_confirmation",
+      "expected_fields": {
+        "resource_id": "repo-resolvedesk",
+        "access_level": "read",
+        "duration_days": 6
+      },
+      "reference": "不能猜未知期限；采用本轮明确的read和六天。"
+    },
+    {
+      "id": "v4-cancel-intake",
+      "turns": [
+        {
+          "message": "我想申请IntelliJ IDEA Ultimate商业席位，用于Java开发，但使用几天还没决定。",
+          "expected_status": "awaiting_input"
+        },
+        {
+          "message": "取消这次申请。",
+          "expected_status": "completed",
+          "answer_contains": [
+            "取消"
+          ]
+        }
+      ],
+      "expected_status": "completed",
+      "reference": "取消尚未提交的申请，清除草稿，不提交或分配席位。"
+    },
+    {
+      "id": "v4-device-repair",
+      "turns": [
+        {
+          "message": "请帮我准备办公笔记本报修申请，先询问缺少的信息。",
+          "expected_status": "awaiting_input"
+        },
+        {
+          "message": "本人设备LT-1001，键盘连续按键卡住，已经检查外接键盘仍未恢复。标题为笔记本键盘报修，请准备维修草稿。",
+          "expected_status": "awaiting_confirmation",
+          "expected_entities": {
+            "asset_id": [
+              "LT-1001"
+            ]
+          }
+        }
+      ],
+      "workflow": "device_repair",
+      "expected_status": "awaiting_confirmation",
+      "expected_fields": {
+        "asset_id": "LT-1001"
+      },
+      "reference": "使用本人资产，确认后分诊派单维修，经返工和本人验收关闭并释放资产。"
+    },
+    {
+      "id": "v4-license-allocate",
+      "turns": [
+        {
+          "message": "请准备IntelliJ IDEA Ultimate商业软件席位申请，用于Java后端开发，使用八天。",
+          "expected_status": "awaiting_confirmation",
+          "expected_entities": {
+            "duration_days": [
+              "8"
+            ]
+          }
+        }
+      ],
+      "workflow": "license_request",
+      "expected_status": "awaiting_confirmation",
+      "expected_fields": {
+        "product": "IntelliJ IDEA Ultimate",
+        "duration_days": 8
+      },
+      "reference": "明确商业版本与八天；确认后由其他客服审批、预占和分配模拟席位。"
+    },
+    {
+      "id": "v4-license-policy",
+      "turns": [
+        {
+          "message": "仅咨询：公司使用商业IDEA软件的审批要求是什么？不要准备申请。",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "licensing"
+      ],
+      "expected_status": "completed",
+      "reference": "只引用模拟制度解释审批，不产生申请草稿，不承诺真实厂商授权。"
+    },
+    {
+      "id": "v4-unsupported-policy",
+      "turns": [
+        {
+          "message": "请告诉我公司下季度出租车报销额度的具体标准。",
+          "expected_status": "awaiting_input"
+        }
+      ],
+      "expected_status": "awaiting_input",
+      "reference": "现有IT知识不包含公司报销制度，不能编造额度。"
+    },
+    {
+      "id": "v4-critical-handoff",
+      "turns": [
+        {
+          "message": "办公设备出现焦糊味并冒烟，请转人工IT处理。",
+          "expected_status": "completed",
+          "answer_contains": [
+            "人工"
+          ],
+          "answer_excludes": [
+            "工单已创建"
+          ]
+        }
+      ],
+      "expected_status": "completed",
+      "reference": "提供有边界的安全/人工升级信息，即使没有充分知识命中也不能变成补产品版本问卷；无真实人工队列，不能声称已创建或完成维修。"
+    },
+    {
+      "id": "v4-official-nslookup",
+      "turns": [
+        {
+          "message": "Windows的nslookup能代替应用实际访问测试吗？",
+          "expected_status": "completed"
+        }
+      ],
+      "documents": [
+        "ref-nslookup"
+      ],
+      "expected_status": "completed",
+      "reference": "官方技术参考说明DNS查询与应用访问属于不同观测，引用当前可读来源，不冒充企业制度。"
+    }
+  ],
+  "assets": [
+    {
+      "id": "LT-1001",
+      "owner": "learner",
+      "model": "合成验收办公笔记本",
+      "warranty": "in_warranty"
+    }
+  ]
+}
