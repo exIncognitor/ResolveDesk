@@ -9,7 +9,7 @@ import re
 WORKFLOWS={'access_request','device_repair','license_request'}
 REQUEST=re.compile(r'申请|报修|准备|提交|创建|开通')
 QUESTION=re.compile(r'(?:怎么|如何|怎样|是否|能否|可以|需要|要不要|能不能|什么条件).{0,6}(?:申请|报修|提交|开通)|(?:申请|报修).{0,8}(?:流程|条件|要求|政策|手续)')
-CONSULT=re.compile(r'仅咨询|只咨询|只是咨询|只想了解|仅想了解|不(?:要|用|需)(?:.{0,5})(?:准备|创建|提交|申请|报修)|先(?:别|不)(?:准备|创建|提交)|先不准备草稿')
+CONSULT=re.compile(r'(?:仅|只)(?:是|想)?(?:咨询|了解|解释|查询)|(?:不(?:要|用|需)?|别|先别|先不)[^，。；！？,.!?;]{0,5}(?:准备|创建|提交|申请|报修)')
 
 
 def request_workflow(message,domain):

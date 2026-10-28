@@ -295,7 +295,7 @@
             </form>
           </section>
         </div>
-        <KnowledgeGovernance :settings="settings" />
+        <KnowledgeGovernance ref="governancePanel" :settings="settings" />
         <section class="workspace-card skills-workspace">
           <div class="card-heading">
             <div>
@@ -524,6 +524,7 @@ import { citationText as formatCitation } from './lib/knowledgePublication'
 import { createRequestState } from './lib/requestState'
 
 const settings = reactive(createInitialSettings())
+const governancePanel = ref(null)
 const requestState = createRequestState(settings)
 const activeView = ref('chat')
 const messages = ref([])
@@ -838,7 +839,9 @@ async function submitKnowledge() {
     statusText.value = JSON.stringify(data, null, 2)
     await loadStats()
     if (!request.isCurrent()) return
-    showToast('文档已添加')
+    await governancePanel.value?.load()
+    if (!request.isCurrent()) return
+    showToast('文档已保存为待审核草稿')
   } catch (error) {
     if (!request.isCurrent()) return
     statusText.value = error.message
@@ -859,7 +862,9 @@ async function handleUpload(event) {
     statusText.value = JSON.stringify(data, null, 2)
     await loadStats()
     if (!request.isCurrent()) return
-    showToast(`${file.name} 导入成功`)
+    await governancePanel.value?.load()
+    if (!request.isCurrent()) return
+    showToast(`${file.name} 已保存为待审核草稿`)
   } catch (error) {
     if (!request.isCurrent()) return
     statusText.value = error.message
