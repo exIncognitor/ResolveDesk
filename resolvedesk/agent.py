@@ -413,7 +413,7 @@ class DeskAgent:
                 self.store.finish(p,run_id,'completed',answer)
                 return None
             if routing.get("needs_clarification"):
-                self.store.finish(p,run_id,"awaiting_input","请补充你要处理的是账号权限、网络终端、软件授权还是设备维修，以及具体问题。")
+                self.store.finish(p,run_id,"awaiting_input","当前服务范围是账号权限、网络终端、软件授权和设备服务，还没有足够信息确认这个问题的处理依据。若咨询其他企业制度，当前资料不能支持具体标准，请向负责部门核实或提供有权使用的制度材料；若是 IT 问题，请补充要处理的事项和现象。")
                 return None
             state["role"]=routing["primary"]
             if context['fact_source']=='intake':
@@ -421,7 +421,8 @@ class DeskAgent:
                 if task.get('workflow')=='ambiguous':missing=['本次先办理权限、维修还是软件席位申请（一次一个流程）']
                 if missing:
                     clarification_started=time.monotonic()
-                    question='请补充'+ '、'.join(missing)+'，以及用途或故障描述；信息齐全后再准备草稿。目前没有提交申请。'
+                    label={'access_request':'权限申请','device_repair':'设备报修','license_request':'商业软件席位申请'}.get(task.get('workflow'),'本次申请')
+                    question='办理'+label+'还需要：'+ '、'.join(missing)+'。请提供明确的信息，我再准备草稿；目前没有提交申请，也未开通权限或分配资源。'
                     self.store.event(p,run_id,'turn_action',{'action':'clarify','source':'server_task_contract','missing':missing})
                     self.store.finish(p,run_id,'awaiting_input',question)
                     from resolvedesk.tracing import tool_trace
@@ -494,10 +495,13 @@ class DeskAgent:
                 evidence=list(state["sources"].items())
                 hazards=r"鼓包|冒烟|漏电|起火|泄露|勒索|被盗|大面积|生产中断"
                 signal=re.findall(hazards,latest)
-                selected=sorted(evidence,key=lambda item:-sum(term in item[1]["content"] for term in signal))[:2]
-                guidance="\n".join(item["content"].strip()+" ["+citation+"]" for citation,item in selected)
-                answer="本次按安全/人工升级问题处理。\n"+("以下是当前知识库可核验的资料原文：\n"+guidance if guidance else "当前知识库没有可核验的处置依据，请联系IT人员处理。")
-                answer+="\n系统尚未连接真实人工队列；请通过现有IT渠道联系人员核验。尚未创建维修工单、提交审批或开通权限。"
+                selected=[entry for entry in sorted(evidence,key=lambda item:-sum(term in item[1]['content'] for term in signal)) if not signal or any(term in entry[1]['content'] for term in signal)][:2]
+                def excerpt(item):
+                    paragraphs=re.split(r'\n\s*\n',item['content'])
+                    return '\n'.join(p for p in paragraphs if any(term in p for term in signal)) if signal else item['content'].strip()
+                guidance="\n".join(excerpt(item)+" ["+citation+"]" for citation,item in selected)
+                answer="本次按安全/人工升级问题处理。\n"+("优先遵循当前知识库可核验的安全要求（资料原文）：\n"+guidance if guidance else "当前知识库没有可核验的处置依据，请联系 IT 人员核实。")
+                answer+="\n下一步请通过现有 IT 渠道联系人工，说明资产编号、故障现象、影响范围和已尝试操作。系统尚未连接真实人工队列，本次只整理交接信息；尚未创建维修工单、提交审批或开通权限。"
                 self.store.event(p,run_id,"handoff_prepared",{"urgency":context["routing"].get("urgency"),"external_queue_connected":False,"citations":[citation for citation,_ in selected]})
                 self.store.finish(p,run_id,"failed" if result["status"]=="failed" else "completed",answer,
                     "specialist_failed" if result["status"]=="failed" else "specialist_partial" if result["status"]=="partial" else None)

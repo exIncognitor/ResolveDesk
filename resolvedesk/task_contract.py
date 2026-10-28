@@ -27,6 +27,16 @@ def is_cancellation(message):
 
 
 def request_workflow(message,domain):
+    # The object of a request determines its workflow. A resource mentioned
+    # only as its purpose must not turn a software request into a second task.
+    clauses=re.split(r'[，。；！？,.;!?\n]',message)
+    objects=[]
+    for clause in clauses:
+        purpose=re.search(r'用途\s*(?:是|为|[:：])\s*|用于|用来|目的是',clause)
+        if purpose and not re.search(r'(?:并且?|同时|还要|另行|再)[^，。；]{0,6}(?:申请|准备|开通|报修)',clause[purpose.end():]):
+            clause=clause[:purpose.start()]
+        objects.append(clause)
+    message='，'.join(objects)
     candidates=[]
     if re.search(r'权限|仓库|repo-|docs-',message,re.I):candidates.append('access_request')
     if re.search(r'报修|维修|修理|硬件|LT-',message,re.I):candidates.append('device_repair')

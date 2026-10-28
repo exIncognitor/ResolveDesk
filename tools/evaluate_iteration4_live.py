@@ -5,6 +5,7 @@ schemas/collections; finance always uses the original shared budget ledger.
 """
 import argparse
 import asyncio
+from decimal import Decimal
 import hashlib
 import json
 import logging
@@ -79,9 +80,10 @@ async def run(args):
     from core.paid_api import BudgetedAnthropic
     load_dotenv(ROOT/'.env',override=False)
     settings=ServiceSettings.load(ROOT);contract,paths=inputs()
+    total_cap=min(Decimal(contract['process_total_ceiling_cny']),Decimal(args.total_cap_cny or contract['process_total_ceiling_cny']))
     os.environ.update(RESOLVEDESK_DATABASE_URL=settings.database_url,RESOLVEDESK_REDIS_URL=settings.redis_url,
         RESOLVEDESK_CHROMA_URL=settings.chroma_url,RESOLVEDESK_RETRIEVAL_POLICY='always',RESOLVEDESK_EXECUTION_POLICY='full',
-        RESOLVEDESK_TOTAL_BUDGET_CNY=contract['process_total_ceiling_cny'],RESOLVEDESK_RESERVE_CNY=contract['reserve_cny'])
+        RESOLVEDESK_TOTAL_BUDGET_CNY=str(total_cap),RESOLVEDESK_RESERVE_CNY=contract['reserve_cny'])
     snapshot=published_snapshot(settings.database_url,paths)
     if args.inspect:
         print(json.dumps({'documents':len(snapshot['documents']),'chunks':len(snapshot['evidence']),'publication_identity':digest(publication_identity(snapshot['publications'])),'paid_calls':0}));return
@@ -104,7 +106,7 @@ async def run(args):
                 'source_clean':not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True).strip(),
                 'corpus_sha256':{name:contract['sha256'][name] for name in contract['sha256'] if name.startswith('knowledge/')},
                 'original_chunk_identity':digest(snapshot['evidence']),'publication_identity':digest(publication_identity(snapshot['publications'])),
-                'source_schema':store.database.schema,'policies':contract['policies'],'model':'deepseek-flash'}
+                'source_schema':store.database.schema,'policies':contract['policies'],'model':'deepseek-flash','actual_process_total_ceiling_cny':str(total_cap)}
             started=time.time()
             try:
                 copy_snapshot(store,kb,snapshot)
@@ -124,6 +126,7 @@ async def run(args):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--label',default='candidate-v1');parser.add_argument('--live',action='store_true');parser.add_argument('--inspect',action='store_true')
+    parser.add_argument('--total-cap-cny',help='Optionally reduce the frozen process budget ceiling; never increase it')
     args=parser.parse_args()
     if not args.live and not args.inspect:parser.error('Use --inspect (free) or explicit --live (paid)')
     if not args.label.replace('-','').isalnum():parser.error('Invalid label')

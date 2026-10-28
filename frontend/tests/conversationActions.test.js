@@ -19,7 +19,7 @@ test('confirmation keeps captured run and approval, and ignores a response after
   const c=setup({deskRequest:async(s,path,method,body)=>{calls.push([s.pythonToken,path,body]);return gate.promise}})
   const task=c.confirmDraft();c.activeRun.value={id:'B'};c.busy.value=true
   gate.resolve({id:'RD-A'});await task
-  assert.deepEqual(calls,[['synthetic-A','/runs/A/confirm',{approval:'approve-A'}]])
+  assert.deepEqual(JSON.parse(JSON.stringify(calls)),[['synthetic-A','/runs/A/confirm',{approval:'approve-A'}]])
   assert.equal(c.messages.value.length,0);assert.equal(c.activeRun.value.id,'B');assert.equal(c.busy.value,true)
 })
 test('same-identity confirmation finishes once and displays its own persisted ticket', async () => {
