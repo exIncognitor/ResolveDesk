@@ -32,6 +32,7 @@ class EntityState:
             cancelled=is_cancellation(message)
             switches=list(re.finditer(r"(?:换个|新的?|另一个|另外一个)(?:问题|任务|设备|申请)",message))
             switched=any(not re.search(r'(?:不|不要|别|无需)$',message[max(0,match.start()-4):match.start()]) for match in switches)
+            cancel_current=cancelled and not entities and not switched
             replaced=any(entities.get(key) and old.get(key) and entities[key]!=old[key] for key in ("asset_id","resource_id","ticket_id"))
             changed_domain=domain not in {"general","escalation"} and previous["domain"] not in {domain,"general","escalation"}
             reset=switched or replaced or changed_domain or cancelled
@@ -42,12 +43,12 @@ class EntityState:
             for key,values in entities.items():
                 merged[key]=values
                 sources[key]={"turn_seq":seq,"source":"explicit_user_text","values":values,'spans':extraction['spans'][key]}
-            if cancelled and not switched and not changed_domain and not entities:domain='general'
+            if cancel_current:domain='general'
             if domain in {"general","escalation"} and not reset:domain=previous["domain"]
             from resolvedesk.task_contract import update
-            task=update(previous.get('task'),message,domain,seq,reset=reset,cancelled=cancelled and not entities and not switched and not changed_domain)
+            task=update(previous.get('task'),message,domain,seq,reset=reset,cancelled=cancel_current)
             payload={"domain":domain,"entities":merged,"sources":sources,"task":task,"task_epoch":previous["task_epoch"]+int(reset),"reset":reset,"turn_seq":seq,
-                'cleared_fields':extraction['cleared'],'cancelled':cancelled and not entities and not switched and not changed_domain}
+                'cleared_fields':extraction['cleared'],'cancelled':cancel_current}
             db.execute("INSERT INTO entity_state VALUES(?,?,?,?,?,?,?) ON CONFLICT(run_id) DO UPDATE SET turn_seq=excluded.turn_seq,domain=excluded.domain,payload=excluded.payload,updated=excluded.updated",
                 (run_id,p.tenant,p.user,seq,domain,encode(payload),db.now()))
             return payload
