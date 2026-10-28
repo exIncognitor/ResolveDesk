@@ -16,7 +16,7 @@ export function createRequestState(settings) {
         settings: snapshot,
         isCurrent: () => revision === generation && latest.get(slot) === id &&
           backend === settings.backend && snapshot.endpoints[backend] === settings.endpoints[backend] &&
-          snapshot.pythonToken === settings.pythonToken && snapshot.userId === settings.userId
+          snapshot.pythonToken === settings.pythonToken
       }
     }
   }

@@ -29,6 +29,15 @@ test('latest request wins within each slot and request settings are snapshots', 
   assert.equal(fresh.isCurrent(), false)
 })
 
+test('authoritative token fences identity while /me display-name hydration stays valid', () => {
+  const settings=state();settings.pythonToken='same-identity'
+  const requests=createRequestState(settings), request=requests.begin('health')
+  settings.userId='resolved-user'
+  assert.equal(request.isCurrent(),true)
+  settings.pythonToken='different-identity'
+  assert.equal(request.isCurrent(),false)
+})
+
 const source = fs.readFileSync(new URL('../src/App.vue', import.meta.url), 'utf8')
 function loadFunction(name, context) {
   const start = source.indexOf(`async function ${name}(`)
