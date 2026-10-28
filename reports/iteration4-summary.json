@@ -1,0 +1,97 @@
+{
+  "baseline_commit": "889d3c10463cbe720bd569b971eb884b89cb5b52",
+  "runtime_commit": "66a68a5daa5f2f822b8b78dd1e01c89fee8fdf74",
+  "review_regressions": {
+    "baseline_failures": 16,
+    "baseline_errors": 0,
+    "candidate_passes": 16
+  },
+  "local_full_services": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "470",
+    "time": "219.835",
+    "timestamp": "2026-10-28T11:27:29.716780+08:00",
+    "hostname": "RexIncognito"
+  },
+  "final_state_tests": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "46",
+    "time": "22.668",
+    "timestamp": "2026-10-28T11:32:51.249268+08:00",
+    "hostname": "RexIncognito"
+  },
+  "frontend": {
+    "tests_passed": 35,
+    "build": "passed"
+  },
+  "live": {
+    "repeats": [
+      {
+        "repeat": 1,
+        "hard_passed": 12,
+        "judge_passed": 9,
+        "total": 12,
+        "errors": 0,
+        "suite_id": "90eaf2f40b92950671b56805a891a4921e4c56dd518c319f8a7e68581b0c9085",
+        "engine_identity": "bd748ebd6e935bb86861feabd2924e97e85eab8e6f304d894c319055912c3bd7",
+        "raw_report": "reports/iteration4-candidate-v1-live-r1.json",
+        "judge_low_ids": [
+          "v4-cancel-intake",
+          "v4-unsupported-policy",
+          "v4-critical-handoff"
+        ]
+      },
+      {
+        "repeat": 2,
+        "hard_passed": 12,
+        "judge_passed": 9,
+        "total": 12,
+        "errors": 0,
+        "suite_id": "90eaf2f40b92950671b56805a891a4921e4c56dd518c319f8a7e68581b0c9085",
+        "engine_identity": "bd748ebd6e935bb86861feabd2924e97e85eab8e6f304d894c319055912c3bd7",
+        "raw_report": "reports/iteration4-candidate-v1-live-r2.json",
+        "judge_low_ids": [
+          "v4-cancel-intake",
+          "v4-unsupported-policy",
+          "v4-critical-handoff"
+        ]
+      }
+    ],
+    "same_suite": true,
+    "same_publications": true,
+    "corpus_documents": 34,
+    "chunks": 62,
+    "baseline_comparison": "No paid rerun; earlier reports historical, not directly comparable"
+  },
+  "budget": {
+    "extra_cny": "0.902674",
+    "cumulative": {
+      "budget_cny": "13.864576",
+      "safety_reserve_cny": "2",
+      "conservative_commitment_cny": "9.76725",
+      "available_cny": "2.097326",
+      "calls": {
+        "settled": 2113
+      },
+      "usage_input_tokens": 4130265,
+      "usage_output_tokens": 188340,
+      "unresolved_reservation_cny": "0"
+    },
+    "original_budget_cny": "20",
+    "original_reserve_cny": "2",
+    "original_operational_remaining_cny": "8.23275"
+  },
+  "deployment_report": "reports/iteration4-deployment-20261028T033820668235Z.json",
+  "limitations": [
+    "Synthetic fixed acceptance; same Flash generator and judge",
+    "Judge 9/12 both repeats; three wording/helpfulness gaps retained",
+    "External webhook delivery not configured or accepted",
+    "Controlled slow SQL results are not throughput claims"
+  ]
+}
