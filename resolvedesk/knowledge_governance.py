@@ -9,7 +9,23 @@ from pydantic import BaseModel,ConfigDict,Field,field_validator,model_validator
 
 from resolvedesk.store import Conflict,encode
 
-GOVERNANCE_TABLES={'knowledge_publications','knowledge_publication_audit'}
+GOVERNANCE_TABLES={'knowledge_publications','knowledge_publication_audit','knowledge_legacy_documents','knowledge_governance_migrations'}
+
+
+def pending_metadata():
+    return {'material_type':'unclassified','source_urls':[],'applicability':[],'domains':[],
+            'source_checked_on':'','effective_from':0,'expires_at':0}
+
+
+def metadata_complete(value):
+    try:KnowledgeMetadata.model_validate(value);return True
+    except ValueError:return False
+
+
+def publication_identity(publications):
+    """Semantic inputs, excluding audit actor/time and review counters."""
+    return sorted(({key:r.get(key) for key in ('tenant','document_id','content_version','state','metadata')} for r in publications),
+                  key=lambda r:(r.get('tenant') or '',r['document_id']))
 
 
 class KnowledgeMetadata(BaseModel):
@@ -56,7 +72,8 @@ def clock_sql(db):
 
 def readable(db,alias='c'):
     now=clock_sql(db)
-    return f"""(NOT EXISTS(SELECT 1 FROM knowledge_publications kp WHERE kp.tenant={alias}.tenant AND kp.document_id={alias}.document_id)
+    return f"""((NOT EXISTS(SELECT 1 FROM knowledge_publications kp WHERE kp.tenant={alias}.tenant AND kp.document_id={alias}.document_id)
+        AND EXISTS(SELECT 1 FROM knowledge_legacy_documents kl WHERE kl.tenant={alias}.tenant AND kl.document_id={alias}.document_id AND kl.version={alias}.version))
         OR EXISTS(SELECT 1 FROM knowledge_publications kp WHERE kp.tenant={alias}.tenant AND kp.document_id={alias}.document_id
           AND kp.state='published' AND kp.content_version={alias}.version AND kp.effective_from<={now} AND kp.expires_at>{now}))"""
 
@@ -73,7 +90,14 @@ class KnowledgeGovernance:
                 CREATE TABLE IF NOT EXISTS knowledge_publication_audit(id TEXT PRIMARY KEY,tenant TEXT,document_id TEXT,
                     actor TEXT,action TEXT,revision INTEGER,content_version TEXT,note TEXT,created REAL);
                 CREATE INDEX IF NOT EXISTS publication_audit_scope ON knowledge_publication_audit(tenant,document_id,created);
+                CREATE TABLE IF NOT EXISTS knowledge_legacy_documents(tenant TEXT,document_id TEXT,version TEXT,PRIMARY KEY(tenant,document_id));
+                CREATE TABLE IF NOT EXISTS knowledge_governance_migrations(id TEXT PRIMARY KEY,applied REAL);
             ''')
+            if not db.execute("SELECT 1 FROM knowledge_governance_migrations WHERE id='managed-import-v1'").fetchone():
+                db.execute('''INSERT INTO knowledge_legacy_documents SELECT d.tenant,d.document_id,d.version FROM knowledge_documents d
+                    WHERE NOT EXISTS(SELECT 1 FROM knowledge_publications k WHERE k.tenant=d.tenant AND k.document_id=d.document_id)
+                    ON CONFLICT(tenant,document_id) DO NOTHING''')
+                db.execute("INSERT INTO knowledge_governance_migrations VALUES('managed-import-v1',?)",(db.now(),))
 
     @staticmethod
     def owner(db,p,document_id):
@@ -89,8 +113,7 @@ class KnowledgeGovernance:
 
     def import_metadata(self,db,p,document_id,version,metadata):
         old=db.execute('SELECT * FROM knowledge_publications WHERE tenant=? AND document_id=?',(p.tenant,document_id)).fetchone()
-        if metadata is None and old is None:return
-        value=KnowledgeMetadata.model_validate(metadata if metadata is not None else json.loads(old['metadata'])).model_dump()
+        value=KnowledgeMetadata.model_validate(metadata).model_dump() if metadata is not None else json.loads(old['metadata']) if old else pending_metadata()
         revision=old['revision']+1 if old else 1
         db.execute('''INSERT INTO knowledge_publications VALUES(?,?,?,?,?,'draft',NULL,NULL,?,?,?,?)
             ON CONFLICT(tenant,document_id) DO UPDATE SET metadata=excluded.metadata,revision=excluded.revision,
@@ -116,30 +139,43 @@ class KnowledgeGovernance:
         with self.store.db(True) as db:
             doc=self.owner(db,p,document_id)
             row=db.execute('SELECT * FROM knowledge_publications WHERE tenant=? AND document_id=?',(p.tenant,document_id)).fetchone()
-            if row is None:raise KeyError('Managed publication unavailable')
-            if doc['version']!=version or row['content_version']!=version or row['revision']!=revision:raise Conflict('Content or metadata changed; refresh before reviewing')
+            legacy=bool(db.execute('SELECT 1 FROM knowledge_legacy_documents WHERE tenant=? AND document_id=? AND version=?',(p.tenant,document_id,doc['version'])).fetchone())
+            if row is None and not (action=='metadata' and revision==0 and legacy):raise KeyError('Managed publication unavailable')
+            if doc['version']!=version or (row and (row['content_version']!=version or row['revision']!=revision)):raise Conflict('Content or metadata changed; refresh before reviewing')
             value=value or json.loads(row['metadata']);now=db.now()
-            if action=='publish' and value['expires_at']<=now:raise Conflict('Expired material cannot be published')
+            if action=='publish':
+                value=KnowledgeMetadata.model_validate(value).model_dump()
+                if value['expires_at']<=now:raise Conflict('Expired material cannot be published')
             state={'publish':'published','withdraw':'withdrawn','metadata':'draft'}[action]
-            db.execute('''UPDATE knowledge_publications SET metadata=?,revision=?,state=?,reviewer=?,reviewed=?,note=?,
-                effective_from=?,expires_at=?,updated=? WHERE tenant=? AND document_id=?''',
-                (encode(value),revision+1,state,p.user if action!='metadata' else None,now if action!='metadata' else None,note,
-                 value['effective_from'],value['expires_at'],now,p.tenant,document_id))
+            db.execute('''INSERT INTO knowledge_publications VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(tenant,document_id) DO UPDATE SET metadata=excluded.metadata,revision=excluded.revision,
+                state=excluded.state,reviewer=excluded.reviewer,reviewed=excluded.reviewed,note=excluded.note,
+                effective_from=excluded.effective_from,expires_at=excluded.expires_at,updated=excluded.updated''',
+                (p.tenant,document_id,encode(value),revision+1,version,state,p.user if action!='metadata' else None,
+                 now if action!='metadata' else None,note,value['effective_from'],value['expires_at'],now))
             generation=doc['generation']+1
             db.execute('UPDATE knowledge_documents SET generation=?,updated=? WHERE tenant=? AND document_id=?',(generation,now,p.tenant,document_id))
             self.audit(db,p,document_id,action,revision+1,version,note)
             self.enqueue(db,p,document_id,generation,value if state=='published' else None)
-        return next(d for d in self.list(p) if d['document_id']==document_id)
+        return self.list(p,document_id=document_id)[0]
 
-    def list(self,p):
+    def list(self,p,*,document_id=None):
         if p.role!='support':raise PermissionError('Support role required for knowledge review')
         with self.store.db() as db:
             now=db.now()
-            rows=db.execute('''SELECT k.*,d.version,d.visibility,d.owner,
+            extra=' AND d.document_id=?' if document_id is not None else ''
+            rows=db.execute('''SELECT d.*,k.metadata,k.revision,k.content_version,k.state,k.reviewer,k.reviewed,k.note,k.effective_from,k.expires_at,
                 (SELECT MIN(c.title) FROM chunks c WHERE c.tenant=d.tenant AND c.document_id=d.document_id) AS title
-                FROM knowledge_publications k JOIN knowledge_documents d ON d.tenant=k.tenant AND d.document_id=k.document_id
-                WHERE d.tenant=? AND (d.visibility='tenant' OR d.owner=?) ORDER BY d.document_id LIMIT 1000''',(p.tenant,p.user))
-            return [dict(r)|{'metadata':json.loads(r['metadata']),'readable':r['state']=='published' and r['effective_from']<=now<r['expires_at'] and r['version']==r['content_version']} for r in rows]
+                FROM knowledge_documents d LEFT JOIN knowledge_publications k ON d.tenant=k.tenant AND d.document_id=k.document_id
+                WHERE d.tenant=? AND (d.visibility='tenant' OR d.owner=?)'''+extra+' ORDER BY d.document_id LIMIT 1000',[p.tenant,p.user]+([document_id] if document_id is not None else []))
+            result=[]
+            for row in rows:
+                item=dict(row);value=json.loads(item['metadata']) if item['metadata'] else pending_metadata()
+                legacy=bool(db.execute('SELECT 1 FROM knowledge_legacy_documents WHERE tenant=? AND document_id=? AND version=?',(p.tenant,item['document_id'],item['version'])).fetchone())
+                state=item['state'] or ('legacy' if legacy else 'draft')
+                result.append(item|{'metadata':value,'metadata_complete':metadata_complete(value),'state':state,'revision':item['revision'] or 0,
+                    'content_version':item['content_version'] or item['version'],'readable':state=='legacy' or state=='published' and item['effective_from']<=now<item['expires_at'] and item['version']==item['content_version']})
+            return result
 
     def audit_list(self,p,document_id):
         with self.store.db() as db:

@@ -66,7 +66,7 @@ class PublicationReview(Input):
 
 class PublicationMetadata(Input):
     version:str=Field(min_length=1,max_length=64)
-    revision:int=Field(ge=1)
+    revision:int=Field(ge=0)
     note:str=Field(min_length=1,max_length=2000)
     metadata:KnowledgeMetadata
 

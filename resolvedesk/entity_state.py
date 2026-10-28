@@ -43,7 +43,9 @@ class EntityState:
                 sources[key]={"turn_seq":seq,"source":"explicit_user_text","values":values,'spans':extraction['spans'][key]}
             if cancelled and not switched and not changed_domain and not entities:domain='general'
             if domain in {"general","escalation"} and not reset:domain=previous["domain"]
-            payload={"domain":domain,"entities":merged,"sources":sources,"task_epoch":previous["task_epoch"]+int(reset),"reset":reset,"turn_seq":seq,
+            from resolvedesk.task_contract import update
+            task=update(previous.get('task'),message,domain,seq,reset=reset,cancelled=cancelled and not entities and not switched and not changed_domain)
+            payload={"domain":domain,"entities":merged,"sources":sources,"task":task,"task_epoch":previous["task_epoch"]+int(reset),"reset":reset,"turn_seq":seq,
                 'cleared_fields':extraction['cleared'],'cancelled':cancelled and not entities and not switched and not changed_domain}
             db.execute("INSERT INTO entity_state VALUES(?,?,?,?,?,?,?) ON CONFLICT(run_id) DO UPDATE SET turn_seq=excluded.turn_seq,domain=excluded.domain,payload=excluded.payload,updated=excluded.updated",
                 (run_id,p.tenant,p.user,seq,domain,encode(payload),db.now()))

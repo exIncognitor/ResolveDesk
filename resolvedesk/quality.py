@@ -19,6 +19,7 @@ from resolvedesk.eval_models import EvalDataset
 from resolvedesk.eval_sandbox import EvalSandbox,freeze
 from resolvedesk.eval_state import EvalState
 from resolvedesk.store import Principal,digest,encode
+from resolvedesk.knowledge_governance import publication_identity
 
 ROOT=Path(__file__).resolve().parents[1]
 CORPUS=ROOT/'evaluation'/'it_service_cases.json'
@@ -38,9 +39,9 @@ def average_scores(items):
 def suite_identity(manifest,limit,use_judge,embedding_identity,judge):
     # Regressions compare engine revisions under the same measurement contract.
     # The execution revision stays separate, and still fences same-job resume.
-    return digest({'schema':'active-quality-v2','dataset':manifest['dataset'],'limit':limit,'judge':use_judge,'threshold':.75,
+    return digest({'schema':'active-quality-v3-publications','dataset':manifest['dataset'],'limit':limit,'judge':use_judge,'threshold':.75,
         'judge_prompt':judge.JUDGE_PROMPT,'few_shot':judge.few_shot_prompt(),'backend':manifest['backend'],
-        'embedding':embedding_identity,'evidence':manifest['evidence']})
+        'embedding':embedding_identity,'evidence':manifest['evidence'],'publications':publication_identity(manifest.get('publications',[]))})
 
 
 class QualityRunner:
@@ -126,9 +127,11 @@ class QualityRunner:
                         for turn_index,turn in enumerate(case['turns']):
                             key='quality-'+digest([job_id,case['id'],turn_index])[:48]
                             async def execute():
+                                before={t['id'] for t in store.list_tickets(actors[actor])}
                                 if run_id:run=await request(actor,'POST',f'/runs/{run_id}/reply',{'message':turn['message'],'request_key':key})
                                 else:run=await request(actor,'POST','/runs',{'message':turn['message'],'request_key':key})
-                                return capture(actor,await wait(actor,run['id'],key))
+                                value=capture(actor,await wait(actor,run['id'],key))
+                                return value|{'tickets_before':sorted(before),'tickets_after':sorted(t['id'] for t in store.list_tickets(actors[actor]))}
                             def recover():
                                 with store.db() as db:
                                     row=db.execute('SELECT run_id,response,status FROM turn_receipts WHERE tenant=? AND owner=? AND request_key=?',(p.tenant,actor,key)).fetchone()
@@ -137,7 +140,7 @@ class QualityRunner:
                             observed=await state.unit(f'dialog:{case["id"]}:turn:{turn_index}',execute,recover)
                             run=observed['run'];run_id=run['id'];conversations[group]=run_id
                             checks,routing,tools=assertions(turn,run,observed['events'],observed['entities'])
-                            checks['no_unconfirmed_write']=not run.get('ticket_id')
+                            checks['no_unconfirmed_write']=set(observed['tickets_after'])<=set(observed['tickets_before']) if 'tickets_before' in observed else not run.get('ticket_id')
                             judged={}
                             if use_judge:
                                 async def score():
@@ -151,7 +154,7 @@ class QualityRunner:
                                 except Exception as exc:judged={'judge_failed':True,'error':type(exc).__name__}
                             scores={k:judged[k] for k in SCORES} if judged and not judged.get('judge_failed') else {}
                             passed=all(checks.values()) and (not use_judge or bool(scores) and statistics.mean(scores.values())>=.75)
-                            detail['turns'].append({'turn':turn_index+1,'answer':run['answer'],'status':run['status'],'latency_ms':run.get('latency_ms'),'checks':checks,'routing':routing,'tools':tools,'judge':judged,'scores':scores,'passed':passed})
+                            detail['turns'].append({'turn':turn_index+1,'answer':run['answer'],'status':run['status'],'latency_ms':run.get('latency_ms'),'checks':checks,'routing':routing,'tools':tools,'judge':judged,'scores':scores,'deterministic_passed':all(checks.values()),'passed':passed})
                         final_checks,_,_=assertions(case,run,observed['events'],observed['entities'])
                         retrieved={kb.citation(actors[actor],cid)['document_id'] for t in detail['turns'] for cid in re.findall(r'C-[a-f0-9]{24}',t['answer'])}
                         with store.db() as db:

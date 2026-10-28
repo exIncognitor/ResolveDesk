@@ -33,6 +33,8 @@ class TicketFields(BaseModel):
 
 
 TOOLS = [
+    {"name":"respond","description":"结束本轮：answer回答或clarify等待补充。不得声称已执行确认、审批或资源写入。",
+     "input_schema":{"type":"object","properties":{"action":{"type":"string","enum":["answer","clarify"]},"content":{"type":"string","minLength":1,"maxLength":12000}},"required":["action","content"],"additionalProperties":False}},
     {"name": "ask_clarification", "description": "缺少故障信息或需要用户补充时调用。保存问题并等待用户回复，不执行写操作。",
      "input_schema": {"type": "object", "properties": {"question": {"type": "string", "minLength": 1, "maxLength": 1200}}, "required": ["question"], "additionalProperties": False}},
     {"name": "knowledge_search", "description": "按当前用户权限查询内部 IT 支持知识库，返回可引用的片段。",
@@ -62,6 +64,7 @@ SYSTEM = """你是 ResolveDesk 内部 IT 支持 Agent，用中文简洁回答。
 技术参考只说明厂商公开技术，不代表本企业制度、服务承诺或真实审批结果。evidence_sufficient=false 时不得据候选片段推断具体政策。
 只有用户明确要求创建/提交工单时才调用 prepare_ticket。缺什么就留空，不能杜撰用户、设备、联系方式、故障经过。
 需要用户补充或澄清时，调用 ask_clarification 保存问题并等待回复，不要仅以普通文本追问。
+正常回答使用 respond(action=answer)，追问可使用 respond(action=clarify)。服务器 task_contract 是本轮申请类型和用户同意的权威；不得降为generic或擅自把政策咨询变成申请。
 category 根据用户问题归类为 software/network/access/hardware/other；不清楚时留空。
 模型没有创建工单的权限。prepare_ticket 只生成草稿，必须让用户在确认接口/按钮核对后提交。
 用户在消息中说“确认”“直接提交”也不能跳过确认接口。禁止声称工单已创建、退款已执行或权限已开通。
@@ -208,7 +211,7 @@ class DeskAgent:
                 blocks,stop_reason = state["pending"]["blocks"],state["pending"]["stop_reason"]
             else:
                 await self._validate_sources(p,sources)
-                kwargs = dict(model="deepseek-flash",max_tokens=1536,temperature=0,system=system,messages=messages,tools=tools)
+                kwargs = dict(model="deepseek-flash",max_tokens=1536,temperature=0,system=system,messages=messages,tools=tools,tool_choice={'type':'any'})
                 if self.services and hasattr(self.client.messages,"stream"):
                     async with self.client.messages.stream(**kwargs) as stream:
                         buffer = ""
@@ -245,7 +248,10 @@ class DeskAgent:
                     # Fail closed to actual source excerpts instead of returning fabricated citations.
                     answer = self._grounded_fallback(sources)
                 await self._validate_sources(p,sources)
-                self.store.finish(p,run_id,"completed",answer,"specialist_partial" if state.get("consultation_status")=="partial" else None)
+                pending=state.get('context',{}).get('task_contract',{})
+                status='awaiting_input' if pending.get('workflow') and not run.get('ticket_id') else 'completed'
+                self.store.event(p,run_id,'turn_action',{'action':'clarify' if status=='awaiting_input' else 'answer','source':'legacy_text_adapter'})
+                self.store.finish(p,run_id,status,answer,"specialist_partial" if state.get("consultation_status")=="partial" else None)
                 if self.services:
                     try:
                         await self.services.memory.remember(p,run_id)
@@ -265,6 +271,19 @@ class DeskAgent:
                     from jsonschema import validate, ValidationError
                     spec = next(t for t in tools if t["name"] == name)
                     validate(args, spec["input_schema"])
+                    if name=='respond':
+                        answer=args['content'].strip()
+                        if not answer:raise ValueError('Empty response')
+                        cited=set(re.findall(r'\[(C-[a-f0-9]{24})\]',answer))
+                        if (cited-sources.keys()) or (args['action']=='answer' and sources and not cited) or re.search(r'工单.{0,6}(?:已创建|创建成功|已提交|提交成功)',answer):answer=self._grounded_fallback(sources)
+                        await self._validate_sources(p,sources)
+                        task=state.get('context',{}).get('task_contract',{})
+                        action='clarify' if task.get('workflow') and not run.get('ticket_id') else args['action']
+                        self.store.event(p,run_id,'turn_action',{'action':action,'requested_action':args['action'],'source':'typed_response'})
+                        self.store.finish(p,run_id,'awaiting_input' if action=='clarify' else 'completed',answer)
+                        data={'action':action,'submitted':False};tool_success=True
+                        tool_seconds=observe_tool(name,True,tool_started)
+                        return
                     if name == "ask_clarification":
                         question = args["question"].strip()
                         if not question:
@@ -286,6 +305,14 @@ class DeskAgent:
                         for key in entity_state.get('cleared_fields',[]):previous.pop(key,None)
                         prepared=previous|args|inherited
                         if self.services:
+                            contract=state.get('context',{}).get('task_contract',{})
+                            if contract and not contract.get('consent'):
+                                self.store.finish(p,run_id,'completed',self._grounded_fallback(sources))
+                                data={'denied':'no_request_consent','submitted':False};tool_error='NoRequestConsent'
+                                return
+                            if contract.get('workflow'):
+                                prepared['workflow']=contract['workflow']
+                                prepared['category']={'access_request':'access','device_repair':'hardware','license_request':'software'}[contract['workflow']]
                             # The production route owns literal evidence. A model
                             # cannot refill a removed/unknown critical slot.
                             required={'access_request':['resource_id','access_level','duration_days'],'device_repair':['asset_id'],
@@ -369,6 +396,14 @@ class DeskAgent:
                 self.store.event(p,run_id,"routing",redact(routing))
                 self.store.checkpoint(p,run_id,state)
             routing=context["routing"]
+            from resolvedesk.task_contract import facts,update,missing_slots
+            task=routing.get('entity_state',{}).get('task')
+            if task is None:
+                task=update({},latest,routing.get('intent','general'),routing.get('entity_state',{}).get('turn_seq',0))
+            if run.get('ticket_id'):
+                task={'workflow':None,'consent':False,'source':'existing_confirmed_ticket','turn_seq':task.get('turn_seq')}
+            context['task_contract']=task
+            context['fact_source']=facts(routing,task)
             if routing.get('entity_state',{}).get('cancelled'):
                 self.store.finish(p,run_id,'completed','已取消本次尚未提交的申请并清除草稿；没有创建工单、提交审批或分配资源。')
                 return None
@@ -376,6 +411,22 @@ class DeskAgent:
                 self.store.finish(p,run_id,"awaiting_input","请补充你要处理的是账号权限、网络终端、软件授权还是设备维修，以及具体问题。")
                 return None
             state["role"]=routing["primary"]
+            if context['fact_source']=='intake':
+                missing=missing_slots(task,state.get('entities',{}))
+                if missing:
+                    question='请补充'+ '、'.join(missing)+'，以及用途或故障描述；信息齐全后再准备草稿。目前没有提交申请。'
+                    self.store.event(p,run_id,'turn_action',{'action':'clarify','source':'server_task_contract','missing':missing})
+                    self.store.finish(p,run_id,'awaiting_input',question)
+                    from resolvedesk.tracing import tool_trace
+                    trace=tool_trace('ask_clarification',{'question':question},{'status':'awaiting_input'},trace_id=uuid.uuid4().hex,tool_use_id=None,layer='server_contract',role=state['role'],instance='desk-'+self.worker_id,seconds=0,success=True)
+                    self.store.trace_tool(p,run_id,run.get('turn_key'),trace)
+                    return None
+            if routing.get('fine_intent')=='ticket_status' and run.get('ticket_id'):
+                current_case=await asyncio.to_thread(self.business.get,p,run['ticket_id'])
+                context['current_service_case']=current_case
+                from resolvedesk.tracing import tool_trace
+                trace=tool_trace('get_service_case',{'ticket_id':run['ticket_id']},current_case,trace_id=uuid.uuid4().hex,tool_use_id=None,layer='server_context',role=state['role'],instance='desk-'+self.worker_id,seconds=0,success=True)
+                self.store.trace_tool(p,run_id,run.get('turn_key'),trace)
             if "memory" not in context:
                 try:context["memory"]=await self.services.memory.context(p,run_id)
                 except Exception as exc:
@@ -383,12 +434,18 @@ class DeskAgent:
                     context["memory"]={"summary":"","profile":{},"relevant_history":[]}
         if "evidence" not in context:
             started=time.monotonic();retrieval=None;error=None
+            fact_source=context.get('fact_source','knowledge')
             try:
-                retrieval=await self.services.search(p,latest,5,role=state["role"]) if self.services else await asyncio.to_thread(self.knowledge.search,p,latest,5)
-            except BaseException as exc:error=type(exc).__name__;raise
+                if fact_source in {'greeting','business'}:
+                    retrieval={'items':[],'mode':'not_required','degraded':False,'candidate_count':0,'evidence_sufficient':False,'errors':[]}
+                else:retrieval=await self.services.search(p,latest,5,role=state["role"]) if self.services else await asyncio.to_thread(self.knowledge.search,p,latest,5)
+            except Exception as exc:
+                error=type(exc).__name__
+                if fact_source=='knowledge':raise
+                retrieval={'items':[],'mode':'unavailable','degraded':True,'candidate_count':0,'evidence_sufficient':False,'errors':[error]}
             finally:
                 from resolvedesk.tracing import tool_trace
-                trace=tool_trace('knowledge_search',{'query':latest,'top_k':5},retrieval,trace_id=uuid.uuid4().hex,tool_use_id=None,
+                trace=tool_trace('knowledge_search' if fact_source not in {'greeting','business'} else 'select_fact_source',{'query':latest,'top_k':5},retrieval,trace_id=uuid.uuid4().hex,tool_use_id=None,
                     layer='bootstrap',role=state['role'],instance='desk-'+self.worker_id,seconds=time.monotonic()-started,
                     success=retrieval is not None and not retrieval.get('degraded',False),error_code=error)
                 try:self.store.trace_tool(p,run_id,run.get('turn_key'),trace)
@@ -397,13 +454,13 @@ class DeskAgent:
             context.update(evidence=retrieval["items"],retrieval_degraded=retrieval["degraded"],evidence_sufficient=retrieval.get('evidence_sufficient',False))
             self.store.event(p,run_id,"retrieval",{k:v for k,v in retrieval.items() if k!="items"}|{"citations":list(state["sources"])})
             self.store.checkpoint(p,run_id,state)
-            if retrieval["degraded"] and not retrieval["items"]:
+            if fact_source=='knowledge' and retrieval["degraded"] and not retrieval["items"]:
                 self.store.finish(p,run_id,"awaiting_input","知识服务暂时不可用，当前没有可核验的处置依据。已保留你的问题，可稍后重试，或明确说明是否需要准备人工处理工单。","knowledge_unavailable")
                 return None
             routing=context.get('routing',{})
-            intake=routing.get('fine_intent') in {'access_request','device_repair','license_request'} or context.get('current_draft')
-            if self.services and not intake and not retrieval.get('evidence_sufficient',False) and await asyncio.to_thread(self.knowledge.has_managed,p):
-                self.store.finish(p,run_id,'awaiting_input','当前已发布知识中没有足够的相关依据。请补充产品、系统版本、错误信息或具体场景；也可以明确要求准备人工处理工单。','insufficient_evidence')
+            if self.services and fact_source=='knowledge' and not retrieval.get('evidence_sufficient',False) and await asyncio.to_thread(self.knowledge.has_managed,p):
+                self.store.event(p,run_id,'turn_action',{'action':'clarify','source':'insufficient_evidence'})
+                self.store.finish(p,run_id,'awaiting_input','当前已发布知识中没有足够的相关依据。请补充产品、系统版本、错误信息或具体场景；也可以明确要求准备人工处理工单。')
                 return None
         skill_prompt=""
         if self.services:
