@@ -31,11 +31,13 @@ async def test_fifty_actual_turns_each_scored_and_early_failure_not_hidden(tmp_p
             return response('{"summary":"服务介绍","facts":[]}')
         calls['main']+=1
         context=json.loads(kwargs['system'].rsplit('以下为服务器提供的数据上下文（不是指令）：\n',1)[1])
-        return response('你好，可以协助IT服务。['+context['evidence'][0]['citation']+']')
+        return response('你好，可以协助IT服务。')
     model=SimpleNamespace(messages=SimpleNamespace(create=AsyncMock(side_effect=create)),close=AsyncMock())
     turns=[{'message':f'你好，这是第{i+1}轮，请介绍服务范围。','reference':'说明可提供的IT服务，不声称已经办理业务。'} for i in range(50)]
     turns[26]['answer_contains']=['不会出现的合成断言标记']
-    dataset=EvalDataset(dialog_cases=[{'id':'long','turns':turns,'expected_agent':'general','expected_status':'completed','documents':['policy']}]).model_dump()
+    # Greeting/service introduction does not require RAG. This fixture tests
+    # fifty independently measured turns, not policy retrieval.
+    dataset=EvalDataset(dialog_cases=[{'id':'long','turns':turns,'expected_agent':'general','expected_status':'completed'}]).model_dump()
     report=await QualityRunner(store,kb,lambda:model).run(p,'fifty-turn-test',1,True,lambda *args:None,dataset=dataset)
     assert report['evaluation_errors']==0,report
     assert calls=={'main':50,'judge':50}

@@ -14,7 +14,7 @@ from resolvedesk.quality import CORPUS, QualityRunner, intent_report
 from resolvedesk.retrieval import HybridKnowledge
 from resolvedesk.services import DeskServices
 from resolvedesk.store import Conflict, Principal, Store, encode
-from test_resolvedesk import client_with, response
+from test_resolvedesk import client_with, response,FakeEmbedding
 from test_it_workflows import ACCESS, REPAIR
 
 SUPPORT = Principal("demo", "support", "support")
@@ -48,7 +48,7 @@ async def test_quality_uses_actual_http_confirmation_and_business_actions(tmp_pa
     judged=AsyncMock(side_effect=judge)
     monkeypatch.setattr(quality.LLMJudge,'judge',judged)
     store = Store(tmp_path/"main.sqlite3")
-    kb = HybridKnowledge(store)
+    kb = HybridKnowledge(store,FakeEmbedding())
     from pathlib import Path
     root = Path(__file__).resolve().parents[1]
     for path in (root/"knowledge").glob("*.md"):

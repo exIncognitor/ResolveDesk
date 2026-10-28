@@ -211,7 +211,7 @@ class DeskAgent:
                 blocks,stop_reason = state["pending"]["blocks"],state["pending"]["stop_reason"]
             else:
                 await self._validate_sources(p,sources)
-                kwargs = dict(model="deepseek-flash",max_tokens=1536,temperature=0,system=system,messages=messages,tools=tools,tool_choice={'type':'any'})
+                kwargs = dict(model="deepseek-flash",max_tokens=1536,temperature=0,system=system,messages=messages,tools=tools,tool_choice={'type':'any'},thinking={'type':'disabled'})
                 if self.services and hasattr(self.client.messages,"stream"):
                     async with self.client.messages.stream(**kwargs) as stream:
                         buffer = ""
@@ -349,7 +349,7 @@ class DeskAgent:
                         sources.update({item["citation"]: item for item in data["items"]})
                         self.store.event(p, run_id, "retrieval", {"citations": [i["citation"] for i in data["items"]], "degraded": data["degraded"], "mode": data["mode"]})
                     elif name == "get_ticket":
-                        data = self.store.get_ticket(p, args["ticket_id"])
+                        data = await asyncio.to_thread(self.store.get_ticket,p,args["ticket_id"])
                     elif name == "business_context":
                         data = self.business.context(p)
                     elif name == "get_service_case":

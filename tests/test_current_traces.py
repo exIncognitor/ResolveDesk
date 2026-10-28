@@ -51,7 +51,8 @@ async def test_main_inputs_outputs_errors_and_terminal_tool_are_persisted_redact
 
 @pytest.mark.asyncio
 async def test_specialist_real_mcp_calls_cache_and_fallback_have_one_trace_per_actual_call(store):
-    kb=HybridKnowledge(store)
+    from test_resolvedesk import FakeEmbedding
+    kb=HybridKnowledge(store,FakeEmbedding())
     publish_fixture(kb,SUPPORT,'vpn','VPN','# VPN\n\nVPN连接超时先检查普通网络。')
     async def create(**kw):
         system=kw.get('system','')

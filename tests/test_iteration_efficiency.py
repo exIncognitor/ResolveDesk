@@ -25,13 +25,13 @@ def test_postings_keep_the_public_bm25_formula_and_multilingual_order():
 def test_lexical_snapshot_refreshes_for_same_content_acl_change_and_cross_worker(tmp_path):
     store=Store(tmp_path/'postings.sqlite3');one=HybridKnowledge(store);two=HybridKnowledge(store)
     try:
-        one.add(SUPPORT,'scope','VPN','VPN 连接超时')
+        publish_fixture(one,SUPPORT,'scope','VPN','VPN 连接超时')
         before=two.scope_version(USER)
         assert two.search(USER,'VPN',mode='bm25')['items']
-        one.add(SUPPORT,'scope','VPN','VPN 连接超时',visibility='private')
+        publish_fixture(one,SUPPORT,'scope','VPN','VPN 连接超时',visibility='private')
         assert two.scope_version(USER)!=before and two.search(USER,'VPN',mode='bm25')['items']==[]
         assert two.search(SUPPORT,'VPN',mode='bm25')['items']
-        one.add(SUPPORT,'scope','新版','VPN新版诊断')
+        publish_fixture(one,SUPPORT,'scope','新版','VPN新版诊断')
         current=two.search(USER,'VPN',mode='bm25')['items']
         assert current[0]['content']=='VPN新版诊断' and two.search(FOREIGN,'VPN',mode='bm25')['items']==[]
     finally:store.close()

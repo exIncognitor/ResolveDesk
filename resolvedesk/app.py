@@ -327,10 +327,10 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
             nonlocal cursor
             ticks = 0
             while not await request.is_disconnected():
-                turn = request.app.state.store.get_turn(p,run_id,turn_key) if turn_key else request.app.state.store.get_run(p,run_id)
+                turn = await asyncio.to_thread(request.app.state.store.get_turn,p,run_id,turn_key) if turn_key else await asyncio.to_thread(request.app.state.store.get_run,p,run_id)
                 terminal = turn["status"] in TERMINAL
                 cursor = max(cursor,turn["event_cursor"]) if turn_key else cursor
-                batch = request.app.state.store.events(p, run_id, cursor)
+                batch = await asyncio.to_thread(request.app.state.store.events,p,run_id,cursor)
                 if turn_key and terminal: batch = [event for event in batch if event["seq"] <= turn["event_end"]]
                 for event in batch:
                     cursor = event["seq"]
