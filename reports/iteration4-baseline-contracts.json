@@ -1,0 +1,91 @@
+{
+  "source_commit": "889d3c10463cbe720bd569b971eb884b89cb5b52",
+  "kind": "controlled_offline_regressions",
+  "paid_calls": 0,
+  "tests": 16,
+  "failed": 16,
+  "errors": 0,
+  "note": "Initial scratch-parent setup failure is separate and excluded. This report uses the valid second fixture initialization.",
+  "failures": [
+    {
+      "name": "test_nonknowledge_tasks_are_not_blocked_by_managed_rag[greeting-\\u60a8\\u597d\\uff01]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "AssertionError: assert 'insufficient_evidence' not in {'insufficient_evidence', 'knowledge_unavailable'}"
+    },
+    {
+      "name": "test_nonknowledge_tasks_are_not_blocked_by_managed_rag[asset_lookup-\\u8bf7\\u67e5\\u8be2\\u6211\\u7684\\u8d44\\u4ea7\\u548c\\u4fdd\\u4fee\\u72b6\\u6001\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "AssertionError: assert 'insufficient_evidence' not in {'insufficient_evidence', 'knowledge_unavailable'}"
+    },
+    {
+      "name": "test_nonknowledge_tasks_are_not_blocked_by_managed_rag[ticket_status-\\u8bf7\\u67e5\\u770b\\u5de5\\u5355RD-000000000001\\u7684\\u5904\\u7406\\u8fdb\\u5ea6\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "AssertionError: assert 'insufficient_evidence' not in {'insufficient_evidence', 'knowledge_unavailable'}"
+    },
+    {
+      "name": "test_nonknowledge_tasks_are_not_blocked_by_managed_rag[device_hazard-\\u8bbe\\u5907\\u5192\\u70df\\uff0c\\u8bf7\\u8f6c\\u4eba\\u5de5\\u5904\\u7406\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "AssertionError: assert 'insufficient_evidence' not in {'insufficient_evidence', 'knowledge_unavailable'}"
+    },
+    {
+      "name": "test_model_cannot_downgrade_or_change_confirmed_request_type[omitted-access_request-fields0-\\u8bf7\\u51c6\\u5907repo-resolvedesk read\\u6743\\u9650\\u7533\\u8bf7\\uff0c\\u4f7f\\u7528\\u4e03\\u5929\\uff0c\\u7528\\u9014\\u4e3a\\u9605\\u8bfb\\u4ee3\\u7801\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "KeyError: 'workflow'"
+    },
+    {
+      "name": "test_model_cannot_downgrade_or_change_confirmed_request_type[omitted-device_repair-fields1-\\u8bf7\\u51c6\\u5907\\u8bbe\\u5907\\u7ef4\\u4fee\\u7533\\u8bf7\\uff0c\\u672c\\u4ebaLT-1001\\u952e\\u76d8\\u5931\\u7075\\uff0c\\u5df2\\u68c0\\u67e5\\u5916\\u63a5\\u952e\\u76d8\\u4ecd\\u672a\\u6062\\u590d\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "KeyError: 'workflow'"
+    },
+    {
+      "name": "test_model_cannot_downgrade_or_change_confirmed_request_type[omitted-license_request-fields2-\\u8bf7\\u51c6\\u5907IntelliJ IDEA Ultimate\\u5546\\u4e1a\\u5e2d\\u4f4d\\u7533\\u8bf7\\uff0c\\u7528\\u4e8eJava\\u540e\\u7aef\\u5f00\\u53d1\\uff0c\\u4f7f\\u7528\\u4e03\\u5929\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "KeyError: 'workflow'"
+    },
+    {
+      "name": "test_model_cannot_downgrade_or_change_confirmed_request_type[generic-access_request-fields0-\\u8bf7\\u51c6\\u5907repo-resolvedesk read\\u6743\\u9650\\u7533\\u8bf7\\uff0c\\u4f7f\\u7528\\u4e03\\u5929\\uff0c\\u7528\\u9014\\u4e3a\\u9605\\u8bfb\\u4ee3\\u7801\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "KeyError: 'workflow'"
+    },
+    {
+      "name": "test_model_cannot_downgrade_or_change_confirmed_request_type[generic-device_repair-fields1-\\u8bf7\\u51c6\\u5907\\u8bbe\\u5907\\u7ef4\\u4fee\\u7533\\u8bf7\\uff0c\\u672c\\u4ebaLT-1001\\u952e\\u76d8\\u5931\\u7075\\uff0c\\u5df2\\u68c0\\u67e5\\u5916\\u63a5\\u952e\\u76d8\\u4ecd\\u672a\\u6062\\u590d\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "KeyError: 'workflow'"
+    },
+    {
+      "name": "test_model_cannot_downgrade_or_change_confirmed_request_type[generic-license_request-fields2-\\u8bf7\\u51c6\\u5907IntelliJ IDEA Ultimate\\u5546\\u4e1a\\u5e2d\\u4f4d\\u7533\\u8bf7\\uff0c\\u7528\\u4e8eJava\\u540e\\u7aef\\u5f00\\u53d1\\uff0c\\u4f7f\\u7528\\u4e03\\u5929\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "KeyError: 'workflow'"
+    },
+    {
+      "name": "test_model_cannot_downgrade_or_change_confirmed_request_type[other_workflow-access_request-fields0-\\u8bf7\\u51c6\\u5907repo-resolvedesk read\\u6743\\u9650\\u7533\\u8bf7\\uff0c\\u4f7f\\u7528\\u4e03\\u5929\\uff0c\\u7528\\u9014\\u4e3a\\u9605\\u8bfb\\u4ee3\\u7801\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "AssertionError: 已达到本轮处理上限，请补充具体故障信息或明确是否需要准备工单。\nassert 'awaiting_input' == 'awaiting_confirmation'\n  \n  - awaiting_confirmation\n  + awaiting_input"
+    },
+    {
+      "name": "test_model_cannot_downgrade_or_change_confirmed_request_type[other_workflow-device_repair-fields1-\\u8bf7\\u51c6\\u5907\\u8bbe\\u5907\\u7ef4\\u4fee\\u7533\\u8bf7\\uff0c\\u672c\\u4ebaLT-1001\\u952e\\u76d8\\u5931\\u7075\\uff0c\\u5df2\\u68c0\\u67e5\\u5916\\u63a5\\u952e\\u76d8\\u4ecd\\u672a\\u6062\\u590d\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "AssertionError: 已达到本轮处理上限，请补充具体故障信息或明确是否需要准备工单。\nassert 'awaiting_input' == 'awaiting_confirmation'\n  \n  - awaiting_confirmation\n  + awaiting_input"
+    },
+    {
+      "name": "test_model_cannot_downgrade_or_change_confirmed_request_type[other_workflow-license_request-fields2-\\u8bf7\\u51c6\\u5907IntelliJ IDEA Ultimate\\u5546\\u4e1a\\u5e2d\\u4f4d\\u7533\\u8bf7\\uff0c\\u7528\\u4e8eJava\\u540e\\u7aef\\u5f00\\u53d1\\uff0c\\u4f7f\\u7528\\u4e03\\u5929\\u3002]",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "AssertionError: 已达到本轮处理上限，请补充具体故障信息或明确是否需要准备工单。\nassert 'awaiting_input' == 'awaiting_confirmation'\n  \n  - awaiting_confirmation\n  + awaiting_input"
+    },
+    {
+      "name": "test_new_missing_metadata_import_is_draft_and_can_be_completed",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "StopIteration"
+    },
+    {
+      "name": "test_publication_changes_invalidate_measurement_identity_but_engine_changes_do_not",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "AssertionError: assert '03d30e23213d2ba162a534cbb1ddc0757cd6e19d830b48cdcb27ab47105852e1' != '03d30e23213d2ba162a534cbb1ddc0757cd6e19d830b48cdcb27ab47105852e1'\n +  where '03d30e23213d2ba162a534cbb1ddc0757cd6e19d830b48cdcb27ab47105852e1' = suite_identity({'dataset': {'version': 'fixed'}, 'backend': 'postgresql', 'evidence': [{'document_id': 'doc', 'content': 'same'}], 'p...['https://learn.microsoft.com/example'], 'applicability': ['Windows 11'], 'domains': ['network_endpoint'], ...}}], ...}, 1, True, 'e5', namespace(JUDGE_PROMPT='fixed', few_shot_prompt=<function test_publication_changes_invali"
+    },
+    {
+      "name": "test_plain_text_request_for_missing_fields_persists_waiting_state",
+      "class": "tests.test_iteration4_contracts",
+      "failure": "AssertionError: assert 'completed' == 'awaiting_input'\n  \n  - awaiting_input\n  + completed"
+    }
+  ]
+}
