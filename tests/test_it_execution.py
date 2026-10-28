@@ -298,5 +298,6 @@ async def test_model_cannot_pick_one_of_two_explicit_assets_when_preparing_draft
         final=store.get_run(p,run["id"])
         assert final["status"]=="awaiting_input" and final["draft"]is None
         assert not store.list_tickets(p)
-        assert any(e["kind"]=="tool_result" and not e["payload"]["success"] for e in store.events(p,run["id"]))
+        assert any(e['kind']=='turn_action' and e['payload']['source']=='server_task_contract' for e in store.events(p,run['id']))
+        assert any(e['kind']=='tool_result' and e['payload']['name']=='ask_clarification' and e['payload']['layer']=='server_contract' for e in store.events(p,run['id']))
     finally:await agent.close()

@@ -249,7 +249,7 @@ class DeskAgent:
                     answer = self._grounded_fallback(sources)
                 await self._validate_sources(p,sources)
                 pending=state.get('context',{}).get('task_contract',{})
-                status='awaiting_input' if pending.get('workflow') and not run.get('ticket_id') else 'completed'
+                status='awaiting_input' if state.get('context',{}).get('fact_source')=='intake' and pending.get('workflow') and not run.get('ticket_id') else 'completed'
                 self.store.event(p,run_id,'turn_action',{'action':'clarify' if status=='awaiting_input' else 'answer','source':'legacy_text_adapter'})
                 self.store.finish(p,run_id,status,answer,"specialist_partial" if state.get("consultation_status")=="partial" else None)
                 if self.services:
@@ -278,7 +278,7 @@ class DeskAgent:
                         if (cited-sources.keys()) or (args['action']=='answer' and sources and not cited) or re.search(r'工单.{0,6}(?:已创建|创建成功|已提交|提交成功)',answer):answer=self._grounded_fallback(sources)
                         await self._validate_sources(p,sources)
                         task=state.get('context',{}).get('task_contract',{})
-                        action='clarify' if task.get('workflow') and not run.get('ticket_id') else args['action']
+                        action='clarify' if state.get('context',{}).get('fact_source')=='intake' and task.get('workflow') and not run.get('ticket_id') else args['action']
                         self.store.event(p,run_id,'turn_action',{'action':action,'requested_action':args['action'],'source':'typed_response'})
                         self.store.finish(p,run_id,'awaiting_input' if action=='clarify' else 'completed',answer)
                         data={'action':action,'submitted':False};tool_success=True
@@ -311,6 +311,7 @@ class DeskAgent:
                                 data={'denied':'no_request_consent','submitted':False};tool_error='NoRequestConsent'
                                 return
                             if contract.get('workflow'):
+                                if contract['workflow']=='ambiguous':raise ValueError('请先明确本次要办理哪一种申请')
                                 prepared['workflow']=contract['workflow']
                                 prepared['category']={'access_request':'access','device_repair':'hardware','license_request':'software'}[contract['workflow']]
                             # The production route owns literal evidence. A model
@@ -333,6 +334,8 @@ class DeskAgent:
                         if self.services:
                             literal=entity_state.get('sources',{})
                             provenance={key:literal[key] for key in payload if key in literal}
+                            for key in ('workflow','category'):
+                                if key in payload and contract.get('workflow'):provenance[key]={'source':'server_task_contract','task':contract}
                             if 'product' in payload and 'software' in literal:
                                 provenance['product']={'source':'catalog_mapping','literal_software':literal['software']}
                             for key in payload:
@@ -413,19 +416,22 @@ class DeskAgent:
             state["role"]=routing["primary"]
             if context['fact_source']=='intake':
                 missing=missing_slots(task,state.get('entities',{}))
+                if task.get('workflow')=='ambiguous':missing=['本次先办理权限、维修还是软件席位申请（一次一个流程）']
                 if missing:
+                    clarification_started=time.monotonic()
                     question='请补充'+ '、'.join(missing)+'，以及用途或故障描述；信息齐全后再准备草稿。目前没有提交申请。'
                     self.store.event(p,run_id,'turn_action',{'action':'clarify','source':'server_task_contract','missing':missing})
                     self.store.finish(p,run_id,'awaiting_input',question)
                     from resolvedesk.tracing import tool_trace
-                    trace=tool_trace('ask_clarification',{'question':question},{'status':'awaiting_input'},trace_id=uuid.uuid4().hex,tool_use_id=None,layer='server_contract',role=state['role'],instance='desk-'+self.worker_id,seconds=0,success=True)
+                    trace=tool_trace('ask_clarification',{'question':question},{'status':'awaiting_input'},trace_id=uuid.uuid4().hex,tool_use_id=None,layer='server_contract',role=state['role'],instance='desk-'+self.worker_id,seconds=time.monotonic()-clarification_started,success=True)
                     self.store.trace_tool(p,run_id,run.get('turn_key'),trace)
                     return None
             if routing.get('fine_intent')=='ticket_status' and run.get('ticket_id'):
+                read_started=time.monotonic()
                 current_case=await asyncio.to_thread(self.business.get,p,run['ticket_id'])
                 context['current_service_case']=current_case
                 from resolvedesk.tracing import tool_trace
-                trace=tool_trace('get_service_case',{'ticket_id':run['ticket_id']},current_case,trace_id=uuid.uuid4().hex,tool_use_id=None,layer='server_context',role=state['role'],instance='desk-'+self.worker_id,seconds=0,success=True)
+                trace=tool_trace('get_service_case',{'ticket_id':run['ticket_id']},current_case,trace_id=uuid.uuid4().hex,tool_use_id=None,layer='server_context',role=state['role'],instance='desk-'+self.worker_id,seconds=time.monotonic()-read_started,success=True)
                 self.store.trace_tool(p,run_id,run.get('turn_key'),trace)
             if "memory" not in context:
                 try:context["memory"]=await self.services.memory.context(p,run_id)

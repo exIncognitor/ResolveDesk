@@ -59,8 +59,9 @@ def test_draft_publish_withdraw_source_spans_and_legacy_compatibility(knowledge)
     assert not kb.search(USER,'VPN')['items'] and not kb.validate_citations(USER,[item['citation']])
     with pytest.raises(KeyError):kb.citation(USER,item['citation'])
     assert len(kb.governance.audit_list(SUPPORT,'policy'))==3
-    kb.add(SUPPORT,'legacy','VPN legacy','# VPN\nVPN legacy')
-    assert 'publication' not in kb.search(USER,'VPN')['items'][0]
+    kb.add(SUPPORT,'new-import','VPN new','# VPN\nVPN new')
+    assert not kb.search(USER,'VPN')['items']
+    assert next(d for d in kb.publications(SUPPORT) if d['document_id']=='new-import')['metadata_complete'] is False
 
 
 def test_content_and_metadata_updates_return_to_draft_without_omission_bypass(knowledge):
@@ -131,8 +132,9 @@ async def test_legacy_paused_checkpoint_refreshes_after_metadata_enrollment(know
     from unittest.mock import AsyncMock
     from resolvedesk.agent import DeskAgent
     kb=knowledge
-    kb.add(SUPPORT,'policy','VPN','# VPN\nVPN legacy')
+    kb.add(SUPPORT,'policy','VPN','# VPN\nVPN legacy',metadata=metadata());change(kb)
     source=kb.search(USER,'VPN')['items'][0]
+    source.pop('publication')  # Exact shape of a saved pre-governance checkpoint.
     run,_=kb.store.create_run(USER,'VPN 连接超时','legacy-publication-checkpoint')
     kb.store.claim(USER,run['id'])
     kb.store.checkpoint(USER,run['id'],{'phase':'loop','sources':{source['citation']:source}})
@@ -180,7 +182,8 @@ async def test_insufficient_managed_evidence_stops_before_specialist_or_policy_g
     try:
         await agent.execute(USER,run['id'])
         result=kb.store.get_run(USER,run['id'])
-        assert result['status']=='awaiting_input' and result['error']=='insufficient_evidence'
+        assert result['status']=='awaiting_input' and not result['error']
+        assert any(e['kind']=='turn_action' and e['payload']['source']=='insufficient_evidence' for e in kb.store.events(USER,run['id']))
         assert not any(kwargs.kwargs.get('system','').startswith('你是 ResolveDesk') for kwargs in model.messages.create.call_args_list)
     finally:await agent.close()
 

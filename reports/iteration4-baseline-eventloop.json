@@ -1,0 +1,50 @@
+{
+  "engine_root": ".codex-tmp\\iteration4\\baseline-889d3c1",
+  "backend": "PostgreSQL",
+  "slow_query_seconds": 0.12,
+  "paid_calls": 0,
+  "schema": "bench_v4_52b6cfae651d4a1eb116449a28708e29",
+  "measurements": [
+    {
+      "path": "SSE events",
+      "repeat": 1,
+      "latency_ms": 156.0,
+      "max_heartbeat_gap_ms": 141.0
+    },
+    {
+      "path": "Agent get_ticket",
+      "repeat": 1,
+      "latency_ms": 359.0,
+      "max_heartbeat_gap_ms": 188.0
+    },
+    {
+      "path": "SSE events",
+      "repeat": 2,
+      "latency_ms": 141.0,
+      "max_heartbeat_gap_ms": 141.0
+    },
+    {
+      "path": "Agent get_ticket",
+      "repeat": 2,
+      "latency_ms": 359.0,
+      "max_heartbeat_gap_ms": 188.0
+    },
+    {
+      "path": "SSE events",
+      "repeat": 3,
+      "latency_ms": 156.0,
+      "max_heartbeat_gap_ms": 140.0
+    },
+    {
+      "path": "Agent get_ticket",
+      "repeat": 3,
+      "latency_ms": 422.0,
+      "max_heartbeat_gap_ms": 219.0
+    }
+  ],
+  "note": "Controlled pg_sleep injection into current Store method, not normal throughput or production benchmark. Unique synthetic schema retained.",
+  "median_gap_ms": {
+    "SSE events": 141.0,
+    "Agent get_ticket": 188.0
+  }
+}

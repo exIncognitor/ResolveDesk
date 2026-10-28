@@ -13,9 +13,12 @@ CONSULT=re.compile(r'仅咨询|只咨询|只是咨询|只想了解|仅想了解|
 
 
 def request_workflow(message,domain):
-    if domain=='account_access' and re.search(r'权限|访问|仓库|资源|repo-|docs-',message,re.I):return 'access_request'
-    if domain=='device_service' and re.search(r'报修|维修|修理|硬件|笔记本|设备|资产|LT-',message,re.I):return 'device_repair'
-    if domain=='software_license' and re.search(r'授权|席位|许可|商业|Ultimate',message,re.I):return 'license_request'
+    candidates=[]
+    if re.search(r'权限|仓库|repo-|docs-',message,re.I):candidates.append('access_request')
+    if re.search(r'报修|维修|修理|硬件|LT-',message,re.I):candidates.append('device_repair')
+    if re.search(r'授权|席位|许可|Ultimate',message,re.I):candidates.append('license_request')
+    if len(candidates)==1:return candidates[0]
+    if len(candidates)>1:return 'ambiguous'
     return None
 
 
@@ -26,7 +29,8 @@ def update(previous,message,domain,turn_seq,*,reset=False,cancelled=False):
     if consult:
         # Keeping a typed, unsubmitted request is useful when the user says
         # "先别准备草稿"; it never grants permission to prepare on this turn.
-        workflow=previous.get('workflow') if not reset else None
+        explicit=bool(re.search(r'我要|我想|我需要|帮我',message))
+        workflow=(request_workflow(message,domain) if explicit else None) or (previous.get('workflow') if not reset else None)
         return {'workflow':workflow,'consent':False,'source':'explicit_consultation','turn_seq':turn_seq}
     if REQUEST.search(message):
         workflow=request_workflow(message,domain)
