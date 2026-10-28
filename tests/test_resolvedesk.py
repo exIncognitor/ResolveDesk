@@ -190,8 +190,9 @@ async def test_clarification_tool_and_completed_answer_accept_followup(store):
     await agent.execute(USER, run["id"])
     pending = store.get_run(USER, run["id"])
     store.confirm(USER, run["id"], pending["approval"])
-    with pytest.raises(Conflict):
-        store.reply(USER, run["id"], "已建单后不可改原任务")
+    store.reply(USER, run["id"], "已建单后继续查询进度")
+    store.claim(USER,run['id'])
+    with pytest.raises(Conflict):store.prepare(USER,run['id'],FIELDS,[])
 
 
 @pytest.mark.asyncio

@@ -95,7 +95,7 @@ class DeskCLI:
         path='/runs'
         if self.run_id:
             current=self.request('GET','/runs/'+self.run_id)
-            if current['status'] in {'awaiting_input','awaiting_confirmation','completed'} and not current.get('ticket_id'):path=f'/runs/{self.run_id}/reply'
+            if current['status'] in {'awaiting_input','awaiting_confirmation','completed'}:path=f'/runs/{self.run_id}/reply'
             elif current['status'] in {'queued','running','paused','failed'}:raise ValueError('当前执行尚未结束，请使用 :pause、:resume 或 :new')
         self.pending=('POST',path,{'message':message,'request_key':uuid.uuid4().hex})
         return self.finish_pending()

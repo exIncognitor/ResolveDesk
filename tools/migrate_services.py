@@ -79,11 +79,22 @@ def copy_to_postgres(source,target):
         manifest=sqlite_manifest(src)
         actual={r[0] for r in db.execute("SELECT tablename FROM pg_tables WHERE schemaname=?",(db.schema,))}
         if not actual<=TABLES: raise ValueError("Unexpected target tables; refusing migration")
+        migration_seed=False
         for table in sorted(actual):
             if table in {'memory_queue_guard','eval_queue_guard'}:
                 if [tuple(row) for row in db.execute('SELECT * FROM "'+table+'"')]!=[(1,)]:raise ValueError("Unexpected queue guard seed")
                 continue
+            if table=='knowledge_governance_migrations':
+                rows=db.execute('SELECT * FROM knowledge_governance_migrations').fetchall()
+                if rows:
+                    if len(rows)!=1 or rows[0]['id']!='managed-import-v1':raise ValueError('Unexpected governance migration seed')
+                    migration_seed=True
+                    continue
             if db.execute('SELECT COUNT(*) FROM "'+table+'"').fetchone()[0]: raise ValueError("Target is not empty; refusing migration")
+        # Only this verified empty-target initialization marker is replaceable.
+        # Preserve a migrated source marker byte-for-byte when it exists.
+        if migration_seed and 'knowledge_governance_migrations' in manifest:
+            db.execute("DELETE FROM knowledge_governance_migrations WHERE id='managed-import-v1'")
         verified={}
         for table,expected in manifest.items():
             columns=expected["columns"]
@@ -105,6 +116,10 @@ def copy_to_postgres(source,target):
         from resolvedesk.metrics import initialize as initialize_metrics
         initialize_metrics(db)
         db.execute("INSERT INTO knowledge_documents SELECT tenant,document_id,MIN(owner),MIN(visibility),MIN(version),1,? FROM chunks GROUP BY tenant,document_id ON CONFLICT(tenant,document_id) DO NOTHING",(time.time(),))
+        if 'knowledge_governance_migrations' not in manifest:
+            db.execute('''INSERT INTO knowledge_legacy_documents SELECT d.tenant,d.document_id,d.version FROM knowledge_documents d
+                WHERE NOT EXISTS(SELECT 1 FROM knowledge_publications k WHERE k.tenant=d.tenant AND k.document_id=d.document_id)
+                ON CONFLICT(tenant,document_id) DO NOTHING''')
         for row in db.execute("SELECT * FROM knowledge_documents").fetchall():
             db.execute("INSERT INTO index_outbox VALUES(?,?,?,?,'pending',0,?,NULL,?)",(uuid.uuid4().hex,row["tenant"],row["document_id"],row["generation"],time.time(),time.time()))
         for row in db.execute("SELECT * FROM runs").fetchall():

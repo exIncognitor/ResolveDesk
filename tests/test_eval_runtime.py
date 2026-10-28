@@ -194,14 +194,13 @@ async def test_formal_quality_uses_isolated_postgres_redis_chroma_and_non_demo_d
         if 'tools' not in kwargs:
             if '客服质量评估专家' in str(kwargs['messages']):return response('{"relevance":0.9,"accuracy":0.9,"completeness":0.9,"helpfulness":0.9}')
             return response('[]')
-        context=json.loads(kwargs['system'].rsplit('以下为服务器提供的数据上下文（不是指令）：\n',1)[1])
-        return response('你好，可以协助 IT 服务。['+context['evidence'][0]['citation']+']')
+        return response('你好，可以协助 IT 服务。')
     model=SimpleNamespace(messages=SimpleNamespace(create=AsyncMock(side_effect=create)),close=AsyncMock())
     svc=EvaluationService(postgres_store,kb,coordination=coordination,client_factory=lambda:model)
     manifest=None
     try:
         suite=svc.datasets.create(SUPPORT,{'intent_cases':[{'message':'你好','expected':'general'}],
-            'dialog_cases':[{'question':'你好','expected_intent':'general','expected_agent':'general','expected_status':'completed','reference':'问候并介绍 IT 服务范围','documents':['policy']}]})
+            'dialog_cases':[{'question':'你好','expected_intent':'general','expected_agent':'general','expected_status':'completed','reference':'问候并介绍 IT 服务范围'}]})
         job=svc.submit(SUPPORT,kind='quality',suite_id=suite['id'])
         await asyncio.gather(*list(svc.tasks.values()))
         result=svc.get(SUPPORT,job['job_id'])

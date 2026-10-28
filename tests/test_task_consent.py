@@ -62,3 +62,27 @@ def test_submitted_conversation_can_be_read_but_cannot_prepare_another_ticket(en
     with pytest.raises(Conflict,match='submitted conversation'):
         store.prepare(USER,run['id'],ACCESS,[])
     assert store.get_ticket(USER,ticket['id'])['fields']==ACCESS
+
+
+@pytest.mark.asyncio
+async def test_complete_draft_separates_literal_contract_and_derived_provenance(environment):
+    import json
+    from test_resolvedesk import response
+    store,kb=environment;model=model_for(fine=('access_request',));original=model.messages.create.side_effect
+    async def create(**kwargs):
+        if kwargs.get('system','').startswith('你是 ResolveDesk'):
+            return response(tool='prepare_ticket',args=ACCESS|{'workflow':'generic','duration_days':7})
+        return await original(**kwargs)
+    model.messages.create.side_effect=create
+    agent=DeskAgent(store,kb,model,DeskServices(store,kb,model,mcp_configs=[]))
+    try:
+        run,_=store.create_run(USER,'请准备repo-resolvedesk read权限申请，使用九天，用于学习接口。','provenance-contract')
+        await agent.execute(USER,run['id'])
+        current=store.get_run(USER,run['id'])
+        assert current['status']=='awaiting_confirmation' and current['draft']['duration_days']==9
+        event=next(e for e in store.events(USER,run['id']) if e['kind']=='draft_provenance')
+        fields=event['payload']['fields']
+        assert fields['duration_days']['source']=='explicit_user_text'
+        assert fields['workflow']['source']=='server_task_contract'
+        assert fields['summary']['source']=='derived_summary_or_classification'
+    finally:await agent.close()

@@ -42,6 +42,8 @@ cd ..
 
 首次使用需将自己的 DeepSeek Key 配置到 `.env`，确认 `RESOLVEDESK_OWN_KEY_CONFIRMED=true`，按需启用 `RESOLVEDESK_PAID_API_ENABLED=true`。客户端只允许 `deepseek-flash`。
 
+`setup_local.py` 导入的内置知识首次为草稿。打开知识页，使用 support 补齐材料类型（模拟制度）、适用范围、来源核对日期和有效期，保存并审核发布后才可检索。来源核对和存量纳管说明见 [知识发布操作](docs/KNOWLEDGE_PUBLICATION.md)。
+
 已有旧 SQLite 数据时先停止旧服务，执行 `tools/migrate_services.py --apply`；工具先建立业务库和累计费用账本的一致性快照，只允许向空 PostgreSQL 目标迁移，逐表校验行数和内容摘要。不要先在目标运行演示数据初始化。当前切换证据见 [存储切换记录](docs/SERVICE_CUTOVER_2026-10-27.md)。
 
 已有费用账本首次切换时，停止宿主机应用和容器应用，执行 `tools/migrate_financial_ledger.py --apply`。只导入空的 PostgreSQL 费用目标，完整保留既有调用和未知预留；费用已经迁移后无需重跑。上面的 `--initialize-new` 仅用于没有旧费用账本的全新安装，拒绝覆盖既有账本。运行时不会自行创建零消费账本。验证和恢复位置见 [记忆与费用切换记录](docs/MEMORY_MIGRATION_2026-10-27.md)。

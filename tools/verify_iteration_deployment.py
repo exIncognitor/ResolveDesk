@@ -15,7 +15,7 @@ ROOT=Path(__file__).resolve().parents[1]
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--iteration',choices=['2','3'],default='2');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--iteration',choices=['2','3','4'],default='2');args=parser.parse_args()
     access=json.loads((ROOT/'.codex-runtime/access.json').read_text(encoding='utf-8'))
     paths=[]
     for folder in ('resolvedesk','agents','core','tooling','knowledge','skills'):
@@ -45,7 +45,7 @@ def main():
                 response=http.get(path);response.raise_for_status();return response.json()
             before=get('/system')['budget'];schema=get('/openapi.json');catalog=get('/service-catalog')
             checks[prefix+'ready']=get('/ready')['ready']
-            if args.iteration=='3':
+            if args.iteration in {'3','4'}:
                 publications=get('/knowledge/publications')
                 references=[d for d in publications if d['document_id'].startswith('ref-')]
                 demos=[d for d in publications if d['metadata']['material_type']=='simulated_policy']

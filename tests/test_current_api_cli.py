@@ -212,14 +212,28 @@ async def test_current_batch_api_projects_real_chroma_and_invalidates_real_redis
     async with app.router.lifespan_context(app),httpx.AsyncClient(transport=httpx.ASGITransport(app),base_url='http://localhost',headers={'Authorization':'Bearer support-token'}) as http:
         docs=[{'document_id':'public','title':'VPN policy','content':'# VPN\n\nVPN original checks'},{'document_id':'private','title':'VPN private','content':'# VPN\n\nVPN private checks','visibility':'private'}]
         added=await http.post('/knowledge/add',json={'documents':docs});assert added.status_code==200
-        assert all(not d['index_pending'] for d in added.json()['results']) and vectors.count()==2
+        assert all(not d['index_pending'] for d in added.json()['results']) and vectors.count()==0
         async def search():
             result=await http.post('/knowledge/search',json={'query':'VPN','mode':'hybrid'},headers={'Authorization':'Bearer user-token'})
             result.raise_for_status();return result.json()
+        assert not (await search())['items']
+        from test_knowledge_governance import metadata
+        async def review_all():
+            rows=(await http.get('/knowledge/publications')).json()
+            for doc in rows:
+                if not doc['metadata_complete']:
+                    response=await http.put('/knowledge/publications/'+doc['document_id']+'/metadata',json={'version':doc['version'],'revision':doc['revision'],'note':'Synthetic source check','metadata':metadata()})
+                    response.raise_for_status()
+            for doc in (await http.get('/knowledge/publications')).json():
+                response=await http.post('/knowledge/publications/'+doc['document_id']+'/review',json={'action':'publish','version':doc['version'],'revision':doc['revision'],'note':'Synthetic reviewed fixture'})
+                response.raise_for_status()
+        await review_all();assert vectors.count()==2
         first=await search();assert {d['document_id'] for d in first['items']}=={'public'}
         assert (await search())['cached']
         docs[0]['content']='# VPN\n\nVPN updated advice'
         changed=await http.post('/knowledge/batch',json={'documents':docs});assert changed.status_code==200
+        assert not (await search())['items']
+        await review_all()
         newest=await search();assert not newest['cached'] and 'updated advice' in newest['items'][0]['content']
         assert newest['items'][0]['version']!=first['items'][0]['version']
         assert model.messages.create.await_count==0

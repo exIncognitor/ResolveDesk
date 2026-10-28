@@ -66,8 +66,13 @@ def test_index_outage_keeps_sql_and_retry_projects_latest_version(postgres_store
 @pytest.mark.services
 def test_competing_index_workers_and_document_replacement(postgres_store,vectors):
     kb=HybridKnowledge(postgres_store,FakeEmbedding(),vectors)
-    def update(index): return publish_fixture(kb,SUPPORT,"shared","VPN "+str(index),"# VPN\n\nVPN update "+str(index))
+    # Concurrent edits remain drafts; only the final revision is reviewed.
+    from test_knowledge_governance import metadata
+    def update(index): return kb.add(SUPPORT,"shared","VPN "+str(index),"# VPN\n\nVPN update "+str(index),metadata=metadata())
     with ThreadPoolExecutor(max_workers=4) as pool: list(pool.map(update,range(8)))
+    assert not kb.search(USER,'VPN',mode='vector')['items']
+    document=kb.publications(SUPPORT)[0]
+    kb.publication_action(SUPPORT,'shared','publish',document['version'],document['revision'],'Review final concurrent revision')
     kb.drain_index()
     latest=kb.search(USER,"VPN",mode="vector")
     assert not latest["degraded"] and len(latest["items"])==1
