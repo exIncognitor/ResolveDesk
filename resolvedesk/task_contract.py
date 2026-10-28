@@ -12,6 +12,20 @@ QUESTION=re.compile(r'(?:怎么|如何|怎样|是否|能否|可以|需要|要不
 CONSULT=re.compile(r'(?:仅|只)(?:是|想)?(?:咨询|了解|解释|查询)|(?:不(?:要|用|需)?|别|先别|先不)[^，。；！？,.!?;]{0,5}(?:准备|创建|提交|申请|报修)')
 
 
+def is_cancellation(message):
+    """Recognize an affirmative cancellation of the current request, not a negation.
+
+    Possessives and demonstratives belong to the object, not a fixed list of
+    entire utterances. Actual submitted cases still require the action API.
+    """
+    clause=re.split(r'[，。；！？,.!?;]',message.strip(),maxsplit=1)[0]
+    return bool(re.fullmatch(
+        r'(?:(?:请|麻烦)(?:帮我)?|帮我|我想|我要)?\s*(?:取消|撤销|放弃)'
+        r'(?:(?:我|之前|原来|刚才|本次|这次|这个|这份|那个|全部|当前|的|权限|维修|软件|席位|访问|报修|商业授权)\s*)*'
+        r'(?:申请|草稿|任务|问题|处理)(?:吧|了)?',clause)
+        or re.fullmatch(r'(?:先不处理|之前的全部取消)(?:了|吧)?',clause))
+
+
 def request_workflow(message,domain):
     candidates=[]
     if re.search(r'权限|仓库|repo-|docs-',message,re.I):candidates.append('access_request')

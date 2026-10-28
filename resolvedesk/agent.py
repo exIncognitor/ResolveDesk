@@ -408,7 +408,9 @@ class DeskAgent:
             context['task_contract']=task
             context['fact_source']=facts(routing,task)
             if routing.get('entity_state',{}).get('cancelled'):
-                self.store.finish(p,run_id,'completed','已取消本次尚未提交的申请并清除草稿；没有创建工单、提交审批或分配资源。')
+                answer=('这张申请已提交为工单 '+run['ticket_id']+'。本条消息没有撤销工单或已分配的资源；请在业务工单面板使用授权的取消操作。'
+                    if run.get('ticket_id') else '已取消本次尚未提交的申请并清除草稿；没有创建工单、提交审批或分配资源。')
+                self.store.finish(p,run_id,'completed',answer)
                 return None
             if routing.get("needs_clarification"):
                 self.store.finish(p,run_id,"awaiting_input","请补充你要处理的是账号权限、网络终端、软件授权还是设备维修，以及具体问题。")

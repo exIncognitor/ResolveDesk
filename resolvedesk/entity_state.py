@@ -28,7 +28,8 @@ class EntityState:
             previous=json.loads(row["payload"]) if row else {"domain":"general","entities":{},"sources":{},"task_epoch":0}
             if row and row["turn_seq"]==seq:return previous
             old=previous["entities"]
-            cancelled=bool(re.search(r'^(?:请|麻烦|我想|我要|请帮我)?(?:取消(?:之前|原来|刚才|本次|这个|全部)?(?:的)?(?:权限)?(?:申请|任务|问题)|先不处理)|^之前的全部取消',message))
+            from resolvedesk.task_contract import is_cancellation
+            cancelled=is_cancellation(message)
             switches=list(re.finditer(r"(?:换个|新的?|另一个|另外一个)(?:问题|任务|设备|申请)",message))
             switched=any(not re.search(r'(?:不|不要|别|无需)$',message[max(0,match.start()-4):match.start()]) for match in switches)
             replaced=any(entities.get(key) and old.get(key) and entities[key]!=old[key] for key in ("asset_id","resource_id","ticket_id"))
