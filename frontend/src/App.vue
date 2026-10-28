@@ -668,6 +668,7 @@ async function copyMessage(content) {
 
 function switchBackend(type) {
   if (settings.backend === type) return
+  activeStreamController?.abort()
   searched.value = false
   requestState.invalidate()
   busy.value = false
@@ -990,20 +991,78 @@ function handleRunEvent(event) {
   if(event.kind==='awaiting_confirmation'&&activeRun.value)activeRun.value.status='awaiting_confirmation'
 }
 async function confirmDraft(){
-  try{const ticket=await deskRequest(settings,`/runs/${activeRun.value.id}/confirm`,'POST',{approval:activeRun.value.approval});activeRun.value=await deskRequest(settings,`/runs/${activeRun.value.id}`);messages.value.push({id:createMessageId(),role:'assistant',content:`工单已创建：${ticket.id}`});showToast('工单创建成功')}catch(e){showToast(e.message)}
+  if (!activeRun.value || busy.value) return
+  const run = { ...activeRun.value }, request = requestState.begin('conversation')
+  const current = () => request.isCurrent() && activeRun.value?.id === run.id
+  busy.value = true; pendingAction.value = 'confirm'
+  try {
+    const ticket = await deskRequest(request.settings, `/runs/${run.id}/confirm`, 'POST', { approval: run.approval })
+    if (!current()) return
+    const saved = await deskRequest(request.settings, `/runs/${run.id}`)
+    if (!current()) return
+    activeRun.value = saved
+    messages.value.push({ id: createMessageId(), role: 'assistant', content: `工单已创建：${ticket.id}` })
+    showToast('工单创建成功')
+  } catch (error) { if (current()) showToast(error.message) }
+  finally { if (current()) busy.value = false }
 }
-async function pauseRun(){try{activeRun.value=await deskRequest(settings,`/runs/${activeRun.value.id}/pause`,'POST')}catch(e){showToast(e.message)}}
+async function pauseRun(){
+  if (!activeRun.value) return
+  const id = activeRun.value.id
+  activeStreamController?.abort(); requestState.invalidate()
+  const request = requestState.begin('conversation')
+  const current = () => request.isCurrent() && activeRun.value?.id === id
+  busy.value = true; pendingAction.value = 'pause'
+  try { const saved = await deskRequest(request.settings, `/runs/${id}/pause`, 'POST'); if (current()) activeRun.value = saved }
+  catch (error) { if (current()) showToast(error.message) }
+  finally { if (current()) busy.value = false }
+}
 async function resumeRun(){
-  try{activeRun.value=await deskRequest(settings,`/runs/${activeRun.value.id}/resume`,'POST');busy.value=true;pendingAction.value='chat';streamText.value=''
-    const response=await fetch(currentBackend.value.baseUrl+`/runs/${activeRun.value.id}/events`,{headers:{Authorization:`Bearer ${settings.pythonToken}`}})
-    await consumeEvents(response,handleRunEvent)
-    await restoreRun(activeRun.value.id)
-  }catch(e){showToast(e.message)}finally{busy.value=false}
+  if (!activeRun.value || busy.value) return
+  const id = activeRun.value.id, request = requestState.begin('conversation')
+  const current = () => request.isCurrent() && activeRun.value?.id === id
+  activeStreamController?.abort()
+  const controller = new AbortController(); activeStreamController = controller
+  busy.value = true; pendingAction.value = 'chat'; streamText.value = ''
+  try {
+    const resumed = await deskRequest(request.settings, `/runs/${id}/resume`, 'POST', undefined, controller.signal)
+    if (!current()) return
+    activeRun.value = resumed
+    const query = new URLSearchParams({ after: String(resumed.event_cursor || 0) })
+    if (resumed.turn_key) query.set('turn_key', resumed.turn_key)
+    const response = await fetch(backendMeta('python', request.settings).baseUrl + `/runs/${id}/events?${query}`, { headers: { Authorization: `Bearer ${request.settings.pythonToken}` }, signal: controller.signal })
+    if (!current()) { await response.body?.cancel(); return }
+    await consumeEvents(response, event => { if (current()) handleRunEvent(event) }, current)
+    if (current()) await restoreRun(id)
+  } catch (error) { if (current() && error.name !== 'AbortError') showToast(error.message) }
+  finally { if (current()) busy.value = false; if (activeStreamController === controller) activeStreamController = undefined }
 }
 async function restoreRun(id){
-  try{activeRun.value=await deskRequest(settings,`/runs/${id}`);settings.conversationId=id;const history=await deskRequest(settings,`/runs/${id}/messages`);messages.value=history.map(m=>({...m,id:createMessageId()}));if(activeRun.value.ticket_id)messages.value.push({id:createMessageId(),role:'assistant',content:activeRun.value.answer});lastResponse.value={response:activeRun.value.answer,raw:activeRun.value};lastTrace.value=await requestToolTrace('python',settings,id);activeView.value='chat'}catch(e){showToast(e.message)}
+  activeStreamController?.abort(); requestState.invalidate()
+  const request = requestState.begin('conversation')
+  busy.value = true; pendingAction.value = 'restore'
+  try {
+    const run = await deskRequest(request.settings, `/runs/${id}`)
+    if (!request.isCurrent()) return
+    const history = await deskRequest(request.settings, `/runs/${id}/messages`)
+    if (!request.isCurrent()) return
+    let trace = null
+    try { trace = await requestToolTrace('python', request.settings, id) } catch { /* History remains readable during trace outages. */ }
+    if (!request.isCurrent()) return
+    activeRun.value = run; settings.conversationId = id
+    messages.value = history.map(message => ({ ...message, id: createMessageId() }))
+    if (run.ticket_id) messages.value.push({ id: createMessageId(), role: 'assistant', content: run.answer })
+    lastResponse.value = { response: run.answer, raw: run }; lastTrace.value = trace; activeView.value = 'chat'
+  } catch (error) { if (request.isCurrent()) showToast(error.message) }
+  finally { if (request.isCurrent()) busy.value = false }
 }
-async function submitFeedback(rating){try{await deskRequest(settings,`/runs/${activeRun.value.id}/feedback`,'POST',{rating,note:''});showToast('反馈已保存')}catch(e){showToast(e.message)}}
+async function submitFeedback(rating){
+  if (!activeRun.value) return
+  const id = activeRun.value.id, request = requestState.begin('feedback')
+  const current = () => request.isCurrent() && activeRun.value?.id === id
+  try { await deskRequest(request.settings, `/runs/${id}/feedback`, 'POST', { rating, note: '' }); if (current()) showToast('反馈已保存') }
+  catch (error) { if (current()) showToast(error.message) }
+}
 async function showCitation(citation){const r=requestState.begin('citation');try{const source=await deskRequest(r.settings,`/knowledge/citations/${citation}`);if(r.isCurrent())citationText.value=formatCitation(source)}catch(e){if(r.isCurrent())showToast(e.message)}}
 async function loadOperations(){const r=requestState.begin('operations');try{const data=await Promise.all([deskRequest(r.settings,'/runs'),deskRequest(r.settings,'/memory'),deskRequest(r.settings,'/mcp')]);if(r.isCurrent())[runList.value,memoryData.value,mcpData.value]=data}catch(e){if(r.isCurrent())showToast(e.message)}}
 async function loadCandidates(){const r=requestState.begin('candidates');try{const data=await deskRequest(r.settings,'/evaluation/candidates');if(r.isCurrent())candidates.value=data}catch(e){if(r.isCurrent())showToast(e.message)}}
