@@ -10,6 +10,8 @@
 
 第四轮修复执行契约、全入口知识草稿治理和发布评测身份，最终 Flash 两轮硬指标均为 12/12，辅助 Judge 均为 9/12；完整证据、保留的质量缺口与恢复方式见 [第四轮验收](docs/ITERATION4_ACCEPTANCE.md)。
 
+当前展示版本的身份/会话切换修复、三条浏览器业务闭环、42 项前端与 463 项服务回归、模型复验及恢复位置见 [收尾验收](docs/FINAL_POLISH_ACCEPTANCE.md)。详细教材另存于本机相邻目录 `agentlearn/ResolveDesk/`。
+
 后端只使用Python；原Java版本是另一套学习实现，不作为迁移欠项。第二轮固定目标见[目标提示词](docs/NEXT_ITERATION_GOAL.md)，实测性能、冻结留出集、软件席位与失败候选记录见[第二轮交付](docs/ITERATION2_ACCEPTANCE.md)。普通检索默认复用BM25索引和文档版本水位；节省模型调用的adaptive策略因留出集退化保持关闭，默认仍为完整专家编排。
 
 ## 本机启动

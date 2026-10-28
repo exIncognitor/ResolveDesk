@@ -1,0 +1,449 @@
+{
+  "session": {
+    "schema": "final_demo_ca16fdb1c3374c4e82fce08e98c09ef9",
+    "collection": "final-demo-ca16fdb1c3374c4e82fce08e98c09ef9",
+    "redis_namespace": "final-demo-ca16fdb1c3374c4e82fce08e98c09ef9",
+    "port": 8088,
+    "source_commit": "896dc3423a23fd6037e45ae06273be42c5badad2",
+    "corpus_documents": 34,
+    "budget_before": {
+      "budget_cny": "13.76725",
+      "safety_reserve_cny": "2",
+      "conservative_commitment_cny": "9.76725",
+      "available_cny": "2",
+      "calls": {
+        "settled": 2113
+      },
+      "usage_input_tokens": 4130265,
+      "usage_output_tokens": 188340,
+      "unresolved_reservation_cny": "0"
+    },
+    "simulation": true,
+    "note": "UI demonstration only; preserved fixture resources, original public business unchanged."
+  },
+  "checks": {
+    "exactly_three_cases": true,
+    "access_fulfilled": true,
+    "grant_persisted": true,
+    "repair_closed": true,
+    "repair_reopened": true,
+    "asset_released": true,
+    "seat_revoked": true,
+    "seat_was_allocated": true,
+    "inventory_restored": true,
+    "all_runs_completed": true,
+    "purpose_did_not_change_workflow": true
+  },
+  "passed": 11,
+  "total": 11,
+  "cases": [
+    {
+      "ticket_id": "RD-C4C55EBABD05",
+      "tenant": "demo",
+      "owner": "learner",
+      "kind": "license_request",
+      "status": "revoked",
+      "version": 5,
+      "fields": {
+        "access_level": "",
+        "asset_id": "",
+        "category": "software",
+        "description": "用于阅读 repo-resolvedesk 代码",
+        "duration_days": 5,
+        "priority": "normal",
+        "product": "IntelliJ IDEA Ultimate",
+        "resource_id": "repo-resolvedesk",
+        "summary": "IntelliJ IDEA Ultimate 席位申请（5天）",
+        "workflow": "license_request"
+      },
+      "assignee": null,
+      "updated": 1793164712.516479,
+      "simulation": true,
+      "license": {
+        "state": "revoked",
+        "expires": 1793164712.514353,
+        "product": "IntelliJ IDEA Ultimate"
+      },
+      "audit": [
+        {
+          "actor": "learner",
+          "action": "submit",
+          "from_status": null,
+          "to_status": "pending_approval",
+          "note": "申请人已核对草稿并确认；模拟业务",
+          "created": 1793164671.2249033
+        },
+        {
+          "actor": "support",
+          "action": "approve",
+          "from_status": "pending_approval",
+          "to_status": "approved",
+          "note": "模拟演示：确认商业版本、开发用途及五天期限，批准。",
+          "created": 1793164683.9518085
+        },
+        {
+          "actor": "support",
+          "action": "reserve",
+          "from_status": "approved",
+          "to_status": "reserved",
+          "note": "模拟演示：预占一个席位，等待分配。",
+          "created": 1793164689.442272
+        },
+        {
+          "actor": "support",
+          "action": "allocate",
+          "from_status": "reserved",
+          "to_status": "allocated",
+          "note": "模拟演示：把已预占席位分配给申请人，五天后到期。",
+          "created": 1793164696.251065
+        },
+        {
+          "actor": "learner",
+          "action": "revoke",
+          "from_status": "allocated",
+          "to_status": "revoked",
+          "note": "模拟演示：开发用途完成，本人提前回收席位。",
+          "created": 1793164712.5181086
+        }
+      ],
+      "allowed_actions": []
+    },
+    {
+      "ticket_id": "RD-4235EAC66479",
+      "tenant": "demo",
+      "owner": "learner",
+      "kind": "device_repair",
+      "status": "closed",
+      "version": 8,
+      "fields": {
+        "access_level": "",
+        "asset_id": "LT-1001",
+        "category": "hardware",
+        "description": "触控板持续漂移；已检查外接鼠标，问题仍未恢复。",
+        "duration_days": 0,
+        "priority": "normal",
+        "product": "",
+        "resource_id": "",
+        "summary": "触控板报修",
+        "workflow": "device_repair"
+      },
+      "assignee": "support",
+      "updated": 1793164605.994052,
+      "simulation": true,
+      "audit": [
+        {
+          "actor": "learner",
+          "action": "submit",
+          "from_status": null,
+          "to_status": "submitted",
+          "note": "申请人已核对草稿并确认；模拟业务",
+          "created": 1793164535.223103
+        },
+        {
+          "actor": "support",
+          "action": "triage",
+          "from_status": "submitted",
+          "to_status": "triaged",
+          "note": "模拟演示：核对本人资产与触控板故障，完成分诊。",
+          "created": 1793164549.9500453
+        },
+        {
+          "actor": "support",
+          "action": "assign",
+          "from_status": "triaged",
+          "to_status": "assigned",
+          "note": "模拟演示：由当前IT处理人接单。",
+          "created": 1793164556.9763315
+        },
+        {
+          "actor": "support",
+          "action": "start",
+          "from_status": "assigned",
+          "to_status": "in_progress",
+          "note": "模拟演示：开始检查触控板与驱动。",
+          "created": 1793164561.1246748
+        },
+        {
+          "actor": "support",
+          "action": "resolve",
+          "from_status": "in_progress",
+          "to_status": "resolved",
+          "note": "模拟演示：完成第一轮排查，提交申请人验收。",
+          "created": 1793164566.1426032
+        },
+        {
+          "actor": "learner",
+          "action": "reopen",
+          "from_status": "resolved",
+          "to_status": "in_progress",
+          "note": "模拟演示：触控板仍有漂移，申请返工。",
+          "created": 1793164575.7523727
+        },
+        {
+          "actor": "support",
+          "action": "resolve",
+          "from_status": "in_progress",
+          "to_status": "resolved",
+          "note": "模拟演示：返工调整完成，重新提交验收。",
+          "created": 1793164592.5665636
+        },
+        {
+          "actor": "learner",
+          "action": "accept",
+          "from_status": "resolved",
+          "to_status": "closed",
+          "note": "模拟演示：复测后触控板正常，本人验收通过。",
+          "created": 1793164605.9973533
+        }
+      ],
+      "allowed_actions": []
+    },
+    {
+      "ticket_id": "RD-F9CCF923023B",
+      "tenant": "demo",
+      "owner": "learner",
+      "kind": "access_request",
+      "status": "fulfilled",
+      "version": 3,
+      "fields": {
+        "access_level": "read",
+        "asset_id": "",
+        "category": "access",
+        "description": "用于阅读接口说明",
+        "duration_days": 9,
+        "priority": "normal",
+        "product": "",
+        "resource_id": "docs-internal",
+        "summary": "申请 docs-internal 的 read 权限，期限 9 天",
+        "workflow": "access_request"
+      },
+      "assignee": null,
+      "updated": 1793164475.6976705,
+      "simulation": true,
+      "audit": [
+        {
+          "actor": "learner",
+          "action": "submit",
+          "from_status": null,
+          "to_status": "pending_approval",
+          "note": "申请人已核对草稿并确认；模拟业务",
+          "created": 1793164410.0562317
+        },
+        {
+          "actor": "support",
+          "action": "approve",
+          "from_status": "pending_approval",
+          "to_status": "approved",
+          "note": "模拟演示：核对申请人与只读用途，批准九天。",
+          "created": 1793164471.1267242
+        },
+        {
+          "actor": "support",
+          "action": "provision",
+          "from_status": "approved",
+          "to_status": "fulfilled",
+          "note": "模拟演示：执行已批准的 docs-internal read 权限开通。",
+          "created": 1793164475.7004154
+        }
+      ],
+      "allowed_actions": []
+    }
+  ],
+  "catalog": {
+    "simulation": true,
+    "notice": "模拟企业制度和本地业务系统，不会更改真实账号或设备。",
+    "resources": {
+      "repo-resolvedesk": {
+        "name": "ResolveDesk 开发仓库",
+        "levels": [
+          "read",
+          "write"
+        ],
+        "max_days": 30
+      },
+      "docs-internal": {
+        "name": "内部技术文档",
+        "levels": [
+          "read"
+        ],
+        "max_days": 30
+      }
+    },
+    "licenses": [
+      {
+        "product": "IntelliJ IDEA Ultimate",
+        "total_seats": 2,
+        "reserved_seats": 0,
+        "allocated_seats": 0,
+        "available_seats": 2,
+        "approval": "其他IT操作员审批后预占、再分配模拟席位",
+        "personal_purchase_reimbursement": false,
+        "reservation_seconds": 900,
+        "my_allocations": [],
+        "simulation": true
+      },
+      {
+        "product": "VS Code",
+        "available_seats": null,
+        "approval": "按软件白名单安装；商业插件另行申请"
+      }
+    ],
+    "my_assets": [
+      {
+        "tenant": "demo",
+        "id": "LT-1001",
+        "owner": "learner",
+        "model": "演示开发笔记本",
+        "warranty": "in_warranty",
+        "status": "available"
+      }
+    ],
+    "my_grants": [
+      {
+        "resource": "docs-internal",
+        "level": "read",
+        "expires": 1793942075.695457,
+        "source_ticket": "RD-F9CCF923023B"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "id": "946370d1af72470bbebb76574a119afd",
+      "tenant": "demo",
+      "owner": "learner",
+      "request_key": "60925266-8c1a-4e3b-be3a-d2910d151631",
+      "message": "请准备 IntelliJ IDEA Ultimate 席位申请，使用五天，用于阅读 repo-resolvedesk 代码。",
+      "status": "completed",
+      "answer": "工单已创建：RD-C4C55EBABD05",
+      "draft": {
+        "access_level": "",
+        "asset_id": "",
+        "category": "software",
+        "description": "用于阅读 repo-resolvedesk 代码",
+        "duration_days": 5,
+        "priority": "normal",
+        "product": "IntelliJ IDEA Ultimate",
+        "resource_id": "repo-resolvedesk",
+        "summary": "IntelliJ IDEA Ultimate 席位申请（5天）",
+        "workflow": "license_request"
+      },
+      "version": 1,
+      "expires": 1793165520.9918027,
+      "ticket_id": "RD-C4C55EBABD05",
+      "error": null,
+      "created": 1793164614.757406,
+      "updated": 1793164671.227037
+    },
+    {
+      "id": "60a38ff538f249df989469f3ac613f30",
+      "tenant": "demo",
+      "owner": "learner",
+      "request_key": "927b4eae-8261-49bb-bd59-cf3c2b399b39",
+      "message": "请准备本人 LT-1001 的维修草稿，触控板持续漂移，已经检查外接鼠标仍未恢复，标题为触控板报修。",
+      "status": "completed",
+      "answer": "工单已创建：RD-4235EAC66479",
+      "draft": {
+        "access_level": "",
+        "asset_id": "LT-1001",
+        "category": "hardware",
+        "description": "触控板持续漂移；已检查外接鼠标，问题仍未恢复。",
+        "duration_days": 0,
+        "priority": "normal",
+        "product": "",
+        "resource_id": "",
+        "summary": "触控板报修",
+        "workflow": "device_repair"
+      },
+      "version": 1,
+      "expires": 1793165405.5447543,
+      "ticket_id": "RD-4235EAC66479",
+      "error": null,
+      "created": 1793164497.5564983,
+      "updated": 1793164535.2258117
+    },
+    {
+      "id": "a5aa0a96ba91483eb3deced497e9b262",
+      "tenant": "demo",
+      "owner": "learner",
+      "request_key": "7c530dba-ab82-4c91-a4b1-cb6c3afd793b",
+      "message": "请准备 docs-internal 的 read 权限申请，使用九天，用于阅读接口说明。",
+      "status": "completed",
+      "answer": "工单已创建：RD-F9CCF923023B",
+      "draft": {
+        "access_level": "read",
+        "asset_id": "",
+        "category": "access",
+        "description": "用于阅读接口说明",
+        "duration_days": 9,
+        "priority": "normal",
+        "product": "",
+        "resource_id": "docs-internal",
+        "summary": "申请 docs-internal 的 read 权限，期限 9 天",
+        "workflow": "access_request"
+      },
+      "version": 1,
+      "expires": 1793165270.8444817,
+      "ticket_id": "RD-F9CCF923023B",
+      "error": null,
+      "created": 1793164362.2300868,
+      "updated": 1793164410.0589106
+    }
+  ],
+  "memory_observed": {
+    "profile": {
+      "ide": "IntelliJ IDEA",
+      "entities": {
+        "products": [
+          "九天",
+          "LT-1001",
+          "IntelliJ IDEA Ultimate"
+        ],
+        "problem_types": [
+          "权限申请",
+          "检查外接鼠标仍未恢复",
+          "触控板持续漂移"
+        ]
+      }
+    },
+    "episodes": 3,
+    "summaries": 0,
+    "maintenance": {
+      "state": "idle",
+      "attempts": 0,
+      "error": null,
+      "target_seq": 6,
+      "processed_seq": 6
+    },
+    "segment_status": [
+      {
+        "status": "ready",
+        "count": 3
+      }
+    ],
+    "workers": 2,
+    "backend": "chroma-private"
+  },
+  "budget_after": {
+    "budget_cny": "13.76725",
+    "safety_reserve_cny": "2",
+    "conservative_commitment_cny": "10.775836",
+    "available_cny": "0.991414",
+    "calls": {
+      "settled": 2315
+    },
+    "usage_input_tokens": 4565258,
+    "usage_output_tokens": 205665,
+    "unresolved_reservation_cny": "0"
+  },
+  "round_start_cny": "9.767250",
+  "round_extra_cny": "1.008586",
+  "screenshots": {
+    "final-demo-access.jpg": "772fb0e62256950d3e391556416f506bee3bd2ea15725db1ab55e61dde03991a",
+    "final-demo-license-allocated.jpg": "87450230e7d2d8a1a10291f2b6e719377c9ff6be4bf901eaa6d7cf556b0e6b3d",
+    "final-demo-license-revoked.jpg": "a6ddc49d9f92e6d12a0e06b31d13f9ba0e70209c8c86c01588c9d5cc9b48914e",
+    "final-demo-repair.jpg": "0ce3b49d56aed0589a7a19b4655e0451e0c74a3a8cc64d7bb9bda7507d5119a6",
+    "final-demo-restored-history.jpg": "26f436f66708ab37e14d54c5cf72d1e44d0936c424e9379ab55cccc848117bb4"
+  },
+  "note": "Real browser actions, real Flash and real isolated PG/Redis/Chroma. Business data simulated; public business data unchanged."
+}
