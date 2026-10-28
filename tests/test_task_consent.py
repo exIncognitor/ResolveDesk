@@ -40,7 +40,7 @@ async def test_submitted_case_cancellation_does_not_claim_or_perform_a_reversal(
     store.claim(USER,run['id']);store.prepare(USER,run['id'],ACCESS,[])
     draft=store.get_run(USER,run['id']);ticket=store.confirm(USER,run['id'],draft['approval'])
     before=BusinessService(store).get(USER,ticket['id'])
-    store.continue_run(USER,run['id'],'撤销这份申请。','cancel-turn')
+    store.reply(USER,run['id'],'撤销这份申请。','cancel-turn')
     model=model_for(fine=('access_request',));agent=DeskAgent(store,kb,model,DeskServices(store,kb,model,mcp_configs=[]))
     try:
         await agent.execute(USER,run['id']);current=store.get_run(USER,run['id'])
