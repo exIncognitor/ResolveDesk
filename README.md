@@ -29,6 +29,16 @@ ResolveDesk 是一个面向企业内部 IT 服务的 Python Agent 应用。员�
 </details>
 
 <details>
+<summary><strong>身份工作区：员工入口与支持人员的模型状态</strong></summary>
+
+员工只看到本人服务与知识查询；支持人员另外拥有知识治理、评测和连接状态入口。角色由服务端访问令牌决定。模型、服务地址和密钥通过服务端配置，页面仅显示脱敏状态。
+
+<img src="docs/media/employee-workspace.png" alt="员工工作区没有评测管理入口" width="100%" />
+<img src="docs/media/support-model-settings.png" alt="支持人员查看模型、协议、服务地址及密钥已配置状态" width="100%" />
+
+</details>
+
+<details>
 <summary><strong>手机布局</strong></summary>
 
 <img src="docs/media/mobile-workspace.jpg" alt="390px 宽度下的 ResolveDesk 手机工作台" width="300" />
@@ -111,12 +121,14 @@ python -m pip install -r requirements-dev.txt
 
 | 验证层 | 已记录结果 | 证据 |
 | --- | --- | --- |
-| 前端行为回归 | 42项通过，包含身份/会话切换与SSE竞态 | [前端测试](frontend/tests) |
-| 真实依赖集成 | 463项测试及14子测试通过 | [服务回归报告](reports/final-polish-services-tests.xml) |
+| 前端行为回归 | 50项通过，包含角色入口、身份/会话切换与SSE竞态 | [前端测试](frontend/tests) |
+| 真实依赖集成 | 482项测试及14子测试通过 | [服务回归报告](reports/model-config-roles-enterprise-tests.xml) |
 | 浏览器业务演示 | 权限、维修、席位三条闭环，落库复核11/11 | [业务证据](reports/final-polish-ui-workflows.json) |
 | 真实 Flash 复验 | 同12组合成对话两轮硬检查均12/12；含Judge分别11/12、10/12 | [第一轮](reports/iteration4-final-polish-live-r1.json) / [第二轮](reports/iteration4-final-polish-live-r2.json) |
 
-上述质量记录对应 `resolvedesk-demo-v1` 的业务引擎。当前界面重设计另做前端回归和桌面/手机核验。固定合成题用于项目回归，原始失败与评分均保留；实验设置见 [验收报告](docs/FINAL_POLISH_ACCEPTANCE.md)。
+前两行是模型配置与权限更新后的回归；业务演示和Flash质量记录对应 `resolvedesk-demo-v1` 的业务引擎，本轮未重跑收费质量评测。固定合成题用于项目回归，原始失败与评分均保留；实验设置见 [验收报告](docs/FINAL_POLISH_ACCEPTANCE.md)。
+
+当前业务资源与写操作为模拟实现。真实企业接入前的身份生命周期、职责分离和外部执行一致性检查见 [企业使用边界](docs/ENTERPRISE_READINESS.md)。
 
 ```powershell
 python -X utf8 -B -m pytest -q
