@@ -14,17 +14,31 @@ PATTERNS = [rb'\bsk-[A-Za-z0-9_-]{20,}', rb'gh[pousr]_[A-Za-z0-9]{20,}',
             rb'github_pat_[A-Za-z0-9_]{20,}', rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----']
 
 
+def local_credentials(root):
+    """Match actual local secrets even when a provider uses an unfamiliar prefix."""
+    from dotenv import dotenv_values
+    secrets = set()
+    env = root/'.env'
+    if env.is_file():
+        for name, value in dotenv_values(env).items():
+            if value and len(value) >= 16 and re.search(r'KEY|TOKEN|SECRET|PASSWORD', name, re.I):
+                secrets.add(value.encode())
+    keys = root/'key.txt'
+    if keys.is_file():
+        for value in keys.read_bytes().splitlines():
+            value = value.strip()
+            if len(value) >= 16 and re.fullmatch(rb'[A-Za-z0-9_.-]+', value):
+                secrets.add(value)
+    return secrets
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--staged', action='store_true')
     args = parser.parse_args()
     cmd = ['git', 'diff', '--cached', '--name-only', '--diff-filter=ACMR', '-z'] if args.staged else ['git', 'ls-files', '-z']
     paths = [p for p in subprocess.check_output(cmd, cwd=ROOT).decode('utf-8').split('\0') if p]
-    local_secrets = []
-    for name in ('.env', 'key.txt'):
-        p = ROOT / name
-        if p.is_file():
-            local_secrets += re.findall(rb'sk-[A-Za-z0-9_-]{16,}', p.read_bytes())
+    local_secrets = local_credentials(ROOT)
     findings = []
     for name in paths:
         p = PurePosixPath(name)

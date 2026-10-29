@@ -44,6 +44,14 @@ RESOLVEDESK_MODEL_API_KEY=<填写该服务商的密钥>
 
 当前两协议通过模拟HTTP/SDK传输测试；已有真实端到端结果来自Flash。其他模型需要具备函数工具调用能力，并分别核验其参数和输出兼容性。
 
+### OpenCode 免费模型核验（2026-10-29）
+
+本地可另存 `OPENCODE_ZEN_API_KEY`，不会自动替换当前模型的密钥。若服务商允许接入，将其值填入 `RESOLVEDESK_MODEL_API_KEY`，协议选 `openai`，地址为 `https://opencode.ai/inference/openai/v1`，模型填服务商的实际ID。
+
+使用应用的普通HTTP适配器和纯合成输入分别请求了 `beam-free`、`big-pickle`：前者返回403 `RegionError`，后者返回429 `FreeUsageLimitError`。两者尚未进入函数工具和流式验证，不能标记为可用。当前服务仍使用原DeepSeek配置，未自动回退到其他模型或发起新的收费测试。证据见 [真实请求报告](../reports/free-model-probe-20261029.json)。
+
+[OpenCode官方说明](https://opencode.ai/v2/docs/console/models/)列出免费模型的客户端、地区与额度限制；零价格不等于任意第三方应用均可使用。可用性以自己账号的实际响应为准。
+
 ## 身份与功能入口
 
 | 身份 | 主要功能 |
@@ -54,6 +62,8 @@ RESOLVEDESK_MODEL_API_KEY=<填写该服务商的密钥>
 访问令牌经服务端 `/me` 解析身份。前端把角色绑定到当前令牌和服务地址；切换账号时旧身份立即失效，迟到响应不能恢复管理入口。服务端仍逐项检查角色、租户、本人范围和业务状态。
 
 support 可以处理租户内业务工单；他人的聊天与私有记忆仍按本人范围隔离。当前采用两种角色，账号来自本地初始化文件，并没有新增注册、密码找回或企业SSO系统。
+
+负反馈候选及其转回归接口只允许support处理本人的会话；跨用户、跨租户的会话不能因为负反馈而暴露。MCP连接管理状态仅support可读；员工仍可通过标准只读知识MCP查询本人有权阅读的知识。企业落地前的职责分离、身份生命周期及真实系统接入缺口见 [企业使用边界检查](ENTERPRISE_READINESS.md)。
 
 [返回文档中心](README.md)
 
