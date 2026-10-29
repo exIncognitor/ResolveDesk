@@ -31,7 +31,7 @@ ResolveDesk 是一个面向企业内部 IT 服务的 Python Agent 应用。员�
 <details>
 <summary><strong>身份工作区：员工入口与支持人员的模型状态</strong></summary>
 
-员工只看到本人服务与知识查询；支持人员另外拥有知识治理、评测和连接状态入口。角色由服务端访问令牌决定。模型、服务地址和密钥通过服务端配置，页面仅显示脱敏状态。
+员工登录后查看本人服务、资源与知识；支持人员另外拥有知识治理、评测和支持后台。支持后台可维护模型、协议、服务地址、加密密钥、单价、持久化用量与估算费用，以及账号启停与会话撤销。生产模式禁用测试身份切换。
 
 <img src="docs/media/employee-workspace.png" alt="员工工作区没有评测管理入口" width="100%" />
 <img src="docs/media/support-model-settings.png" alt="支持人员查看模型、协议、服务地址及密钥已配置状态" width="100%" />
@@ -108,27 +108,27 @@ python -m venv .venv
 python -m pip install -r requirements-dev.txt
 ```
 
-接着按 [首次启动指南](docs/GETTING_STARTED.md) 初始化本地依赖、模型和访问令牌，构建前端后启动服务。指南包含 Windows 和 Linux/macOS 命令。
+接着按 [首次启动指南](docs/GETTING_STARTED.md) 初始化本地依赖与模型，执行 `python -m tools.setup_identity` 创建登录账号和本机加密密钥，构建前端后启动服务。指南包含 Windows 和 Linux/macOS 命令。
 
 - 宿主机工作台：`http://127.0.0.1:8080`
 - 完整 Compose 网关：`http://127.0.0.1:18080`
 - 接口文档：`/docs`；依赖检查：`/ready`
 - CLI：`python -m resolvedesk.cli --base-url http://127.0.0.1:8080 --actor learner`
 
-模型、服务地址、协议和密钥从服务端 `.env` 配置，默认使用 `deepseek-flash`；目前真实端到端结果来自 Flash。正常运行不设置累计费用限额，页面使用本应用访问令牌，密钥留在服务端。配置示例及员工/服务人员的功能区分见 [模型配置与身份工作区](docs/MODEL_CONFIGURATION.md)。
+首次登录凭据写入本机 `.codex-runtime/login-accounts.json`，不上传仓库。测试环境可显式开启员工/support快速切换；正式登录支持8小时会话、退出、撤销和账号禁用。支持人员在后台配置与切换模型，员工无法调用这些管理接口。`.env`提供默认模型，支持Anthropic Messages与OpenAI Chat Completions；真实质量结果仍来自Flash。正常运行没有累计费用上限，费用页根据实际Token和配置单价估算，缺失信息显示未知。说明见[模型与身份配置](docs/MODEL_CONFIGURATION.md)。
 
 ## 验证与质量
 
 | 验证层 | 已记录结果 | 证据 |
 | --- | --- | --- |
-| 前端行为回归 | 50项通过，包含角色入口、身份/会话切换与SSE竞态 | [前端测试](frontend/tests) |
-| 真实依赖集成 | 482项测试及14子测试通过 | [服务回归报告](reports/model-config-roles-enterprise-tests.xml) |
+| 前端行为回归 | 53项通过，包含登录会话、角色入口、身份/会话切换与SSE竞态 | [前端测试](frontend/tests) |
+| 真实依赖集成 | 493项测试及14子测试通过 | [服务回归报告](reports/enterprise-login-models-final.xml) |
 | 浏览器业务演示 | 权限、维修、席位三条闭环，落库复核11/11 | [业务证据](reports/final-polish-ui-workflows.json) |
 | 真实 Flash 复验 | 同12组合成对话两轮硬检查均12/12；含Judge分别11/12、10/12 | [第一轮](reports/iteration4-final-polish-live-r1.json) / [第二轮](reports/iteration4-final-polish-live-r2.json) |
 
 前两行是模型配置与权限更新后的回归；业务演示和Flash质量记录对应 `resolvedesk-demo-v1` 的业务引擎，本轮未重跑收费质量评测。固定合成题用于项目回归，原始失败与评分均保留；实验设置见 [验收报告](docs/FINAL_POLISH_ACCEPTANCE.md)。
 
-当前业务资源与写操作为模拟实现。真实企业接入前的身份生命周期、职责分离和外部执行一致性检查见 [企业使用边界](docs/ENTERPRISE_READINESS.md)。
+系统内已具备账号停用、会话撤销、授权合并/撤销/到期、软件席位回收、目录派单/转派和停用申请人的审计代验收。内置资源仍为模拟企业数据，未连接真实企业目录、设备或供应商。试运行范围和外部接入前提见[企业使用边界](docs/ENTERPRISE_READINESS.md)。根目录统一使用本README；`docs/README.md`仅为专题文档索引。
 
 ```powershell
 python -X utf8 -B -m pytest -q

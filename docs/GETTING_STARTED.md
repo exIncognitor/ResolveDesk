@@ -69,6 +69,14 @@ RESOLVEDESK_MODEL_API_KEY=<填写自己的密钥>
 
 ## 4. 构建界面并启动
 
+首次升级或新安装先执行（不会重置已有业务与账号）：
+
+```powershell
+python -m tools.setup_identity
+```
+
+这会创建learner/support登录账号、8小时会话所需的数据表和本机`data/config-encryption.key`。初始密码仅写入`.codex-runtime/login-accounts.json`，已存在的账号和凭据不会被覆盖。已有本地API令牌迁入数据库后具有固定7天期限和撤销检查。
+
 ```powershell
 npm --prefix frontend ci --no-audit --no-fund
 npm --prefix frontend run build
@@ -77,14 +85,16 @@ python -m uvicorn resolvedesk.app:app --host 127.0.0.1 --port 8080 --workers 2 -
 
 Windows 也可执行 `.\tools\start_local.ps1 -Workers 2`。打开 http://127.0.0.1:8080 ，依赖就绪检查为 http://127.0.0.1:8080/ready 。
 
-在“连接配置”中，地址填 `/`，访问令牌从本机 `.codex-runtime/access.json` 对应账号的 token 读取：
+打开页面后用组织标识`demo`、账号和初始密码登录。密码位于本机`.codex-runtime/login-accounts.json`。
+
+需要本地快速体验时，在`.env`显式设置`RESOLVEDESK_ENV=development`与`RESOLVEDESK_DEMO_LOGIN_ENABLED=true`，重新创建容器后可在登录页或右上角切换员工和支持人员。生产模式`RESOLVEDESK_ENV=production`会在服务端强制关闭此入口。
 
 | 账号 | 用途 |
 | --- | --- |
 | learner | 本人申请、查看资源、维修验收、席位回收 |
 | support | 审批和办理、知识管理、评测与监控 |
 
-这里填写本应用访问令牌。供应商 API Key 留在服务端 `.env`。
+员工没有模型管理入口。support进入“支持后台 → 模型与用量”输入模型、协议、地址和自己的API Key，填写单价后可查看估算费用并切换模型；Key保存后不再返回浏览器。CLI仍使用独立的应用访问令牌，不使用供应商API Key。
 
 ## 5. 发布内置知识，再体验服务
 
@@ -100,13 +110,15 @@ Windows 也可执行 `.\tools\start_local.ps1 -Workers 2`。打开 http://127.0.
 docker compose --env-file .codex-runtime/services.env -f compose.yaml up -d --build
 ```
 
-工作台 http://127.0.0.1:18080 ，Prometheus http://127.0.0.1:19090 。容器通过既有 data 挂载保留模型与身份，通过本地配置连接共享服务和费用权威记录。Nginx 提供同源页面与 API。
+工作台 http://127.0.0.1:18080 ，Prometheus http://127.0.0.1:19090 。容器通过既有data挂载保留嵌入模型与密钥材料，PostgreSQL保存账号、会话、加密模型配置、用量和业务状态。Nginx提供同源页面与API，并对登录入口限流。更新应用后重新启动gateway以刷新应用地址。
+
+生产模式还需配置`RESOLVEDESK_MODEL_ALLOWED_HOSTS`允许模型服务域名。配置加密密钥应与数据库分开备份；可通过秘密管理系统注入`RESOLVEDESK_CONFIG_ENCRYPTION_KEY`。不要丢弃`data/config-encryption.key`或删除数据卷；丢失密钥后无法解密既有模型凭据。公网部署前需由外层入口提供TLS。
 
 ## 常见检查
 
 | 现象 | 定位入口 |
 | --- | --- |
-| 页面打开但无法读取本人记录 | “连接配置”中的地址、访问令牌及 `/me` |
+| 页面打开但无法读取本人记录 | 登录是否过期/被撤销、账号是否启用及 `/me` |
 | 技术路径正常但依赖失败 | `/ready`、`tools/check_services.py`、Compose 服务状态 |
 | 知识导入后搜不到 | 当前文档是否审核发布、生效时间、ACL、索引状态 |
 | 模型调用失败 | 服务端协议、模型名、地址、密钥以及服务商返回的错误 |

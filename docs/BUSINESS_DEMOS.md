@@ -1,10 +1,10 @@
 # 三条模拟业务演示与面试讲解
 
-从 [当前架构](CURRENT_ARCHITECTURE.md) 开始。以下操作会创建明确的本地模拟工单；聊天会调用 Flash，正式执行前确认预算和使用自己的 Key。例句是公开演示材料，不作为新的盲测成绩。第四轮冻结验收使用另外固定的输入，原始结果在 `reports/iteration4-*-live-r*.json`。
+从[当前架构](CURRENT_ARCHITECTURE.md)开始。以下操作会创建明确的本地模拟工单；聊天会调用当前配置模型，请使用自己的Key。例句是公开演示材料，不作为新的盲测成绩。第四轮冻结验收使用另外固定的输入，原始结果在`reports/iteration4-*-live-r*.json`。
 
 ## 共同准备
 
-打开 `http://127.0.0.1:8080` 或 Docker 网关 `http://127.0.0.1:18080`。在设置填本地 `.codex-runtime/access.json` 对应的 learner 令牌；审核人使用 support 令牌。令牌只保留本机，不提交到 Git。知识页应有当前已发布材料；首次安装导入的是草稿，要先由 support 补齐发布信息并审核。每条独立流程点“新会话”。命令行可用 `python -m resolvedesk.cli --base-url http://127.0.0.1:18080 --actor learner`，`:new` 新会话、`:confirm VERSION` 确认核对过的草稿。
+打开宿主机8080或Docker网关18080，使用登录页进入learner/support账号；初始密码见本地`.codex-runtime/login-accounts.json`。本地开启测试开关时可用登录页或右上角快速切换，生产模式没有这个入口。知识页应有当前已发布材料；首次安装导入的是草稿，要先由support补齐发布信息并审核。每条独立流程点“新会话”。CLI继续使用有期限的独立访问令牌，`:new`新会话、`:confirm VERSION`确认草稿。
 
 ## 一、权限申请：生成计划和实际开通的区别
 
