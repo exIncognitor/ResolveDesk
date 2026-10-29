@@ -166,6 +166,8 @@ class BusinessService:
                 if state == "approved" and row["owner"] != p.user: actions.append("provision")
             else:
                 actions += {"submitted": ["triage"], "triaged": ["assign"], "assigned": ["start"], "in_progress": ["resolve"]}.get(state, [])
+                if row["assignee"] != p.user:
+                    actions = [action for action in actions if action not in {"start", "resolve"}]
         return actions
 
     def get(self, p, ticket_id):

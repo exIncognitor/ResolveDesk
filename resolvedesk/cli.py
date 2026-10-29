@@ -25,7 +25,7 @@ HELP='''直接输入问题继续当前会话；只有聊天、恢复执行才可
 :trace [RUN_ID]          完整分页轨迹及实际耗时
 :recent                  最近轮次轨迹
 :memory                  本人记忆状态
-:integrations            意图向量与MCP集成状态（support可看向量详情）
+:integrations            意图向量与MCP集成状态（仅support可看详情）
 :help / :quit            帮助 / 退出
 '''
 
@@ -133,12 +133,13 @@ class DeskCLI:
         elif verb==':recent':self.display(self.request('GET','/trace/tools'))
         elif verb==':memory':self.display(self.request('GET','/memory'))
         elif verb==':integrations':
-            mcp=self.request('GET','/integrations/mcp')
-            try:embedding=self.request('GET','/integrations/embedding')
-            except httpx.HTTPStatusError as exc:
-                if exc.response.status_code!=403:raise
-                embedding={'detail':'support role required'}
-            self.display({'mcp':mcp,'intent_embedding':embedding})
+            details={}
+            for name,path in (('mcp','/integrations/mcp'),('intent_embedding','/integrations/embedding')):
+                try:details[name]=self.request('GET',path)
+                except httpx.HTTPStatusError as exc:
+                    if exc.response.status_code!=403:raise
+                    details[name]={'detail':'support role required'}
+            self.display(details)
         elif verb==':search':
             if not rest:raise ValueError('请输入检索内容')
             self.display(self.request('POST','/knowledge/search',{'query':rest,'top_k':5,'mode':'hybrid'}))

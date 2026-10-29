@@ -462,4 +462,5 @@ class Store:
             # Candidate fixtures require human review; never automatically alter eval baselines.
             return [dict(row) for row in db.execute("""SELECT f.run_id,r.message AS question,r.answer,
                 f.rating,f.note FROM feedback f JOIN runs r ON f.run_id=r.id
-                WHERE f.tenant=? AND f.rating='bad' ORDER BY f.created DESC LIMIT 100""", (p.tenant,))]
+                WHERE f.tenant=? AND f.owner=? AND r.tenant=f.tenant AND r.owner=f.owner
+                AND f.rating='bad' ORDER BY f.created DESC LIMIT 100""", (p.tenant,p.user))]

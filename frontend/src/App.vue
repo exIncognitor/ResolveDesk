@@ -334,7 +334,7 @@
             {{ busy && pendingAction === 'evaluation' ? '评测运行中' : '运行评测' }}
           </button>
         </div>
-        <section class="workspace-card"><h2>负反馈回归候选</h2><button class="text-button" @click="loadCandidates">加载候选（客服）</button><label>期望文档 ID<input v-model="expectedDocument" /></label><label>期望章节<input v-model="expectedSection" /></label><p v-for="c in candidates" :key="c.run_id">{{ c.question }} <button :disabled="!expectedDocument || !expectedSection" @click="promoteCandidate(c.run_id)">审核并加入回归</button></p></section>
+        <section class="workspace-card"><h2>本人负反馈回归候选</h2><button class="text-button" @click="loadCandidates">加载本人候选</button><label>期望文档 ID<input v-model="expectedDocument" /></label><label>期望章节<input v-model="expectedSection" /></label><p v-for="c in candidates" :key="c.run_id">{{ c.question }} <button :disabled="!expectedDocument || !expectedSection" @click="promoteCandidate(c.run_id)">审核并加入回归</button></p></section>
         <section v-if="evaluationKind === 'quality'" class="workspace-card">
           <h2>自定义质量评测</h2>
           <label>评测集 JSON（可填写 intent_cases、dialog_cases、逐轮 reference/evidence 和断言；留空使用合成开发集）<textarea v-model="evaluationDataset" rows="8" :disabled="busy" aria-label="自定义评测集 JSON"></textarea></label>
@@ -1085,7 +1085,7 @@ async function submitFeedback(rating){
   catch (error) { if (current()) showToast(error.message) }
 }
 async function showCitation(citation){const r=requestState.begin('citation');try{const source=await deskRequest(r.settings,`/knowledge/citations/${citation}`);if(r.isCurrent())citationText.value=formatCitation(source)}catch(e){if(r.isCurrent())showToast(e.message)}}
-async function loadOperations(){const r=requestState.begin('operations');try{const data=await Promise.all([deskRequest(r.settings,'/runs'),deskRequest(r.settings,'/memory'),deskRequest(r.settings,'/mcp')]);if(r.isCurrent())[runList.value,memoryData.value,mcpData.value]=data}catch(e){if(r.isCurrent())showToast(e.message)}}
+async function loadOperations(){const r=requestState.begin('operations');try{const data=await Promise.all([deskRequest(r.settings,'/runs'),deskRequest(r.settings,'/memory'),isSupport.value?deskRequest(r.settings,'/mcp'):Promise.resolve({})]);if(r.isCurrent())[runList.value,memoryData.value,mcpData.value]=data}catch(e){if(r.isCurrent())showToast(e.message)}}
 async function loadCandidates(){const r=requestState.begin('candidates');try{const data=await deskRequest(r.settings,'/evaluation/candidates');if(r.isCurrent())candidates.value=data}catch(e){if(r.isCurrent())showToast(e.message)}}
 async function promoteCandidate(id){try{await deskRequest(settings,`/evaluation/candidates/${id}/promote`,'POST',{document:expectedDocument.value,section:expectedSection.value});showToast('已加入回归集')}catch(e){showToast(e.message)}}
 </script>

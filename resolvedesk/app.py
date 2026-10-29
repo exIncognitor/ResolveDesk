@@ -243,7 +243,9 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
             raise PermissionError()
         services=request.app.state.agent.services
         intent=services.roles._intent_recognizer if services else None
-        return {"retrieval": request.app.state.knowledge.status(), "embedding_error": request.app.state.embedding_error,
+        retrieval = request.app.state.knowledge.status()
+        retrieval['chunks'] = request.app.state.knowledge.stats(p)['total_chunks']
+        return {"retrieval": retrieval, "embedding_error": request.app.state.embedding_error,
                 "model": getattr(request.app.state.agent.client,'describe',lambda:{})(),
                 "usage": getattr(request.app.state.agent.client,'usage_summary',lambda:{})(),
                 "intent":{"implementation":type(intent).__name__,"vector_provider":getattr(getattr(intent,"embedding",None),"identity",None)},
@@ -431,11 +433,13 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
 
     @app.get("/mcp")
     def mcp(request:Request,p=Depends(principal)):
+        if p.role!='support':raise PermissionError()
         services = request.app.state.agent.services
         return services.mcp.summary() if services else {"servers":[]}
 
     @app.get("/integrations/mcp")
     def mcp_integration(request:Request,p=Depends(principal)):
+        if p.role!='support':raise PermissionError()
         services=request.app.state.agent.services
         return {"protocol_endpoint":"/mcp/knowledge/","read_only":True,
             **(services.mcp.summary() if services else {"servers":[]})}
