@@ -154,21 +154,25 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
 
 
 class WiringTests(unittest.TestCase):
-    def test_all_application_anthropic_clients_use_the_gate(self):
+    def test_application_clients_use_the_configured_transport_or_explicit_legacy_adapter(self):
         expected = {"agents/agent_orchestrator.py", "core/intent_recognizer.py", "tooling/tool_manager.py",
-                    "memory/conversation_memory.py", "evaluation/evaluator.py"}
-        found = set()
-        for directory in ("agents", "api", "core", "tooling", "memory", "evaluation", "monitor"):
+                    "evaluation/evaluator.py", "resolvedesk/agent.py", "resolvedesk/quality.py"}
+        found, legacy = set(), set()
+        for directory in ("agents", "api", "core", "tooling", "memory", "evaluation", "monitor", "resolvedesk"):
             for path in (ROOT / directory).glob("*.py"):
                 relative = path.relative_to(ROOT).as_posix()
                 tree = ast.parse(path.read_text(encoding="utf-8"))
                 for node in ast.walk(tree):
                     if isinstance(node, ast.ImportFrom) and node.module == "anthropic":
-                        self.assertEqual(relative, "core/paid_api.py", relative)
+                        self.assertIn(relative, {"core/model_client.py", "core/paid_api.py"}, relative)
+                    if isinstance(node, ast.ImportFrom) and node.module == "core.model_client":
+                        if any(n.name == "ModelClient" for n in node.names):
+                            found.add(relative)
                     if isinstance(node, ast.ImportFrom) and node.module == "core.paid_api":
                         if any(n.name == "BudgetedAnthropic" and n.asname == "AsyncAnthropic" for n in node.names):
-                            found.add(relative)
+                            legacy.add(relative)
         self.assertEqual(found, expected)
+        self.assertEqual(legacy, {"memory/conversation_memory.py"})
 
 
 if __name__ == "__main__":
