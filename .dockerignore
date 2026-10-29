@@ -4,6 +4,7 @@ key.txt
 **/history
 .codex-tmp
 .codex-runtime
+SOURCES.md
 .git
 .venv
 **/node_modules
