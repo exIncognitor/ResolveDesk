@@ -1,0 +1,18 @@
+name: 改进建议
+description: 描述真实服务场景与可验证的预期
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 需要解决的业务或使用问题
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: 建议行为与验收方式
+      description: 涉及状态、权限或外部动作时，请说明边界。
+    validations:
+      required: true
+

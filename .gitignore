@@ -1,4 +1,6 @@
 .env
+# Local authorization history; public terms are in LICENSE.
+/SOURCES.md
 key.txt
 *.key
 .env.*

@@ -1,0 +1,27 @@
+name: 问题反馈
+description: 提供可复现输入、观察结果与运行环境
+title: "[Bug] "
+body:
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤
+      description: 服务入口、角色、输入与操作顺序。请先移除Key、Token和个人资料。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 版本与环境
+      description: 提交或标签、系统、浏览器、依赖状态；界面问题补充屏幕宽度。
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 脱敏日志或截图
+

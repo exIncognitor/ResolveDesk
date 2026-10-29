@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="320" viewBox="0 0 1440 320" role="img" aria-labelledby="title desc">
+<title id="title">ResolveDesk</title><desc id="desc">From an IT request to a resolved workflow.</desc>
+<rect width="1440" height="320" rx="18" fill="#13243b"/>
+<path d="M935 0h505v320H822z" fill="#193451"/>
+<path d="M1052 0h388v320H940z" fill="#1b3c60"/>
+<rect x="64" y="58" width="44" height="44" rx="11" fill="#3975f1"/>
+<text x="86" y="86" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="18" font-weight="700">RD</text>
+<text x="124" y="87" fill="#a8c3e9" font-family="Arial,sans-serif" font-size="12" letter-spacing="3">IT SERVICE WORKSPACE</text>
+<text x="62" y="173" fill="white" font-family="Arial,sans-serif" font-size="64" font-weight="700" letter-spacing="-2">ResolveDesk</text>
+<text x="66" y="218" fill="#c6d8ef" font-family="Arial,sans-serif" font-size="24">From an IT request to a resolved workflow.</text>
+<text x="66" y="270" fill="#88a8cf" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">PYTHON AGENTS   /   GROUNDED KNOWLEDGE   /   APPROVAL WORKFLOWS</text>
+<path d="M1030 154h88m62 0h88" stroke="#648db8" stroke-width="2"/>
+<circle cx="1000" cy="154" r="29" fill="#254a75" stroke="#6e9ce0"/><path d="M989 144h22v16h-12l-7 6v-6h-3z" fill="none" stroke="#d5e7ff" stroke-width="2"/>
+<circle cx="1150" cy="154" r="29" fill="#254a75" stroke="#6e9ce0"/><path d="M1142 141h16v25h-16zM1146 148h8m-8 6h8m-8 6h5" fill="none" stroke="#d5e7ff" stroke-width="2"/>
+<circle cx="1300" cy="154" r="29" fill="#1a7c70" stroke="#62c7b2"/><path d="m1289 154 8 8 14-16" fill="none" stroke="white" stroke-width="3"/>
+<g fill="#c6d8ef" font-family="Arial,sans-serif" font-size="14" text-anchor="middle"><text x="1000" y="214">Request</text><text x="1150" y="214">Review</text><text x="1300" y="214">Resolve</text></g>
+</svg>
+
