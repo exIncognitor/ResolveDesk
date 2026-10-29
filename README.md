@@ -17,31 +17,31 @@ ResolveDesk 是一个面向企业内部 IT 服务的 Python Agent 应用。员�
 <a id="preview"></a>
 ## 界面预览
 
-<img src="docs/media/workspace.jpg" alt="ResolveDesk 对话工作台：四类 IT 服务入口、需求输入和申请流程" width="100%" />
+<img src="docs/media/employee-desktop-enterprise.png" alt="ResolveDesk 员工工作区：四类 IT 服务入口、登录状态与本地身份切换" width="100%" />
 
 <details>
 <summary><strong>业务服务台：申请记录、处理状态与本人资源</strong></summary>
 
-<img src="docs/media/service-desk.jpg" alt="ResolveDesk 业务服务台，展示当前身份的真实模拟记录和资源" width="100%" />
+<img src="docs/media/service-desk-enterprise.png" alt="ResolveDesk 业务服务台，展示当前身份可见的服务概览与申请入口" width="100%" />
 
 服务概览由当前身份可见的业务记录计算；每张单保留状态、操作人、处理说明和审计记录。
 
 </details>
 
 <details>
-<summary><strong>身份工作区：员工入口与支持人员的模型状态</strong></summary>
+<summary><strong>账号登录与支持后台：模型、用量、账号和审计</strong></summary>
 
-员工登录后查看本人服务、资源与知识；支持人员另外拥有知识治理、评测和支持后台。支持后台可维护模型、协议、服务地址、加密密钥、单价、持久化用量与估算费用，以及账号启停与会话撤销。生产模式禁用测试身份切换。
+员工登录后查看本人服务、资源与知识；支持人员另外拥有知识治理、评测和支持后台。支持后台可维护模型、协议、服务地址、加密保存的API Key、单价、持久化用量与估算费用，以及账号启停与会话撤销。生产模式禁用测试身份切换。
 
-<img src="docs/media/employee-workspace.png" alt="员工工作区没有评测管理入口" width="100%" />
-<img src="docs/media/support-model-settings.png" alt="支持人员查看模型、协议、服务地址及密钥已配置状态" width="100%" />
+<img src="docs/media/login-desktop-enterprise.png" alt="组织账号登录；测试环境显式开启两种身份快速体验" width="100%" />
+<img src="docs/media/support-console-desktop-enterprise.png" alt="支持后台：模型配置、API Key输入、配置切换、Token用量与费用估算" width="100%" />
 
 </details>
 
 <details>
 <summary><strong>手机布局</strong></summary>
 
-<img src="docs/media/mobile-workspace.jpg" alt="390px 宽度下的 ResolveDesk 手机工作台" width="300" />
+<img src="docs/media/employee-mobile-enterprise.png" alt="390px 宽度下的 ResolveDesk 双身份手机工作台" width="300" />
 
 </details>
 
@@ -123,10 +123,11 @@ python -m pip install -r requirements-dev.txt
 | --- | --- | --- |
 | 前端行为回归 | 53项通过，包含登录会话、角色入口、身份/会话切换与SSE竞态 | [前端测试](frontend/tests) |
 | 真实依赖集成 | 493项测试及14子测试通过 | [服务回归报告](reports/enterprise-login-models-final.xml) |
+| 当前登录与权限部署验收 | 34/34接口、密钥与旧数据检查；14/14浏览器检查 | [本轮交付记录](docs/ENTERPRISE_LOGIN_ACCEPTANCE.md) |
 | 浏览器业务演示 | 权限、维修、席位三条闭环，落库复核11/11 | [业务证据](reports/final-polish-ui-workflows.json) |
 | 真实 Flash 复验 | 同12组合成对话两轮硬检查均12/12；含Judge分别11/12、10/12 | [第一轮](reports/iteration4-final-polish-live-r1.json) / [第二轮](reports/iteration4-final-polish-live-r2.json) |
 
-前两行是模型配置与权限更新后的回归；业务演示和Flash质量记录对应 `resolvedesk-demo-v1` 的业务引擎，本轮未重跑收费质量评测。固定合成题用于项目回归，原始失败与评分均保留；实验设置见 [验收报告](docs/FINAL_POLISH_ACCEPTANCE.md)。
+前两行是模型配置与权限更新后的回归，发布凭据扫描另有3项针对性回归通过；业务演示和Flash质量记录对应 `resolvedesk-demo-v1` 的业务引擎，本轮未重跑收费质量评测。固定合成题用于项目回归，原始失败与评分均保留；实验设置见 [验收报告](docs/FINAL_POLISH_ACCEPTANCE.md)。
 
 系统内已具备账号停用、会话撤销、授权合并/撤销/到期、软件席位回收、目录派单/转派和停用申请人的审计代验收。内置资源仍为模拟企业数据，未连接真实企业目录、设备或供应商。试运行范围和外部接入前提见[企业使用边界](docs/ENTERPRISE_READINESS.md)。根目录统一使用本README；`docs/README.md`仅为专题文档索引。
 

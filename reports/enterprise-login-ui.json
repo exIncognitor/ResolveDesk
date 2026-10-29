@@ -1,0 +1,22 @@
+{
+  "tested_at": "2026-10-29T11:09:50.681Z",
+  "base_url": "http://127.0.0.1:18080",
+  "runtime_revision": "4fd544a",
+  "checks": {
+    "password_login": true,
+    "employee_management_hidden": true,
+    "session_survives_reload": true,
+    "profile_saved": true,
+    "key_input_cleared": true,
+    "model_activated": true,
+    "model_key_not_echoed": true,
+    "accounts_visible": true,
+    "audit_visible": true,
+    "desktop_no_horizontal_overflow": true,
+    "employee_knowledge_read_only": true,
+    "logout_returns_login": true,
+    "quick_employee_login": true,
+    "mobile_no_horizontal_overflow": true
+  },
+  "paid_model_requests": 0
+}

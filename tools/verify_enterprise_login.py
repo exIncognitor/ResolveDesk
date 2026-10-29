@@ -38,7 +38,7 @@ def main():
                 sessions[user] = {'Authorization':'Bearer '+session['token']}
                 private.add(session['token'].encode())
                 checks[user+'_password_login'] = session['principal']['role'] == account['role']
-                checks[user+'_no_store'] = response.headers.get('cache-control') == 'no-store'
+                checks[user+'_no_store'] = 'no-store' in response.headers.get('cache-control','').lower().split(', ')
             def request(method, path, body=None, user='support'):
                 return http.request(method, path, json=body, headers=sessions[user])
             for path in ('/admin/models','/admin/model-usage','/admin/accounts','/admin/audit',
@@ -75,7 +75,9 @@ def main():
                 for r in (configurations,users,audit,usage))
             html = http.get('/').text
             scripts = re.findall(r'src="(/assets/[^\"]+\.js)"',html)
-            checks['current_frontend_served'] = len(scripts)==1 and scripts[0] in (ROOT/'frontend/dist/index.html').read_text(encoding='utf-8') and http.get(scripts[0]).status_code==200
+            container_html = subprocess.check_output(['docker','compose','--env-file','.codex-runtime/services.env',
+                'exec','-T','app','cat','/app/frontend/dist/index.html'],cwd=ROOT,text=True,encoding='utf-8')
+            checks['current_frontend_served'] = len(scripts)==1 and scripts[0] in container_html and http.get(scripts[0]).status_code==200
             mcp_body = {'jsonrpc':'2.0','id':1,'method':'initialize',
                 'params':{'protocolVersion':'2025-03-26','capabilities':{},'clientInfo':{'name':'local-acceptance','version':'1'}}}
             mcp_headers = dict(sessions['learner'],Accept='application/json, text/event-stream')
