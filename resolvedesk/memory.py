@@ -291,7 +291,7 @@ class ScopedMemory:
 
     async def _maintain(self, job, batch):
         from core.model_client import model_scope
-        async with model_scope(self.client,Principal(job['tenant'],job['owner']),'memory:'+job['run_id']):
+        async with model_scope(self.client,Principal(job['tenant'],job['owner']),'memory:'+batch['run_id']):
             return await self._maintain_bound(job,batch)
 
     async def _maintain_bound(self, job, batch):

@@ -95,7 +95,7 @@ class MCPDebugCall(Input):
     role: Literal["general","technical","billing","escalation"] = "general"
 
 
-def create_app(store=None, knowledge=None, agent=None, accounts=None):
+def create_app(store=None, knowledge=None, agent=None, accounts=None, *, identity=None, models=None):
     injected = store is not None
 
     @asynccontextmanager
@@ -117,13 +117,20 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
                 coordination = Coordination(settings.redis_url,settings.namespace)
                 await coordination.redis.ping()
                 app.state.knowledge = HybridKnowledge(app.state.store,embedding,vectors)
-                app.state.agent = DeskAgent(app.state.store,app.state.knowledge,coordination=coordination)
+                from resolvedesk.identity import IdentityService
+                from resolvedesk.model_admin import ModelRegistry,ManagedModelClient
+                app.state.identity = IdentityService(app.state.store)
+                app.state.models = ModelRegistry(app.state.store)
+                client=ManagedModelClient(app.state.models)
+                app.state.agent = DeskAgent(app.state.store,app.state.knowledge,client,coordination=coordination)
+                app.state.agent.business.directory=app.state.identity
                 from resolvedesk.services import DeskServices
                 app.state.agent.services = DeskServices(app.state.store,app.state.knowledge,app.state.agent.client,coordination=coordination)
                 await app.state.agent.services.start()
                 app.state.accounts = json.loads((ROOT / "data" / "auth.json").read_text(encoding="utf-8"))
             from resolvedesk.evaluations import EvaluationService
-            app.state.evaluations = EvaluationService(app.state.store,app.state.knowledge,coordination=app.state.agent.coordination)
+            app.state.evaluations = EvaluationService(app.state.store,app.state.knowledge,
+                client_factory=getattr(app.state,'models',None),coordination=app.state.agent.coordination)
             app.state.store.recover_expired()
             app.state.agent.monitor.start()
             from resolvedesk.knowledge_mcp import create_knowledge_mcp
@@ -157,16 +164,26 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         app.state.store, app.state.knowledge, app.state.agent = store, knowledge, agent
         app.state.accounts = accounts or {}
         app.state.embedding_error = None
+        app.state.identity,app.state.models = identity,models
 
     def principal(request: Request, authorization: str = Header(default="")):
         if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Bearer token required")
         token = authorization[7:]
-        key = hashlib.sha256(token.encode()).hexdigest()
-        account = request.app.state.accounts.get(key)
-        if account is None or account.get("role") not in {"user", "support"}:
+        from resolvedesk.identity import resolve_identity
+        account = resolve_identity(request.app.state,token)
+        if account is None:
             raise HTTPException(401, "Invalid credentials")
-        return Principal(account["tenant"], account["user"], account["role"])
+        return account
+
+    from resolvedesk.admin_api import install_admin
+    install_admin(app,principal)
+
+    from fastapi.exceptions import RequestValidationError
+    @app.exception_handler(RequestValidationError)
+    async def invalid_request(request,exc):
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=422,content={'detail':[{'loc':list(e['loc']),'msg':e['msg'],'type':e['type']} for e in exc.errors()]})
 
     @app.exception_handler(KeyError)
     async def missing(request, exc):
@@ -246,7 +263,7 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         retrieval = request.app.state.knowledge.status()
         retrieval['chunks'] = request.app.state.knowledge.stats(p)['total_chunks']
         return {"retrieval": retrieval, "embedding_error": request.app.state.embedding_error,
-                "model": getattr(request.app.state.agent.client,'describe',lambda:{})(),
+                "model": request.app.state.models.describe(p) if getattr(request.app.state,'models',None) else getattr(request.app.state.agent.client,'describe',lambda:{})(),
                 "usage": getattr(request.app.state.agent.client,'usage_summary',lambda:{})(),
                 "intent":{"implementation":type(intent).__name__,"vector_provider":getattr(getattr(intent,"embedding",None),"identity",None)},
                 "specialists":{role.value:{"implementations":[type(agent).__name__ for agent in pool],"tools":list(pool[0].get_tools())} for role,pool in services.roles._pool.items()} if services else {},
