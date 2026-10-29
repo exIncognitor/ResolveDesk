@@ -15,6 +15,8 @@ def _sdk_client(**kwargs):
 
 
 def model_identity(client):
+    if callable(getattr(type(client), 'model_identity', None)):
+        return client.model_identity()
     if isinstance(client, ModelClient):
         return {key: getattr(client, key) for key in ('protocol', 'model', 'base_url')}
     value = getattr(client, 'model', None)
@@ -183,6 +185,7 @@ class _Messages:
 
     async def create(self, **kwargs):
         owner = self.owner
+        call_id = owner._begin()
         try:
             if owner.protocol == "anthropic":
                 response = await owner._sdk().messages.create(**(dict(kwargs) | {"model": owner.model}))
@@ -195,15 +198,17 @@ class _Messages:
                 message = choice["message"]
                 response = _message(owner.model, message.get("content") or "", message.get("tool_calls") or [],
                                     choice.get("finish_reason"), _usage(data.get("usage")), data.get("id", ""))
-            owner._record(response)
+            owner._record(response, call_id)
             return response
         except BaseException:
             owner._failed += 1
+            owner._settle(call_id)
             raise
 
     @asynccontextmanager
     async def stream(self, **kwargs):
         owner = self.owner
+        call_id = owner._begin()
         try:
             if owner.protocol == "anthropic":
                 async with owner._sdk().messages.stream(**(dict(kwargs) | {"model": owner.model})) as stream:
@@ -216,15 +221,17 @@ class _Messages:
                     stream = _ChatStream(result, owner.model)
                     yield stream
                     response = await stream.get_final_message()
-            owner._record(response)
+            owner._record(response, call_id)
         except BaseException:
             owner._failed += 1
+            owner._settle(call_id)
             raise
 
 
 class ModelClient:
     """One configured provider per client; API keys are never returned by describe()."""
     def __init__(self, *, api_key=None, base_url=None, model=None, protocol=None, **kwargs):
+        self._usage_observer = kwargs.pop('usage_observer', None)
         self.protocol = (protocol or os.getenv("RESOLVEDESK_MODEL_PROTOCOL") or "anthropic").strip().lower()
         if self.protocol not in {"anthropic", "openai"}:
             raise ValueError("RESOLVEDESK_MODEL_PROTOCOL must be anthropic or openai")
@@ -260,7 +267,19 @@ class ModelClient:
     def _headers(self):
         return {"Authorization": "Bearer " + self._key, "Content-Type": "application/json"}
 
-    def _record(self, response):
+    def _begin(self):
+        return self._usage_observer.begin() if self._usage_observer else None
+
+    def _settle(self, call_id, response=None):
+        if self._usage_observer and call_id:
+            try: self._usage_observer.finish(call_id, response)
+            except Exception:
+                # The durable started row remains unknown. Never replay a paid response.
+                import logging
+                logging.getLogger(__name__).error('Model usage settlement unavailable; record retained as unknown')
+
+    def _record(self, response, call_id=None):
+        self._settle(call_id, response)
         self._calls += 1
         usage = getattr(response, "usage", None)
         counts = [getattr(usage, key, None) for key in ("input_tokens", "output_tokens")]
@@ -286,4 +305,12 @@ class ModelClient:
             await self._client.close()
         if self._http_client is not None:
             await self._http_client.aclose()
+
+
+@asynccontextmanager
+async def model_scope(client, principal, context):
+    if callable(getattr(type(client), 'scope', None)):
+        async with client.scope(principal, context) as bound: yield bound
+    else:
+        yield client
 

@@ -60,7 +60,8 @@ class QualityRunner:
         state=state or EvalState(self.store,job_id)
         state.embedding_identity=getattr(self.knowledge.embedding,'identity',None)
         state.redis_namespace=getattr(self.coordination,'namespace',None)
-        client=self.client_factory() if self.client_factory else ModelClient(timeout=25)
+        client=(self.client_factory.for_actor(p,'evaluation:'+job_id) if callable(getattr(type(self.client_factory),'for_actor',None))
+                else self.client_factory() if self.client_factory else ModelClient(timeout=25))
         state.model_identity=model_identity(client)
         try:manifest=freeze(state,p,dataset,ROOT)
         except BaseException:

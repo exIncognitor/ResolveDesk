@@ -10,7 +10,7 @@ import uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from core.model_client import ModelClient, model_identity
+from core.model_client import ModelClient, model_identity, model_scope
 from resolvedesk.store import Conflict, encode
 
 
@@ -155,7 +155,7 @@ class DeskAgent:
 
     async def _execute_owned(self,p,run_id):
         try:
-            async with asyncio.timeout(90): await self._loop(p,run_id)
+            async with asyncio.timeout(90), model_scope(self.client,p,'run:'+run_id): await self._loop(p,run_id)
         except asyncio.CancelledError:
             try:
                 if self.store.get_run(p,run_id)["status"] == "running":

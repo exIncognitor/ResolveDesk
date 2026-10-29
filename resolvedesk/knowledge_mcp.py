@@ -82,10 +82,11 @@ def create_knowledge_mcp(api):
             if scope['type']!='http':return await protocol(scope,receive,send)
             headers=dict(scope.get('headers',[]));authorization=headers.get(b'authorization',b'').decode('latin-1')
             token=authorization[7:] if authorization.startswith('Bearer ') else ''
-            account=getattr(api.state,'accounts',{}).get(hashlib.sha256(token.encode()).hexdigest()) if token else None
-            if not account or account.get('role')not in {'user','support'}:
+            from resolvedesk.identity import resolve_identity
+            account=resolve_identity(api.state,token) if token else None
+            if account is None:
                 return await JSONResponse({'detail':'Bearer token required'},status_code=401,headers={'WWW-Authenticate':'Bearer'})(scope,receive,send)
-            marker=actor.set(Principal(account['tenant'],account['user'],account['role']))
+            marker=actor.set(account)
             try:return await protocol(scope,receive,send)
             finally:actor.reset(marker)
     return server,AuthenticatedProtocol()
