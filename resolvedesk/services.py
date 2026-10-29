@@ -41,13 +41,16 @@ class DeskServices:
             from resolvedesk.remote_embedding import HTTPEmbedding
             self.remote_embedding=HTTPEmbedding(os.getenv("RESOLVEDESK_INTENT_VECTOR_URL",""),os.getenv("RESOLVEDESK_EMBEDDING_TOKEN",""))
         recognizer=ITIntentRecognizer(client,self.remote_embedding or knowledge.embedding)
-        self.roles = AgentOrchestrator(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash",skill_manager=self.skills,agent_classes=IT_AGENTS,intent_recognizer=recognizer)
-        # All integrated agents use the same guarded client and fixed Flash model.
+        model=getattr(client,'model','deepseek-flash')
+        self.roles = AgentOrchestrator(api_key='',model=model,skill_manager=self.skills,agent_classes=IT_AGENTS,intent_recognizer=recognizer)
+        # Runtime nodes share the configured client; historical budgets are not used.
         self.roles._composer._client = client
         for pool in self.roles._pool.values():
             for agent in pool:
                 agent._client = client
-        self.manager = MCPToolManager(api_key=os.getenv("ANTHROPIC_API_KEY", ""),model="deepseek-flash")
+                agent._model = model
+                agent.profile = __import__('dataclasses').replace(agent.profile,model=model)
+        self.manager = MCPToolManager(api_key='',model=model)
         self.manager.observer=self._observe_tool
         from resolvedesk.reliable_retrieval import ReliableRetrieval
         self.retrieval=ReliableRetrieval(knowledge,client,self.manager,coordination)

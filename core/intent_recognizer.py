@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from core.paid_api import BudgetedAnthropic as AsyncAnthropic
+from core.model_client import ModelClient as AsyncAnthropic
 
 from core.llm_utils import extract_text_content
 

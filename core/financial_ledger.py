@@ -1,4 +1,4 @@
-"""One PostgreSQL financial authority for host, container and background calls.
+"""Historical development ledger, retained for evidence and legacy utilities.
 
 Reuse the conservative reservation/uncertainty contract. A database advisory
 transaction lock serializes the budget check and reservation across processes.

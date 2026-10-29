@@ -27,8 +27,8 @@ class ITRoleAgent(BaseAgent):
         "最终建议控制在约300个中文字内，给出至多3点和必要引用，不复述完整资料或另行推演长篇方案。")
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.profile=replace(self.profile,model="deepseek-flash")
-        self._model="deepseek-flash"
+        self._model=getattr(self._client,'model','deepseek-flash')
+        self.profile=replace(self.profile,model=self._model)
         self.instance_id=self.agent_type.value+"-"+uuid.uuid4().hex[:8]
 
     async def handle(self,req):

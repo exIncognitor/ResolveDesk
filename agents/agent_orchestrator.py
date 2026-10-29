@@ -28,7 +28,7 @@ from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-from core.paid_api import BudgetedAnthropic as AsyncAnthropic
+from core.model_client import ModelClient as AsyncAnthropic
 
 from agents.tools import (
     AgentToolSpec,

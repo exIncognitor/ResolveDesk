@@ -49,7 +49,7 @@ class QualityRunner:
         self.store,self.knowledge,self.client_factory,self.coordination=store,knowledge,client_factory,coordination
 
     async def run(self,p,job_id,limit,use_judge,progress,*,dataset=None,state=None):
-        from core.paid_api import BudgetedAnthropic
+        from core.model_client import ModelClient
         from resolvedesk.agent import DeskAgent
         from resolvedesk.app import create_app
         from resolvedesk.services import DeskServices
@@ -65,7 +65,7 @@ class QualityRunner:
         cases=dataset['dialog_cases'][:limit]
         sandbox=EvalSandbox(self.store,self.knowledge,manifest,ROOT/'.codex-runtime'/('quality-'+manifest['identity']),self.coordination)
         import os
-        client=self.client_factory() if self.client_factory else BudgetedAnthropic(api_key=os.getenv('ANTHROPIC_API_KEY',''),base_url='https://api.deepseek.com/anthropic',timeout=25)
+        client=self.client_factory() if self.client_factory else ModelClient(timeout=25)
         agent=None
         details,intents=[],[]
         try:
@@ -78,7 +78,7 @@ class QualityRunner:
             tokens={name:secrets.token_urlsafe(32) for name in actors}
             accounts={hashlib.sha256(tokens[name].encode()).hexdigest():vars(actor) for name,actor in actors.items()}
             api=create_app(store,kb,agent,accounts)
-            judge=LLMJudge(client,'deepseek-flash',max_attempts=1)
+            judge=LLMJudge(client,getattr(client,'model','deepseek-flash'),max_attempts=1)
             judge._max_tokens=512
             suite_id=suite_identity(manifest,limit,use_judge,getattr(kb.embedding,'identity',None),judge)
             total=len(dataset['intent_cases'])+len(cases)

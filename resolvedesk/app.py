@@ -208,12 +208,11 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
 
     @app.get("/health")
     def health(request: Request):
-        return {"status": "ok", "service": "ResolveDesk", "model": "deepseek-flash",
+        return {"status": "ok", "service": "ResolveDesk", "model": getattr(request.app.state.agent.client,'model','deepseek-flash'),
                 "database":request.app.state.store.backend,
                 "vector_backend":"chroma" if request.app.state.knowledge.vector_index else "offline-fixture",
                 "coordination":"redis" if request.app.state.agent.coordination else "offline-fixture",
-                "semantic_retrieval": request.app.state.knowledge.embedding is not None,
-                "paid_api_enabled": os.getenv("RESOLVEDESK_PAID_API_ENABLED", "false").lower() == "true"}
+                "semantic_retrieval": request.app.state.knowledge.embedding is not None}
 
     @app.get("/ready")
     async def ready(request:Request):
@@ -245,7 +244,8 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None):
         services=request.app.state.agent.services
         intent=services.roles._intent_recognizer if services else None
         return {"retrieval": request.app.state.knowledge.status(), "embedding_error": request.app.state.embedding_error,
-                "budget": request.app.state.agent.client.ledger().summary(),
+                "model": getattr(request.app.state.agent.client,'describe',lambda:{})(),
+                "usage": getattr(request.app.state.agent.client,'usage_summary',lambda:{})(),
                 "intent":{"implementation":type(intent).__name__,"vector_provider":getattr(getattr(intent,"embedding",None),"identity",None)},
                 "specialists":{role.value:{"implementations":[type(agent).__name__ for agent in pool],"tools":list(pool[0].get_tools())} for role,pool in services.roles._pool.items()} if services else {},
                 "capabilities":{"skills":bool(request.app.state.agent.services),"memory":bool(request.app.state.agent.services),

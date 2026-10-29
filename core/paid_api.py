@@ -1,8 +1,9 @@
-"""DeepSeek-only paid-call gate and a persistent, conservative CNY ledger.
+"""Legacy development-only budget gate for reproducing frozen experiments.
 
 Rates use the published peak, cache-miss price (verified 2026-10-26).
 Reservations are not refunded on failed/unknown requests: a provider may have
 billed them. This ledger is a project spending guard, not a provider invoice.
+Production entry points use core.model_client and never import this gate.
 """
 from __future__ import annotations
 

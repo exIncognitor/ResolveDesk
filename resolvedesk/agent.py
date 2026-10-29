@@ -10,7 +10,7 @@ import uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from core.paid_api import BudgetedAnthropic
+from core.model_client import ModelClient
 from resolvedesk.store import Conflict, encode
 
 
@@ -86,8 +86,7 @@ class DeskAgent:
     def __init__(self, store, knowledge, client=None, services=None, coordination=None):
         import os
         self.store, self.knowledge = store, knowledge
-        self.client = client or BudgetedAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY", ""),
-                                                  base_url="https://api.deepseek.com/anthropic", timeout=25)
+        self.client = client or ModelClient(timeout=25)
         self.tasks = {}
         self.slots = asyncio.Semaphore(4)
         self.closing = False
@@ -211,7 +210,7 @@ class DeskAgent:
                 blocks,stop_reason = state["pending"]["blocks"],state["pending"]["stop_reason"]
             else:
                 await self._validate_sources(p,sources)
-                kwargs = dict(model="deepseek-flash",max_tokens=1536,temperature=0,system=system,messages=messages,tools=tools,tool_choice={'type':'any'},thinking={'type':'disabled'})
+                kwargs = dict(model=getattr(self.client,"model","deepseek-flash"),max_tokens=1536,temperature=0,system=system,messages=messages,tools=tools,tool_choice={'type':'any'},thinking={'type':'disabled'})
                 if self.services and hasattr(self.client.messages,"stream"):
                     async with self.client.messages.stream(**kwargs) as stream:
                         buffer = ""
