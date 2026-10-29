@@ -1,0 +1,73 @@
+{
+  "model_calls_submitted": 0,
+  "business_mutations_submitted": 0,
+  "results": [
+    {
+      "base": "http://127.0.0.1:8080",
+      "model": {
+        "protocol": "anthropic",
+        "model": "deepseek-flash",
+        "base_url": "https://api.deepseek.com/anthropic",
+        "configured": true
+      },
+      "checks": {
+        "ready": true,
+        "configured_model": true,
+        "runtime_has_no_budget_gate": true,
+        "no_key_in_configuration": false,
+        "employee_identity": true,
+        "operator_identity": true,
+        "employee_denied:/system": true,
+        "employee_denied:/mcp": true,
+        "employee_denied:/integrations/mcp": true,
+        "employee_denied:/integrations/embedding": true,
+        "employee_denied:/metrics": true,
+        "employee_denied:/knowledge/publications": true,
+        "employee_denied:/evaluation/candidates": true,
+        "employee_denied:/eval/datasets": true,
+        "employee_denied:/eval/retention": true,
+        "support_connections_available": true,
+        "employee_catalog_is_simulation": true,
+        "employee_observations_are_owner_scoped": true,
+        "current_frontend_bundle": true,
+        "current_frontend_served": true
+      }
+    },
+    {
+      "base": "http://127.0.0.1:18080",
+      "model": {
+        "protocol": "anthropic",
+        "model": "deepseek-flash",
+        "base_url": "https://api.deepseek.com/anthropic",
+        "configured": true
+      },
+      "checks": {
+        "ready": true,
+        "configured_model": true,
+        "runtime_has_no_budget_gate": true,
+        "no_key_in_configuration": false,
+        "employee_identity": true,
+        "operator_identity": true,
+        "employee_denied:/system": true,
+        "employee_denied:/mcp": true,
+        "employee_denied:/integrations/mcp": true,
+        "employee_denied:/integrations/embedding": true,
+        "employee_denied:/metrics": true,
+        "employee_denied:/knowledge/publications": true,
+        "employee_denied:/evaluation/candidates": true,
+        "employee_denied:/eval/datasets": true,
+        "employee_denied:/eval/retention": true,
+        "support_connections_available": true,
+        "employee_catalog_is_simulation": true,
+        "employee_observations_are_owner_scoped": true,
+        "current_frontend_bundle": true,
+        "current_frontend_served": true
+      }
+    }
+  ],
+  "historical_finance": {
+    "settled": 2315
+  },
+  "historical_commitment_micro_cny": 10775836,
+  "image_revision": "f08f3782d83ea114d8e4236756372ab55ba85614"
+}

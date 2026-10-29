@@ -31,6 +31,8 @@
 
 当前业务引擎的完整展示验收为 [收尾验收](FINAL_POLISH_ACCEPTANCE.md)。报告记录其当时输入、源码、知识和环境；界面重设计与开源主页的记录见 [0.1.0发布说明](RELEASE_0_1_0.md)。
 
+模型配置、身份入口与权限收紧的最新记录见[模型与身份验收](MODEL_ROLES_ACCEPTANCE.md)。
+
 <details>
 <summary>查看此前阶段的记录</summary>
 

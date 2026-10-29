@@ -5,20 +5,19 @@ from pathlib import Path
 import re
 import subprocess
 
-from dotenv import dotenv_values
 import httpx
 import psycopg
 from sqlalchemy.engine import make_url
 
 from resolvedesk.settings import ServiceSettings
+from tools.check_release import local_credentials
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
     access = json.loads((ROOT/'.codex-runtime/access.json').read_text(encoding='utf-8'))
-    secrets = [value for name,value in dotenv_values(ROOT/'.env').items()
-               if value and ('KEY' in name or 'TOKEN' in name)]
+    secrets = local_credentials(ROOT)
     results = []
     for base in ('http://127.0.0.1:8080', 'http://127.0.0.1:18080'):
         checks = {}
@@ -32,7 +31,7 @@ def main():
             data = config.json()
             checks['configured_model'] = data['model']['configured'] and data['model']['model'] == 'deepseek-flash'
             checks['runtime_has_no_budget_gate'] = 'budget' not in data and 'usage' in data
-            checks['no_key_in_configuration'] = not any(secret in config.text for secret in secrets)
+            checks['no_key_in_configuration'] = not any(secret in config.content for secret in secrets)
             checks['employee_identity'] = get('/me','learner').json()['role'] == 'user'
             checks['operator_identity'] = get('/me').json()['role'] == 'support'
             for path in ('/system','/mcp','/integrations/mcp','/integrations/embedding','/metrics',
