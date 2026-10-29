@@ -91,3 +91,15 @@ test('stale model configuration cannot populate the next identity workspace', as
   assert.equal(c.modelInfo.value, null)
 })
 
+test('employee operations load personal data without requesting management connections', async () => {
+  const s = settings(), paths = []
+  const c = vm.createContext({ settings: s, requestState: createRequestState(s), isSupport: { value: false },
+    runList: { value: null }, memoryData: { value: null }, mcpData: { value: null },
+    deskRequest: async (_, path) => { paths.push(path); return [] }, showToast: () => assert.fail('unexpected error') })
+  const start = source.indexOf('async function loadOperations(')
+  const next = source.slice(start + 1).search(/\n(?:async )?function /)
+  vm.runInContext(source.slice(start, start + 1 + next), c)
+  await c.loadOperations()
+  assert.deepEqual(paths, ['/runs', '/memory'])
+})
+

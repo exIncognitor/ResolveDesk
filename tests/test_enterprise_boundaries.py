@@ -9,7 +9,7 @@ from resolvedesk.agent import DeskAgent
 from resolvedesk.app import create_app
 from resolvedesk.business import BusinessService
 from resolvedesk.retrieval import HybridKnowledge
-from resolvedesk.store import Principal, Store
+from resolvedesk.store import Conflict, Principal, Store
 from test_it_workflows import REPAIR, USER, SUPPORT, submit, action
 from test_resolvedesk import client_with
 
@@ -95,6 +95,6 @@ def test_repair_actions_match_the_assigned_operator(workspace):
     assert 'start' not in service.get(other, ticket['id'])['allowed_actions']
     case = action(service, SUPPORT, case, 'start')
     assert 'resolve' not in service.get(other, ticket['id'])['allowed_actions']
-    with pytest.raises(PermissionError):
+    with pytest.raises(Conflict):
         # Test the store-side authorization even when the caller bypasses UI actions.
         service.transition(other, ticket['id'], 'resolve', case['version'], 'forged-resolve', 'Synthetic attempt')

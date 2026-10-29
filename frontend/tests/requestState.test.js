@@ -101,7 +101,7 @@ for(const name of ['loadOperations','loadCandidates']){
  test(`${name}: previous identity data is discarded after invalidation`,async()=>{
   const settings=state(),requests=createRequestState(settings);let resolve
   const pending=new Promise(a=>resolve=a)
-  const context=vm.createContext({settings,requestState:requests,deskRequest:()=>pending,showToast:()=>assert.fail('stale toast'),
+  const context=vm.createContext({settings,requestState:requests,isSupport:{value:true},deskRequest:()=>pending,showToast:()=>assert.fail('stale toast'),
     runList:{value:'current'},memoryData:{value:'current'},mcpData:{value:'current'},candidates:{value:'current'}})
   loadFunction(name,context)
   const task=context[name]()

@@ -44,7 +44,7 @@ async def test_current_protocol_auth_resources_acl_token_switch_and_no_paid_call
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app),base_url='http://localhost') as raw:
             assert (await raw.post('/mcp/knowledge/',json={})).status_code==401
             assert (await raw.get('/mcp')).status_code==401
-            assert (await raw.get('/mcp',headers={'Authorization':'Bearer alice'})).json()=={'servers':[]}
+            assert (await raw.get('/mcp',headers={'Authorization':'Bearer alice'})).status_code==403
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app),headers={'Authorization':'Bearer alice'}) as http:
             async with streamable_http_client('http://localhost/mcp/knowledge/',http_client=http) as (read,write,_):
                 async with ClientSession(read,write) as session:
