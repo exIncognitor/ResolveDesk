@@ -2,14 +2,14 @@
   <div class="app-shell" :class="`view-${activeView}`">
     <aside class="navigation-rail" aria-label="主导航">
       <a class="brand" href="#" @click.prevent="activeView = 'chat'" aria-label="ResolveDesk 首页">
-        <span class="brand-mark">R</span>
-        <span class="brand-name">ResolveDesk</span>
+        <span class="brand-mark">RD</span>
+        <span class="brand-name">ResolveDesk<small>IT SERVICE WORKSPACE</small></span>
       </a>
       <button class="new-chat-button" @click="activeView = 'chat'; clearConversation()">
         <AppIcon name="plus" />
         <span>新对话</span>
       </button>
-      <span class="nav-caption">工作空间</span>
+      <span class="nav-caption">服务工作区</span>
       <nav class="view-nav">
         <button
           v-for="view in views"
@@ -25,6 +25,7 @@
         </button>
       </nav>
       <div class="rail-bottom">
+        <div class="rail-context"><span class="rail-context-dot"></span><span>从问题到解决<small>知识 · 申请 · 服务进度</small></span></div>
         <a class="docs-link" aria-label="API 文档" :href="docsUrl" target="_blank" rel="noreferrer">
           <AppIcon name="document" />
           <span>API 文档</span>
@@ -34,7 +35,7 @@
           <span class="avatar">{{ userInitial }}</span>
           <span>
             <strong>{{ settings.userId || 'anonymous' }}</strong>
-            <small>个人工作空间</small>
+            <small>IT 服务工作空间</small>
           </span>
           <AppIcon name="sliders" />
         </button>
@@ -43,12 +44,12 @@
     <main class="workspace">
       <header class="topbar">
         <div class="page-breadcrumb">
-          <span>工作空间</span>
+          <span>服务工作台</span>
           <AppIcon name="chevron" />
           <strong>{{ currentView.label }}</strong>
         </div>
         <a class="mobile-brand" href="#" @click.prevent="activeView = 'chat'" aria-label="ResolveDesk 首页">
-          <span class="brand-mark">R</span>
+          <span class="brand-mark">RD</span>
           <span>ResolveDesk</span>
         </a>
         <div class="topbar-tools">
@@ -56,17 +57,7 @@
             <i :class="healthOk ? 'online' : 'offline'"></i>
             {{ healthOk ? '已连接' : healthLabel === '未检查' ? '连接中' : '未连接' }}
           </span>
-          <div class="backend-tabs" aria-label="当前服务">
-            <button
-              v-for="backend in ['python']"
-              :key="backend"
-              :class="{ active: settings.backend === backend }"
-              :aria-pressed="settings.backend === backend"
-              @click="switchBackend(backend)"
-            >
-              {{ backend === 'java' ? 'Java' : 'Python' }}
-            </button>
-          </div>
+          <span class="workspace-mode">模拟工作空间</span>
           <button class="icon-button settings-button" aria-label="连接配置" title="连接配置" @click="openConnection">
             <AppIcon name="sliders" />
           </button>
@@ -96,9 +87,10 @@
           <section class="conversation" :class="{ 'is-empty': !messages.length }" aria-label="客服对话">
             <div class="messages" ref="messageList" role="log" aria-label="对话消息" aria-live="polite" :aria-busy="busy && pendingAction === 'chat'">
               <div v-if="!messages.length" class="welcome">
-                <div class="welcome-mark" aria-hidden="true">R</div>
-                <h1>今天，需要解决什么？</h1>
-                <p>从客户问题开始，让合适的 Agent 接手。</p>
+                <span class="welcome-eyebrow"><span></span> YOUR IT SERVICE DESK</span>
+                <h1>你的 IT 服务，从这里开始。</h1>
+                <p>查制度、排故障、办申请。把需求说清楚，让每一步都有进度。</p>
+                <div class="service-journey" aria-label="服务办理流程"><span><b>01</b> 描述需求</span><i></i><span><b>02</b> 核对申请</span><i></i><span><b>03</b> 跟踪办理</span></div>
               </div>
               <template v-else>
                 <article v-for="item in messages" :key="item.id" :class="['message', item.role, { 'message-error': item.error }]">
@@ -158,8 +150,8 @@
                   ref="composerInput"
                   v-model="draft"
                   rows="2"
-                  aria-label="客户问题"
-                  placeholder="输入你的问题…"
+                  aria-label="IT 服务需求"
+                  placeholder="例如：申请内部文档的只读权限，使用 9 天，用于查阅接口文档。"
                   @keydown.meta.enter.prevent="performAction('chat', sendMessage)"
                   @keydown.ctrl.enter.prevent="performAction('chat', sendMessage)"
                 >
@@ -167,7 +159,7 @@
                 <div class="composer-bottom">
                   <span class="routing-label">
                     <AppIcon name="route" />
-                    自动路由
+                    按需求匹配服务
                   </span>
                   <div class="send-controls">
                     <span class="keyboard-hint">⌘ / Ctrl + Enter</span>
@@ -185,27 +177,29 @@
               </form>
               <div v-if="!messages.length" class="prompt-grid">
                 <button v-for="prompt in prompts" :key="prompt.label" @click="usePrompt(prompt.text)">
-                  <AppIcon :name="prompt.label === '退款申请' ? 'route' : prompt.label === '技术排查' ? 'sliders' : 'document'" />
+                  <AppIcon :name="prompt.icon" />
                   <span>
                     <strong>{{ prompt.label }}</strong>
-                    <small>{{ prompt.label === '准备工单' ? '补齐故障信息并核对草稿' : prompt.label === '技术排查' ? '排查登录与使用问题' : '查询网络故障与排查依据' }}</small>
+                    <small>{{ prompt.description }}</small>
                   </span>
                   <AppIcon class="prompt-arrow" name="northeast" />
                 </button>
               </div>
               <section v-if="activeRun" class="run-panel" aria-label="任务与工单">
-                <p>任务 {{ activeRun.id }} · {{ activeRun.status }}</p>
-                <pre v-if="activeRun.draft">{{ formatJson(activeRun.draft) }}</pre>
+                <div class="run-panel-heading"><strong>{{ activeRun.draft ? '申请信息' : '本次服务' }}</strong><span class="state-badge">{{ runStatusLabels[activeRun.status] || activeRun.status }}</span></div>
+                <dl v-if="activeRun.draft" class="draft-summary">
+                  <template v-for="(value, key) in activeRun.draft" :key="key"><div v-if="value !== '' && value != null"><dt>{{ draftLabels[key] || key }}</dt><dd>{{ key === 'workflow' ? workflowLabels[value] || value : value }}</dd></div></template>
+                </dl>
                 <button v-if="activeRun.status === 'awaiting_confirmation'" :disabled="busy" @click="confirmDraft">核对并确认创建工单</button>
                 <button v-if="['running','queued'].includes(activeRun.status)" @click="pauseRun">暂停</button>
                 <button v-if="['paused','failed'].includes(activeRun.status)" :disabled="busy" @click="resumeRun">恢复任务</button>
-                <p v-if="activeRun.ticket_id">工单号：{{ activeRun.ticket_id }}</p>
+                <p v-if="activeRun.ticket_id" class="ticket-receipt">工单号：{{ activeRun.ticket_id }} <button class="text-button" @click="activeView = 'service'">查看办理进度 <AppIcon name="northeast" /></button></p>
                 <button :disabled="busy" @click="submitFeedback('good')">有帮助</button>
                 <button :disabled="busy" @click="submitFeedback('bad')">需改进</button>
                 <button v-for="citation in citations" :key="citation" class="text-button" @click="showCitation(citation)">查看来源 {{ citation.slice(0,10) }}</button>
                 <pre v-if="citationText">{{ citationText }}</pre>
               </section>
-              <p class="composer-note">AI 生成的内容可能不准确，请结合业务规则核实。生成中的文字尚待来源校验。</p>
+              <p class="composer-note">申请提交前由你核对确认，审批与资源操作按服务流程办理。</p>
             </div>
           </section>
           <aside v-if="messages.length" class="inspector-desktop" aria-label="请求追踪与运行状态">
@@ -558,10 +552,14 @@ const views = [
   { id: 'evaluation', label: '评测', icon: 'chart' }
 ]
 const prompts = [
-  { label: '准备工单', text: '请帮我准备故障工单，先问我需要哪些信息。' },
-  { label: '技术排查', text: '登录时提示错误，应该怎么排查？' },
-  { label: 'VPN 故障', text: 'VPN 错误 691 怎么排查？请引用知识库。' }
+  { label: '账号与权限', icon: 'key', description: '申请资源访问，明确范围和期限', text: '请帮我准备权限申请，先核对可申请资源并询问缺少的信息。' },
+  { label: '设备维修', icon: 'monitor', description: '核对本人设备，提交故障与维修', text: '请帮我准备本人设备维修申请，先核对本人资产并询问缺少的信息。' },
+  { label: '软件授权', icon: 'grid', description: '查询产品席位，申请使用授权', text: '请帮我准备 IntelliJ IDEA Ultimate 模拟软件授权申请，先查询实时席位，询问我的用途和使用天数。' },
+  { label: '网络排障', icon: 'network', description: '依据知识定位连接与访问问题', text: 'VPN 错误 691 怎么排查？请引用知识库。' }
 ]
+const draftLabels = { summary: '申请摘要', description: '用途 / 问题描述', category: '服务类别', priority: '优先级', workflow: '办理流程', product: '软件产品', resource_id: '申请资源', access_level: '访问级别', duration_days: '使用天数', asset_id: '设备编号' }
+const workflowLabels = { access_request: '权限申请', device_repair: '设备维修', license_request: '软件授权', generic: '服务工单' }
+const runStatusLabels = { running: '正在处理', queued: '等待处理', awaiting_input: '待补充信息', awaiting_confirmation: '待核对确认', completed: '本轮已完成', paused: '已暂停', failed: '处理失败' }
 const currentView = computed(() => views.find(view => view.id === activeView.value))
 const monitorData = ref({ agent_stats: {}, tool_stats: {}, active_alerts: [], suggestions: [] })
 const skillsData = ref({ count: 0, skills: [], errors: [] })

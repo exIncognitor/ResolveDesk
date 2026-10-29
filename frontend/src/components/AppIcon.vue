@@ -6,6 +6,10 @@
 <script setup>
 defineProps({ name: { type: String, default: 'chat' } })
 const paths = {
+  key: ['M14 7a4 4 0 1 1-2 3.5L4 19H2v-3l8-8', 'M5 15l2 2'],
+  monitor: ['M3 4h18v12H3zM8 21h8M12 16v5'],
+  grid: ['M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z'],
+  network: ['M8 3h8v6H8zM2 16h7v5H2zM15 16h7v5h-7zM12 9v4M5.5 16v-3h13v3'],
   plus: ['M12 5v14M5 12h14'],
   compose: ['M16 3h5v5M21 3 11 13M19 13v6H5V5h6'],
   panel: ['M3 4h18v16H3zM15 4v16'],
