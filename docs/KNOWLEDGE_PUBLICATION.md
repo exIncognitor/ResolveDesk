@@ -8,6 +8,8 @@
 
 应用地址由部署配置确定，账号和Token由登录流程管理；已移除手动填写服务地址、用户、会话ID与Token的旧连接弹窗。模型服务地址与API Key继续由支持后台管理。
 
+本轮验证：针对性后端35项通过，2项依赖服务的既有用例未在该轮启用；前端58项与构建通过。Docker网关实际检查15/15，浏览器9/9；员工和支持人员均可读取34篇文档、62个片段，VPN错误691检索返回5项。测试不调用供应商模型，也没有重置业务或知识数据。证据见[部署检查](../reports/knowledge-library-deployment-20261029.json)与[浏览器检查](../reports/knowledge-library-ui-20261029.json)。
+
 ## 发布流程
 
 普通检索仍使用 PostgreSQL 授权、BM25、Chroma HNSW 和 RRF。`knowledge_publications` 是独立 SQL 发布表，不修改旧 `knowledge_documents` 的七列契约。第四轮起，所有新增材料均为受管理草稿，包括无元数据的标题/正文、TXT/MD/JSON、批量、API 和 CLI 导入；未补齐信息不能发布或出现在普通检索、MCP、统计和缓存中。

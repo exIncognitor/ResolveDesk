@@ -20,6 +20,17 @@ ResolveDesk 是一个面向企业内部 IT 服务的 Python Agent 应用。员�
 <img src="docs/media/employee-desktop-enterprise.png" alt="ResolveDesk 员工工作区：四类 IT 服务入口、登录状态与本地身份切换" width="100%" />
 
 <details>
+<summary><strong>知识库：浏览已发布文档、预览正文与问题检索</strong></summary>
+
+进入页面会自动展示当前账号可读的已发布文档，可分页和预览正文。未执行搜索时只表示检索尚未运行，不表示知识库没有数据。员工和支持人员均遵守租户、所有者、内容版本与发布有效期规则。
+
+<img src="docs/media/knowledge-library-20261029.png" alt="已发布文档目录显示34篇文档、62个片段，支持分页与正文预览" width="100%" />
+
+详见[知识浏览与发布](docs/KNOWLEDGE_PUBLICATION.md)。账号与会话通过登录管理，日常页面不再提供手工连接与Token弹窗。
+
+</details>
+
+<details>
 <summary><strong>业务服务台：申请记录、处理状态与本人资源</strong></summary>
 
 <img src="docs/media/service-desk-enterprise.png" alt="ResolveDesk 业务服务台，展示当前身份可见的服务概览与申请入口" width="100%" />
@@ -121,7 +132,7 @@ python -m pip install -r requirements-dev.txt
 
 | 验证层 | 已记录结果 | 证据 |
 | --- | --- | --- |
-| 前端行为回归 | 53项通过，包含登录会话、角色入口、身份/会话切换与SSE竞态 | [前端测试](frontend/tests) |
+| 前端行为回归 | 58项通过，包含登录会话、角色入口、知识目录、身份/会话切换与SSE竞态 | [前端测试](frontend/tests) |
 | 真实依赖集成 | 493项测试及14子测试通过 | [服务回归报告](reports/enterprise-login-models-final.xml) |
 | 当前登录与权限部署验收 | 34/34接口、密钥与旧数据检查；14/14浏览器检查 | [本轮交付记录](docs/ENTERPRISE_LOGIN_ACCEPTANCE.md) |
 | 浏览器业务演示 | 权限、维修、席位三条闭环，落库复核11/11 | [业务证据](reports/final-polish-ui-workflows.json) |

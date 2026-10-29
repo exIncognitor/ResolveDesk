@@ -1,0 +1,36 @@
+{
+  "tested_at": "2026-10-29T12:19:34.246434+00:00",
+  "source_revision": "547f68ac35164710c3f8075d5731975a2dfa985c",
+  "checks": {
+    "ready": true,
+    "anonymous_catalog_denied": true,
+    "user_catalog_count": true,
+    "user_preview_content": true,
+    "user_pagination": true,
+    "user_search_returns_five": true,
+    "employee_governance_denied": true,
+    "support_catalog_count": true,
+    "support_preview_content": true,
+    "support_pagination": true,
+    "support_search_returns_five": true,
+    "no_model_calls": true,
+    "new_frontend_bundle": true,
+    "learning_source_hashes_valid": true,
+    "learning_book_hashes_valid": true
+  },
+  "roles": {
+    "user": {
+      "readable_documents": 34,
+      "chunks": 62
+    },
+    "support": {
+      "readable_documents": 34,
+      "chunks": 62
+    }
+  },
+  "targeted_backend_passed": 35,
+  "targeted_backend_skipped": 2,
+  "frontend_passed": 58,
+  "paid_model_calls": 0,
+  "data_reset": false
+}

@@ -1,0 +1,15 @@
+{
+  "source_revision": "547f68ac35164710c3f8075d5731975a2dfa985c",
+  "checks": {
+    "employee_catalog": true,
+    "employee_preview": true,
+    "connection_dialog_removed": true,
+    "pagination": true,
+    "search_returns_results": true,
+    "support_catalog": true,
+    "support_governance_retained": true,
+    "support_connection_dialog_removed": true,
+    "no_horizontal_overflow": true
+  },
+  "paid_model_calls": 0
+}
