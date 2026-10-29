@@ -138,6 +138,9 @@ class IdentityService:
             row = db.execute(db.locked('SELECT * FROM desk_accounts WHERE tenant=? AND user_id=?'),(p.tenant,user)).fetchone()
             if row is None: raise KeyError('Account unavailable')
             db.execute('UPDATE desk_accounts SET enabled=?,epoch=epoch+1,updated=? WHERE tenant=? AND user_id=?',(int(enabled),db.now(),p.tenant,user))
+            if not enabled:
+                from resolvedesk.business import offboard_access
+                offboard_access(db,p,user)
             self.audit(db,p,'account.enable' if enabled else 'account.disable',user)
 
     def revoke_sessions(self, p, user):

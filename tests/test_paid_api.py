@@ -156,7 +156,7 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
 class WiringTests(unittest.TestCase):
     def test_application_clients_use_the_configured_transport_or_explicit_legacy_adapter(self):
         expected = {"agents/agent_orchestrator.py", "core/intent_recognizer.py", "tooling/tool_manager.py",
-                    "evaluation/evaluator.py", "resolvedesk/agent.py", "resolvedesk/quality.py"}
+                    "evaluation/evaluator.py", "resolvedesk/agent.py", "resolvedesk/quality.py", "resolvedesk/model_admin.py"}
         found, legacy = set(), set()
         for directory in ("agents", "api", "core", "tooling", "memory", "evaluation", "monitor", "resolvedesk"):
             for path in (ROOT / directory).glob("*.py"):

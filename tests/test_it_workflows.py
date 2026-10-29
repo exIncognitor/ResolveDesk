@@ -54,7 +54,7 @@ def test_access_approval_is_distinct_from_provision_and_persists(store):
     grants = restarted.context(USER)["my_grants"]
     assert grants[0]["resource"] == "repo-resolvedesk" and grants[0]["level"] == "read"
     assert len(case["audit"]) == 3
-    with store.db(True) as db: db.execute("UPDATE desk_grants SET expires=0")
+    with store.db(True) as db: db.execute("UPDATE grant_sources SET expires=0")
     assert not service.context(USER)["my_grants"]
 
 

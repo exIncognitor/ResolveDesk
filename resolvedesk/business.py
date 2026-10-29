@@ -31,7 +31,43 @@ def initialize(db):
             fingerprint TEXT,response TEXT,PRIMARY KEY(tenant,actor,ticket_id,request_key));
         CREATE TABLE IF NOT EXISTS desk_grants(tenant TEXT,owner TEXT,resource TEXT,level TEXT,expires REAL,
             source_ticket TEXT,PRIMARY KEY(tenant,owner,resource));
+        CREATE TABLE IF NOT EXISTS grant_sources(ticket_id TEXT PRIMARY KEY,tenant TEXT,owner TEXT,resource TEXT,
+            level TEXT,expires REAL,state TEXT,updated REAL);
+        CREATE INDEX IF NOT EXISTS grant_owner ON grant_sources(tenant,owner,resource,state,expires);
     """)
+    db.execute("""INSERT INTO grant_sources SELECT source_ticket,tenant,owner,resource,level,expires,'active',?
+        FROM desk_grants WHERE source_ticket IS NOT NULL AND 1=1 ON CONFLICT(ticket_id) DO NOTHING""",(db.now(),))
+
+
+def effective_grants(db,tenant,owner):
+    rows=[dict(r) for r in db.execute("SELECT * FROM grant_sources WHERE tenant=? AND owner=? AND state='active' AND expires>?",(tenant,owner,db.now()))]
+    result=[]
+    for resource in sorted({r['resource'] for r in rows}):
+        candidates=[r for r in rows if r['resource']==resource]
+        level='write' if any(r['level']=='write' for r in candidates) else 'read'
+        chosen=max((r for r in candidates if r['level']==level),key=lambda r:r['expires'])
+        result.append({'resource':resource,'level':level,'expires':chosen['expires'],'source_ticket':chosen['ticket_id']})
+    return result
+
+
+def refresh_grants(db,tenant,owner):
+    db.execute('UPDATE desk_grants SET expires=? WHERE tenant=? AND owner=?',(db.now(),tenant,owner))
+    for grant in effective_grants(db,tenant,owner):
+        db.execute('''INSERT INTO desk_grants VALUES(?,?,?,?,?,?) ON CONFLICT(tenant,owner,resource)
+            DO UPDATE SET level=excluded.level,expires=excluded.expires,source_ticket=excluded.source_ticket''',
+            (tenant,owner,grant['resource'],grant['level'],grant['expires'],grant['source_ticket']))
+
+
+def offboard_access(db,p,user):
+    """Disable access and release software seats atomically with account disablement."""
+    rows=db.execute("SELECT * FROM service_cases WHERE tenant=? AND owner=? AND ((kind='access_request' AND status='fulfilled') OR (kind='license_request' AND status IN ('reserved','allocated')))",(p.tenant,user)).fetchall()
+    db.execute("UPDATE grant_sources SET state='revoked',updated=? WHERE tenant=? AND owner=? AND state='active'",(db.now(),p.tenant,user))
+    refresh_grants(db,p.tenant,user)
+    db.execute("UPDATE license_allocations SET state='revoked',expires=?,updated=? WHERE tenant=? AND owner=? AND state IN ('reserved','allocated')",(db.now(),db.now(),p.tenant,user))
+    for row in rows:
+        db.execute("UPDATE service_cases SET status='revoked',version=version+1,updated=? WHERE ticket_id=?",(db.now(),row['ticket_id']))
+        db.execute("UPDATE tickets SET status='revoked' WHERE id=? AND tenant=?",(row['ticket_id'],p.tenant))
+        BusinessService._audit(db,p,row['ticket_id'],'revoke',row['status'],'revoked','账号禁用：回收系统内有效授权与软件席位')
 
 
 def classify(message):
@@ -51,8 +87,8 @@ def classify(message):
 
 
 class BusinessService:
-    def __init__(self, store):
-        self.store = store
+    def __init__(self, store, directory=None):
+        self.store,self.directory = store,directory
 
     def seed_demo(self):
         # Explicit seed only, never creates employee assets in arbitrary tenants.
@@ -69,8 +105,7 @@ class BusinessService:
         with self.store.db() as db:
             license_catalog=catalog(db,p)
             assets = [dict(r) for r in db.execute("SELECT * FROM desk_assets WHERE tenant=? AND owner=?", (p.tenant, p.user))]
-            grants = [dict(r) for r in db.execute("SELECT resource,level,expires,source_ticket FROM desk_grants WHERE tenant=? AND owner=? AND expires>?",
-                                                (p.tenant, p.user, time.time()))]
+            grants = effective_grants(db,p.tenant,p.user)
         return {"simulation": True, "notice": "模拟企业制度和本地业务系统，不会更改真实账号或设备。",
                 "resources": RESOURCES, "licenses": [license_catalog]+[entry for entry in LICENSES if entry['product']!=license_catalog['product']], "my_assets": assets, "my_grants": grants}
 
@@ -160,12 +195,16 @@ class BusinessService:
         if row["owner"] == p.user:
             if state in {"submitted", "pending_approval"}: actions.append("cancel")
             if state == "resolved": actions += ["accept", "reopen"]
+            if kind == 'access_request' and state == 'approved': actions.append('cancel')
+            if kind == 'access_request' and state == 'fulfilled': actions.append('revoke')
         if p.role == "support":
             if kind == "access_request":
                 if state == "pending_approval" and row["owner"] != p.user: actions += ["approve", "reject"]
                 if state == "approved" and row["owner"] != p.user: actions.append("provision")
+                if state == 'fulfilled' and 'revoke' not in actions: actions.append('revoke')
             else:
                 actions += {"submitted": ["triage"], "triaged": ["assign"], "assigned": ["start"], "in_progress": ["resolve"]}.get(state, [])
+                if state in {'assigned','in_progress'}: actions.append('assign')
                 if row["assignee"] != p.user:
                     actions = [action for action in actions if action not in {"start", "resolve"}]
         return actions
@@ -205,15 +244,24 @@ class BusinessService:
                 from resolvedesk.licenses import apply
                 apply(db,p,row,fields,action)
             if action == "assign":
-                # Local demo has one support operator; no invented external employee identity.
-                if assignee != p.user: raise ValueError("本地模拟仅支持分派给当前 IT 操作员")
+                member=self.directory.member(p.tenant,assignee) if self.directory else None
+                if self.directory:
+                    if not member or not member['enabled'] or member['role']!='support': raise ValueError('处理人必须是本租户启用的支持人员')
+                elif assignee != p.user: raise ValueError("离线模式仅支持分派给当前操作员")
             if action in {"start", "resolve"} and row["assignee"] != p.user:
                 raise PermissionError("只有被分派的 IT 操作员可以处理")
             if action == "provision":
+                if self.directory:
+                    member=self.directory.member(p.tenant,row['owner'])
+                    if not member or not member['enabled']: raise ValueError('申请人账号已停用，不能开通授权')
                 missing = self.validate(db, p, fields)
                 if missing: raise ValueError("申请不完整")
-                db.execute("INSERT INTO desk_grants VALUES(?,?,?,?,?,?) ON CONFLICT(tenant,owner,resource) DO UPDATE SET level=excluded.level,expires=excluded.expires,source_ticket=excluded.source_ticket",
-                           (p.tenant, row["owner"], fields["resource_id"], fields["access_level"], time.time()+fields["duration_days"]*86400, ticket_id))
+                db.execute("INSERT INTO grant_sources VALUES(?,?,?,?,?,?,'active',?)",
+                           (ticket_id,p.tenant,row['owner'],fields['resource_id'],fields['access_level'],db.now()+fields['duration_days']*86400,db.now()))
+                refresh_grants(db,p.tenant,row['owner'])
+            if action == 'revoke' and row['kind']=='access_request':
+                db.execute("UPDATE grant_sources SET state='revoked',updated=? WHERE ticket_id=? AND tenant=?",(db.now(),ticket_id,p.tenant))
+                refresh_grants(db,p.tenant,row['owner'])
             if row["kind"] == "device_repair" and action in {"accept", "cancel"}:
                 db.execute("UPDATE desk_assets SET status='available' WHERE tenant=? AND id=?", (p.tenant, fields["asset_id"]))
             db.execute("UPDATE service_cases SET status=?,version=version+1,assignee=?,updated=? WHERE ticket_id=?",
