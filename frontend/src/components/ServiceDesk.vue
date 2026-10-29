@@ -1,6 +1,6 @@
 <template>
   <section class="page page-service">
-    <div class="page-heading service-heading"><div><span class="kicker">SERVICE OPERATIONS</span><h1>业务服务台</h1><p>查看资源、发起申请，跟进每一项服务的办理进度。</p></div><div class="service-heading-actions"><span class="demo-label">模拟企业环境</span><button class="quiet-button" @click="load" :disabled="busy"><AppIcon name="refresh" />刷新</button></div></div>
+    <div class="page-heading service-heading"><div><span class="kicker">SERVICE OPERATIONS</span><h1>业务服务台</h1><p>{{ role === 'support' ? '处理租户内的服务申请，执行审批、派单与资源操作。' : '查看本人资源、发起申请，跟进每一项服务的办理进度。' }}</p></div><div class="service-heading-actions"><span class="demo-label">{{ role === 'support' ? '服务人员视图' : '员工视图' }} · 模拟环境</span><button class="quiet-button" @click="load" :disabled="busy"><AppIcon name="refresh" />刷新</button></div></div>
     <p v-if="status" class="inline-notice" role="status">{{ status }}</p>
     <div class="service-overview" aria-label="当前身份服务概览">
       <article><span>业务申请</span><strong>{{ loaded ? cases.length : '—' }}</strong><small>当前身份可见</small><AppIcon name="document" /></article>
@@ -32,7 +32,7 @@
       <template v-if="catalog.my_grants?.length"><h3>有效权限</h3><div v-for="grant in catalog.my_grants" :key="grant.resource" class="resource-row"><strong>{{ grant.resource }} / {{ grant.level }}</strong><span>到期 {{ new Date(grant.expires * 1000).toLocaleString() }}</span></div></template>
     </aside>
     </div>
-    <section v-if="monitor.window_seconds" class="workspace-card"><h2>监控与告警</h2><p>统计窗口 {{ monitor.window_seconds }} 秒，至少 {{ monitor.min_samples }} 个样本；累计主执行 {{ monitor.total_requests }} 次、会话 {{ monitor.total_conversations ?? '—' }} 个。角色和工具分别统计。</p>
+    <section v-if="role === 'support' && monitor.window_seconds" class="workspace-card"><h2>监控与告警</h2><p>统计窗口 {{ monitor.window_seconds }} 秒，至少 {{ monitor.min_samples }} 个样本；累计主执行 {{ monitor.total_requests }} 次、会话 {{ monitor.total_conversations ?? '—' }} 个。角色和工具分别统计。</p>
       <p v-for="alert in monitor.active_alerts" :key="alert.id">{{ alert.payload.name }}：{{ alert.payload.message }}</p>
       <p v-if="!monitor.active_alerts?.length">当前没有活跃告警。</p>
       <article v-for="(suggestion,index) in monitor.suggestions || []" :key="index"><strong>{{ suggestion.title }}</strong><p>{{ suggestion.action }}</p></article>
@@ -47,7 +47,7 @@ import { onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import AppIcon from './AppIcon.vue'
 import { deskRequest } from '../lib/resolvedesk.js'
 import { createRequestState } from '../lib/requestState.js'
-const props = defineProps({ settings: { type: Object, required: true } })
+const props = defineProps({ settings: { type: Object, required: true }, role: { type: String, default: '' } })
 defineEmits(['compose'])
 const requests = createRequestState(props.settings)
 const catalog = ref({}), cases = ref([]), monitor = ref({}), status = ref(''), busy = ref(false)

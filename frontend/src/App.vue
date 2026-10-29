@@ -12,7 +12,7 @@
       <span class="nav-caption">服务工作区</span>
       <nav class="view-nav">
         <button
-          v-for="view in views"
+          v-for="view in visibleViews"
           :key="view.id"
           :aria-label="view.label"
           :class="{ active: activeView === view.id }"
@@ -35,7 +35,7 @@
           <span class="avatar">{{ userInitial }}</span>
           <span>
             <strong>{{ settings.userId || 'anonymous' }}</strong>
-            <small>IT 服务工作空间</small>
+            <small>{{ isSupport ? 'IT 服务人员' : currentRole === 'user' ? '员工工作空间' : '未验证身份' }}</small>
           </span>
           <AppIcon name="sliders" />
         </button>
@@ -224,7 +224,7 @@
             <span>知识片段</span>
           </div>
         </div>
-        <div class="knowledge-layout">
+        <div class="knowledge-layout" :class="{ 'knowledge-reader': !isSupport }">
           <section class="workspace-card search-workspace">
             <div class="card-heading">
               <div>
@@ -258,7 +258,7 @@
               <p>{{ searched ? '尝试换一个问题，或添加更多知识文档。' : '输入客户问题，查看最相关的知识片段。' }}</p>
             </div>
           </section>
-          <section class="workspace-card import-workspace">
+          <section v-if="isSupport" class="workspace-card import-workspace">
             <div class="card-heading">
               <div>
                 <span class="kicker">INGESTION</span>
@@ -290,8 +290,8 @@
             </form>
           </section>
         </div>
-        <KnowledgeGovernance ref="governancePanel" :settings="settings" />
-        <section class="workspace-card skills-workspace">
+        <KnowledgeGovernance v-if="isSupport" ref="governancePanel" :settings="settings" />
+        <section v-if="isSupport" class="workspace-card skills-workspace">
           <div class="card-heading">
             <div>
               <span class="kicker">LOADED SKILLS</span>
@@ -317,17 +317,18 @@
         <div class="page-heading"><h1>任务与连接</h1><button @click="loadOperations">刷新</button></div>
         <section class="workspace-card"><h2>我的任务</h2><p v-for="run in runList" :key="run.id"><button class="text-button" @click="restoreRun(run.id)">{{ run.message.slice(0,45) }} · {{ run.status }}</button></p></section>
         <section class="workspace-card"><h2>我的长期记忆</h2><pre>{{ formatJson(memoryData) }}</pre></section>
-        <section class="workspace-card"><h2>MCP 连接</h2><pre>{{ formatJson(mcpData) }}</pre></section>
+        <section v-if="isSupport" class="workspace-card"><h2>MCP 连接</h2><pre>{{ formatJson(mcpData) }}</pre></section>
+        <section v-if="isSupport" class="workspace-card"><h2>模型接入</h2><template v-if="modelInfo?.model"><p>协议：{{ modelInfo.model.protocol }} · 模型：{{ modelInfo.model.model }}</p><p>服务地址：{{ modelInfo.model.base_url }}</p><p>{{ modelInfo.model.configured ? '服务端已配置密钥' : '服务端尚未配置密钥' }}</p><p class="muted">通过服务端 .env 配置模型、地址和密钥，修改后重启服务。密钥不返回浏览器。</p></template><p v-else class="muted">正在读取服务端配置状态。</p></section>
       </section>
-      <ServiceDesk v-else-if="activeView === 'service'" :settings="settings" @compose="message => { activeView = 'chat'; usePrompt(message) }" />
-      <section v-else class="page page-evaluation">
+      <ServiceDesk v-else-if="activeView === 'service'" :settings="settings" :role="currentRole" @compose="message => { activeView = 'chat'; usePrompt(message) }" />
+      <section v-else-if="activeView === 'evaluation' && isSupport" class="page page-evaluation">
         <div class="page-heading">
           <div class="heading-copy">
             <span class="kicker">EVALUATION LAB</span>
             <h1>评测中心</h1>
-            <p>检索评测免费；完整质量评测通过隔离数据执行真实对话、业务流程与 Flash 评分，计入共用预算。</p>
+            <p>检索回归验证知识命中；完整质量评测通过隔离数据执行真实对话、业务流程和模型评分。</p>
           </div>
-          <select v-model="evaluationKind" :disabled="busy" aria-label="评测类型"><option value="retrieval">知识检索回归（免费）</option><option value="quality">完整质量评测（使用 Flash）</option></select>
+          <select v-model="evaluationKind" :disabled="busy" aria-label="评测类型"><option value="retrieval">知识检索回归</option><option value="quality">完整质量评测（调用配置模型）</option></select>
           <button @click="performAction('evaluation', runEvaluation)" :disabled="busy">
             <AppIcon :name="busy && pendingAction === 'evaluation' ? 'refresh' : 'play'" :class="{ spinning: busy && pendingAction === 'evaluation' }" />
             {{ busy && pendingAction === 'evaluation' ? '评测运行中' : '运行评测' }}
@@ -517,11 +518,16 @@ import KnowledgeGovernance from './components/KnowledgeGovernance.vue'
 import { citationText as formatCitation } from './lib/knowledgePublication'
 
 import { createRequestState } from './lib/requestState'
+import { verifiedRole, visibleNavigation } from './lib/identity'
 
 const settings = reactive(createInitialSettings())
 const governancePanel = ref(null)
 const requestState = createRequestState(settings)
 const activeView = ref('chat')
+const identity = ref(null)
+const currentRole = computed(() => verifiedRole(settings, identity.value))
+const isSupport = computed(() => currentRole.value === 'support')
+const modelInfo = ref(null)
 const messages = ref([])
 const activeRun = ref(null), streamText = ref(''), progressText = ref(''), citationText = ref('')
 const runList = ref([]), memoryData = ref({}), mcpData = ref({}), candidates = ref([])
@@ -552,6 +558,7 @@ const views = [
   { id: 'service', label: '业务服务台', icon: 'route' },
   { id: 'evaluation', label: '评测', icon: 'chart' }
 ]
+const visibleViews = computed(() => visibleNavigation(views, currentRole.value))
 const prompts = [
   { label: '账号与权限', icon: 'key', description: '申请资源访问，明确范围和期限', text: '请帮我准备权限申请，先核对可申请资源并询问缺少的信息。' },
   { label: '设备维修', icon: 'monitor', description: '核对本人设备，提交故障与维修', text: '请帮我准备本人设备维修申请，先核对本人资产并询问缺少的信息。' },
@@ -585,6 +592,8 @@ const userInitial = computed(() => (settings.userId || 'U').slice(0, 1).toUpperC
 
 watch(() => settings.conversationId, persist)
 watch(activeView, value=>{if(value==='operations')loadOperations()})
+watch([activeView, isSupport], ([view, support]) => { if (view === 'operations' && support) loadModelConfiguration() })
+watch(currentRole, role => { if (role !== 'support') { modelInfo.value = null; if (activeView.value === 'evaluation') activeView.value = 'chat' } })
 onMounted(refreshConsole)
 onBeforeUnmount(() => {
   requestState.invalidate()
@@ -700,18 +709,30 @@ async function checkHealth() {
 
   try {
     const data = await requestHealth(request.backend, request.settings)
-    if(request.settings.pythonToken){const me=await deskRequest(request.settings,'/me');if(request.isCurrent())settings.userId=me.user}
+    let nextIdentity = null
+    if(request.settings.pythonToken){const me=await deskRequest(request.settings,'/me');nextIdentity={...me,token:request.settings.pythonToken,endpoint:request.settings.endpoints[request.backend],backend:request.backend}}
     if (!request.isCurrent()) return
+    identity.value = nextIdentity
+    settings.userId = nextIdentity?.user || '未登录'
     healthOk.value = data.status === 'ok'
     healthLabel.value = data.status || 'ok'
     statusText.value = JSON.stringify(data, null, 2)
   } catch (error) {
     if (!request.isCurrent()) return
+    identity.value = null
     // 健康检查只更新状态，保留用户选择的后端。
     healthOk.value = false
     healthLabel.value = '不可用'
     statusText.value = error.message
   }
+}
+
+async function loadModelConfiguration() {
+  const request = requestState.begin('model-configuration')
+  try {
+    const result = await deskRequest(request.settings, '/system')
+    if (request.isCurrent() && isSupport.value) modelInfo.value = result
+  } catch (error) { if (request.isCurrent() && isSupport.value) modelInfo.value = { error: error.message } }
 }
 
 async function loadStats() {

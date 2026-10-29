@@ -262,6 +262,7 @@ summary::-webkit-details-marker { display: none; }
 .count-display strong { font-size: 29px; font-weight: 500; letter-spacing: -.03em; }
 .count-display span { font-size: 11px; color: var(--faint); white-space: nowrap; }
 .knowledge-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; }
+.knowledge-layout.knowledge-reader { grid-template-columns: minmax(0, 1fr); }
 .workspace-card { border: 1px solid var(--line); border-radius: 12px; padding: 25px; background: white; min-width: 0; }
 .card-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 23px; }
 .card-heading .kicker { display: none; }
