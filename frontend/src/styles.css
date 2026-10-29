@@ -489,6 +489,16 @@ summary::-webkit-details-marker { display: none; }
 .brand-mark { background: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: -.03em; }
 .brand-name small { display: block; margin-top: 5px; font-size: 7px; font-weight: 500; letter-spacing: .14em; }
 .workspace-mode, .demo-label { display: inline-flex; align-items: center; padding: 6px 10px; border: 1px solid var(--line); border-radius: 5px; font-size: 11px; color: var(--muted); background: var(--soft); }
+.session-role { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.identity-switch { white-space: nowrap; }
+@media (max-width: 1100px) { .topbar-tools .workspace-mode, .topbar-tools .connection-status { display: none; } }
+@media (max-width: 760px) {
+  .topbar { height: auto; min-height: 60px; flex-wrap: wrap; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
+  .topbar-tools { margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+  .topbar-tools .session-role { display: none; }
+  .topbar-tools .text-button { font-size: 12px; }
+  .view-admin .view-nav { overflow-x: auto; }
+}
 .connection-status { font-size: 11px; }
 .kicker { color: var(--accent); font-weight: 650; letter-spacing: .12em; }
 button:focus-visible, a:focus-visible, summary:focus-visible { outline-color: var(--accent); }

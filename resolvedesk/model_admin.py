@@ -21,11 +21,13 @@ def validated_profile(value):
     if value['protocol'] not in {'anthropic','openai'} or not value['model'].strip() or len(value['model'])>100:
         raise ValueError('请填写有效协议与模型名称')
     url = urlsplit(value['base_url'])
-    if url.scheme not in {'http','https'} or not url.hostname or url.username or url.password or url.query or url.fragment:
+    if url.scheme not in {'http','https'} or not url.hostname or url.username or url.password or url.query or url.fragment or any(c.isspace() for c in value['base_url']):
         raise ValueError('模型地址必须是不含凭据、查询参数或片段的HTTP地址')
     if url.scheme == 'http' and url.hostname not in {'localhost','127.0.0.1','::1'}:
         raise ValueError('远程模型服务必须使用HTTPS')
     allowed = {host.strip().lower() for host in os.getenv('RESOLVEDESK_MODEL_ALLOWED_HOSTS','').split(',') if host.strip()}
+    if os.getenv('RESOLVEDESK_ENV','development').strip().lower() == 'production' and not allowed:
+        raise ValueError('生产模式请先在服务端配置RESOLVEDESK_MODEL_ALLOWED_HOSTS')
     if allowed and url.hostname.lower() not in allowed:
         raise ValueError('模型服务域名未加入服务端允许清单')
     if value['currency'] not in {'CNY','USD'}: raise ValueError('费用币种仅支持CNY或USD')
@@ -90,7 +92,8 @@ class ModelRegistry:
     def save(self,p,value,profile_id=None,revision=None):
         if p.role != 'support': raise PermissionError()
         value = validated_profile(value)
-        key = value.get('api_key') or ''
+        key = (value.get('api_key') or '').strip()
+        if any(c.isspace() for c in key): raise ValueError('API Key不能包含空白字符')
         if len(key)>8192 or not value.get('name','').strip() or len(value['name'])>100: raise ValueError('配置名称或密钥无效')
         with self.store.db(True) as db:
             row = db.execute(db.locked('SELECT * FROM model_profiles WHERE id=? AND tenant=?'),(profile_id,p.tenant)).fetchone() if profile_id else None

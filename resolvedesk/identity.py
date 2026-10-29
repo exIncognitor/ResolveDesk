@@ -32,7 +32,8 @@ def password_matches(password, stored):
 
 
 def demo_enabled():
-    return os.getenv('RESOLVEDESK_DEMO_LOGIN_ENABLED', '').lower() == 'true' and os.getenv('RESOLVEDESK_ENV', 'development') != 'production'
+    return (os.getenv('RESOLVEDESK_DEMO_LOGIN_ENABLED', '').strip().lower() == 'true'
+            and os.getenv('RESOLVEDESK_ENV', 'production').strip().lower() in {'development','test'})
 
 
 class IdentityService:
