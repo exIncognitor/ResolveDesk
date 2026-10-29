@@ -34,6 +34,7 @@ def initialize(db):
         CREATE TABLE IF NOT EXISTS grant_sources(ticket_id TEXT PRIMARY KEY,tenant TEXT,owner TEXT,resource TEXT,
             level TEXT,expires REAL,state TEXT,updated REAL);
         CREATE INDEX IF NOT EXISTS grant_owner ON grant_sources(tenant,owner,resource,state,expires);
+        CREATE TABLE IF NOT EXISTS grant_locks(tenant TEXT,owner TEXT,resource TEXT,PRIMARY KEY(tenant,owner,resource));
     """)
     db.execute("""INSERT INTO grant_sources SELECT source_ticket,tenant,owner,resource,level,expires,'active',?
         FROM desk_grants WHERE source_ticket IS NOT NULL AND 1=1 ON CONFLICT(ticket_id) DO NOTHING""",(db.now(),))
@@ -56,6 +57,11 @@ def refresh_grants(db,tenant,owner):
         db.execute('''INSERT INTO desk_grants VALUES(?,?,?,?,?,?) ON CONFLICT(tenant,owner,resource)
             DO UPDATE SET level=excluded.level,expires=excluded.expires,source_ticket=excluded.source_ticket''',
             (tenant,owner,grant['resource'],grant['level'],grant['expires'],grant['source_ticket']))
+
+
+def lock_grant(db,tenant,owner,resource):
+    db.execute('INSERT INTO grant_locks VALUES(?,?,?) ON CONFLICT(tenant,owner,resource) DO NOTHING',(tenant,owner,resource))
+    db.execute(db.locked('SELECT * FROM grant_locks WHERE tenant=? AND owner=? AND resource=?'),(tenant,owner,resource)).fetchone()
 
 
 def offboard_access(db,p,user):
@@ -225,6 +231,12 @@ class BusinessService:
         if not note.strip(): raise ValueError("请填写处理或验收说明")
         fingerprint = digest([action, version, note, assignee])
         with self.store.db(True) as db:
+            if self.directory:
+                # Account first, then case/resource: the same order as disablement.
+                owner=db.execute('SELECT owner FROM service_cases WHERE ticket_id=? AND tenant=?',(ticket_id,p.tenant)).fetchone()
+                if owner is not None:
+                    if p.role!='support' and owner['owner']!=p.user: raise KeyError('Service case not found')
+                    db.execute(db.locked('SELECT user_id FROM desk_accounts WHERE tenant=? AND user_id=?'),(p.tenant,owner['owner'])).fetchone()
             row = self._get(db, p, ticket_id)
             previous = db.execute("SELECT fingerprint,response FROM service_actions WHERE tenant=? AND actor=? AND ticket_id=? AND request_key=?",
                                   (p.tenant, p.user, ticket_id, request_key)).fetchone()
@@ -259,10 +271,12 @@ class BusinessService:
                     if not member or not member['enabled']: raise ValueError('申请人账号已停用，不能开通授权')
                 missing = self.validate(db, p, fields)
                 if missing: raise ValueError("申请不完整")
+                lock_grant(db,p.tenant,row['owner'],fields['resource_id'])
                 db.execute("INSERT INTO grant_sources VALUES(?,?,?,?,?,?,'active',?)",
                            (ticket_id,p.tenant,row['owner'],fields['resource_id'],fields['access_level'],db.now()+fields['duration_days']*86400,db.now()))
                 refresh_grants(db,p.tenant,row['owner'])
             if action == 'revoke' and row['kind']=='access_request':
+                lock_grant(db,p.tenant,row['owner'],fields['resource_id'])
                 db.execute("UPDATE grant_sources SET state='revoked',updated=? WHERE ticket_id=? AND tenant=?",(db.now(),ticket_id,p.tenant))
                 refresh_grants(db,p.tenant,row['owner'])
             if row["kind"] == "device_repair" and action in {"accept", "cancel"}:
