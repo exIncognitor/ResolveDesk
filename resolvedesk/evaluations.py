@@ -138,7 +138,9 @@ class EvaluationService:
     def promote(self,p,run_id,document,section):
         if p.role!="support":raise PermissionError()
         with self.store.db(True) as db:
-            row = db.execute("SELECT r.message FROM runs r JOIN feedback f ON r.id=f.run_id WHERE r.id=? AND f.tenant=? AND f.rating='bad'",(run_id,p.tenant)).fetchone()
+            row = db.execute("""SELECT r.message FROM runs r JOIN feedback f ON r.id=f.run_id
+                WHERE r.id=? AND f.tenant=? AND f.owner=? AND r.tenant=f.tenant AND r.owner=f.owner
+                AND f.rating='bad'""",(run_id,p.tenant,p.user)).fetchone()
             if row is None:raise KeyError("Negative feedback not found")
             from resolvedesk.knowledge_governance import readable
             if not db.execute("SELECT 1 FROM chunks c WHERE tenant=? AND document_id=? AND section LIKE ? AND (visibility='tenant' OR owner=?) AND "+readable(db),(p.tenant,document,"%"+section+"%",p.user)).fetchone():

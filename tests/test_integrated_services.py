@@ -146,8 +146,8 @@ async def test_original_routing_and_parallel_specialists_are_used(store):
 async def test_reviewed_feedback_runs_as_persistent_scoped_regression(store):
     kb=HybridKnowledge(store,FakeEmbedding())
     publish_fixture(kb,SUPPORT,'vpn','VPN','# VPN\n\n网络排查')
-    run,_=store.create_run(USER,'VPN 网络排查','feedback-source')
-    store.feedback(USER,run['id'],'bad','召回不准')
+    run,_=store.create_run(SUPPORT,'VPN 网络排查','feedback-source')
+    store.feedback(SUPPORT,run['id'],'bad','召回不准')
     service=EvaluationService(store,kb)
     with pytest.raises(PermissionError):service.promote(USER,run['id'],'vpn','VPN')
     with pytest.raises(KeyError):service.promote(FOREIGN,run['id'],'vpn','VPN')
@@ -184,7 +184,8 @@ def test_integrated_http_surfaces_enforce_roles_and_persist_feedback_cases(store
         assert c.get('/skills',headers=uh).json()['count']==3
         assert c.post('/skills/reload',headers=uh).status_code==403
         assert c.post('/skills/reload',headers=sh).json()['count']==3
-        assert c.get('/mcp',headers=uh).json()=={'servers':[]}
+        assert c.get('/mcp',headers=uh).status_code==403
+        assert c.get('/mcp',headers=sh).json()=={'servers':[]}
         assert c.get('/memory',headers=uh).json()['episodes']==0
         assert c.get('/monitor',headers=uh).json()['agent_stats']['technical']['total']==1
         assert c.get('/monitor',headers=bh).json()['agent_stats']=={}
@@ -195,7 +196,10 @@ def test_integrated_http_surfaces_enforce_roles_and_persist_feedback_cases(store
         assert c.get('/assets/history',headers=uh).status_code==404
         assert c.post('/runs/'+run['id']+'/feedback',headers=uh,json={'rating':'bad','note':'需要回归'}).status_code==200
         assert c.post('/evaluation/candidates/'+run['id']+'/promote',headers=uh,json={'document':'vpn','section':'VPN'}).status_code==403
-        assert c.post('/evaluation/candidates/'+run['id']+'/promote',headers=sh,json={'document':'vpn','section':'VPN'}).status_code==200
+        assert c.post('/evaluation/candidates/'+run['id']+'/promote',headers=sh,json={'document':'vpn','section':'VPN'}).status_code==404
+        own,_=store.create_run(SUPPORT,'VPN 网络排查','support-feedback')
+        store.feedback(SUPPORT,own['id'],'bad','本人回归')
+        assert c.post('/evaluation/candidates/'+own['id']+'/promote',headers=sh,json={'document':'vpn','section':'VPN'}).status_code==200
         assert c.post('/eval/run',headers=uh).status_code==403
         job=c.post('/eval/run',headers=sh).json()
         assert c.get('/eval/jobs/'+job['job_id'],headers=uh).status_code==404

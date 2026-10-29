@@ -288,5 +288,5 @@ def test_http_business_outcomes_auth_sse_and_feedback(store):
         assert client.get(path, headers=headers | {"Last-Event-ID":str(last_id)}).text == ""
         assert client.post("/runs/"+run["id"]+"/feedback", json={"rating":"bad","note":"测试回归案例"}, headers=headers).status_code == 200
         assert client.get("/evaluation/candidates", headers=headers).status_code == 403
-        assert client.get("/evaluation/candidates", headers=sh).json()[0]["rating"] == "bad"
+        assert client.get("/evaluation/candidates", headers=sh).json() == []
         assert agent.client.messages.create.call_count == 1
