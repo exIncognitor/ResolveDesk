@@ -22,7 +22,7 @@ export function createInitialSettings() {
     userId: '未登录',
     conversationId: saved.conversationId || '',
     endpoints: {
-      python: saved.endpoints?.python || DEFAULT_BACKENDS.python.baseUrl,
+      python: DEFAULT_BACKENDS.python.baseUrl,
       java: saved.endpoints?.java || DEFAULT_BACKENDS.java.baseUrl
     }
   }

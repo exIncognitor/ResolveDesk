@@ -32,14 +32,13 @@
           <span>API 文档</span>
           <AppIcon name="northeast" />
         </a>
-        <button class="user-button" aria-label="当前用户与会话配置" @click="openConnection">
+        <div class="user-button" role="group" aria-label="当前登录账号">
           <span class="avatar">{{ userInitial }}</span>
           <span>
             <strong>{{ settings.userId || 'anonymous' }}</strong>
             <small>{{ isSupport ? 'IT 服务人员' : currentRole === 'user' ? '员工工作空间' : '未验证身份' }}</small>
           </span>
-          <AppIcon name="sliders" />
-        </button>
+        </div>
       </div>
     </aside>
     <main class="workspace">
@@ -62,9 +61,6 @@
           <span class="session-role">{{ isSupport ? '支持人员' : '员工' }} · {{ settings.userId }}</span>
           <button v-if="demoLoginEnabled" class="text-button identity-switch" :disabled="switchingIdentity" @click="switchIdentity(isSupport?'user':'support')">{{ switchingIdentity?'切换中…':isSupport?'切换为员工':'切换为支持人员' }}</button>
           <button class="text-button" @click="logoutSession">退出登录</button>
-          <button v-if="isSupport" class="icon-button settings-button" aria-label="连接配置" title="连接配置" @click="openConnection">
-            <AppIcon name="sliders" />
-          </button>
         </div>
       </header>
       <div v-if="toast" class="toast" role="status">
@@ -221,13 +217,14 @@
           <div class="heading-copy">
             <span class="kicker">KNOWLEDGE OPERATIONS</span>
             <h1>知识库</h1>
-            <p>管理业务知识，为每次回答提供依据。</p>
+            <p>浏览已发布文档，或输入问题检索相关知识。</p>
           </div>
           <div class="count-display">
             <strong>{{ knowledgeCount }}</strong>
             <span>知识片段</span>
           </div>
         </div>
+        <KnowledgeLibrary ref="libraryPanel" :settings="settings" />
         <div class="knowledge-layout" :class="{ 'knowledge-reader': !isSupport }">
           <section class="workspace-card search-workspace">
             <div class="card-heading">
@@ -258,8 +255,8 @@
             </div>
             <div v-else class="workspace-empty">
               <AppIcon name="book" />
-              <h3>{{ searched ? '暂未找到相关知识' : '搜索你的知识库' }}</h3>
-              <p>{{ searched ? '尝试换一个问题，或添加更多知识文档。' : '输入客户问题，查看最相关的知识片段。' }}</p>
+              <h3>{{ searched ? '暂未找到相关知识' : '尚未执行检索' }}</h3>
+              <p>{{ searched ? '尝试换一个问题；文档目录仍可在上方浏览。' : '已有文档显示在上方。输入 IT 问题，查看相关知识片段。' }}</p>
             </div>
           </section>
           <section v-if="isSupport" class="workspace-card import-workspace">
@@ -294,7 +291,7 @@
             </form>
           </section>
         </div>
-        <KnowledgeGovernance v-if="isSupport" ref="governancePanel" :settings="settings" />
+        <KnowledgeGovernance v-if="isSupport" ref="governancePanel" :settings="settings" @changed="refreshKnowledge" />
         <section v-if="isSupport" class="workspace-card skills-workspace">
           <div class="card-heading">
             <div>
@@ -442,56 +439,6 @@
       </div>
       <RequestInspector :last-response="lastResponse" :last-trace="lastTrace" :busy="busy && pendingAction === 'chat'" :monitor-data="monitorData" @refresh="loadMonitor" />
     </dialog>
-    <dialog ref="connectionDialog" class="connection-dialog" @click="closeOnBackdrop" aria-labelledby="connection-title">
-      <div class="dialog-heading">
-        <div>
-          <span class="kicker">CONNECTION</span>
-          <h2 id="connection-title">连接配置</h2>
-        </div>
-        <button class="icon-button" aria-label="关闭连接配置" @click="connectionDialog.close()">
-          <AppIcon name="close" />
-        </button>
-      </div>
-      <p class="dialog-description">配置 {{ currentBackend.label }} 服务与当前会话。</p>
-      <form @submit.prevent="saveConnection">
-        <label>
-          <span>服务地址</span>
-          <input v-model="connectionDraft.endpoint" required placeholder="同源部署填写 /" />
-          <small>使用代理路径或完整的 HTTP / HTTPS 地址。</small>
-        </label>
-        <label>
-          <span>用户身份（由访问令牌决定）</span>
-          <input v-model="connectionDraft.userId" readonly />
-        </label>
-        <label>
-          <span>会话 ID</span>
-          <input v-model="connectionDraft.conversationId" placeholder="留空以自动生成" />
-        </label>
-        <label v-if="settings.backend === 'python'">
-          <span>API 访问 Token（启用鉴权时填写，仅本页保存）</span>
-          <input v-model="connectionDraft.pythonToken" type="password" autocomplete="off" placeholder="不是模型 API Key" />
-        </label>
-        <div class="dialog-health">
-          <i :class="healthOk ? 'online' : 'offline'"></i>
-          <span>{{ healthOk ? '服务已连接' : healthLabel }}</span>
-          <button type="button" class="text-button" @click="checkHealth">
-            检查当前连接
-            <AppIcon name="refresh" />
-          </button>
-        </div>
-        <details v-if="statusText" class="connection-detail">
-          <summary>查看连接详情</summary>
-          <pre>{{ statusText }}</pre>
-        </details>
-        <div class="dialog-actions">
-          <button type="button" class="quiet-button" @click="connectionDialog.close()">取消</button>
-          <button type="submit">
-            保存配置
-            <AppIcon name="check" />
-          </button>
-        </div>
-      </form>
-    </dialog>
   </div>
 </template>
 
@@ -520,6 +467,7 @@ import AppIcon from './components/AppIcon.vue'
 import RequestInspector from './components/RequestInspector.vue'
 import ServiceDesk from './components/ServiceDesk.vue'
 import KnowledgeGovernance from './components/KnowledgeGovernance.vue'
+import KnowledgeLibrary from './components/KnowledgeLibrary.vue'
 import { citationText as formatCitation } from './lib/knowledgePublication'
 
 import { createRequestState } from './lib/requestState'
@@ -530,6 +478,7 @@ import { readSession, saveSession, clearSession } from './lib/authSession'
 
 const settings = reactive(createInitialSettings())
 const governancePanel = ref(null)
+const libraryPanel = ref(null)
 const requestState = createRequestState(settings)
 const activeView = ref('chat')
 const identity = ref(null)
@@ -550,15 +499,13 @@ const healthOk = ref(false)
 const healthLabel = ref('未检查')
 const statusText = ref('')
 const knowledgeCount = ref('-')
-const searchQuery = ref('VPN 错误 691 怎么排查')
+const searchQuery = ref('')
 const searchResults = ref([])
 const docTitle = ref('')
 const docContent = ref('')
 const messageList = ref(null)
 const composerInput = ref(null)
-const connectionDialog = ref(null)
 const inspectorDialog = ref(null)
-const connectionDraft = reactive({ endpoint: '', userId: '', conversationId: '', pythonToken: '' })
 const pendingAction = ref('')
 const searched = ref(false)
 const views = [
@@ -628,7 +575,7 @@ function clearIdentityWorkspace(){
   runList.value=[];memoryData.value={};mcpData.value={};candidates.value=[];searchResults.value=[];modelInfo.value=null;citationText.value=''
   monitorData.value={agent_stats:{},tool_stats:{},active_alerts:[],suggestions:[]};skillsData.value={count:0,skills:[],errors:[]}
   evalData.value=null;evaluationJobs.value=[];evaluationRetention.value=null;evaluationDataset.value='';savedDatasetId.value='';docTitle.value='';docContent.value='';draft.value=''
-  connectionDraft.pythonToken='';knowledgeCount.value='-';healthOk.value=false;persist()
+  searched.value=false;searchQuery.value='';knowledgeCount.value='-';healthOk.value=false;persist()
 }
 
 async function applySession(session){
@@ -664,61 +611,11 @@ function performAction(name, action, ...args) {
   return action(...args)
 }
 
-function openConnection() {
-  connectionDraft.pythonToken = settings.pythonToken
-  connectionDraft.endpoint = currentBackend.value.baseUrl || '/'
-  connectionDraft.userId = settings.userId
-  connectionDraft.conversationId = settings.conversationId
-  connectionDialog.value.showModal()
-}
-
 function closeOnBackdrop(event) {
   const dialog = event.currentTarget
   if (event.target !== dialog) return
   const rect = dialog.getBoundingClientRect()
   if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close()
-}
-
-function saveConnection() {
-  const rawEndpoint = connectionDraft.endpoint.trim()
-  const endpoint = rawEndpoint.replace(/\/+$/, '')
-  if (!rawEndpoint || !(rawEndpoint.startsWith('/') || /^https?:\/\//i.test(rawEndpoint))) {
-    showToast('请输入代理路径或 HTTP / HTTPS 服务地址')
-    return
-  }
-  const changed = connectionDraft.pythonToken !== settings.pythonToken || endpoint !== currentBackend.value.baseUrl || connectionDraft.userId.trim() !== settings.userId || connectionDraft.conversationId.trim() !== settings.conversationId
-  if (changed) {
-    activeStreamController?.abort()
-    requestState.invalidate()
-    busy.value = false
-    messages.value = []
-    activeRun.value = null
-    runList.value=[];memoryData.value={};mcpData.value={};candidates.value=[];citationText.value=''
-    lastResponse.value = null
-    lastTrace.value = null
-    searchResults.value = []
-    searched.value = false
-    evalData.value = null
-    evaluationJobs.value = []
-    evaluationRetention.value = null
-    savedDatasetId.value = ''
-    monitorData.value = { agent_stats: {}, tool_stats: {}, active_alerts: [], suggestions: [] }
-    skillsData.value = { count: 0, skills: [], errors: [] }
-    knowledgeCount.value = '—'
-    healthOk.value = false
-    healthLabel.value = '未检查'
-    statusText.value = ''
-  }
-  const identityChanged = connectionDraft.pythonToken.trim() !== settings.pythonToken || connectionDraft.userId.trim() !== settings.userId || endpoint !== currentBackend.value.baseUrl
-  settings.endpoints[settings.backend] = endpoint
-  settings.pythonToken = connectionDraft.pythonToken.trim()
-  settings.userId = connectionDraft.userId.trim()
-  settings.conversationId = identityChanged && connectionDraft.conversationId.trim() === settings.conversationId ? '' : connectionDraft.conversationId.trim()
-  persist()
-  connectionDialog.value.close()
-  refreshConsole()
-  if(activeView.value==='operations')loadOperations()
-  showToast('连接配置已保存')
 }
 
 async function copyMessage(content) {
@@ -799,6 +696,10 @@ async function loadStats() {
   } catch {
     if (request.isCurrent()) knowledgeCount.value = '-'
   }
+}
+
+async function refreshKnowledge() {
+  await Promise.allSettled([loadStats(), libraryPanel.value?.load()])
 }
 
 async function loadMonitor() {

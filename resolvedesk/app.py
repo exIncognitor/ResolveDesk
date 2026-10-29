@@ -416,6 +416,14 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None, *, identit
     async def upload_knowledge(request:Request,p=Depends(principal)):
         return await import_documents(request,p,True)
 
+    @app.get('/knowledge/documents')
+    def knowledge_documents(request:Request,limit:int=Query(default=6,ge=1,le=50),offset:int=Query(default=0,ge=0,le=1000000),p=Depends(principal)):
+        return request.app.state.knowledge.documents(p,limit,offset)
+
+    @app.get('/knowledge/documents/{document_id}')
+    def knowledge_document(document_id:str,request:Request,limit:int=Query(default=6,ge=1,le=20),offset:int=Query(default=0,ge=0,le=1000000),p=Depends(principal)):
+        return request.app.state.knowledge.document(p,document_id,limit,offset)
+
     @app.get("/knowledge/stats")
     def knowledge_stats(request:Request,p=Depends(principal)):
         return request.app.state.knowledge.stats(p)

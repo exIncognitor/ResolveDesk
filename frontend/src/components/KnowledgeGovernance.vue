@@ -38,6 +38,7 @@ import { deskRequest } from '../lib/resolvedesk'
 import { createRequestState } from '../lib/requestState'
 import { publicationLabel, reviewBody, publicationDraft, metadataBody } from '../lib/knowledgePublication'
 const props = defineProps({ settings: { type: Object, required: true } })
+const emit = defineEmits(['changed'])
 const requests = createRequestState(props.settings)
 const documents = ref([]), busy = ref(false), status = ref('')
 const notes = reactive({}), metadata = reactive({}), audits = reactive({})
@@ -62,6 +63,7 @@ async function mutate(document, suffix, method, body) {
   try {
     await deskRequest(r.settings, `/knowledge/publications/${encodeURIComponent(document.document_id)}/${suffix}`, method, body)
     if (!r.isCurrent()) return
+    emit('changed')
     await load()
   } catch (error) { if (r.isCurrent()) status.value = error.message }
   finally { if (r.isCurrent()) busy.value = false }

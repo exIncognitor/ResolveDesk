@@ -364,6 +364,29 @@ class HybridKnowledge:
         return hashlib.sha256(encode(['document-revisions-v2',self.embedding.identity if self.embedding else None,
             self.vector_index.name if self.vector_index else 'offline',rows]).encode()).hexdigest()
 
+    def documents(self,p,limit=6,offset=0):
+        """Browse current readable documents under the same SQL ACL as search."""
+        with self.store.db() as db:
+            scope=""" FROM chunks c JOIN knowledge_documents d ON d.tenant=c.tenant
+                AND d.document_id=c.document_id AND d.version=c.version
+                WHERE c.tenant=? AND (c.visibility='tenant' OR c.owner=?) AND """+readable(db)
+            total=db.execute('SELECT COUNT(DISTINCT c.document_id)'+scope,(p.tenant,p.user)).fetchone()[0]
+            rows=db.execute('SELECT c.document_id,c.version,MIN(c.title) AS title,COUNT(*) AS chunks'+scope+
+                ' GROUP BY c.document_id,c.version ORDER BY MIN(c.title),c.document_id LIMIT ? OFFSET ?',
+                (p.tenant,p.user,limit,offset))
+            return {'items':[dict(row) for row in rows],'total':total,'limit':limit,'offset':offset}
+
+    def document(self,p,document_id,limit=6,offset=0):
+        with self.store.db() as db:
+            scope=""" FROM chunks c JOIN knowledge_documents d ON d.tenant=c.tenant
+                AND d.document_id=c.document_id AND d.version=c.version
+                WHERE c.tenant=? AND c.document_id=? AND (c.visibility='tenant' OR c.owner=?) AND """+readable(db)
+            total=db.execute('SELECT COUNT(*)'+scope,(p.tenant,document_id,p.user)).fetchone()[0]
+            if not total:raise KeyError('Document unavailable')
+            rows=db.execute('SELECT c.title,c.version,c.section,c.content,c.start,c."end"'+scope+
+                ' ORDER BY c.start,c.id LIMIT ? OFFSET ?',(p.tenant,document_id,p.user,limit,offset))
+            return {'document_id':document_id,'items':[dict(row) for row in rows],'total':total,'limit':limit,'offset':offset}
+
     def stats(self,p):
         with self.store.db() as db:
             count=db.execute("SELECT COUNT(*) FROM chunks c WHERE tenant=? AND (visibility='tenant' OR owner=?) AND "+readable(db),(p.tenant,p.user)).fetchone()[0]
