@@ -515,7 +515,8 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 .prompt-grid .prompt-arrow { position: absolute; top: 12px; right: 10px; width: 10px; }
 .message-avatar { background: var(--accent-soft); color: var(--accent); border-color: #d9e5ff; }
 .message.user .message-content { background: var(--accent-soft); }
-.run-panel { background: white; border-left: 3px solid var(--accent); }
+.run-panel { background: white; border-left: 3px solid var(--accent); max-height: 260px; overflow-y: auto; }
+.draft-details summary { color: var(--muted); font-size: 12px; cursor: pointer; padding: 4px 0; }
 .run-panel-heading, .service-case-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .draft-summary { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 22px; margin: 14px 0 20px; }
 .draft-summary > div { min-width: 0; }
@@ -606,6 +607,7 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
   .rail-context, .workspace-mode { display: none; }
   .navigation-rail { background: white; }
   .view-nav button.active { background: var(--accent-soft); color: var(--accent); }
+  .view-nav button:not(.active) { color: var(--muted); }
   .mobile-brand .brand-mark { font-size: 11px; }
   .welcome { padding-top: 20px; padding-bottom: 23px; }
   .welcome-eyebrow { font-size: 9px; margin-bottom: 15px; }

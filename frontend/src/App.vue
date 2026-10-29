@@ -187,9 +187,10 @@
               </div>
               <section v-if="activeRun" class="run-panel" aria-label="任务与工单">
                 <div class="run-panel-heading"><strong>{{ activeRun.draft ? '申请信息' : '本次服务' }}</strong><span class="state-badge">{{ runStatusLabels[activeRun.status] || activeRun.status }}</span></div>
-                <dl v-if="activeRun.draft" class="draft-summary">
-                  <template v-for="(value, key) in activeRun.draft" :key="key"><div v-if="value !== '' && value != null"><dt>{{ draftLabels[key] || key }}</dt><dd>{{ key === 'workflow' ? workflowLabels[value] || value : value }}</dd></div></template>
-                </dl>
+                <details v-if="activeRun.draft" class="draft-details" :open="activeRun.status === 'awaiting_confirmation'">
+                  <summary>核对申请字段</summary>
+                  <dl class="draft-summary"><template v-for="(value, key) in activeRun.draft" :key="key"><div v-if="value !== '' && value != null"><dt>{{ draftLabels[key] || key }}</dt><dd>{{ key === 'workflow' ? workflowLabels[value] || value : draftValueLabels[key]?.[value] || value }}</dd></div></template></dl>
+                </details>
                 <button v-if="activeRun.status === 'awaiting_confirmation'" :disabled="busy" @click="confirmDraft">核对并确认创建工单</button>
                 <button v-if="['running','queued'].includes(activeRun.status)" @click="pauseRun">暂停</button>
                 <button v-if="['paused','failed'].includes(activeRun.status)" :disabled="busy" @click="resumeRun">恢复任务</button>
@@ -558,6 +559,7 @@ const prompts = [
   { label: '网络排障', icon: 'network', description: '依据知识定位连接与访问问题', text: 'VPN 错误 691 怎么排查？请引用知识库。' }
 ]
 const draftLabels = { summary: '申请摘要', description: '用途 / 问题描述', category: '服务类别', priority: '优先级', workflow: '办理流程', product: '软件产品', resource_id: '申请资源', access_level: '访问级别', duration_days: '使用天数', asset_id: '设备编号' }
+const draftValueLabels = { category: { software: '软件服务', network: '网络服务', access: '账号权限', hardware: '设备服务', other: '其他服务' }, priority: { low: '较低', normal: '普通', high: '紧急' }, access_level: { read: '只读', write: '读写' } }
 const workflowLabels = { access_request: '权限申请', device_repair: '设备维修', license_request: '软件授权', generic: '服务工单' }
 const runStatusLabels = { running: '正在处理', queued: '等待处理', awaiting_input: '待补充信息', awaiting_confirmation: '待核对确认', completed: '本轮已完成', paused: '已暂停', failed: '处理失败' }
 const currentView = computed(() => views.find(view => view.id === activeView.value))
