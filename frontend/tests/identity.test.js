@@ -76,3 +76,18 @@ test('rejected identity verification clears previously verified management acces
   assert.equal(c.healthOk.value, false)
 })
 
+test('stale model configuration cannot populate the next identity workspace', async () => {
+  const s = settings(), requests = createRequestState(s)
+  let resolve
+  const c = vm.createContext({ settings: s, requestState: requests, isSupport: { value: true },
+    modelInfo: { value: null }, deskRequest: () => new Promise(done => { resolve = done }) })
+  const start = source.indexOf('async function loadModelConfiguration(')
+  const next = source.slice(start + 1).search(/\n(?:async )?function /)
+  vm.runInContext(source.slice(start, start + 1 + next), c)
+  const task = c.loadModelConfiguration()
+  s.pythonToken = 'employee-next'; requests.invalidate(); c.isSupport.value = false
+  resolve({ model: { model: 'old-private-provider' } })
+  await task
+  assert.equal(c.modelInfo.value, null)
+})
+
