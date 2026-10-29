@@ -6,6 +6,6 @@ export function verifiedRole(settings, identity) {
 }
 
 export function visibleNavigation(views, role) {
-  return views.filter(view => view.id !== 'evaluation' || role === 'support')
+  return views.filter(view => !['evaluation','admin'].includes(view.id) || role === 'support')
 }
 

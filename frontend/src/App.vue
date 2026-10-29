@@ -1,5 +1,6 @@
 <template>
-  <div class="app-shell" :class="`view-${activeView}`">
+  <LoginPanel v-if="!currentRole" :settings="settings" :notice="authNotice" @authenticated="applySession" />
+  <div v-else class="app-shell" :class="`view-${activeView}`">
     <aside class="navigation-rail" aria-label="主导航">
       <a class="brand" href="#" @click.prevent="activeView = 'chat'" aria-label="ResolveDesk 首页">
         <span class="brand-mark">RD</span>
@@ -58,7 +59,10 @@
             {{ healthOk ? '已连接' : healthLabel === '未检查' ? '连接中' : '未连接' }}
           </span>
           <span class="workspace-mode">模拟工作空间</span>
-          <button class="icon-button settings-button" aria-label="连接配置" title="连接配置" @click="openConnection">
+          <span class="session-role">{{ isSupport ? '支持人员' : '员工' }} · {{ settings.userId }}</span>
+          <button v-if="demoLoginEnabled" class="text-button identity-switch" :disabled="switchingIdentity" @click="switchIdentity(isSupport?'user':'support')">{{ switchingIdentity?'切换中…':isSupport?'切换为员工':'切换为支持人员' }}</button>
+          <button class="text-button" @click="logoutSession">退出登录</button>
+          <button v-if="isSupport" class="icon-button settings-button" aria-label="连接配置" title="连接配置" @click="openConnection">
             <AppIcon name="sliders" />
           </button>
         </div>
@@ -318,9 +322,10 @@
         <section class="workspace-card"><h2>我的任务</h2><p v-for="run in runList" :key="run.id"><button class="text-button" @click="restoreRun(run.id)">{{ run.message.slice(0,45) }} · {{ run.status }}</button></p></section>
         <section class="workspace-card"><h2>我的长期记忆</h2><pre>{{ formatJson(memoryData) }}</pre></section>
         <section v-if="isSupport" class="workspace-card"><h2>MCP 连接</h2><pre>{{ formatJson(mcpData) }}</pre></section>
-        <section v-if="isSupport" class="workspace-card"><h2>模型接入</h2><template v-if="modelInfo?.model"><p>协议：{{ modelInfo.model.protocol }} · 模型：{{ modelInfo.model.model }}</p><p>服务地址：{{ modelInfo.model.base_url }}</p><p>{{ modelInfo.model.configured ? '服务端已配置密钥' : '服务端尚未配置密钥' }}</p><p class="muted">通过服务端 .env 配置模型、地址和密钥，修改后重启服务。密钥不返回浏览器。</p></template><p v-else-if="modelInfo?.error" class="muted">{{ modelInfo.error }}</p><p v-else class="muted">正在读取服务端配置状态。</p></section>
+        <section v-if="isSupport" class="workspace-card"><h2>模型接入</h2><template v-if="modelInfo?.model"><p>协议：{{ modelInfo.model.protocol }} · 模型：{{ modelInfo.model.model }}</p><p>服务地址：{{ modelInfo.model.base_url }}</p><p>{{ modelInfo.model.configured ? '服务端已配置密钥' : '服务端尚未配置密钥' }}</p><p class="muted">在支持后台配置和切换模型，查看持久化用量与估算费用。密钥不返回浏览器。</p><button class="quiet-button" @click="activeView='admin'">进入支持后台</button></template><p v-else-if="modelInfo?.error" class="muted">{{ modelInfo.error }}</p><p v-else class="muted">正在读取服务端配置状态。</p></section>
       </section>
       <ServiceDesk v-else-if="activeView === 'service'" :settings="settings" :role="currentRole" @compose="message => { activeView = 'chat'; usePrompt(message) }" />
+      <SupportAdmin v-else-if="activeView === 'admin' && isSupport" :key="settings.pythonToken" :settings="settings" />
       <section v-else-if="activeView === 'evaluation' && isSupport" class="page page-evaluation">
         <div class="page-heading">
           <div class="heading-copy">
@@ -519,6 +524,9 @@ import { citationText as formatCitation } from './lib/knowledgePublication'
 
 import { createRequestState } from './lib/requestState'
 import { verifiedRole, visibleNavigation } from './lib/identity'
+import LoginPanel from './components/LoginPanel.vue'
+import SupportAdmin from './components/SupportAdmin.vue'
+import { readSession, saveSession, clearSession } from './lib/authSession'
 
 const settings = reactive(createInitialSettings())
 const governancePanel = ref(null)
@@ -528,6 +536,8 @@ const identity = ref(null)
 const currentRole = computed(() => verifiedRole(settings, identity.value))
 const isSupport = computed(() => currentRole.value === 'support')
 const modelInfo = ref(null)
+const authNotice = ref(''),demoLoginEnabled = ref(false),switchingIdentity = ref(false)
+let authenticationEpoch = 0
 const messages = ref([])
 const activeRun = ref(null), streamText = ref(''), progressText = ref(''), citationText = ref('')
 const runList = ref([]), memoryData = ref({}), mcpData = ref({}), candidates = ref([])
@@ -556,7 +566,8 @@ const views = [
   { id: 'knowledge', label: '知识库', icon: 'book' },
   { id: 'operations', label: '任务与连接', icon: 'route' },
   { id: 'service', label: '业务服务台', icon: 'route' },
-  { id: 'evaluation', label: '评测', icon: 'chart' }
+  { id: 'evaluation', label: '评测', icon: 'chart' },
+  { id: 'admin', label: '支持后台', icon: 'grid' }
 ]
 const visibleViews = computed(() => visibleNavigation(views, currentRole.value))
 const prompts = [
@@ -593,15 +604,57 @@ const userInitial = computed(() => (settings.userId || 'U').slice(0, 1).toUpperC
 watch(() => settings.conversationId, persist)
 watch(activeView, value=>{if(value==='operations')loadOperations()})
 watch([activeView, isSupport], ([view, support]) => { if (view === 'operations' && support) loadModelConfiguration() })
-watch(currentRole, role => { if (role !== 'support') { modelInfo.value = null; if (activeView.value === 'evaluation') activeView.value = 'chat' } })
-onMounted(refreshConsole)
+watch(currentRole, role => { if (role !== 'support') { modelInfo.value = null; if (['evaluation','admin'].includes(activeView.value)) activeView.value = 'chat' } })
+onMounted(async()=>{
+  const saved=readSession(settings.endpoints.python,sessionStorage)
+  if(saved)settings.pythonToken=saved.token
+  window.addEventListener('resolvedesk:unauthorized',handleUnauthorized)
+  await Promise.allSettled([refreshConsole(),loadLoginOptions()])
+})
 onBeforeUnmount(() => {
   requestState.invalidate()
   activeStreamController?.abort()
   clearTimeout(toastTimer)
+  window.removeEventListener('resolvedesk:unauthorized',handleUnauthorized)
 })
 
 function persist() { saveSettings(settings) }
+
+async function loadLoginOptions(){try{const options=await deskRequest(settings,'/auth/options');demoLoginEnabled.value=!!options.demo_login_enabled}catch{demoLoginEnabled.value=false}}
+
+function clearIdentityWorkspace(){
+  requestState.invalidate();activeStreamController?.abort();identity.value=null;settings.pythonToken='';settings.userId='未登录';settings.conversationId=''
+  activeView.value='chat';busy.value=false;messages.value=[];activeRun.value=null;lastResponse.value=null;lastTrace.value=null
+  runList.value=[];memoryData.value={};mcpData.value={};candidates.value=[];searchResults.value=[];modelInfo.value=null;citationText.value=''
+  monitorData.value={agent_stats:{},tool_stats:{},active_alerts:[],suggestions:[]};skillsData.value={count:0,skills:[],errors:[]}
+  evalData.value=null;evaluationJobs.value=[];evaluationRetention.value=null;evaluationDataset.value='';savedDatasetId.value='';docTitle.value='';docContent.value='';draft.value=''
+  connectionDraft.pythonToken='';knowledgeCount.value='-';healthOk.value=false;persist()
+}
+
+async function applySession(session){
+  clearIdentityWorkspace();authNotice.value='';settings.pythonToken=session.token;settings.userId=session.principal.user
+  identity.value={...session.principal,token:session.token,endpoint:settings.endpoints.python,backend:'python'}
+  saveSession(settings.endpoints.python,session,sessionStorage);persist();await refreshConsole()
+}
+
+function handleUnauthorized(event){if(event.detail?.token===settings.pythonToken && event.detail?.endpoint===currentBackend.value.baseUrl){clearSession(settings.endpoints.python,sessionStorage);clearIdentityWorkspace();authNotice.value='登录已过期或被撤销，请重新登录。'}}
+
+async function logoutSession(){
+  authenticationEpoch+=1
+  const previous={...settings,endpoints:{...settings.endpoints}}
+  clearSession(settings.endpoints.python,sessionStorage);clearIdentityWorkspace();authNotice.value='已退出登录。'
+  try{await deskRequest(previous,'/auth/logout','POST')}catch{}
+}
+
+async function switchIdentity(role){
+  if(!demoLoginEnabled.value || switchingIdentity.value)return
+  const epoch=++authenticationEpoch,previous={...settings,endpoints:{...settings.endpoints}}
+  switchingIdentity.value=true;clearSession(settings.endpoints.python,sessionStorage);clearIdentityWorkspace()
+  deskRequest(previous,'/auth/logout','POST').catch(()=>{})
+  try{const session=await deskRequest(settings,'/auth/demo-login','POST',{role});if(epoch===authenticationEpoch)await applySession(session)}
+  catch(e){if(epoch===authenticationEpoch)authNotice.value=e.message}
+  finally{if(epoch===authenticationEpoch)switchingIdentity.value=false}
+}
 
 function performAction(name, action, ...args) {
   if (busy.value) return

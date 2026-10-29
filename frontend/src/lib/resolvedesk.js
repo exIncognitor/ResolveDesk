@@ -7,7 +7,7 @@ export async function deskRequest(settings,path,method='GET',body,signal) {
     headers:{Authorization:`Bearer ${settings.pythonToken}`,'Content-Type':'application/json'},
     body:body===undefined?undefined:JSON.stringify(body),signal:signal||AbortSignal.timeout(120000)})
   const data=await response.json()
-  if(!response.ok){const error=new Error(typeof data.detail==='string'?data.detail:JSON.stringify(data.detail));error.status=response.status;throw error}
+  if(!response.ok){if(response.status===401 && settings.pythonToken && typeof window!=='undefined')window.dispatchEvent(new CustomEvent('resolvedesk:unauthorized',{detail:{token:settings.pythonToken,endpoint:backendMeta('python',settings).baseUrl}}));const error=new Error(typeof data.detail==='string'?data.detail:JSON.stringify(data.detail));error.status=response.status;throw error}
   return data
 }
 export const requestHealth=(_,s)=>deskRequest(s,'/health')
