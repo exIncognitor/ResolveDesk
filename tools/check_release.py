@@ -29,6 +29,17 @@ def local_credentials(root):
             value = value.strip()
             if len(value) >= 16 and re.fullmatch(rb'[A-Za-z0-9_.-]+', value):
                 secrets.add(value)
+    master_key = root/'data/config-encryption.key'
+    if master_key.is_file():
+        value = master_key.read_bytes().strip()
+        if value:
+            secrets.add(value)
+    for credentials in (root/'.codex-runtime').glob('login-accounts*.json'):
+        accounts = json.loads(credentials.read_text(encoding='utf-8'))
+        for account in accounts.values():
+            password = account.get('password')
+            if isinstance(password, str) and password:
+                secrets.add(password.encode())
     return secrets
 
 
