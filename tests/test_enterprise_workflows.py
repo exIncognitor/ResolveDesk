@@ -53,11 +53,15 @@ def test_offboarding_revokes_sessions_grants_and_seats_in_one_transaction(store)
     case=service.get(USER,ticket['id'])
     for verb in ('approve','reserve','allocate'):case=action(service,SUPPORT,case,verb)
     token=identity.login('demo',USER.user,'synthetic-password-123')['token']
+    pending=submit(store,ACCESS,key='offboard-pending')
+    active,_=store.create_run(USER,'Synthetic queued request','offboard-queued')
     identity.set_enabled(SUPPORT,USER.user,False)
     assert identity.authenticate(token) is None
     assert service.context(USER)['my_grants']==[]
     assert service.get(SUPPORT,ticket['id'])['status']=='revoked'
     assert service.context(SUPPORT)['licenses'][0]['available_seats']==2
+    assert service.get(SUPPORT,pending['id'])['status']=='cancelled'
+    assert store.get_run(USER,active['id'])['status']=='paused'
     assert any(row['action']=='account.disable' for row in identity.audit_list(SUPPORT))
 
 
@@ -76,6 +80,11 @@ def test_reassign_uses_current_tenant_active_support_directory(store):
     case=action(service,SUPPORT,case,'assign',assignee=SUPPORT.user)
     case=action(service,SUPPORT,case,'start')
     assert case['assignee']==SUPPORT.user
+    identity.set_enabled(SUPPORT,USER.user,False)
+    case=action(service,SUPPORT,case,'resolve')
+    assert 'accept' in case['allowed_actions']
+    case=action(service,SUPPORT,case,'accept')
+    assert case['status']=='closed' and case['audit'][-1]['note'].startswith('代验收')
 
 
 def test_usage_missing_rates_or_usage_is_unknown_and_failed_calls_are_preserved(store):

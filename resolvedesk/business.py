@@ -66,14 +66,22 @@ def lock_grant(db,tenant,owner,resource):
 
 def offboard_access(db,p,user):
     """Disable access and release software seats atomically with account disablement."""
-    rows=db.execute("SELECT * FROM service_cases WHERE tenant=? AND owner=? AND ((kind='access_request' AND status='fulfilled') OR (kind='license_request' AND status IN ('reserved','allocated')))",(p.tenant,user)).fetchall()
+    rows=db.execute("SELECT * FROM service_cases WHERE tenant=? AND owner=? AND ((kind='access_request' AND status IN ('pending_approval','approved','fulfilled')) OR (kind='license_request' AND status IN ('pending_approval','approved','reserved','allocated')))",(p.tenant,user)).fetchall()
     db.execute("UPDATE grant_sources SET state='revoked',updated=? WHERE tenant=? AND owner=? AND state='active'",(db.now(),p.tenant,user))
     refresh_grants(db,p.tenant,user)
     db.execute("UPDATE license_allocations SET state='revoked',expires=?,updated=? WHERE tenant=? AND owner=? AND state IN ('reserved','allocated')",(db.now(),db.now(),p.tenant,user))
     for row in rows:
-        db.execute("UPDATE service_cases SET status='revoked',version=version+1,updated=? WHERE ticket_id=?",(db.now(),row['ticket_id']))
-        db.execute("UPDATE tickets SET status='revoked' WHERE id=? AND tenant=?",(row['ticket_id'],p.tenant))
-        BusinessService._audit(db,p,row['ticket_id'],'revoke',row['status'],'revoked','账号禁用：回收系统内有效授权与软件席位')
+        target='revoked' if row['status'] in {'fulfilled','reserved','allocated'} else 'cancelled'
+        db.execute("UPDATE service_cases SET status=?,version=version+1,updated=? WHERE ticket_id=?",(target,db.now(),row['ticket_id']))
+        db.execute("UPDATE tickets SET status=? WHERE id=? AND tenant=?",(target,row['ticket_id'],p.tenant))
+        BusinessService._audit(db,p,row['ticket_id'],'revoke' if target=='revoked' else 'cancel',row['status'],target,'账号禁用：回收有效资源并取消未完成资源申请')
+    active=db.execute("SELECT * FROM runs WHERE tenant=? AND owner=? AND status IN ('queued','running')",(p.tenant,user)).fetchall()
+    for run in active:
+        db.execute("UPDATE runs SET status='paused',error='account_disabled',execution_epoch=execution_epoch+1,execution_owner=NULL,lease_until=0,updated=? WHERE id=?",(db.now(),run['id']))
+        current=db.execute('SELECT * FROM runs WHERE id=?',(run['id'],)).fetchone()
+        from resolvedesk.store import Store
+        Store._event(db,run['id'],'account_disabled',{})
+        Store._receipt(db,current)
 
 
 def classify(message):
@@ -181,14 +189,20 @@ class BusinessService:
         if row is None: raise KeyError("Service case not found")
         return row
 
-    @staticmethod
-    def _public(db, p, row):
+    def _public(self, db, p, row):
         result = dict(row, fields=json.loads(row["fields"]), simulation=True)
         if row['kind']=='license_request':
             slot=db.execute('SELECT state,expires,product FROM license_allocations WHERE ticket_id=? AND tenant=?',(row['ticket_id'],p.tenant)).fetchone()
             result['license']=dict(slot) if slot else None
         result["audit"] = [dict(r) for r in db.execute("SELECT actor,action,from_status,to_status,note,created FROM service_audit WHERE ticket_id=? AND tenant=? ORDER BY seq", (row["ticket_id"], p.tenant))]
-        result["allowed_actions"] = BusinessService.allowed(p, row)
+        result["allowed_actions"] = self.actions(p, row)
+        return result
+
+    def actions(self,p,row):
+        result=self.allowed(p,row)
+        if self.directory and p.role=='support' and row['kind']=='device_repair' and row['status']=='resolved' and row['assignee']==p.user:
+            member=self.directory.member(p.tenant,row['owner'])
+            if member and not member['enabled'] and 'accept' not in result:result.append('accept')
         return result
 
     @staticmethod
@@ -246,7 +260,7 @@ class BusinessService:
             from resolvedesk.licenses import expire_case
             row=expire_case(db,row)
             if row["version"] != version: raise Conflict("流程已更新，请刷新后操作")
-            if action not in self.allowed(p, row): raise Conflict("当前状态或角色不允许此操作")
+            if action not in self.actions(p, row): raise Conflict("当前状态或角色不允许此操作")
             fields = json.loads(row["fields"])
             if self.directory and action in {'approve','provision','reserve','allocate'}:
                 owner=self.directory.member(p.tenant,row['owner'])
@@ -281,6 +295,7 @@ class BusinessService:
                 refresh_grants(db,p.tenant,row['owner'])
             if row["kind"] == "device_repair" and action in {"accept", "cancel"}:
                 db.execute("UPDATE desk_assets SET status='available' WHERE tenant=? AND id=?", (p.tenant, fields["asset_id"]))
+                if action=='accept' and row['owner']!=p.user:note='代验收（申请人账号已停用）：'+note
             db.execute("UPDATE service_cases SET status=?,version=version+1,assignee=?,updated=? WHERE ticket_id=?",
                        (target, assignee if action == "assign" else row["assignee"], time.time(), ticket_id))
             db.execute("UPDATE tickets SET status=? WHERE id=? AND tenant=?", (target, ticket_id, p.tenant))
