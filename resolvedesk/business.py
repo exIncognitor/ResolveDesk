@@ -236,6 +236,9 @@ class BusinessService:
             if row["version"] != version: raise Conflict("流程已更新，请刷新后操作")
             if action not in self.allowed(p, row): raise Conflict("当前状态或角色不允许此操作")
             fields = json.loads(row["fields"])
+            if self.directory and action in {'approve','provision','reserve','allocate'}:
+                owner=self.directory.member(p.tenant,row['owner'])
+                if not owner or not owner['enabled']: raise ValueError('申请人账号已停用，不能授予资源')
             targets = {"approve": "approved", "reject": "rejected", "provision": "fulfilled", "cancel": "cancelled",
                        "triage": "triaged", "assign": "assigned", "start": "in_progress", "resolve": "resolved", "accept": "closed", "reopen": "in_progress",
                        "reserve":"reserved","allocate":"allocated","revoke":"revoked"}

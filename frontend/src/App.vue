@@ -632,6 +632,7 @@ function clearIdentityWorkspace(){
 }
 
 async function applySession(session){
+  authenticationEpoch+=1;switchingIdentity.value=false
   clearIdentityWorkspace();authNotice.value='';settings.pythonToken=session.token;settings.userId=session.principal.user
   identity.value={...session.principal,token:session.token,endpoint:settings.endpoints.python,backend:'python'}
   saveSession(settings.endpoints.python,session,sessionStorage);persist();await refreshConsole()
@@ -641,6 +642,7 @@ function handleUnauthorized(event){if(event.detail?.token===settings.pythonToken
 
 async function logoutSession(){
   authenticationEpoch+=1
+  switchingIdentity.value=false
   const previous={...settings,endpoints:{...settings.endpoints}}
   clearSession(settings.endpoints.python,sessionStorage);clearIdentityWorkspace();authNotice.value='已退出登录。'
   try{await deskRequest(previous,'/auth/logout','POST')}catch{}

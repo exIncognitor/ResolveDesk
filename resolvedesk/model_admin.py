@@ -83,7 +83,7 @@ class ModelRegistry:
         with self.store.db() as db:
             rows = [dict(row,prices=json.loads(row['prices'])) for row in db.execute('SELECT * FROM model_profiles WHERE tenant=? ORDER BY created',(p.tenant,))]
         active = self.active(p)
-        return {'active':self.public(active),'profiles':[self.public(row) for row in rows],
+        return {'active':self.public(active),'profiles':[self.public(self._default())]+[self.public(row) for row in rows],
                 'pricing_note':'按每次调用时保存的单价和供应商返回的Token估算，不代表供应商账单或余额；未配置单价或缺少usage时不计为零。'}
 
     def save(self,p,value,profile_id=None,revision=None):
@@ -113,6 +113,11 @@ class ModelRegistry:
         with self.store.db(True) as db:
             db.execute('INSERT INTO model_tenants VALUES(?,NULL,0) ON CONFLICT(tenant) DO NOTHING',(p.tenant,))
             db.execute(db.locked('SELECT * FROM model_tenants WHERE tenant=?'),(p.tenant,)).fetchone()
+            if profile_id == 'environment':
+                if revision != 0: raise Conflict('默认配置版本不正确')
+                db.execute('UPDATE model_tenants SET active_profile=NULL,revision=revision+1 WHERE tenant=?',(p.tenant,))
+                IdentityService.audit(db,p,'model.activate','environment')
+                return self.public(self._default())
             row = db.execute(db.locked('SELECT * FROM model_profiles WHERE id=? AND tenant=?'),(profile_id,p.tenant)).fetchone()
             if not row: raise KeyError('Profile unavailable')
             if row['revision'] != revision: raise Conflict('模型配置已变更，请刷新')
@@ -122,7 +127,7 @@ class ModelRegistry:
 
     def for_actor(self,p,context):
         profile = self.active(p)
-        observer = UsageRecorder(self.store,p,context,profile)
+        observer = UsageRecorder(self.store,p,context,profile,getattr(self,'identity',None))
         return ModelClient(protocol=profile['protocol'],model=profile['model'],base_url=profile['base_url'],api_key=profile['key'],usage_observer=observer,timeout=25)
 
     def usage(self,p,days=30):
@@ -143,10 +148,14 @@ class ModelRegistry:
 
 
 class UsageRecorder:
-    def __init__(self,store,p,context,profile):
+    def __init__(self,store,p,context,profile,directory=None):
         self.store,self.p,self.context,self.profile = store,p,context,profile
+        self.directory=directory
 
     def begin(self):
+        if self.directory:
+            account=self.directory.member(self.p.tenant,self.p.user)
+            if not account or not account['enabled']: raise PermissionError('账号已停用，不能继续调用模型')
         identity = secrets.token_hex(16)
         with self.store.db(True) as db:
             db.execute('INSERT INTO model_usage VALUES(?,?,?,?,?,?,?,?,?,NULL,NULL,NULL,NULL,?,?,NULL)',
@@ -160,7 +169,7 @@ class UsageRecorder:
         valid = all(type(n) is int and n>=0 for n in (inputs,outputs,cached))
         cost = None
         prices = self.profile['prices']
-        if valid and all(prices.get(k) is not None for k in ('input','output','cached_input')):
+        if valid and not getattr(usage,'cache_creation_input_tokens',0) and all(prices.get(k) is not None for k in ('input','output','cached_input')):
             # Anthropic input excludes cache hits; OpenAI prompt_tokens includes them.
             uncached = max(0,inputs-cached) if self.profile['protocol']=='openai' else inputs
             cost = str((Decimal(uncached)*Decimal(prices['input'])+Decimal(outputs)*Decimal(prices['output'])+Decimal(cached)*Decimal(prices['cached_input']))/Decimal(1000000))

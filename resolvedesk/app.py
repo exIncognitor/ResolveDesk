@@ -121,6 +121,7 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None, *, identit
                 from resolvedesk.model_admin import ModelRegistry,ManagedModelClient
                 app.state.identity = IdentityService(app.state.store)
                 app.state.models = ModelRegistry(app.state.store)
+                app.state.models.identity = app.state.identity
                 client=ManagedModelClient(app.state.models)
                 app.state.agent = DeskAgent(app.state.store,app.state.knowledge,client,coordination=coordination)
                 app.state.agent.business.directory=app.state.identity
@@ -165,6 +166,9 @@ def create_app(store=None, knowledge=None, agent=None, accounts=None, *, identit
         app.state.accounts = accounts or {}
         app.state.embedding_error = None
         app.state.identity,app.state.models = identity,models
+        if identity is not None:
+            app.state.agent.business.directory=identity
+            if models is not None: models.identity=identity
 
     def principal(request: Request, authorization: str = Header(default="")):
         if not authorization.startswith("Bearer "):

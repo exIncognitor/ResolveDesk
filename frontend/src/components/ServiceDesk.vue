@@ -21,6 +21,7 @@
         <div class="case-facts"><span v-if="item.fields.resource_id">资源 {{ item.fields.resource_id }}</span><span v-if="item.fields.asset_id">设备 {{ item.fields.asset_id }}</span><span v-if="item.fields.product">{{ item.fields.product }}</span><span v-if="item.fields.duration_days">{{ item.fields.duration_days }} 天</span><span v-if="item.assignee">处理人 {{ item.assignee }}</span></div>
         <p v-if="item.license" class="muted">席位 {{ states[item.license.state] || item.license.state }} · 到期 {{ new Date(item.license.expires * 1000).toLocaleString() }}</p>
         <label v-if="item.allowed_actions.length">处理或验收说明<input v-model="notes[item.ticket_id]" maxlength="2000" placeholder="填写审批依据、排障结果或验收情况" /></label>
+        <label v-if="item.allowed_actions.includes('assign') && role==='support'">分派给支持人员<select v-model="assignees[item.ticket_id]"><option value="">当前操作员</option><option v-for="member in operators" :key="member.user_id" :value="member.user_id">{{ member.display_name }}（{{ member.user_id }}）</option></select></label>
         <div class="case-actions"><button v-for="action in item.allowed_actions" :key="action" :class="{ 'quiet-button': ['reject','cancel','reopen','revoke'].includes(action) }" :disabled="busy || !notes[item.ticket_id]?.trim()" @click="act(item, action)">{{ labels[action] }}</button></div>
         <details class="case-audit"><summary>审计记录 · {{ item.audit.length }} 次操作</summary><ol><li v-for="(entry, index) in item.audit" :key="index"><strong>{{ labels[entry.action] || entry.action }}</strong><span>{{ entry.actor }} · {{ states[entry.to_status] || entry.to_status }}</span><p>{{ entry.note }}</p></li></ol></details>
       </article>
@@ -59,14 +60,19 @@ const servicePrompts = [
   { label: '申请软件授权', icon: 'grid', description: '查询席位，申请与回收授权', text: '请帮我准备 IntelliJ IDEA Ultimate 模拟软件授权申请，先查询实时席位，询问我的用途和使用天数。' }
 ]
 const notes = reactive({}), attempts = new Map()
+const operators=ref([]),assignees=reactive({})
 const kinds = { access_request: '权限申请', device_repair: '设备维修', license_request: '软件授权' }
-const labels = { approve: '批准申请', reject: '驳回申请', provision: '模拟开通', cancel: '取消申请', triage: '完成分诊', assign: '分派给我', start: '开始处理', resolve: '提交处理结果', accept: '验收并关闭', reopen: '验收不通过，返工', reserve: '预占模拟席位', allocate: '分配模拟席位', revoke: '回收模拟席位' }
+const labels = { approve: '批准申请', reject: '驳回申请', provision: '模拟开通', cancel: '取消申请', triage: '完成分诊', assign: '保存派单', start: '开始处理', resolve: '提交处理结果', accept: '验收并关闭', reopen: '验收不通过，返工', reserve: '预占模拟席位', allocate: '分配模拟席位', revoke: '撤销授权 / 回收席位' }
 const states = { pending_approval: '待审批', approved: '已批准，待执行', fulfilled: '已模拟开通', rejected: '已驳回', cancelled: '已取消', submitted: '已提交，待分诊', triaged: '已分诊，待派单', assigned: '已派单', in_progress: '处理中', resolved: '处理完成，待验收', closed: '已验收关闭', reserved: '已预占，待分配', allocated: '已模拟分配', revoked: '已回收', expired: '已到期回收' }
 async function load() {
   const request = requests.begin('load')
   try {
     const [nextCatalog, nextCases, nextMonitor] = await Promise.all([deskRequest(request.settings, '/service-catalog'), deskRequest(request.settings, '/service-cases'), deskRequest(request.settings, '/monitor')])
     if (!request.isCurrent()) return
+    if(props.role==='support'){
+      try{const people=await deskRequest(request.settings,'/admin/accounts');if(request.isCurrent())operators.value=people.filter(p=>p.enabled && p.role==='support')}catch{if(request.isCurrent())operators.value=[]}
+      if(!request.isCurrent())return
+    }
     catalog.value = nextCatalog; cases.value = nextCases; monitor.value = nextMonitor; loaded.value = true
   } catch (error) { if (request.isCurrent()) status.value = error.message }
 }
@@ -76,7 +82,7 @@ async function act(item, action) {
   const payload = { action, version: item.version, note: notes[item.ticket_id].trim(), assignee: action === 'assign' ? request.settings.userId : '' }
   // /me supplies the authoritative operator identity for assignment.
   try {
-    if (action === 'assign') payload.assignee = (await deskRequest(request.settings, '/me')).user
+    if (action === 'assign') payload.assignee = assignees[item.ticket_id] || (await deskRequest(request.settings, '/me')).user
     if (!request.isCurrent()) return
     const key = JSON.stringify([item.ticket_id, payload])
     if (!attempts.has(key)) attempts.set(key, crypto.randomUUID())

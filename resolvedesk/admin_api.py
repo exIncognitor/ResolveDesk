@@ -44,7 +44,7 @@ class Profile(Input):
 
 
 class Revision(Input):
-    revision: int = Field(ge=1)
+    revision: int = Field(ge=0)
 
 
 def install_admin(app, principal):
