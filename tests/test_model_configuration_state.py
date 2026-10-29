@@ -45,6 +45,7 @@ async def test_conversation_checkpoint_rejects_a_different_model_before_calling_
     agent = DeskAgent(store, knowledge, client)
     principal = Principal('demo','learner')
     run, _ = store.create_run(principal, 'hello', 'model-checkpoint')
+    assert store.claim(principal, run['id'])
     store.checkpoint(principal, run['id'], {'model_identity': dict(model_identity(client), model='model-a'), 'sources': {}})
     try:
         with pytest.raises(ValueError, match='Model configuration changed'):
@@ -76,4 +77,13 @@ def test_support_configuration_is_redacted_and_employee_is_denied(tmp_path):
             assert api.get('/me',headers={'Authorization':'Bearer employee'}).json()['role'] == 'user'
     finally:
         store.close()
+
+
+def test_production_imports_do_not_load_the_development_budget_gate():
+    import subprocess
+    import sys
+    result = subprocess.run([sys.executable, '-X', 'utf8', '-B', '-c',
+        "import sys; import resolvedesk.app; assert 'core.paid_api' not in sys.modules; assert 'core.financial_ledger' not in sys.modules"],
+        cwd=Path(__file__).resolve().parents[1], capture_output=True, text=True, timeout=20)
+    assert result.returncode == 0, result.stderr
 
