@@ -53,7 +53,7 @@ ResolveDesk 是一个面向企业内部 IT 服务的 Python Agent 应用。员�
 - **有界多角色协作**：三路意图融合连接账号权限、技术诊断、软件授权和升级角色；普通及复合请求保留实际执行节点、工具结果和回退轨迹。
 - **可恢复执行与事务状态**：逐轮幂等回执、模型/工具检查点、Redis 租约与 SQL 执行代次；业务动作结合版本检查、资源行锁和事务审计。
 - **会话记忆与标准工具接入**：可追溯摘要、画像和私有情景召回；按角色加载 Skills，支持 MCP stdio / Streamable HTTP，并提供鉴权的知识 MCP 服务。
-- **评测、监控和费用控制**：隔离的业务质量评测、逐轮断言与辅助 Judge；持久指标、Prometheus 和告警 outbox；各进程共用模型费用账本。
+- **配置化模型接入与质量观测**：支持 Anthropic Messages 和 OpenAI Chat Completions 兼容协议；隔离质量评测、逐轮断言与辅助 Judge、持久指标、Prometheus 和告警 outbox。
 
 <a id="architecture"></a>
 ## 系统架构
@@ -72,13 +72,13 @@ flowchart TD
     BUSINESS --> PG[("PostgreSQL · 事务与审计")]
     REDIS[("Redis · 租约与共享缓存")] -.-> API
     PG -. "索引 outbox" .-> KB
-    LOOP -.-> OBS["Trace · 评测 · Prometheus · 费用账本"]
+    LOOP -.-> OBS["Trace · 评测 · Prometheus · Token 用量"]
 ```
 
 | 层 | 技术与责任 |
 | --- | --- |
 | 界面与接口 | Vue 3 / Vite、FastAPI、SSE、HTTP CLI |
-| 模型与检索 | DeepSeek Flash、本地固定版本 multilingual-e5-small、BM25、RRF |
+| 模型与检索 | 可配置的兼容模型服务（默认 DeepSeek Flash）、本地固定版本 multilingual-e5-small、BM25、RRF |
 | 状态与数据 | PostgreSQL、SQLAlchemy 连接与事务、Redis、Chroma |
 | 工具与运行 | MCP Python SDK、角色工具白名单、Skills、执行检查点 |
 | 交付与观测 | Docker Compose、Nginx、Prometheus、GitHub Actions |
@@ -105,7 +105,7 @@ python -m pip install -r requirements-dev.txt
 - 接口文档：`/docs`；依赖检查：`/ready`
 - CLI：`python -m resolvedesk.cli --base-url http://127.0.0.1:8080 --actor learner`
 
-模型仅使用 `deepseek-flash`，Key 保存在本地 `.env`；页面使用本应用访问令牌。收费调用默认关闭，首次启用前配置自己的账号与预算。
+模型、服务地址、协议和密钥从服务端 `.env` 配置，默认使用 `deepseek-flash`；目前真实端到端结果来自 Flash。正常运行不设置累计费用限额，页面使用本应用访问令牌，密钥留在服务端。配置示例及员工/服务人员的功能区分见 [模型配置与身份工作区](docs/MODEL_CONFIGURATION.md)。
 
 ## 验证与质量
 
@@ -124,7 +124,7 @@ npm --prefix frontend test
 npm --prefix frontend run build
 ```
 
-默认测试使用受控模型，不产生真实 API 费用。真实服务集成和付费评测分开启用，说明见 [开发与验证](docs/DEVELOPMENT.md)。
+自动化回归默认使用模拟模型响应，禁止访问真实模型供应商网络。真实数据库等服务的集成测试与真实模型端到端评测分别运行，说明见 [开发与验证](docs/DEVELOPMENT.md)。
 
 ## 文档导航
 

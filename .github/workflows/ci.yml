@@ -22,8 +22,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       PYTHONUTF8: '1'
-      RESOLVEDESK_PAID_API_ENABLED: 'false'
-      RESOLVEDESK_OWN_KEY_CONFIRMED: 'false'
       INTENT_EMBEDDING_PROVIDER: local
       MCP_EXTERNAL_ENABLED: 'false'
     steps:
@@ -64,8 +62,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONUTF8: '1'
-      RESOLVEDESK_PAID_API_ENABLED: 'false'
-      RESOLVEDESK_OWN_KEY_CONFIRMED: 'false'
       RESOLVEDESK_SERVICE_TESTS: 'true'
       INTENT_EMBEDDING_PROVIDER: local
     steps:

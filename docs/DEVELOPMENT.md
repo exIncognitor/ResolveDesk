@@ -15,7 +15,7 @@ npm --prefix frontend test
 npm --prefix frontend run build
 ```
 
-默认测试关闭付费调用，使用受控模型、HTTP或工具结果。前端回归覆盖连接身份、逐轮重试、SSE解析、历史恢复和界面竞态；界面改动还需要核对桌面与移动布局。
+默认测试注入模拟模型、HTTP或工具结果，并阻止未模拟的模型网络请求。前端回归覆盖服务端身份与角色导航、逐轮重试、SSE解析、历史恢复和界面竞态；界面改动还需要核对桌面与移动布局。
 
 ## 真实服务集成
 
@@ -36,7 +36,7 @@ RESOLVEDESK_SERVICE_TESTS=true python -X utf8 -B -m pytest tests -q
 
 ## 真实模型与质量评测
 
-质量评测从当前 `/eval/run` 进入，经隔离服务走同一应用链，支持自定义数据和逐轮断言。生成、Judge、后台记忆都经过同一费用网关。详情见 [评测实现](EVALUATION_MIGRATION_2026-10-27.md) 与 [收尾验收](FINAL_POLISH_ACCEPTANCE.md)。
+质量评测从当前 `/eval/run` 进入，经隔离服务走同一应用链，支持自定义数据和逐轮断言。生成、Judge和后台记忆使用配置的模型客户端；新运行不设置累计费用额度。模型身份进入冻结快照与报告，切换配置后新建评测任务。详情见 [模型配置](MODEL_CONFIGURATION.md)，历史Flash结果见 [收尾验收](FINAL_POLISH_ACCEPTANCE.md)。
 
 保持输入、知识发布状态、模型和评分配置可追踪；比较引擎版本时保留原始低分和失败。目录中早期脚本与当前评测口径的关系见文档中心。
 

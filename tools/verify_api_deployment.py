@@ -31,7 +31,7 @@ def main():
         def request(method,path,body=None,actor='support'):
             result=http.request(method,path,json=body,headers={'Authorization':'Bearer '+access[actor]['token']})
             result.raise_for_status();return result.json()
-        before=request('GET','/system')['budget']
+        before=request('GET','/system')['model']
         schema=http.get('/openapi.json').json()
         checks['all_seventeen_have_current_replacement']=len(MAPPING)==17 and all(method.lower() in schema['paths'].get(path,{}) for method,path in (entry.split(' ',1) for entry in MAPPING.values()))
         checks['server_multipart_schema']=schema['paths']['/knowledge/upload']['post']['requestBody']['content']['multipart/form-data']['schema']['properties']['file']['format']=='binary'
@@ -53,8 +53,8 @@ def main():
             input=':integrations\n:search VPN\n:recent\n:quit\n',capture_output=True,text=True,encoding='utf-8',timeout=30)
         checks['real_interactive_cli_reads_current_server']=cli.returncode==0 and '"mcp"' in cli.stdout and '"document_id"' in cli.stdout and '网络或等待中断' not in cli.stdout and '接口返回' not in cli.stdout
         checks['cli_does_not_print_api_token']=all(actor['token'] not in cli.stdout+cli.stderr for actor in access.values())
-        after=request('GET','/system')['budget'];checks['no_paid_calls']=before==after
-    report={'base':base,'mapping':MAPPING,'checks':checks,'passed':sum(checks.values()),'total':len(checks),'paid_budget_changed':False,'budget':after,'cli_exit_code':cli.returncode}
+        after=request('GET','/system')['model'];checks['model_configuration_unchanged']=before==after
+    report={'base':base,'mapping':MAPPING,'checks':checks,'passed':sum(checks.values()),'total':len(checks),'model_configuration_changed':False,'model_configuration':after,'cli_exit_code':cli.returncode}
     path=ROOT/'reports'/('api-cli-deployment-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')+'.json')
     with path.open('x',encoding='utf-8') as dest:json.dump(report,dest,ensure_ascii=False,indent=2)
     print(json.dumps({'passed':report['passed'],'total':report['total'],'evidence':str(path.relative_to(ROOT))}))

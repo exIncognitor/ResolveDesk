@@ -74,7 +74,8 @@ class ReliableRetrieval:
             raise ValueError('Invalid retrieval request')
         started=time.monotonic()
         version=await asyncio.to_thread(self.knowledge.scope_version,p)
-        context={'tenant':p.tenant,'user_id':p.user,'role':p.role,'executing_role':role or p.role,'knowledge_version':version}
+        from core.model_client import model_identity
+        context={'tenant':p.tenant,'user_id':p.user,'role':p.role,'executing_role':role or p.role,'knowledge_version':version,'model_identity':model_identity(self.client)}
         scope=['rag-v5-publications',self.optimization_policy,context,query,top_k,mode,optimize]
         key=encode(scope)
         cached=None;layer=None

@@ -23,7 +23,7 @@ async def main():
         async def request(method,path,body=None,actor='support'):
             result=await api.request(method,path,json=body,headers={'Authorization':'Bearer '+access[actor]['token']})
             result.raise_for_status();return result.json()
-        before=(await request('GET','/system'))['budget']
+        before=(await request('GET','/system'))['model']
         checks['unauthenticated_rejected']=(await api.post('/mcp/knowledge/',json={})).status_code==401
         status=await request('GET','/integrations/mcp')
         checks['protocol_is_distinct_from_status']=status['protocol_endpoint']=='/mcp/knowledge/' and all(s['state']=='connected' for s in status['servers'])
@@ -52,9 +52,9 @@ async def main():
         checks['real_stdio_debug']=debug['structured']['category']=='network' and debug['mcp_server']=='support'
         intent=await request('GET','/integrations/intent-embedding')
         checks['current_intent_provider_status']=intent['configured'] and bool(intent['provider']) and intent['state'] in {'cold','ready','cooldown'}
-        after=(await request('GET','/system'))['budget']
-        checks['no_paid_calls']=before==after
-        report={'base':base,'checks':checks,'details':details,'passed':sum(checks.values()),'total':len(checks),'budget':after,'paid_budget_changed':False}
+        after=(await request('GET','/system'))['model']
+        checks['model_configuration_unchanged']=before==after
+        report={'base':base,'checks':checks,'details':details,'passed':sum(checks.values()),'total':len(checks),'model_configuration':after,'model_configuration_changed':False}
     path=ROOT/'reports'/('mcp-deployment-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')+'.json')
     with path.open('x',encoding='utf-8') as dest:json.dump(report,dest,ensure_ascii=False,indent=2)
     print(json.dumps({'passed':report['passed'],'total':report['total'],'evidence':str(path.relative_to(ROOT))}),flush=True)

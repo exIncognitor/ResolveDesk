@@ -38,17 +38,15 @@ docker compose --env-file .codex-runtime/services.env -f compose.services.yaml u
 python -X utf8 -B tools/check_services.py
 python -X utf8 -B tools/setup_local.py --download-model
 python -X utf8 -B tools/setup_services.py
-python -X utf8 -B tools/migrate_financial_ledger.py --initialize-new
 ```
 
 - 第一次 `setup_services` 生成本机服务配置和随机密码。
 - `setup_local` 创建 learner/support 两个模拟身份、导入模拟业务和知识，并下载固定版本的 multilingual-e5-small ONNX 模型。初次下载需要联网。
 - 第二次 `setup_services` 为 Prometheus 准备专用本地访问文件。
-- `--initialize-new` 初始化这份新安装的费用权威记录。它会拒绝覆盖已有账本；已经初始化的目录不重复执行。
 
 默认端口：PostgreSQL 15432、Redis 16379、Chroma 18001。出现端口占用时，在本机 `.codex-runtime/services.env` 中调整对应端口后核对配置。
 
-## 3. 配置自己的 Flash 账号
+## 3. 配置模型、服务地址和密钥
 
 新目录可从 `.env.example` 创建本地 `.env`：
 
@@ -58,16 +56,16 @@ Copy-Item .env.example .env
 
 Linux/macOS 使用 `cp .env.example .env`。已有 `.env` 时编辑原文件。
 
-填入自己的 `ANTHROPIC_API_KEY`，模型固定为 `deepseek-flash`，使用官方 DeepSeek Anthropic 兼容接口。准备开始真实模型调用时设置：
+在服务端填写模型协议、模型名称、服务地址和自己的密钥。默认示例使用 DeepSeek Flash 的 Anthropic 兼容接口：
 
 ```dotenv
-RESOLVEDESK_OWN_KEY_CONFIRMED=true
-RESOLVEDESK_PAID_API_ENABLED=true
-RESOLVEDESK_TOTAL_BUDGET_CNY=20
-RESOLVEDESK_RESERVE_CNY=2
+RESOLVEDESK_MODEL_PROTOCOL=anthropic
+RESOLVEDESK_MODEL=deepseek-flash
+RESOLVEDESK_MODEL_BASE_URL=https://api.deepseek.com/anthropic
+RESOLVEDESK_MODEL_API_KEY=<填写自己的密钥>
 ```
 
-所有接入网关的主循环、专业节点、记忆和评测共用累计账本。预算为这份安装的本地控制，不替代服务商账户侧限额。关闭收费调用可运行免费回归；真实对话需要启用自己的账号。
+主循环、专业节点、记忆和评测使用配置的模型。正常运行不需要费用账本，也没有累计额度开关。OpenAI Chat Completions 兼容服务、旧变量兼容与切换规则见 [模型配置](MODEL_CONFIGURATION.md)。
 
 ## 4. 构建界面并启动
 
@@ -111,7 +109,7 @@ docker compose --env-file .codex-runtime/services.env -f compose.yaml up -d --bu
 | 页面打开但无法读取本人记录 | “连接配置”中的地址、访问令牌及 `/me` |
 | 技术路径正常但依赖失败 | `/ready`、`tools/check_services.py`、Compose 服务状态 |
 | 知识导入后搜不到 | 当前文档是否审核发布、生效时间、ACL、索引状态 |
-| 模型调用被阻止 | 本人Key确认、收费开关、共享费用剩余、输入/输出上限 |
+| 模型调用失败 | 服务端协议、模型名、地址、密钥以及服务商返回的错误 |
 | 改了Vue源码页面没变 | 重新构建frontend并刷新页面；容器入口还需重新构建应用镜像 |
 | API使用说明 | `/docs` 和 [API与CLI指南](API_CLI_MIGRATION_2026-10-27.md) |
 

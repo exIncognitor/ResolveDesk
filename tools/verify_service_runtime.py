@@ -1,4 +1,4 @@
-"""No paid model calls: verify real live service, retrieval corpus and budget stability."""
+"""No paid model calls: verify real live service, retrieval corpus and model configuration consistency."""
 from datetime import datetime,timezone
 import json
 from pathlib import Path
@@ -22,7 +22,7 @@ def main():
         readiness=request("GET","/ready")
         assert readiness["ready"] and set(readiness["components"])=={"database","redis","chroma"}
         assert health["database"]=="postgresql" and health["coordination"]=="redis" and health["vector_backend"]=="chroma"
-        before=request("GET","/system")["budget"]
+        before=request("GET","/system")["model"]
         corpus=json.loads((ROOT/"evaluation/retrieval_cases.json").read_text(encoding="utf-8"))
         results=[]
         for mode in ("bm25","vector","hybrid"):
@@ -30,13 +30,13 @@ def main():
                 result=request("POST","/knowledge/search",{"query":case["query"],"mode":mode,"top_k":5},"learner")
                 passed=any(item["document_id"]==case["document"] and case["section"] in item["section"] for item in result["items"])
                 results.append({"id":case["id"],"mode":mode,"passed":passed,"degraded":result["degraded"]})
-        after=request("GET","/system")["budget"]
-        assert before==after,"Verification must not spend model budget"
-        report={"health":health,"readiness":readiness,"base":base,"paid_budget_changed":False,"budget":after,"retrieval":results,
+        after=request("GET","/system")["model"]
+        assert before==after,"Model configuration changed during verification"
+        report={"health":health,"readiness":readiness,"base":base,"model_configuration_changed":False,"model_configuration":after,"retrieval":results,
             "passed":sum(r["passed"] and not r["degraded"] for r in results),"total":len(results),"mcp":request("GET","/mcp")}
         path=ROOT/"reports"/("services-runtime-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")+".json")
         with path.open("x",encoding="utf-8") as dest: json.dump(report,dest,ensure_ascii=False,indent=2)
-        print(json.dumps({"passed":report["passed"],"total":report["total"],"paid_budget_changed":False,"evidence":str(path.relative_to(ROOT))},ensure_ascii=False))
+        print(json.dumps({"passed":report["passed"],"total":report["total"],"model_configuration_changed":False,"evidence":str(path.relative_to(ROOT))},ensure_ascii=False))
         if report["passed"]!=report["total"]: raise SystemExit(1)
 
 

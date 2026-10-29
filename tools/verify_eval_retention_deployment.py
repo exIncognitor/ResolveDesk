@@ -24,7 +24,7 @@ def main():
         def request(method,path,body=None):
             result=http.request(method,path,json=body,headers={'Authorization':'Bearer '+access['support']['token']})
             result.raise_for_status();return result.json()
-        before=request('GET','/system')['budget'];report['budget_before']=before
+        before=request('GET','/system')['model'];report['model_configuration_before']=before
         try:
             actor=request('GET','/me')
             job=request('POST','/eval/run',{'kind':'retrieval'})
@@ -49,8 +49,8 @@ def main():
                 checks.append({'name':action+'_rejects_expired','passed':response.status_code==409})
         except Exception as exc:
             report['error']=type(exc).__name__;checks.append({'name':'probe_execution','passed':False})
-        finally:report['budget_after']=request('GET','/system')['budget']
-    checks.append({'name':'no_paid_calls','passed':before==report['budget_after']})
+        finally:report['model_configuration_after']=request('GET','/system')['model']
+    checks.append({'name':'model_configuration_unchanged','passed':before==report['model_configuration_after']})
     report['passed']=sum(c['passed'] for c in checks);report['total']=len(checks)
     path=ROOT/'reports'/('eval-retention-deployment-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')+'.json')
     with path.open('x',encoding='utf-8') as dest:json.dump(report,dest,ensure_ascii=False,indent=2)

@@ -318,7 +318,7 @@
         <section class="workspace-card"><h2>我的任务</h2><p v-for="run in runList" :key="run.id"><button class="text-button" @click="restoreRun(run.id)">{{ run.message.slice(0,45) }} · {{ run.status }}</button></p></section>
         <section class="workspace-card"><h2>我的长期记忆</h2><pre>{{ formatJson(memoryData) }}</pre></section>
         <section v-if="isSupport" class="workspace-card"><h2>MCP 连接</h2><pre>{{ formatJson(mcpData) }}</pre></section>
-        <section v-if="isSupport" class="workspace-card"><h2>模型接入</h2><template v-if="modelInfo?.model"><p>协议：{{ modelInfo.model.protocol }} · 模型：{{ modelInfo.model.model }}</p><p>服务地址：{{ modelInfo.model.base_url }}</p><p>{{ modelInfo.model.configured ? '服务端已配置密钥' : '服务端尚未配置密钥' }}</p><p class="muted">通过服务端 .env 配置模型、地址和密钥，修改后重启服务。密钥不返回浏览器。</p></template><p v-else class="muted">正在读取服务端配置状态。</p></section>
+        <section v-if="isSupport" class="workspace-card"><h2>模型接入</h2><template v-if="modelInfo?.model"><p>协议：{{ modelInfo.model.protocol }} · 模型：{{ modelInfo.model.model }}</p><p>服务地址：{{ modelInfo.model.base_url }}</p><p>{{ modelInfo.model.configured ? '服务端已配置密钥' : '服务端尚未配置密钥' }}</p><p class="muted">通过服务端 .env 配置模型、地址和密钥，修改后重启服务。密钥不返回浏览器。</p></template><p v-else-if="modelInfo?.error" class="muted">{{ modelInfo.error }}</p><p v-else class="muted">正在读取服务端配置状态。</p></section>
       </section>
       <ServiceDesk v-else-if="activeView === 'service'" :settings="settings" :role="currentRole" @compose="message => { activeView = 'chat'; usePrompt(message) }" />
       <section v-else-if="activeView === 'evaluation' && isSupport" class="page page-evaluation">

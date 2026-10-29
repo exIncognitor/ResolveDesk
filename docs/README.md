@@ -17,6 +17,7 @@
 | 主题 | 入口 |
 | --- | --- |
 | 知识审核与发布 | [知识发布操作](KNOWLEDGE_PUBLICATION.md) |
+| 模型服务配置与身份入口 | [模型配置与身份工作区](MODEL_CONFIGURATION.md) |
 | 检索、缓存与依赖故障 | [检索可靠性](RETRIEVAL_RELIABILITY_2026-10-27.md) |
 | 字段、路由与专业节点 | [IT执行引擎](IT_ENGINE_MIGRATION_2026-10-27.md) |
 | MCP客户端与知识服务端 | [MCP接入](MCP_MIGRATION_2026-10-27.md) |

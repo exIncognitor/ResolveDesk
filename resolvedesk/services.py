@@ -49,8 +49,9 @@ class DeskServices:
             for agent in pool:
                 agent._client = client
                 agent._model = model
-                agent.profile = __import__('dataclasses').replace(agent.profile,model=model)
+                agent.profile = replace(agent.profile,model=model)
         self.manager = MCPToolManager(api_key='',model=model)
+        self.manager._client = client
         self.manager.observer=self._observe_tool
         from resolvedesk.reliable_retrieval import ReliableRetrieval
         self.retrieval=ReliableRetrieval(knowledge,client,self.manager,coordination)

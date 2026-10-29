@@ -41,7 +41,7 @@ def suite_identity(manifest,limit,use_judge,embedding_identity,judge):
     # The execution revision stays separate, and still fences same-job resume.
     return digest({'schema':'active-quality-v3-publications','dataset':manifest['dataset'],'limit':limit,'judge':use_judge,'threshold':.75,
         'judge_prompt':judge.JUDGE_PROMPT,'few_shot':judge.few_shot_prompt(),'backend':manifest['backend'],
-        'embedding':embedding_identity,'evidence':manifest['evidence'],'publications':publication_identity(manifest.get('publications',[]))})
+        'embedding':embedding_identity,'model_identity':manifest.get('model_identity'),'evidence':manifest['evidence'],'publications':publication_identity(manifest.get('publications',[]))})
 
 
 class QualityRunner:
@@ -49,7 +49,7 @@ class QualityRunner:
         self.store,self.knowledge,self.client_factory,self.coordination=store,knowledge,client_factory,coordination
 
     async def run(self,p,job_id,limit,use_judge,progress,*,dataset=None,state=None):
-        from core.model_client import ModelClient
+        from core.model_client import ModelClient, model_identity
         from resolvedesk.agent import DeskAgent
         from resolvedesk.app import create_app
         from resolvedesk.services import DeskServices
@@ -60,12 +60,15 @@ class QualityRunner:
         state=state or EvalState(self.store,job_id)
         state.embedding_identity=getattr(self.knowledge.embedding,'identity',None)
         state.redis_namespace=getattr(self.coordination,'namespace',None)
-        manifest=freeze(state,p,dataset,ROOT)
+        client=self.client_factory() if self.client_factory else ModelClient(timeout=25)
+        state.model_identity=model_identity(client)
+        try:manifest=freeze(state,p,dataset,ROOT)
+        except BaseException:
+            await client.close()
+            raise
         dataset=manifest['dataset']
         cases=dataset['dialog_cases'][:limit]
         sandbox=EvalSandbox(self.store,self.knowledge,manifest,ROOT/'.codex-runtime'/('quality-'+manifest['identity']),self.coordination)
-        import os
-        client=self.client_factory() if self.client_factory else ModelClient(timeout=25)
         agent=None
         details,intents=[],[]
         try:
@@ -221,7 +224,7 @@ class QualityRunner:
         errors=len(details)-len(valid)+intent['evaluation_errors']
         requested_total=len(intents)+len(details)
         return {'kind':'active_service_quality','suite_id':suite_id,'corpus_version':dataset['version'],'provenance':dataset['provenance'],
-            'suite_schema':'active-quality-v3-publications','engine_identity':digest(manifest['engine_sources']),
+            'suite_schema':'active-quality-v3-publications','engine_identity':digest(manifest['engine_sources']),'model_configuration':manifest.get('model_identity'),
             'status':'partial' if errors else 'complete','total':len(details),'valid_total':len(valid),'passed':passed,
             'pass_rate':passed/len(details) if details else 0,'valid_pass_rate':passed/len(valid) if valid else 0,
             'evaluation_errors':errors,'deterministic_passed':sum(d.get('deterministic_passed',False) for d in details),'avg_scores':average,'intent':intent,'results':details,'regressions':[],

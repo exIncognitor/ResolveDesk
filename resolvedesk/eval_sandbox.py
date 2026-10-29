@@ -12,6 +12,7 @@ def freeze(state,p,dataset,root):
         for path in sorted((root/folder).glob('*.py')):
             sources[str(path.relative_to(root))]=hashlib.sha256(path.read_bytes()).hexdigest()
     embedding=getattr(state,'embedding_identity',None)
+    model=getattr(state,'model_identity',None)
     def prepare(db):
         rows=[dict(r) for r in db.execute("SELECT * FROM chunks c WHERE tenant=? AND visibility='tenant' AND "+readable(db)+" ORDER BY id",(p.tenant,))]
         documents={r['document_id'] for r in rows}
@@ -23,9 +24,9 @@ def freeze(state,p,dataset,root):
                 'resources':{'schema':identity,'knowledge_collection':collection,
                     'memory_collection':'resolvedesk-memory-'+hashlib.sha256(collection.encode()).hexdigest()[:16],
                     'redis_namespace':namespace+':'+identity if namespace else None},
-                'engine_sources':sources,'embedding_identity':embedding,'source_identity':digest([str(state.store.database.engine.url),state.store.database.schema])}
+                'engine_sources':sources,'embedding_identity':embedding,'model_identity':model,'source_identity':digest([str(state.store.database.engine.url),state.store.database.schema])}
     frozen=state.snapshot(prepare)
-    if frozen['engine_sources']!=sources or frozen.get('embedding_identity')!=embedding:raise ValueError('Engine or embedding changed; use a new evaluation job')
+    if frozen['engine_sources']!=sources or frozen.get('embedding_identity')!=embedding or frozen.get('model_identity')!=model:raise ValueError('Engine, embedding or model configuration changed; use a new evaluation job')
     return frozen
 
 

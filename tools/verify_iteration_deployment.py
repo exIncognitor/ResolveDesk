@@ -43,7 +43,7 @@ def main():
         with httpx.Client(base_url=base,headers={'Authorization':'Bearer '+access['support']['token']},trust_env=False,timeout=30) as http:
             def get(path):
                 response=http.get(path);response.raise_for_status();return response.json()
-            before=get('/system')['budget'];schema=get('/openapi.json');catalog=get('/service-catalog')
+            before=get('/system')['model'];schema=get('/openapi.json');catalog=get('/service-catalog')
             checks[prefix+'ready']=get('/ready')['ready']
             if args.iteration in {'3','4'}:
                 publications=get('/knowledge/publications')
@@ -67,8 +67,8 @@ def main():
             checks[prefix+'current_js_css']=bool(assets) and all(http.get(name).content==(ROOT/'frontend/dist'/name.lstrip('/')).read_bytes() for name in assets)
             cli=subprocess.run([sys.executable,'-X','utf8','-B','-m','resolvedesk.cli','--base-url',base,'--actor','learner'],input=':help\n:search VPN\n:quit\n',capture_output=True,text=True,encoding='utf-8',cwd=ROOT,timeout=45)
             checks[prefix+'real_cli_read']=cli.returncode==0 and 'ResolveDesk CLI' in cli.stdout and 'C-' in cli.stdout
-            after=get('/system')['budget'];checks[prefix+'free_checks_do_not_spend']=before==after
-            report['entrances'].append({'base':base,'budget':after,'inventory':seat})
+            after=get('/system')['model'];checks[prefix+'model_configuration_stable']=before==after
+            report['entrances'].append({'base':base,'model_configuration':after,'inventory':seat})
     prometheus=httpx.get('http://127.0.0.1:19090/api/v1/query',params={'query':'up{job="resolvedesk"}'},trust_env=False,timeout=15).json()
     checks['prometheus_up']=prometheus['status']=='success' and bool(prometheus['data']['result']) and all(item['value'][1]=='1' for item in prometheus['data']['result'])
     report.update(passed=sum(checks.values()),total=len(checks))

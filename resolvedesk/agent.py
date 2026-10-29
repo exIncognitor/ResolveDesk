@@ -10,7 +10,7 @@ import uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from core.model_client import ModelClient
+from core.model_client import ModelClient, model_identity
 from resolvedesk.store import Conflict, encode
 
 
@@ -187,6 +187,8 @@ class DeskAgent:
             return seconds
         history = self.store.history(p, run_id)
         state = self.store.load_checkpoint(p,run_id)
+        if state and state.get('model_identity') is not None and state['model_identity'] != model_identity(self.client):
+            raise ValueError('Model configuration changed; use a new conversation instead of replaying this checkpoint')
         if state:
             # Revalidate every source against current permissions and document version.
             try:
@@ -384,7 +386,7 @@ class DeskAgent:
         latest=history[-1]["content"][:4000]
         messages=[{"role":m["role"],"content":m["content"][:800]} for m in history[-6:-1]]+[{"role":"user","content":latest}]
         state=state or {"messages":messages,
-            "sources":{},"role":"general","step":0,"pending":None,"phase":"bootstrap","context":{"current_draft":run["draft"],"business":self.business.context(p)}}
+            "sources":{},"role":"general","step":0,"pending":None,"phase":"bootstrap","model_identity":model_identity(self.client),"context":{"current_draft":run["draft"],"business":self.business.context(p)}}
         context=state["context"]
         if self.services:
             if "routing" not in context:

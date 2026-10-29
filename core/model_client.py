@@ -14,6 +14,13 @@ def _sdk_client(**kwargs):
     return AsyncAnthropic(**kwargs)
 
 
+def model_identity(client):
+    if isinstance(client, ModelClient):
+        return {key: getattr(client, key) for key in ('protocol', 'model', 'base_url')}
+    value = getattr(client, 'model', None)
+    return {'protocol': 'injected', 'model': value if isinstance(value, str) else type(client).__name__}
+
+
 def _value(value):
     if hasattr(value, "model_dump"):
         return value.model_dump(exclude_none=True)
