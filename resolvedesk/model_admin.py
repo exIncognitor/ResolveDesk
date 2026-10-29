@@ -43,6 +43,7 @@ def validated_profile(value):
 class ModelRegistry:
     def __init__(self, store, key=None):
         self.store = store
+        IdentityService(store)  # The registry's audit sink must exist in isolated stores too.
         if key is None:
             value = os.getenv('RESOLVEDESK_CONFIG_ENCRYPTION_KEY')
             key = value.encode() if value else (Path(__file__).resolve().parents[1]/'data/config-encryption.key').read_bytes().strip()

@@ -79,13 +79,13 @@ def test_reassign_uses_current_tenant_active_support_directory(store):
 
 
 def test_usage_missing_rates_or_usage_is_unknown_and_failed_calls_are_preserved(store):
+    models=ModelRegistry(store,Fernet.generate_key())
     profile={'id':'synthetic','revision':1,'model':'test','protocol':'openai','currency':'USD',
              'prices':{'input':None,'output':None,'cached_input':None}}
     observer=UsageRecorder(store,USER,'run:synthetic',profile)
     first=observer.begin();observer.finish(first,SimpleNamespace(usage=SimpleNamespace(input_tokens=2,output_tokens=1)))
     second=observer.begin();observer.finish(second)
     pending=observer.begin()
-    models=ModelRegistry(store,Fernet.generate_key())
     report=models.usage(SUPPORT)
     assert report['unknown_cost_calls']==3 and report['estimated_costs']=={}
     assert {row['status'] for row in report['recent']}=={'started','completed','failed'}
